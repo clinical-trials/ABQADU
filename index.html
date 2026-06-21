@@ -1,0 +1,2202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABQ ADU — Albuquerque's Tiny Home Builders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* ─── Tokens ─────────────────────────────────────────────── */
+:root {
+  --ink:      #1C1917;
+  --ink-60:   #57534E;
+  --ink-30:   #A8A29E;
+  --stucco:   #F0EBE1;
+  --stucco-d: #E2D9CA;
+  --copper:   #C4954A;
+  --copper-l: #E8C98A;
+  --sage:     #3D5247;
+  --sage-l:   #C6D4CC;
+  --terra:    #B85C38;
+  --white:    #FFFFFF;
+  --blueprint:#0F1F3D;
+  --bp-line:  rgba(120,170,230,.25);
+
+  --font-display: 'Barlow Condensed', 'Impact', sans-serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+
+  --max: 1240px;
+  --gutter: clamp(20px, 4vw, 60px);
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--stucco);
+  color: var(--ink);
+  line-height: 1.6;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+/* ─── Nav ─────────────────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px var(--gutter);
+  background: rgba(28,25,23,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: .02em;
+  color: var(--stucco);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo-mark {
+  width: 32px; height: 32px;
+  border: 2px solid var(--copper);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-logo-mark svg { width: 18px; height: 18px; }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink-30);
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.nav-links a:hover { color: var(--copper); }
+
+.nav-cta {
+  background: var(--terra);
+  color: var(--white) !important;
+  padding: 8px 20px !important;
+  border-radius: 3px;
+  font-weight: 600 !important;
+  letter-spacing: .03em !important;
+  transition: background .2s !important;
+}
+
+.nav-cta:hover { background: #a04d2e !important; }
+
+/* ─── Hero ────────────────────────────────────────────────── */
+.hero {
+  background: var(--blueprint);
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 120px var(--gutter) 80px;
+  gap: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 2; }
+
+.hero-eyebrow {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--copper);
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 7vw, 96px);
+  font-weight: 900;
+  line-height: .92;
+  letter-spacing: -.01em;
+  color: var(--stucco);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+h1 em {
+  font-style: normal;
+  color: var(--copper);
+}
+
+.hero-desc {
+  font-size: 17px;
+  color: rgba(240,235,225,.65);
+  max-width: 420px;
+  line-height: 1.7;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-primary {
+  background: var(--terra);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: background .2s, transform .15s;
+  display: inline-block;
+}
+
+.btn-primary:hover { background: #a04d2e; transform: translateY(-1px); }
+
+.btn-outline {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border: 1px solid rgba(240,235,225,.25);
+  border-radius: 3px;
+  text-decoration: none;
+  transition: border-color .2s, color .2s;
+  display: inline-block;
+}
+
+.btn-outline:hover { border-color: var(--copper); color: var(--copper); }
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--stucco);
+  line-height: 1;
+}
+
+.stat-num span { color: var(--copper); }
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-30);
+  margin-top: 4px;
+}
+
+/* ─── Hero photo (right column) ─────────────────────────── */
+.hero-photo {
+  position: relative;
+  z-index: 2;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 560px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.5);
+}
+
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.hero-photo-caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(15,31,61,.85));
+  padding: 32px 20px 16px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(240,235,225,.7);
+}
+
+/* ─── Section base ────────────────────────────────────────── */
+section {
+  padding: 96px var(--gutter);
+  max-width: 100%;
+}
+
+.section-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+}
+
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--copper);
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 900;
+  line-height: .95;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+h2 em { font-style: normal; color: var(--terra); }
+
+.section-sub {
+  font-size: 17px;
+  color: var(--ink-60);
+  font-weight: 300;
+  max-width: 520px;
+  line-height: 1.7;
+}
+
+/* ─── Models ──────────────────────────────────────────────── */
+.models-section { background: var(--stucco); }
+
+.models-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 56px;
+  gap: 24px;
+}
+
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.models-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  max-width: calc((100% - 20px * 2) * 2/3 + 20px);
+  margin: 20px auto 0;
+  gap: 20px;
+}
+
+.model-card {
+  background: var(--white);
+  border: 1px solid var(--stucco-d);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: box-shadow .25s, transform .2s;
+  cursor: pointer;
+}
+
+.model-card:hover {
+  box-shadow: 0 12px 40px rgba(28,25,23,.12);
+  transform: translateY(-3px);
+}
+
+/* Photo-based floor plan area */
+.model-floor-plan {
+  background: #F0EBE1;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--stucco-d);
+  overflow: hidden;
+  position: relative;
+}
+
+.model-floor-plan img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform .4s ease;
+}
+
+.model-card:hover .model-floor-plan img {
+  transform: scale(1.03);
+}
+
+.model-floor-plan svg {
+  width: 100%;
+  max-height: 180px;
+}
+
+/* View sheet overlay button */
+.sheet-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(28,25,23,.75);
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background .2s;
+  text-decoration: none;
+}
+
+.sheet-btn:hover { background: var(--terra); }
+
+.model-info { padding: 20px 22px 22px; }
+
+.model-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.model-specs {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 10px;
+}
+
+.model-desc {
+  font-size: 13.5px;
+  color: var(--ink-60);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.model-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .05em;
+  padding: 3px 9px;
+  border-radius: 2px;
+  background: var(--stucco);
+  color: var(--ink-60);
+}
+
+.tag.green { background: #E8F0EC; color: var(--sage); }
+
+.model-price {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--terra);
+  margin-top: 14px;
+}
+
+.model-price small {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-30);
+  letter-spacing: 0;
+}
+
+/* ─── City Plans section ─────────────────────────────────── */
+.city-plans-section {
+  background: var(--blueprint);
+  color: var(--stucco);
+  padding: 80px var(--gutter);
+  position: relative;
+  overflow: hidden;
+}
+
+.city-plans-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.city-plans-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.city-plans-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: end;
+  margin-bottom: 56px;
+}
+
+.city-plans-header h2 { color: var(--stucco); margin-bottom: 0; }
+.city-plans-header h2 em { color: var(--copper-l); }
+
+.city-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(196,149,74,.15);
+  border: 1px solid rgba(196,149,74,.35);
+  border-radius: 3px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--copper-l);
+  margin-bottom: 16px;
+}
+
+.city-desc {
+  font-size: 15px;
+  color: rgba(240,235,225,.65);
+  font-weight: 300;
+  line-height: 1.75;
+  margin-bottom: 28px;
+}
+
+.city-note {
+  font-size: 13px;
+  color: rgba(240,235,225,.4);
+  line-height: 1.6;
+  border-left: 2px solid rgba(196,149,74,.3);
+  padding-left: 14px;
+}
+
+.city-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.city-plan-group {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.city-plan-group:hover {
+  border-color: rgba(196,149,74,.4);
+}
+
+.plan-group-header {
+  background: rgba(196,149,74,.12);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 16px 18px;
+}
+
+.plan-group-sqft {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--copper-l);
+  line-height: 1;
+  letter-spacing: -.01em;
+}
+
+.plan-group-sqft span {
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(240,235,225,.5);
+  letter-spacing: 0;
+}
+
+.plan-group-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(240,235,225,.45);
+  margin-top: 3px;
+}
+
+.plan-group-variants {
+  padding: 12px 0;
+}
+
+.plan-variant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  gap: 10px;
+}
+
+.plan-variant:last-child { border-bottom: none; }
+
+.plan-variant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.plan-variant-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(240,235,225,.85);
+  white-space: nowrap;
+}
+
+.plan-variant-type {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(240,235,225,.35);
+}
+
+.plan-variant-type.is-3dp {
+  color: var(--copper);
+}
+
+.plan-dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(196,149,74,.15);
+  border: 1px solid rgba(196,149,74,.3);
+  border-radius: 2px;
+  padding: 5px 10px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--copper-l);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .2s, border-color .2s;
+}
+
+.plan-dl-btn:hover {
+  background: rgba(196,149,74,.3);
+  border-color: var(--copper-l);
+}
+
+.plan-dl-btn svg { flex-shrink: 0; }
+
+.city-plans-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  flex-wrap: wrap;
+}
+
+.city-source {
+  font-size: 12px;
+  color: rgba(240,235,225,.35);
+}
+
+.city-source a {
+  color: rgba(196,149,74,.7);
+  text-decoration: none;
+}
+
+.city-source a:hover { color: var(--copper-l); }
+
+@media (max-width: 900px) {
+  .city-plans-grid { grid-template-columns: repeat(2, 1fr); }
+  .city-plans-header { grid-template-columns: 1fr; gap: 24px; }
+}
+
+@media (max-width: 560px) {
+  .city-plans-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── Photo lightbox (simple) ────────────────────────────── */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,31,61,.95);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.lightbox.open { display: flex; }
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 2px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.6);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px; right: 24px;
+  color: rgba(240,235,225,.7);
+  font-size: 32px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 300;
+  line-height: 1;
+  border: none;
+  background: none;
+  transition: color .2s;
+}
+
+.lightbox-close:hover { color: var(--copper); }
+
+/* ─── Photo gallery strip ─────────────────────────────────── */
+.gallery-strip {
+  background: var(--ink);
+  padding: 0;
+  overflow: hidden;
+}
+
+.gallery-strip-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 380px;
+}
+
+.gallery-item {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .5s ease, filter .3s;
+  filter: brightness(.85);
+}
+
+.gallery-item:hover img {
+  transform: scale(1.04);
+  filter: brightness(.95);
+}
+
+.gallery-item-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(28,25,23,.82));
+  padding: 40px 20px 18px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: rgba(240,235,225,.9);
+}
+
+.gallery-item-sub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-top: 2px;
+}
+
+/* ─── How it works ────────────────────────────────────────── */
+.process-section {
+  background: var(--ink);
+  color: var(--stucco);
+}
+
+.process-section h2 { color: var(--stucco); }
+.process-section .section-eyebrow { color: var(--copper); }
+.process-section .section-eyebrow::before { background: var(--copper); }
+
+.process-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: end;
+  margin-bottom: 64px;
+}
+
+.process-sub { color: rgba(240,235,225,.6); font-weight: 300; font-size: 17px; line-height: 1.7; }
+
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.process-step {
+  background: rgba(28,25,23,.6);
+  padding: 36px 28px;
+  position: relative;
+}
+
+.process-step.has-photo {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.process-step.has-photo .step-photo {
+  height: 160px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.process-step.has-photo .step-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(.75);
+}
+
+.process-step.has-photo .step-content {
+  padding: 24px 28px 28px;
+  flex: 1;
+}
+
+.process-step:hover { background: rgba(196,149,74,.08); }
+.process-step.has-photo:hover { background: transparent; }
+.process-step.has-photo:hover .step-content { background: rgba(196,149,74,.08); }
+
+.step-num {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 900;
+  color: rgba(196,149,74,.2);
+  line-height: 1;
+  margin-bottom: 16px;
+  letter-spacing: -.02em;
+}
+
+.step-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--stucco);
+  margin-bottom: 10px;
+}
+
+.step-desc {
+  font-size: 13px;
+  color: rgba(240,235,225,.5);
+  line-height: 1.65;
+}
+
+.step-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(196,149,74,.15);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.step-icon svg { color: var(--copper); }
+
+/* ─── Contractor Marketplace ──────────────────────────────── */
+.contractor-section {
+  background: var(--sage);
+  color: var(--stucco);
+}
+
+.contractor-section h2 { color: var(--white); }
+.contractor-section .section-eyebrow { color: var(--copper-l); }
+.contractor-section .section-eyebrow::before { background: var(--copper-l); }
+
+.contractor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.contractor-desc {
+  font-size: 16px;
+  color: rgba(240,235,225,.75);
+  font-weight: 300;
+  line-height: 1.75;
+  margin-bottom: 32px;
+}
+
+.contractor-benefits {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.contractor-benefits li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 15px;
+  color: rgba(240,235,225,.85);
+}
+
+.benefit-dot {
+  width: 20px;
+  height: 20px;
+  background: rgba(196,149,74,.25);
+  border: 1px solid var(--copper-l);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.benefit-dot::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--copper-l);
+  border-radius: 50%;
+}
+
+.tier-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tier-card {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 4px;
+  padding: 22px 24px;
+  transition: background .2s, border-color .2s;
+}
+
+.tier-card:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(196,149,74,.4);
+}
+
+.tier-card.featured {
+  background: rgba(196,149,74,.12);
+  border-color: var(--copper);
+}
+
+.tier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.tier-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--white);
+}
+
+.tier-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--blueprint);
+  background: var(--copper-l);
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.tier-price {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--copper-l);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.tier-price small {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(240,235,225,.5);
+}
+
+.tier-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tier-features li {
+  font-size: 13px;
+  color: rgba(240,235,225,.65);
+}
+
+.tier-features li::before { content: '— '; color: var(--copper); }
+
+/* ─── ADU Qualifier ───────────────────────────────────────── */
+.qualifier-section { background: var(--stucco-d); }
+
+.qualifier-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.qualifier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 36px;
+}
+
+.qualifier-item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.q-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--white);
+  border: 1px solid var(--stucco);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.q-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+
+.q-desc { font-size: 13.5px; color: var(--ink-60); line-height: 1.55; }
+
+.qualifier-cta-box {
+  background: var(--white);
+  border: 1px solid var(--stucco);
+  border-radius: 4px;
+  padding: 40px;
+}
+
+.qualifier-cta-box h3 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  color: var(--ink);
+  margin-bottom: 14px;
+  line-height: 1;
+}
+
+.qualifier-cta-box p {
+  font-size: 14px;
+  color: var(--ink-60);
+  line-height: 1.65;
+  margin-bottom: 28px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  border: 1px solid var(--stucco-d);
+  border-radius: 3px;
+  padding: 11px 14px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--stucco);
+  outline: none;
+  transition: border-color .2s;
+  width: 100%;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus { border-color: var(--copper); }
+
+.form-full { grid-column: 1 / -1; }
+
+.form-submit {
+  width: 100%;
+  background: var(--terra);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 3px;
+  padding: 16px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background .2s;
+}
+
+.form-submit:hover { background: #a04d2e; }
+
+/* ─── Testimonials ────────────────────────────────────────── */
+.testimonials-section { background: var(--stucco); }
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 52px;
+}
+
+.testimonial-card {
+  background: var(--white);
+  border: 1px solid var(--stucco-d);
+  border-radius: 4px;
+  padding: 30px;
+}
+
+.testimonial-quote {
+  font-size: 32px;
+  color: var(--copper);
+  font-family: Georgia, serif;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+.testimonial-text {
+  font-size: 14.5px;
+  color: var(--ink-60);
+  line-height: 1.7;
+  font-style: italic;
+  font-weight: 300;
+  margin-bottom: 22px;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.author-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--stucco-d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--copper);
+}
+
+.author-name { font-weight: 600; font-size: 14px; }
+.author-location { font-size: 12px; color: var(--ink-30); }
+.stars { color: var(--copper); font-size: 12px; margin-bottom: 4px; letter-spacing: 1px; }
+
+/* ─── Final CTA ───────────────────────────────────────────── */
+.final-cta {
+  background: var(--terra);
+  padding: 100px var(--gutter);
+  text-align: center;
+}
+
+.final-cta h2 { color: var(--white); font-size: clamp(48px, 6vw, 80px); margin-bottom: 20px; }
+
+.cta-sub {
+  font-size: 18px;
+  color: rgba(255,255,255,.75);
+  font-weight: 300;
+  max-width: 520px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+
+.btn-white {
+  background: var(--white);
+  color: var(--terra);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 16px 40px;
+  border-radius: 3px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background .2s;
+}
+
+.btn-white:hover { background: var(--stucco); }
+
+/* ─── Footer ──────────────────────────────────────────────── */
+footer {
+  background: var(--ink);
+  color: rgba(240,235,225,.5);
+  padding: 60px var(--gutter);
+}
+
+.footer-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+
+.footer-brand p {
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 280px;
+  margin-top: 14px;
+}
+
+.footer-logo-text {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--stucco);
+  letter-spacing: .02em;
+}
+
+.footer-col h4 {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--stucco);
+  margin-bottom: 16px;
+}
+
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.footer-col ul a { color: rgba(240,235,225,.45); text-decoration: none; font-size: 13px; transition: color .2s; }
+.footer-col ul a:hover { color: var(--copper); }
+
+.footer-bottom {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.footer-lic { color: rgba(240,235,225,.3); }
+
+/* ─── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-photo { display: none; }
+  .process-grid { grid-template-columns: repeat(2, 1fr); }
+  .models-grid { grid-template-columns: repeat(2, 1fr); }
+  .models-row-2 { max-width: 100%; }
+  .qualifier-layout { grid-template-columns: 1fr; }
+  .contractor-layout { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+  .gallery-strip-inner { grid-template-columns: 1fr; height: auto; }
+  .gallery-item { height: 280px; }
+}
+
+@media (max-width: 680px) {
+  .nav-links { display: none; }
+  .hero { padding: 100px 20px 60px; }
+  .process-grid { grid-template-columns: 1fr; }
+  .models-grid { grid-template-columns: 1fr; }
+  .models-row-2 { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .process-header { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .hero-stats { flex-wrap: wrap; gap: 24px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-item img, .model-card { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Lightbox ──────────────────────────────────────────── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<!-- ── Nav ──────────────────────────────────────────────── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" color="#C4954A">
+        <rect x="3" y="3" width="14" height="14" rx="1"/>
+        <line x1="3" y1="9" x2="17" y2="9"/>
+        <line x1="10" y1="3" x2="10" y2="9"/>
+      </svg>
+    </div>
+    ABQ ADU
+  </a>
+  <ul class="nav-links">
+    <li><a href="#models">Models</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#contractors">For Contractors</a></li>
+    <li><a href="#quote">Contact</a></li>
+    <li><a href="#quote" class="nav-cta">Free Quote</a></li>
+  </ul>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────── -->
+<section class="hero" style="max-width:100%;padding-top:120px;">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Albuquerque, New Mexico</div>
+    <h1>We Build<br><em>ADUs</em><br>That Last.</h1>
+    <p class="hero-desc">
+      Five proven models. Local licensed contractors.
+      From design to final inspection — we manage every phase
+      of your accessory dwelling unit, from a compact studio
+      to a full two-bedroom guesthouse.
+    </p>
+    <div class="hero-actions">
+      <a href="#models" class="btn-primary">Explore Our Models</a>
+      <a href="#quote" class="btn-outline">Get a Free Quote</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">5<span>+</span></div>
+        <div class="stat-label">Proven Designs</div>
+      </div>
+      <div>
+        <div class="stat-num">47</div>
+        <div class="stat-label">ADUs Built</div>
+      </div>
+      <div>
+        <div class="stat-num">NM<span>–</span>GC</div>
+        <div class="stat-label">Licensed & Bonded</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real ADU exterior photo -->
+  <div class="hero-photo">
+    <img src="images/adu-exterior.png" alt="Modern ABQ ADU at dusk — dark wood siding, sliding glass door, warm interior light">
+    <div class="hero-photo-caption">Completed ABQ ADU — Albuquerque, NM</div>
+  </div>
+</section>
+
+<!-- ── Models ────────────────────────────────────────────── -->
+<section class="models-section" id="models">
+  <div class="section-inner">
+    <div class="models-header">
+      <div>
+        <div class="section-eyebrow">Our Portfolio</div>
+        <h2>Five Proven<br><em>Designs</em></h2>
+      </div>
+      <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Pick your starting point — we handle everything from there.</p>
+    </div>
+
+    <!-- Row 1: 3 cards -->
+    <div class="models-grid">
+
+      <!-- Hyder Hut HH1 -->
+      <div class="model-card">
+        <div class="model-floor-plan">
+          <img src="images/hyder-hut-sheet.png" alt="HH1 Hyder Hut floor plan sheet — 12.5x35 440sf 1 Bedroom" onclick="openLightbox(this.src)">
+          <a class="sheet-btn" onclick="openLightbox('images/hyder-hut-sheet.png'); return false;">View Full Sheet</a>
+        </div>
+        <div class="model-info">
+          <div class="model-name">Hyder Hut</div>
+          <div class="model-specs">HH1 · 1 Bed · 1 Bath · 440 sq ft · 12.5×35</div>
+          <div class="model-desc">Open-plan living with a queen bedroom, walk-in closet, full bath, and laundry. Low-profile standing seam metal roof with a covered deck — our most popular compact model.</div>
+          <div class="model-tags">
+            <span class="tag">1 Bedroom</span>
+            <span class="tag">Covered deck</span>
+            <span class="tag green">ADU-ready</span>
+          </div>
+          <div class="model-price">from $168,000 <small>turnkey est.</small></div>
+        </div>
+      </div>
+
+      <!-- Hyder Hut 2BR -->
+      <div class="model-card">
+        <div class="model-floor-plan">
+          <img src="images/hyder-hut-2br-sheet.png" alt="Hyder Hut 2 Bedroom floor plan sheet — 12.5x44 550sf" onclick="openLightbox(this.src)">
+          <a class="sheet-btn" onclick="openLightbox('images/hyder-hut-2br-sheet.png'); return false;">View Full Sheet</a>
+        </div>
+        <div class="model-info">
+          <div class="model-name">Hyder Hut 2BR</div>
+          <div class="model-specs">2 Bed · 1 Bath · 550 sq ft · 12.5×44</div>
+          <div class="model-desc">Two queen bedrooms flanking a central great room with kitchen and dining. Laundry under water heater included. Popular for in-law suites and long-term rental income.</div>
+          <div class="model-tags">
+            <span class="tag">2 Bedroom</span>
+            <span class="tag">Great room</span>
+            <span class="tag green">ADU-ready</span>
+          </div>
+          <div class="model-price">from $198,000 <small>turnkey est.</small></div>
+        </div>
+      </div>
+
+      <!-- Altura 24x24 -->
+      <div class="model-card">
+        <div class="model-floor-plan">
+          <img src="images/altura-sheet.png" alt="Altura 24x24 floor plan sheet — 576sf 1 Bedroom" onclick="openLightbox(this.src)">
+          <a class="sheet-btn" onclick="openLightbox('images/altura-sheet.png'); return false;">View Full Sheet</a>
+        </div>
+        <div class="model-info">
+          <div class="model-name">Altura 24×24</div>
+          <div class="model-specs">1 Bed · 1 Bath · 576 sq ft · Walk-in Closet</div>
+          <div class="model-desc">The square classic. Walk-in closet, patio, full kitchen with island, and an open living area with clerestory windows. Our highest resale-value model.</div>
+          <div class="model-tags">
+            <span class="tag">Walk-in closet</span>
+            <span class="tag">Patio</span>
+            <span class="tag green">ADU-ready</span>
+          </div>
+          <!-- Altura box marketing image as secondary button -->
+          <div style="margin-top:12px;margin-bottom:4px;">
+            <a onclick="openLightbox('images/altura-box.png'); return false;" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--copper);font-weight:500;cursor:pointer;text-decoration:none;">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="10" height="10" rx="1"/><line x1="4" y1="1" x2="4" y2="11"/></svg>
+              View Package
+            </a>
+          </div>
+          <div class="model-price">from $212,000 <small>turnkey est.</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: 2 cards centered -->
+    <div class="models-row-2">
+
+      <!-- Casita Portal -->
+      <div class="model-card">
+        <div class="model-floor-plan" style="padding:20px;">
+          <svg viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="10,10 160,10 160,80 210,80 210,150 10,150" stroke="#C4954A" stroke-width="2" fill="none"/>
+            <line x1="10" y1="80" x2="160" y2="80" stroke="#C4954A" stroke-width="1.5"/>
+            <line x1="110" y1="80" x2="110" y2="150" stroke="#C4954A" stroke-width="1.5"/>
+            <rect x="160" y="80" width="50" height="70" stroke="#C4954A" stroke-width="1" stroke-dasharray="5 3" fill="rgba(196,149,74,.05)"/>
+            <text x="185" y="118" fill="rgba(196,149,74,.6)" font-size="7" font-family="monospace" text-anchor="middle">PORTAL</text>
+            <rect x="15" y="88" width="25" height="38" rx="2" stroke="#C4954A" stroke-width="1"/>
+            <ellipse cx="27" cy="107" rx="8" ry="13" stroke="#C4954A" stroke-width=".8"/>
+            <line x1="40" y1="10" x2="100" y2="10" stroke="#C4954A" stroke-width="3"/>
+            <line x1="10" y1="25" x2="10" y2="65" stroke="#C4954A" stroke-width="3"/>
+            <line x1="210" y1="90" x2="210" y2="130" stroke="#C4954A" stroke-width="3"/>
+            <text x="80" y="50" fill="#57534E" font-size="8" font-family="monospace" text-anchor="middle">BEDROOM</text>
+            <text x="60" y="120" fill="#57534E" font-size="8" font-family="monospace" text-anchor="middle">LIVING / KITCHEN</text>
+          </svg>
+        </div>
+        <div class="model-info">
+          <div class="model-name">Casita Portal</div>
+          <div class="model-specs">1 Bed · 1 Bath · 640 sq ft · L-Shaped</div>
+          <div class="model-desc">An L-shaped plan with a covered outdoor portal — the traditional New Mexico living extension. Shaded south-facing outdoor living built for our high-desert climate.</div>
+          <div class="model-tags">
+            <span class="tag">L-shaped</span>
+            <span class="tag">Covered portal</span>
+            <span class="tag green">SW vernacular</span>
+          </div>
+          <div class="model-price">from $228,000 <small>turnkey est.</small></div>
+        </div>
+      </div>
+
+      <!-- Tierra Grande -->
+      <div class="model-card">
+        <div class="model-floor-plan" style="padding:20px;">
+          <svg viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="200" height="140" stroke="#C4954A" stroke-width="2"/>
+            <line x1="10" y1="80" x2="210" y2="80" stroke="#C4954A" stroke-width="1.5"/>
+            <line x1="120" y1="80" x2="120" y2="150" stroke="#C4954A" stroke-width="1.5"/>
+            <line x1="120" y1="10" x2="120" y2="80" stroke="#C4954A" stroke-width="1.5"/>
+            <rect x="127" y="88" width="24" height="36" rx="2" stroke="#C4954A" stroke-width="1"/>
+            <ellipse cx="139" cy="106" rx="8" ry="13" stroke="#C4954A" stroke-width=".8"/>
+            <rect x="130" y="15" width="20" height="28" rx="2" stroke="#C4954A" stroke-width="1"/>
+            <rect x="18" y="90" width="60" height="16" stroke="#C4954A" stroke-width="1"/>
+            <line x1="30" y1="10" x2="80" y2="10" stroke="#C4954A" stroke-width="3"/>
+            <line x1="140" y1="10" x2="190" y2="10" stroke="#C4954A" stroke-width="3"/>
+            <line x1="10" y1="20" x2="10" y2="65" stroke="#C4954A" stroke-width="3"/>
+            <line x1="210" y1="90" x2="210" y2="140" stroke="#C4954A" stroke-width="3"/>
+            <text x="62" y="50" fill="#57534E" font-size="7.5" font-family="monospace" text-anchor="middle">BED 1</text>
+            <text x="167" y="50" fill="#57534E" font-size="7.5" font-family="monospace" text-anchor="middle">BED 2</text>
+            <text x="62" y="120" fill="#57534E" font-size="7.5" font-family="monospace" text-anchor="middle">LIVING / KITCHEN</text>
+            <text x="170" y="125" fill="#57534E" font-size="7.5" font-family="monospace" text-anchor="middle">FLEX / OFFICE</text>
+          </svg>
+        </div>
+        <div class="model-info">
+          <div class="model-name">Tierra Grande</div>
+          <div class="model-specs">2 Bed · 2 Bath · 780 sq ft · Flex Room</div>
+          <div class="model-desc">Our largest model. Two ensuite bedrooms with a flex office or bonus room and a full kitchen. Designed for long-term rental or multi-generational living.</div>
+          <div class="model-tags">
+            <span class="tag">2BR / 2BA</span>
+            <span class="tag">Flex room</span>
+            <span class="tag green">Income property</span>
+          </div>
+          <div class="model-price">from $295,000 <small>turnkey est.</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Photo Gallery Strip ───────────────────────────────── -->
+<div class="gallery-strip">
+  <div class="gallery-strip-inner">
+    <div class="gallery-item" onclick="openLightbox('images/adu-exterior.png')">
+      <img src="images/adu-exterior.png" alt="Modern ADU exterior at dusk">
+      <div class="gallery-item-label">
+        Exterior Finish
+        <div class="gallery-item-sub">Dark board-and-batten siding · LED roofline</div>
+      </div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox('images/adu-interior.png')">
+      <img src="images/adu-interior.png" alt="Modern ADU interior with Murphy bed and kitchen">
+      <div class="gallery-item-label">
+        Interior Design
+        <div class="gallery-item-sub">Murphy bed · custom cabinetry · concrete floors</div>
+      </div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox('images/adu-construction.png')">
+      <img src="images/adu-construction.png" alt="Foundation and utility installation in progress">
+      <div class="gallery-item-label">
+        Built to Code
+        <div class="gallery-item-sub">Pier foundation · mechanical rough-in · inspected</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── City of ABQ Free Plans ─────────────────────────────── -->
+<div class="city-plans-section" id="city-plans">
+  <div class="city-plans-inner">
+    <div class="city-plans-header">
+      <div>
+        <div class="city-badge">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><line x1="6" y1="3" x2="6" y2="6.5"/><line x1="6" y1="8" x2="6" y2="8.5"/></svg>
+          City of Albuquerque Resource
+        </div>
+        <h2>Free City<br><em>Construction Plans.</em><br>We Build Them.</h2>
+      </div>
+      <div>
+        <p class="city-desc">
+          The City of Albuquerque offers 12 pre-approved ADU construction plans — donated by local architects and already meeting current building codes. Download any plan free of charge and bring it straight to us for a build quote.
+        </p>
+        <p class="city-desc" style="margin-bottom:0;">
+          Plans come in four sizes (450–750 sq ft), three roof styles, and include a 3D-printable concrete option for each size. Flat-roof plans are permit-ready as-is; pitched-roof plans require a stamped structural drawing from a licensed NM engineer — which we can arrange.
+        </p>
+        <p class="city-note" style="margin-top:16px;">
+          Already have one of these plans? Skip the design phase entirely — bring us your city plan and we'll provide a fixed-price construction bid within 48 hours.
+        </p>
+      </div>
+    </div>
+
+    <!-- 4 size groups × 3 variants each -->
+    <div class="city-plans-grid">
+
+      <!-- 450 sq ft -->
+      <div class="city-plan-group">
+        <div class="plan-group-header">
+          <div class="plan-group-sqft">450<span> sq ft</span></div>
+          <div class="plan-group-label">Compact Studio — 3 variants</div>
+        </div>
+        <div class="plan-group-variants">
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">Flat Roof</div>
+              <div class="plan-variant-type">Traditional build</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/ADU%20Model%20450_FLAT.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">Pitched Roof</div>
+              <div class="plan-variant-type">Requires NM engineer stamp</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/ADU%20Model%20450_PITCHED.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">3D Concrete Print</div>
+              <div class="plan-variant-type is-3dp">3D-printable · innovative</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/3DCP%20ADU%20450.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 550 sq ft -->
+      <div class="city-plan-group">
+        <div class="plan-group-header">
+          <div class="plan-group-sqft">550<span> sq ft</span></div>
+          <div class="plan-group-label">1-Bedroom — 3 variants</div>
+        </div>
+        <div class="plan-group-variants">
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">Flat Roof</div>
+              <div class="plan-variant-type">Traditional build</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/ADU%20Model%20550_FLAT.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">Pitched Roof</div>
+              <div class="plan-variant-type">Requires NM engineer stamp</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/ADU%20Model%20550_PITCHED.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">3D Concrete Print</div>
+              <div class="plan-variant-type is-3dp">3D-printable · innovative</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/3DCP%20ADU%20550.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 650 sq ft -->
+      <div class="city-plan-group">
+        <div class="plan-group-header">
+          <div class="plan-group-sqft">650<span> sq ft</span></div>
+          <div class="plan-group-label">1-Bedroom — 3 variants</div>
+        </div>
+        <div class="plan-group-variants">
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">Flat Roof</div>
+              <div class="plan-variant-type">Traditional build</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/ADU%20Model%20650_FLAT.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">Pitched Roof</div>
+              <div class="plan-variant-type">Requires NM engineer stamp</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/ADU%20Model%20650_PITCHED.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">3D Concrete Print</div>
+              <div class="plan-variant-type is-3dp">3D-printable · innovative</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/3DCP%20ADU%20650.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 750 sq ft -->
+      <div class="city-plan-group">
+        <div class="plan-group-header">
+          <div class="plan-group-sqft">750<span> sq ft</span></div>
+          <div class="plan-group-label">Largest City Plan — 3 variants</div>
+        </div>
+        <div class="plan-group-variants">
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">Flat Roof</div>
+              <div class="plan-variant-type">Traditional build</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/ADU%20Model%20750_FLAT.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">Pitched Roof</div>
+              <div class="plan-variant-type">Requires NM engineer stamp</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/ADU%20Model%20750_PITCHED.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+          <div class="plan-variant">
+            <div class="plan-variant-info">
+              <div class="plan-variant-name">3D Concrete Print</div>
+              <div class="plan-variant-type is-3dp">3D-printable · innovative</div>
+            </div>
+            <a class="plan-dl-btn" href="https://documents.cabq.gov/planning/BuildingSafety/COA-ADU/3DCP%20ADU%20750.pdf" target="_blank" rel="noopener">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 1v6M2.5 5l3 3 3-3"/><line x1="1" y1="10" x2="10" y2="10"/></svg>
+              PDF
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /city-plans-grid -->
+
+    <div class="city-plans-footer">
+      <p class="city-source">
+        Plans provided free of charge by the City of Albuquerque Planning Department. Donated by Nieto Custom Builders and Ron Montoya Designs.
+        <a href="https://www.cabq.gov/planning/accessory-dwelling-unit/free-casita-construction-plans" target="_blank" rel="noopener">View city resource page →</a>
+      </p>
+      <a href="#quote" class="btn-primary" style="white-space:nowrap;">Build My City Plan</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── How it Works ──────────────────────────────────────── -->
+<section class="process-section" id="process" style="max-width:100%;padding:96px var(--gutter);">
+  <div class="section-inner">
+    <div class="process-header">
+      <div>
+        <div class="section-eyebrow" style="color:var(--copper);">
+          <span style="display:block;width:24px;height:1px;background:var(--copper);"></span>
+          The Process
+        </div>
+        <h2 style="color:var(--stucco);">From Lot to<br><em style="color:var(--copper);">Move-In.</em></h2>
+      </div>
+      <p class="process-sub">We manage every phase — design, permits, site prep, construction, and final inspection. Most ABQ ADUs complete in 90 days from signed contract.</p>
+    </div>
+
+    <div class="process-grid">
+      <div class="process-step">
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="16" height="16" rx="2"/>
+            <line x1="6" y1="10" x2="14" y2="10"/>
+            <line x1="10" y1="6" x2="10" y2="14"/>
+          </svg>
+        </div>
+        <div class="step-num">01</div>
+        <div class="step-title">Site Assessment</div>
+        <div class="step-desc">We visit your property, measure the lot, check setbacks, verify utility connections, and confirm zoning eligibility under Albuquerque's ADU ordinance. No charge.</div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 14L10 4l6 10H4z"/>
+          </svg>
+        </div>
+        <div class="step-num">02</div>
+        <div class="step-title">Design & Bid</div>
+        <div class="step-desc">You choose a model. We customize dimensions, finishes, and placement. You receive a fixed-price bid — materials, labor, and permit fees included. No surprises.</div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="14" height="13" rx="1"/>
+            <line x1="3" y1="8" x2="17" y2="8"/>
+            <line x1="7" y1="2" x2="7" y2="6"/>
+            <line x1="13" y1="2" x2="13" y2="6"/>
+          </svg>
+        </div>
+        <div class="step-num">03</div>
+        <div class="step-title">Permitting</div>
+        <div class="step-desc">We submit the permit application to Albuquerque Development Services on your behalf and track approval. Typical approval: 4–8 weeks. We handle all revisions.</div>
+      </div>
+
+      <!-- Step 4 with real construction photo -->
+      <div class="process-step has-photo">
+        <div class="step-photo">
+          <img src="images/adu-construction.png" alt="Foundation and utility rough-in on an ABQ ADU build">
+        </div>
+        <div class="step-content">
+          <div class="step-num" style="font-size:40px;margin-bottom:10px;">04</div>
+          <div class="step-title">Construction</div>
+          <div class="step-desc">Licensed trade crews handle every phase — foundation, framing, MEP, insulation, drywall, and finish. Weekly updates. Weather-managed scheduling via SMS.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Contractor Marketplace ─────────────────────────────── -->
+<section class="contractor-section" id="contractors" style="max-width:100%;padding:96px var(--gutter);">
+  <div class="section-inner">
+    <div class="contractor-layout">
+      <div>
+        <div class="section-eyebrow" style="color:var(--copper-l);">
+          <span style="display:block;width:24px;height:1px;background:var(--copper-l);"></span>
+          For Contractors
+        </div>
+        <h2 style="color:var(--white);">Get <em style="color:var(--copper-l);">More<br>Work.</em></h2>
+        <p class="contractor-desc">
+          Our homeowner clients are actively building ADUs — they need licensed electricians, plumbers, framers, concrete crews, and finish carpenters. Advertise your services to a highly qualified local audience that's already mid-project and ready to hire.
+        </p>
+        <ul class="contractor-benefits">
+          <li>
+            <div class="benefit-dot"></div>
+            <span>Reach homeowners with <strong>signed contracts</strong> — not just curious browsers</span>
+          </li>
+          <li>
+            <div class="benefit-dot"></div>
+            <span>Trade-specific leads — framing, electrical, plumbing, HVAC, concrete, finish</span>
+          </li>
+          <li>
+            <div class="benefit-dot"></div>
+            <span>Weather-aware scheduling so your crews show up when the work is ready</span>
+          </li>
+          <li>
+            <div class="benefit-dot"></div>
+            <span>Verified license and insurance display builds client trust instantly</span>
+          </li>
+          <li>
+            <div class="benefit-dot"></div>
+            <span>SMS job dispatch — assignments go straight to your phone</span>
+          </li>
+        </ul>
+        <a href="#quote" class="btn-primary" style="background:var(--copper);color:var(--blueprint);">Apply to Join the Network</a>
+      </div>
+
+      <div class="tier-cards">
+        <div class="tier-card">
+          <div class="tier-header">
+            <div class="tier-name">Listed</div>
+          </div>
+          <div class="tier-price">Free <small>/ month</small></div>
+          <ul class="tier-features">
+            <li>Basic profile in contractor directory</li>
+            <li>Trade category listing</li>
+            <li>License & insurance badge</li>
+            <li>Inbound lead form</li>
+          </ul>
+        </div>
+        <div class="tier-card featured">
+          <div class="tier-header">
+            <div class="tier-name">Featured</div>
+            <div class="tier-badge">Most Popular</div>
+          </div>
+          <div class="tier-price">$149 <small>/ month</small></div>
+          <ul class="tier-features">
+            <li>Top placement in trade category</li>
+            <li>Priority SMS job dispatch</li>
+            <li>Photo portfolio (up to 12 images)</li>
+            <li>Client review display</li>
+            <li>Weather-aware scheduling access</li>
+          </ul>
+        </div>
+        <div class="tier-card">
+          <div class="tier-header">
+            <div class="tier-name">Premier Partner</div>
+          </div>
+          <div class="tier-price">$349 <small>/ month</small></div>
+          <ul class="tier-features">
+            <li>Exclusive category placement</li>
+            <li>First-call on all jobs in your trade</li>
+            <li>Co-branded project pages</li>
+            <li>Bid assistance & scheduling tools</li>
+            <li>Dedicated account manager</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ADU Qualifier / Quote Form ────────────────────────── -->
+<section class="qualifier-section" id="quote" style="max-width:100%;padding:96px var(--gutter);">
+  <div class="section-inner">
+    <div class="qualifier-layout">
+      <div>
+        <div class="section-eyebrow">Is an ADU Right For You?</div>
+        <h2>What You<br>Need to<br><em>Qualify.</em></h2>
+        <div class="qualifier-list">
+          <div class="qualifier-item">
+            <div class="q-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#C4954A" stroke-width="1.5">
+                <polygon points="11,2 14,8 21,9 16,14 17,21 11,18 5,21 6,14 1,9 8,8"/>
+              </svg>
+            </div>
+            <div>
+              <div class="q-title">Lot Size ≥ 5,000 sq ft</div>
+              <div class="q-desc">Albuquerque requires a minimum lot size for ADU eligibility. We verify this on our first visit — no charge.</div>
+            </div>
+          </div>
+          <div class="qualifier-item">
+            <div class="q-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#C4954A" stroke-width="1.5">
+                <path d="M3 19V9l8-6 8 6v10"/>
+                <rect x="8" y="12" width="6" height="7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="q-title">Owner-Occupied Primary Home</div>
+              <div class="q-desc">You must live in the primary residence on the lot under current Albuquerque ADU rules.</div>
+            </div>
+          </div>
+          <div class="qualifier-item">
+            <div class="q-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#C4954A" stroke-width="1.5">
+                <rect x="2" y="3" width="18" height="15" rx="2"/>
+                <line x1="2" y1="8" x2="20" y2="8"/>
+                <line x1="7" y1="3" x2="7" y2="8"/>
+              </svg>
+            </div>
+            <div>
+              <div class="q-title">Adequate Setbacks Available</div>
+              <div class="q-desc">ADUs require 3 ft rear and side setbacks in most zones. Our site visit confirms placement options before you commit.</div>
+            </div>
+          </div>
+          <div class="qualifier-item">
+            <div class="q-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#C4954A" stroke-width="1.5">
+                <path d="M5 12l5 5L20 7"/>
+                <circle cx="11" cy="11" r="9"/>
+              </svg>
+            </div>
+            <div>
+              <div class="q-title">Clear Title & No HOA Prohibition</div>
+              <div class="q-desc">We help you verify HOA CC&Rs and title conditions before any costs are incurred.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="qualifier-cta-box">
+        <h3>Get Your<br>Free Quote</h3>
+        <p>Tell us about your property and your goals. We'll respond within one business day with a preliminary assessment and cost range — no obligation.</p>
+        <div class="form-row">
+          <div class="form-field">
+            <label>First Name</label>
+            <input type="text" placeholder="Sarah">
+          </div>
+          <div class="form-field">
+            <label>Last Name</label>
+            <input type="text" placeholder="Whitmore">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Phone</label>
+            <input type="tel" placeholder="(505) 555-0100">
+          </div>
+          <div class="form-field">
+            <label>Email</label>
+            <input type="email" placeholder="sarah@example.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field form-full">
+            <label>Property Address</label>
+            <input type="text" placeholder="147 Elm Street, Albuquerque, NM">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Model Interest</label>
+            <select>
+              <option>Not sure yet</option>
+              <option>Hyder Hut (1BR, 440 sq ft)</option>
+              <option>Hyder Hut 2BR (550 sq ft)</option>
+              <option>Altura 24×24 (576 sq ft)</option>
+              <option>Casita Portal (640 sq ft)</option>
+              <option>Tierra Grande (780 sq ft)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Intended Use</label>
+            <select>
+              <option>In-law / family housing</option>
+              <option>Rental income</option>
+              <option>Home office</option>
+              <option>Guest house</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field form-full">
+            <label>Anything else we should know?</label>
+            <textarea rows="3" placeholder="Lot size, existing structures, timeline, budget range..."></textarea>
+          </div>
+        </div>
+        <button class="form-submit">Request My Free Assessment</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Testimonials ────────────────────────────────────────── -->
+<section class="testimonials-section" style="max-width:100%;padding:80px var(--gutter);">
+  <div class="section-inner">
+    <div class="section-eyebrow">What Clients Say</div>
+    <h2>Built on<br><em>Trust.</em></h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-text">We wanted a private space for my mother-in-law and got exactly that — on time, on budget, and it looks better than anything we saw online. The Altura model was perfect.</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">RC</div>
+          <div>
+            <div class="author-name">Roberto & Carmen V.</div>
+            <div class="author-location">North Valley, Albuquerque</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-text">The text message scheduling was a game changer. I always knew which crew was on site and when. My Tierra Grande is now renting for $1,600/month — paid for itself faster than expected.</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">PL</div>
+          <div>
+            <div class="author-name">Patricia L.</div>
+            <div class="author-location">Nob Hill, Albuquerque</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-text">I've hired contractors before and it's usually stressful. This was completely different — the portal on our Casita is now our favorite spot in the evening. Totally worth it.</div>
+        <div class="testimonial-author">
+          <div class="author-avatar">DM</div>
+          <div>
+            <div class="author-name">David M.</div>
+            <div class="author-location">Corrales, NM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Final CTA ───────────────────────────────────────────── -->
+<div class="final-cta">
+  <h2>Your ADU Starts<br>With One Conversation.</h2>
+  <p class="cta-sub">Free site assessment. Fixed-price bid. No surprises from foundation to final walk-through.</p>
+  <a href="#quote" class="btn-white">Talk to Us Today</a>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo-text">ABQ ADU</div>
+      <p>Albuquerque's trusted accessory dwelling unit builder. Licensed, bonded, and backed by a network of local 1099 trade specialists.</p>
+      <p style="margin-top:12px;font-size:12px;">NM General Contractor License #NM-GC-XXXXX<br>Bernalillo County · Rio Rancho · Corrales · Edgewood</p>
+    </div>
+    <div class="footer-col">
+      <h4>Models</h4>
+      <ul>
+        <li><a href="#">Hyder Hut</a></li>
+        <li><a href="#">Hyder Hut 2BR</a></li>
+        <li><a href="#">Altura 24×24</a></li>
+        <li><a href="#">Casita Portal</a></li>
+        <li><a href="#">Tierra Grande</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Gallery</a></li>
+        <li><a href="#">Process</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contractors</h4>
+      <ul>
+        <li><a href="#">Join the Network</a></li>
+        <li><a href="#">Advertise</a></li>
+        <li><a href="#">Contractor Login</a></li>
+        <li><a href="#">Scheduling Tool</a></li>
+        <li><a href="#">Bid Platform</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-lic">© 2026 ABQ ADU LLC · All rights reserved</span>
+    <span class="footer-lic">Serving Albuquerque, NM and surrounding areas</span>
+    <span class="footer-lic">Privacy · Terms</span>
+  </div>
+</footer>
+
+<script>
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+});
+</script>
+
+</body>
+</html>
