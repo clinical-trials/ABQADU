@@ -1331,6 +1331,67 @@ footer {
 
 .footer-lic { color: rgba(240,235,225,.3); }
 
+/* ─── Hamburger menu ──────────────────────────────────────── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+  background: none;
+  border: none;
+}
+.nav-hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--stucco);
+  border-radius: 2px;
+  transition: all .25s;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 65px; left: 0; right: 0;
+  background: rgba(28,25,23,.97);
+  backdrop-filter: blur(16px);
+  z-index: 99;
+  padding: 24px var(--gutter) 32px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.mobile-menu.open { display: block; }
+.mobile-menu ul { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.mobile-menu ul li a {
+  display: block;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink-30);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  letter-spacing: .04em;
+}
+.mobile-menu ul li:last-child a { border-bottom: none; }
+.mobile-menu ul li a:hover { color: var(--copper); }
+.mobile-menu .mobile-cta {
+  display: block;
+  margin-top: 20px;
+  background: var(--terra);
+  color: var(--white);
+  text-align: center;
+  padding: 14px;
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: .06em;
+  text-decoration: none;
+}
+
 /* ─── Responsive ──────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .hero { grid-template-columns: 1fr; }
@@ -1345,22 +1406,285 @@ footer {
   .gallery-item { height: 280px; }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 768px) {
+  .nav-hamburger { display: flex; }
   .nav-links { display: none; }
-  .hero { padding: 100px 20px 60px; }
-  .process-grid { grid-template-columns: 1fr; }
-  .models-grid { grid-template-columns: 1fr; }
+  .nav-cta-desktop { display: none; }
+
+  h1 { font-size: clamp(44px, 12vw, 72px); }
+  .hero { padding: 90px 20px 56px; gap: 32px; }
+  .hero-desc { font-size: 15px; max-width: 100%; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary { text-align: center; width: 100%; }
+  .hero-stats { flex-wrap: wrap; gap: 20px; }
+  .stat-num { font-size: 36px; }
+
+  section { padding: 56px 20px; }
+
+  .section-eyebrow { font-size: 10px; }
+  .section-title { font-size: clamp(28px, 8vw, 48px); }
+  .section-sub { font-size: 14px; }
+
+  .models-grid { grid-template-columns: 1fr; gap: 20px; }
   .models-row-2 { grid-template-columns: 1fr; }
+  .model-card { max-width: 100%; }
+
+  .process-grid { grid-template-columns: 1fr; }
+  .process-header { grid-template-columns: 1fr; gap: 16px; }
+  .process-sub { font-size: 14px; }
+
+  .contractor-grid { grid-template-columns: 1fr; }
+  .contractor-layout { grid-template-columns: 1fr; }
+  .qualifier-layout { grid-template-columns: 1fr; }
+
   .testimonials-grid { grid-template-columns: 1fr; }
-  .process-header { grid-template-columns: 1fr; }
+
   .form-row { grid-template-columns: 1fr; }
-  .footer-inner { grid-template-columns: 1fr; }
-  .hero-stats { flex-wrap: wrap; gap: 24px; }
+  .qualifier-form input,
+  .qualifier-form select,
+  .qualifier-form textarea { font-size: 16px; } /* prevent iOS zoom */
+
+  .free-plans-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
   .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+
+  .gallery-strip-inner { grid-template-columns: 1fr; height: auto; }
+  .gallery-item { height: 240px; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: clamp(38px, 13vw, 56px); }
+  .hero { padding: 80px 16px 48px; }
+  .hero-stats { gap: 16px; }
+  .stat-num { font-size: 30px; }
+
+  .free-plans-grid { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; }
+
+  .contractor-tier { padding: 24px 20px; }
+  .contractor-price { font-size: 28px; }
+
+  .model-floor-plan svg { height: 160px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .gallery-item img, .model-card { transition: none; }
+}
+
+/* ─── Platform Section ────────────────────────────────────── */
+.platform-section {
+  background: var(--blueprint);
+  position: relative;
+  overflow: hidden;
+}
+
+.platform-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.platform-intro {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 72px;
+  position: relative;
+  z-index: 2;
+}
+
+.platform-intro h2 { color: var(--stucco); margin-bottom: 16px; }
+
+.platform-intro p {
+  font-size: 17px;
+  color: rgba(240,235,225,.6);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* Feature grid */
+.platform-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 56px;
+  border: 1px solid rgba(120,170,230,.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pf-card {
+  background: rgba(255,255,255,.04);
+  padding: 32px 28px;
+  border-right: 1px solid rgba(120,170,230,.12);
+  border-bottom: 1px solid rgba(120,170,230,.12);
+  transition: background .2s;
+}
+
+.pf-card:hover { background: rgba(255,255,255,.07); }
+.pf-card:nth-child(3n) { border-right: none; }
+.pf-card:nth-last-child(-n+3) { border-bottom: none; }
+
+.pf-icon {
+  width: 40px; height: 40px;
+  border: 1px solid rgba(196,149,74,.4);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.pf-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--stucco);
+  margin-bottom: 10px;
+}
+
+.pf-desc {
+  font-size: 13px;
+  color: rgba(240,235,225,.5);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+/* Gantt mockup */
+.gantt-mockup {
+  position: relative;
+  z-index: 2;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(120,170,230,.15);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 56px;
+}
+
+.gantt-mockup-header {
+  background: rgba(0,0,0,.25);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(120,170,230,.12);
+}
+
+.gm-dot { width: 10px; height: 10px; border-radius: 50%; }
+.gantt-mockup-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(240,235,225,.4);
+  margin-left: 8px;
+}
+
+.gantt-mockup-body {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+}
+
+.gantt-wbs {
+  border-right: 1px solid rgba(120,170,230,.12);
+  padding: 16px 0;
+}
+
+.gantt-wbs-row {
+  padding: 8px 16px;
+  font-size: 11px;
+  color: rgba(240,235,225,.55);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(120,170,230,.05);
+}
+
+.gantt-wbs-row.critical { color: #E07A5F; }
+.gantt-wbs-row.wbs-parent { font-weight: 700; color: rgba(240,235,225,.8); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+
+.gantt-wbs-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(196,149,74,.5);
+  flex-shrink: 0;
+}
+.critical .gantt-wbs-dot { background: #E07A5F; }
+
+.gantt-bars-area { padding: 16px 12px; overflow: hidden; }
+
+.gantt-bar-row {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(120,170,230,.05);
+  position: relative;
+}
+
+.gantt-bar {
+  height: 14px;
+  border-radius: 3px;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.gantt-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: rgba(255,255,255,.25);
+}
+
+.gantt-float {
+  height: 14px;
+  border-radius: 3px;
+  background: rgba(196,149,74,.1);
+  border: 1px solid rgba(196,149,74,.2);
+  position: absolute;
+}
+
+/* AI badge strip */
+.ai-badge-strip {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ai-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(196,149,74,.1);
+  border: 1px solid rgba(196,149,74,.25);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--copper-l);
+  font-weight: 500;
+}
+
+.ai-badge::before {
+  content: '◆';
+  font-size: 8px;
+  color: var(--copper);
+}
+
+@media (max-width: 768px) {
+  .platform-features { grid-template-columns: 1fr; }
+  .gantt-mockup-body { grid-template-columns: 1fr; }
+  .gantt-wbs { display: none; }
 }
 </style>
 </head>
@@ -1387,11 +1711,27 @@ footer {
   <ul class="nav-links">
     <li><a href="#models">Models</a></li>
     <li><a href="#process">Process</a></li>
+    <li><a href="#platform">Platform</a></li>
     <li><a href="#contractors">For Contractors</a></li>
     <li><a href="#quote">Contact</a></li>
-    <li><a href="#quote" class="nav-cta">Free Quote</a></li>
+    <li><a href="#quote" class="nav-cta nav-cta-desktop">Free Quote</a></li>
   </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <ul>
+    <li><a href="#models" class="mobile-link">Models</a></li>
+    <li><a href="#process" class="mobile-link">Process</a></li>
+    <li><a href="#platform" class="mobile-link">Platform</a></li>
+    <li><a href="#contractors" class="mobile-link">For Contractors</a></li>
+    <li><a href="#quote" class="mobile-link">Contact</a></li>
+  </ul>
+  <a href="#quote" class="mobile-cta mobile-link">Get a Free Quote</a>
+</div>
 
 <!-- ── Hero ─────────────────────────────────────────────── -->
 <section class="hero" style="max-width:100%;padding-top:120px;">
@@ -1576,6 +1916,57 @@ footer {
             <span class="tag green">Income property</span>
           </div>
           <div class="model-price">from $295,000 <small>turnkey est.</small></div>
+        </div>
+      </div>
+
+      <!-- Cromwell -->
+      <div class="model-card">
+        <div class="model-floor-plan" style="padding:20px;">
+          <svg viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ground floor footprint -->
+            <rect x="10" y="28" width="200" height="122" stroke="#C4954A" stroke-width="2"/>
+            <!-- Front porch (dashed = covered exterior) -->
+            <rect x="10" y="10" width="68" height="26" stroke="#C4954A" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <!-- Kitchen partition -->
+            <line x1="138" y1="28" x2="138" y2="105" stroke="#C4954A" stroke-width="1.5"/>
+            <!-- Powder room partition -->
+            <line x1="138" y1="80" x2="210" y2="80" stroke="#C4954A" stroke-width="1.5"/>
+            <!-- Glass rear wall (great room to deck) -->
+            <line x1="10" y1="150" x2="138" y2="150" stroke="#C4954A" stroke-width="2.5" stroke-dasharray="5,3"/>
+            <!-- Kitchen island bar -->
+            <rect x="146" y="34" width="12" height="40" rx="1.5" stroke="#C4954A" stroke-width="1"/>
+            <!-- Stair symbol -->
+            <rect x="146" y="86" width="54" height="54" stroke="#C4954A" stroke-width="1"/>
+            <line x1="146" y1="97" x2="200" y2="97" stroke="#C4954A" stroke-width=".7"/>
+            <line x1="146" y1="108" x2="200" y2="108" stroke="#C4954A" stroke-width=".7"/>
+            <line x1="146" y1="119" x2="200" y2="119" stroke="#C4954A" stroke-width=".7"/>
+            <line x1="146" y1="130" x2="200" y2="130" stroke="#C4954A" stroke-width=".7"/>
+            <!-- Door openings -->
+            <line x1="28" y1="10" x2="62" y2="10" stroke="#C4954A" stroke-width="3"/>
+            <line x1="78" y1="28" x2="116" y2="28" stroke="#C4954A" stroke-width="3"/>
+            <!-- Labels -->
+            <text x="36" y="22" fill="#57534E" font-size="6" font-family="monospace" text-anchor="middle">PORCH</text>
+            <text x="70" y="78" fill="#57534E" font-size="7" font-family="monospace" text-anchor="middle">GREAT ROOM</text>
+            <text x="70" y="88" fill="#57534E" font-size="5.5" font-family="monospace" text-anchor="middle">10' ceiling</text>
+            <text x="70" y="108" fill="#C4954A" font-size="5.5" font-family="monospace" text-anchor="middle">— glass · deck →</text>
+            <text x="170" y="57" fill="#57534E" font-size="6.5" font-family="monospace" text-anchor="middle">KITCHEN</text>
+            <text x="170" y="66" fill="#57534E" font-size="5.5" font-family="monospace" text-anchor="middle">island · seats 5+</text>
+            <text x="168" y="88" fill="#57534E" font-size="5.5" font-family="monospace" text-anchor="middle">POWDER RM</text>
+            <text x="173" y="116" fill="#57534E" font-size="5.5" font-family="monospace" text-anchor="middle">STAIRS UP</text>
+            <text x="173" y="126" fill="#C4954A" font-size="5" font-family="monospace" text-anchor="middle">2BR + LOFT</text>
+            <text x="110" y="158" fill="#C4954A" font-size="5.5" font-family="monospace" text-anchor="middle">GROUND FLOOR · TWO-STORY · 1,280 SF</text>
+          </svg>
+        </div>
+        <div class="model-info">
+          <div class="model-name">Cromwell</div>
+          <div class="model-specs">2 Bed · 1.5 Bath · 1,280 sq ft · Two-Story</div>
+          <div class="model-desc">Our flagship two-story model. Classical front porch, 10-foot ground-floor ceilings, a rear glass wall opening to a private deck, and a kitchen island that seats five. Storage loft included upstairs.</div>
+          <div class="model-tags">
+            <span class="tag">2BR / 1.5BA</span>
+            <span class="tag">Two-story</span>
+            <span class="tag green">Largest model</span>
+          </div>
+          <div class="model-price">from $385,000 <small>turnkey est.</small></div>
         </div>
       </div>
     </div>
@@ -1876,6 +2267,166 @@ footer {
   </div>
 </section>
 
+<!-- ── Platform Features ──────────────────────────────────── -->
+<section class="platform-section" id="platform" style="max-width:100%;padding:96px var(--gutter);">
+  <div class="section-inner">
+
+    <div class="platform-intro">
+      <div class="section-eyebrow" style="justify-content:center;color:var(--copper);">
+        <span style="display:block;width:24px;height:1px;background:var(--copper);"></span>
+        Built-In Project Control
+        <span style="display:block;width:24px;height:1px;background:var(--copper);"></span>
+      </div>
+      <h2>Every project runs<br><em style="color:var(--copper);">on the schedule.</em></h2>
+      <p>We run every ABQ ADU on a professional construction management platform — the same tools used by commercial general contractors, purpose-built for ADU timelines. You see exactly where your project stands, every day.</p>
+    </div>
+
+    <!-- Feature cards -->
+    <div class="platform-features">
+      <div class="pf-card">
+        <div class="pf-icon">📐</div>
+        <div class="pf-title">CPM Scheduling</div>
+        <div class="pf-desc">Every activity sequenced with finish-to-start, start-to-start, and finish-to-finish logic. The critical path updates automatically when anything shifts — no manual recalculation.</div>
+      </div>
+      <div class="pf-card">
+        <div class="pf-icon">📊</div>
+        <div class="pf-title">Live Gantt Chart</div>
+        <div class="pf-desc">Visual timeline showing every phase from permit submission to final inspection. Drag-to-reschedule when conditions change. Baseline comparison shows planned vs. actual at a glance.</div>
+      </div>
+      <div class="pf-card">
+        <div class="pf-icon">👷</div>
+        <div class="pf-title">Crew Dispatch</div>
+        <div class="pf-desc">Field tasks assigned daily to each trade. Crews confirm via SMS — no app needed. Weather-aware scheduling means your concrete pour doesn't land on a 35°F morning.</div>
+      </div>
+      <div class="pf-card">
+        <div class="pf-icon">⚡</div>
+        <div class="pf-title">Resource Loading</div>
+        <div class="pf-desc">Every framer, electrician, plumber, and concrete crew tracked against availability. Overallocation flagged before it becomes a delay. Leveling resolves conflicts within float automatically.</div>
+      </div>
+      <div class="pf-card">
+        <div class="pf-icon">🛡</div>
+        <div class="pf-title">Risk Register</div>
+        <div class="pf-desc">Permit delays, weather windows, material lead times — every risk logged with probability and impact scores. The team acts on issues before they become schedule slippage.</div>
+      </div>
+      <div class="pf-card">
+        <div class="pf-icon">🤖</div>
+        <div class="pf-title">AI Forecasting</div>
+        <div class="pf-desc">Claude AI reads your schedule every week and flags delay risks, writes your client briefing, and recommends recovery actions — before you have to ask.</div>
+      </div>
+    </div>
+
+    <!-- Gantt mockup -->
+    <div class="gantt-mockup">
+      <div class="gantt-mockup-header">
+        <div class="gm-dot" style="background:#B85C38;"></div>
+        <div class="gm-dot" style="background:#C4954A;"></div>
+        <div class="gm-dot" style="background:#3D5247;"></div>
+        <span class="gantt-mockup-title">ABQ ADU — 147 Paseo Del Norte — Schedule View</span>
+        <span style="margin-left:auto;font-size:10px;color:rgba(196,149,74,.6);letter-spacing:.08em;">● CRITICAL PATH ACTIVE · 14 ACTIVITIES · 78% COMPLETE</span>
+      </div>
+      <div class="gantt-mockup-body">
+        <!-- WBS Tree -->
+        <div class="gantt-wbs">
+          <div class="gantt-wbs-row wbs-parent">▼ Site Preparation</div>
+          <div class="gantt-wbs-row critical" style="padding-left:28px;"><div class="gantt-wbs-dot"></div>Excavation & Grading</div>
+          <div class="gantt-wbs-row critical" style="padding-left:28px;"><div class="gantt-wbs-dot"></div>Underground Utilities</div>
+          <div class="gantt-wbs-row wbs-parent">▼ Foundation</div>
+          <div class="gantt-wbs-row critical" style="padding-left:28px;"><div class="gantt-wbs-dot"></div>Footings & Stem Wall</div>
+          <div class="gantt-wbs-row critical" style="padding-left:28px;"><div class="gantt-wbs-dot"></div>Slab Pour & Cure</div>
+          <div class="gantt-wbs-row wbs-parent">▼ Framing</div>
+          <div class="gantt-wbs-row critical" style="padding-left:28px;"><div class="gantt-wbs-dot"></div>Wall Framing</div>
+          <div class="gantt-wbs-row" style="padding-left:28px;color:rgba(240,235,225,.35);"><div class="gantt-wbs-dot" style="background:rgba(196,149,74,.25);"></div>Roof Framing</div>
+          <div class="gantt-wbs-row wbs-parent">▼ Rough-In MEP</div>
+          <div class="gantt-wbs-row" style="padding-left:28px;color:rgba(240,235,225,.35);"><div class="gantt-wbs-dot" style="background:rgba(196,149,74,.25);"></div>Electrical Rough</div>
+          <div class="gantt-wbs-row" style="padding-left:28px;color:rgba(240,235,225,.35);"><div class="gantt-wbs-dot" style="background:rgba(196,149,74,.25);"></div>Plumbing Rough</div>
+        </div>
+
+        <!-- Bar area -->
+        <div class="gantt-bars-area">
+          <!-- Dates header -->
+          <div style="display:flex;gap:0;margin-bottom:4px;padding-bottom:6px;border-bottom:1px solid rgba(120,170,230,.1);">
+            <span style="font-size:9px;color:rgba(240,235,225,.25);flex:1;letter-spacing:.06em;">JUN 1</span>
+            <span style="font-size:9px;color:rgba(240,235,225,.25);flex:1;letter-spacing:.06em;">JUN 15</span>
+            <span style="font-size:9px;color:rgba(184,92,56,.8);flex:1;letter-spacing:.06em;">▼ TODAY</span>
+            <span style="font-size:9px;color:rgba(240,235,225,.25);flex:1;letter-spacing:.06em;">JUL 15</span>
+            <span style="font-size:9px;color:rgba(240,235,225,.25);flex:1;letter-spacing:.06em;">AUG 1</span>
+          </div>
+          <!-- Bars: critical = copper/red, complete fill, float bars -->
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:0%;width:18%;background:rgba(184,92,56,.7);">
+              <div class="gantt-bar-fill" style="width:100%;"></div>
+            </div>
+          </div>
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:18%;width:14%;background:rgba(184,92,56,.7);">
+              <div class="gantt-bar-fill" style="width:100%;"></div>
+            </div>
+          </div>
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:32%;width:16%;background:rgba(184,92,56,.7);">
+              <div class="gantt-bar-fill" style="width:85%;"></div>
+            </div>
+          </div>
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:48%;width:12%;background:rgba(184,92,56,.55);">
+              <div class="gantt-bar-fill" style="width:20%;"></div>
+            </div>
+          </div>
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:60%;width:18%;background:rgba(184,92,56,.45);">
+              <div class="gantt-bar-fill" style="width:0%;"></div>
+            </div>
+          </div>
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:60%;width:14%;background:rgba(61,82,71,.7);">
+              <div class="gantt-bar-fill" style="width:0%;"></div>
+            </div>
+            <div class="gantt-float" style="left:74%;width:6%;"></div>
+          </div>
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:78%;width:12%;background:rgba(61,82,71,.5);">
+              <div class="gantt-bar-fill" style="width:0%;"></div>
+            </div>
+            <div class="gantt-float" style="left:90%;width:5%;"></div>
+          </div>
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:78%;width:10%;background:rgba(61,82,71,.5);">
+              <div class="gantt-bar-fill" style="width:0%;"></div>
+            </div>
+            <div class="gantt-float" style="left:88%;width:8%;"></div>
+          </div>
+          <div class="gantt-bar-row">
+            <div class="gantt-bar" style="left:80%;width:14%;background:rgba(61,82,71,.4);">
+              <div class="gantt-bar-fill" style="width:0%;"></div>
+            </div>
+          </div>
+          <!-- Today line -->
+          <div style="position:absolute;top:0;bottom:0;left:calc(12px + 220px + 38%);width:1px;background:rgba(184,92,56,.5);pointer-events:none;"></div>
+        </div>
+      </div>
+      <div style="padding:10px 20px;border-top:1px solid rgba(120,170,230,.1);display:flex;gap:20px;font-size:10px;color:rgba(240,235,225,.35);letter-spacing:.06em;">
+        <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:12px;height:6px;background:rgba(184,92,56,.7);border-radius:2px;"></span> Critical Path</span>
+        <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:12px;height:6px;background:rgba(61,82,71,.7);border-radius:2px;"></span> Non-Critical</span>
+        <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:12px;height:6px;background:rgba(196,149,74,.1);border:1px solid rgba(196,149,74,.3);border-radius:2px;"></span> Float (slack)</span>
+        <span style="display:flex;align-items:center;gap:6px;"><span style="width:1px;height:10px;background:rgba(184,92,56,.5);display:inline-block;"></span> Today</span>
+        <span style="margin-left:auto;">AI forecast: <span style="color:rgba(196,149,74,.8);">On track · est. completion Sep 15</span></span>
+      </div>
+    </div>
+
+    <!-- AI feature badges -->
+    <div class="ai-badge-strip">
+      <div class="ai-badge">Critical path auto-identified</div>
+      <div class="ai-badge">Delay forecast updated daily</div>
+      <div class="ai-badge">Planned vs. actual tracked</div>
+      <div class="ai-badge">Crew SMS confirmation</div>
+      <div class="ai-badge">Risk register with scoring</div>
+      <div class="ai-badge">Weekly client briefings by AI</div>
+      <div class="ai-badge">Executive PDF reports</div>
+    </div>
+
+  </div>
+</section>
+
 <!-- ── Contractor Marketplace ─────────────────────────────── -->
 <section class="contractor-section" id="contractors" style="max-width:100%;padding:96px var(--gutter);">
   <div class="section-inner">
@@ -1921,10 +2472,11 @@ footer {
           </div>
           <div class="tier-price">Free <small>/ month</small></div>
           <ul class="tier-features">
-            <li>Basic profile in contractor directory</li>
+            <li>Profile in contractor directory</li>
             <li>Trade category listing</li>
             <li>License & insurance badge</li>
             <li>Inbound lead form</li>
+            <li>SMS job notifications</li>
           </ul>
         </div>
         <div class="tier-card featured">
@@ -1935,10 +2487,11 @@ footer {
           <div class="tier-price">$149 <small>/ month</small></div>
           <ul class="tier-features">
             <li>Top placement in trade category</li>
-            <li>Priority SMS job dispatch</li>
+            <li>Priority SMS dispatch + confirmation</li>
+            <li>Platform access — Gantt & schedule view</li>
+            <li>Field task board for your crew</li>
+            <li>Weather-aware scheduling</li>
             <li>Photo portfolio (up to 12 images)</li>
-            <li>Client review display</li>
-            <li>Weather-aware scheduling access</li>
           </ul>
         </div>
         <div class="tier-card">
@@ -1949,8 +2502,9 @@ footer {
           <ul class="tier-features">
             <li>Exclusive category placement</li>
             <li>First-call on all jobs in your trade</li>
-            <li>Co-branded project pages</li>
-            <li>Bid assistance & scheduling tools</li>
+            <li>Full platform — CPM, risks, resources</li>
+            <li>AI bid writing & proposal generation</li>
+            <li>Executive report access for clients</li>
             <li>Dedicated account manager</li>
           </ul>
         </div>
@@ -2057,6 +2611,7 @@ footer {
               <option>Altura 24×24 (576 sq ft)</option>
               <option>Casita Portal (640 sq ft)</option>
               <option>Tierra Grande (780 sq ft)</option>
+              <option>Cromwell (2BR, 1,280 sq ft — Two-Story)</option>
             </select>
           </div>
           <div class="form-field">
@@ -2151,6 +2706,7 @@ footer {
         <li><a href="#">Altura 24×24</a></li>
         <li><a href="#">Casita Portal</a></li>
         <li><a href="#">Tierra Grande</a></li>
+        <li><a href="#">Cromwell</a></li>
       </ul>
     </div>
     <div class="footer-col">
