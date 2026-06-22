@@ -1715,7 +1715,7 @@ footer {
     <li><a href="#design">Design</a></li>
     <li><a href="#contractors">For Contractors</a></li>
     <li><a href="#quote">Contact</a></li>
-    <li><a href="#quote" class="nav-cta nav-cta-desktop">Free Quote</a></li>
+    <li><a href="platform.html" class="nav-cta nav-cta-desktop">Launch Platform</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -1731,8 +1731,9 @@ footer {
     <li><a href="#design" class="mobile-link">Design</a></li>
     <li><a href="#contractors" class="mobile-link">For Contractors</a></li>
     <li><a href="#quote" class="mobile-link">Contact</a></li>
+    <li><a href="platform.html" class="mobile-link">Launch Platform</a></li>
   </ul>
-  <a href="#quote" class="mobile-cta mobile-link">Get a Free Quote</a>
+  <a href="platform.html" class="mobile-cta mobile-link">Launch Platform</a>
 </div>
 
 <!-- ── Hero ─────────────────────────────────────────────── -->
@@ -2595,11 +2596,8 @@ footer {
 function handleDesignSubmit(e) {
   e.preventDefault();
   const form = e.target;
-  const model = form.model.value;
-  // In production this would POST to /api/leads and redirect to the platform
-  // For now, open the platform design studio
-  const params = new URLSearchParams({ model: model || 'blank' });
-  window.open('http://localhost:3000/design?' + params.toString(), '_blank');
+  // Open the in-browser platform Design Studio
+  window.open('platform.html#design', '_blank');
 }
 </script>
 

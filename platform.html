@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABQ ADU — Platform (v1)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/konva/9.3.6/konva.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1C1917;--ink60:#57534E;--ink30:#A8A29E;
+  --stucco:#F0EBE1;--stucco-d:#E2D9CA;--paper:#FAF7F2;
+  --copper:#C4954A;--copper-l:#E8C98A;--sage:#3D5247;--terra:#B85C38;
+  --blue:#0F1F3D;--blue-l:#1a3060;--bp-line:rgba(120,170,230,.22);
+  --fd:'Barlow Condensed',sans-serif;--fb:'DM Sans',system-ui,sans-serif;
+  --ok:#3D5247;--warn:#B8852A;--err:#B91C1C;
+}
+body{font-family:var(--fb);background:var(--paper);color:var(--ink);line-height:1.55;font-size:14px;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--fd);letter-spacing:.01em}
+button{font-family:var(--fb);cursor:pointer}
+input,select,textarea{font-family:var(--fb);font-size:13px}
+a{color:inherit}
+
+/* Header + tabs */
+header.topbar{position:sticky;top:0;z-index:50;background:var(--ink);color:var(--stucco);
+  display:flex;align-items:center;gap:28px;padding:0 24px;height:58px;border-bottom:2px solid var(--copper)}
+.logo{font-family:var(--fd);font-weight:900;font-size:22px;letter-spacing:.02em}
+.logo span{color:var(--copper)}
+.tabs{display:flex;gap:4px;height:100%;align-items:stretch;flex:1}
+.tab{background:none;border:none;color:var(--ink30);font-size:12px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;padding:0 18px;height:100%;border-bottom:3px solid transparent;transition:.15s;display:flex;align-items:center}
+.tab:hover{color:var(--stucco)}
+.tab.active{color:var(--copper);border-bottom-color:var(--copper)}
+.home-link{font-size:11px;color:var(--ink30);text-decoration:none;letter-spacing:.05em;text-transform:uppercase}
+.home-link:hover{color:var(--copper)}
+.v-badge{background:rgba(196,149,74,.15);border:1px solid rgba(196,149,74,.4);color:var(--copper);
+  font-size:10px;letter-spacing:.1em;padding:3px 8px;border-radius:4px;text-transform:uppercase}
+
+.panel{display:none;padding:24px;max-width:1280px;margin:0 auto}
+.panel.active{display:block}
+.panel-head{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.panel-head h2{font-size:26px;font-weight:900;color:var(--ink)}
+.panel-sub{color:var(--ink60);font-size:13px;margin-bottom:20px;max-width:680px}
+
+/* generic */
+.card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:18px}
+.row{display:flex;gap:16px}
+.btn{border:none;border-radius:5px;padding:8px 16px;font-size:13px;font-weight:600;color:#fff;background:var(--sage)}
+.btn.copper{background:var(--copper)}
+.btn.blue{background:var(--blue)}
+.btn.ghost{background:#fff;border:1px solid var(--stucco-d);color:var(--ink)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.danger{background:none;color:var(--terra);border:1px solid var(--terra)}
+label.fld{display:block;font-size:11px;color:var(--ink60);margin-bottom:4px;font-weight:500}
+.in{width:100%;padding:8px 10px;border:1px solid var(--stucco-d);border-radius:5px;background:#fff}
+table{width:100%;border-collapse:collapse}
+th{background:var(--stucco);text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink60);padding:8px 10px}
+td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
+.r{text-align:right}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.muted{color:var(--ink30)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:14px 16px}
+.kpi .n{font-family:var(--fd);font-size:28px;font-weight:900;line-height:1}
+.kpi .l{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink60);margin-top:4px}
+
+/* Bid layout */
+.bid-wrap{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.totals-card{background:var(--blue);color:var(--stucco);border-radius:8px;padding:18px;position:sticky;top:78px}
+.totals-card .ln{display:flex;justify-content:space-between;font-size:13px;color:rgba(240,235,225,.72);margin-bottom:7px}
+.totals-card .grand{border-top:2px solid rgba(196,149,74,.4);padding-top:11px;margin-top:9px;display:flex;justify-content:space-between;align-items:baseline}
+.totals-card .grand .lab{font-family:var(--fd);font-size:17px;font-weight:700}
+.totals-card .grand .amt{font-family:var(--fd);font-size:26px;font-weight:900;color:var(--copper)}
+.lineitem input{border:1px solid transparent;background:transparent;padding:5px 6px;border-radius:4px;width:100%}
+.lineitem input:focus{border-color:var(--stucco-d);background:#fff;outline:none}
+.lineitem:hover{background:var(--paper)}
+
+/* Gantt */
+.gantt-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.gantt-scroll{overflow-x:auto;border:1px solid var(--stucco-d);border-radius:8px;background:#fff}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--ink60);margin-top:10px;flex-wrap:wrap}
+.legend b{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* Design */
+.design-wrap{display:grid;grid-template-columns:150px 1fr 230px;gap:0;border:1px solid var(--stucco-d);border-radius:8px;overflow:hidden;background:var(--blue)}
+.palette{background:var(--blue);padding:14px 10px;display:flex;flex-direction:column;gap:6px}
+.palette .ph{color:var(--copper);font-family:var(--fd);font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px}
+.pbtn{display:flex;align-items:center;gap:7px;background:none;border:1px solid var(--blue-l);border-radius:4px;padding:6px 8px;color:#e0e8f4;font-size:12px;text-align:left}
+.pbtn.active{border-color:var(--copper);background:rgba(196,149,74,.13)}
+.pbtn .sw{width:11px;height:11px;border-radius:2px;border:1px solid var(--blue);flex:none}
+#design-canvas-host{background:#f8f9fc}
+.dprops{background:var(--blue);padding:14px;color:#e0e8f4;display:flex;flex-direction:column;gap:12px;overflow-y:auto;max-height:560px}
+.dprops .ph{color:var(--copper);font-family:var(--fd);font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+.dchip{background:var(--blue-l);border:1px solid #2a4070;border-radius:4px;padding:3px 9px;color:#a0b8d0;font-size:11px}
+.bom-row{display:flex;justify-content:space-between;font-size:11px;color:#c0d0e0;padding:2px 0}
+.bom-cat{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#7088a8;padding-top:6px}
+
+/* AI */
+.ai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.ai-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.ai-card h3{font-size:17px;font-weight:700}
+.ai-badge{align-self:flex-start;background:rgba(196,149,74,.13);border:1px solid rgba(196,149,74,.4);color:var(--copper);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
+.ai-out{background:#0a1828;color:#c8d6e6;border-radius:6px;padding:12px;font-size:12px;line-height:1.6;white-space:pre-wrap;max-height:230px;overflow-y:auto;display:none}
+.ai-out.show{display:block}
+.note{background:#FEF6E7;border:1px solid var(--copper-l);border-radius:6px;padding:10px 14px;font-size:12px;color:#7a5a1a;margin-bottom:18px}
+
+@media (max-width:900px){
+  .bid-wrap,.ai-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .design-wrap{grid-template-columns:1fr}
+  .tabs{overflow-x:auto}
+}
+@media print{
+  header.topbar,.tabs,.gantt-toolbar,.no-print{display:none!important}
+  .panel{display:none!important}.panel.print-me{display:block!important}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo">ABQ <span>ADU</span></div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="bids">Bids &amp; Invoicing</button>
+    <button class="tab" data-tab="schedule">Schedule &amp; Critical Path</button>
+    <button class="tab" data-tab="design">Design Studio</button>
+    <button class="tab" data-tab="ai">AI Assistant</button>
+  </nav>
+  <span class="v-badge">Version 1</span>
+  <a class="home-link" href="index.html">← Site</a>
+</header>
+
+<!-- ════════ BIDS & INVOICING ════════ -->
+<section class="panel active" id="tab-bids">
+  <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="muted">Phase 1 · revenue-facing</span></div>
+  <p class="panel-sub">Build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then track payments.</p>
+
+  <div class="kpi-grid" id="bid-kpis"></div>
+
+  <div class="bid-wrap">
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="row" style="gap:12px;margin-bottom:12px">
+          <div style="flex:1"><label class="fld">Bid title</label><input class="in" id="bid-title"></div>
+          <div style="width:200px"><label class="fld">Client</label><input class="in" id="bid-client" placeholder="Client name"></div>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Description</th><th class="r" style="width:70px">Qty</th><th style="width:60px">Unit</th><th class="r" style="width:100px">Unit cost</th><th class="r" style="width:100px">Total</th><th style="width:28px"></th></tr></thead>
+          <tbody id="bid-items"></tbody>
+        </table>
+        <button class="btn ghost sm" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper)" onclick="addLine()">+ Add line item</button>
+      </div>
+
+      <div class="card" id="invoice-card">
+        <div style="display:flex;align-items:center;margin-bottom:12px">
+          <h3 style="font-size:16px">Draw Schedule &amp; Invoices</h3>
+          <span class="muted" style="margin-left:auto;font-size:12px">Auto-generated when a bid is accepted</span>
+        </div>
+        <table>
+          <thead><tr><th>Invoice</th><th>Draw</th><th class="r">Amount</th><th class="r">Paid</th><th class="r">Balance</th><th>Status</th><th></th></tr></thead>
+          <tbody id="invoice-rows"></tbody>
+        </table>
+        <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Accept &amp; Create Draw Schedule</b> below.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="totals-card">
+        <div class="ln"><span>Subtotal</span><span id="t-sub">$0</span></div>
+        <div class="ln"><span>Overhead &amp; profit <input id="t-markup" type="number" value="18" style="width:46px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-mk">$0</span></div>
+        <div class="ln"><span>Contingency <input id="t-cont" type="number" value="5" style="width:42px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-co">$0</span></div>
+        <div class="ln"><span>NM GRT tax <input id="t-tax" type="number" step="0.001" value="7.625" style="width:60px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-tx">$0</span></div>
+        <div class="grand"><span class="lab">Total</span><span class="amt" id="t-total">$0</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+          <button class="btn copper" onclick="window.print()">Print / Save PDF</button>
+          <button class="btn blue" onclick="acceptBid()">Accept &amp; Create Draw Schedule →</button>
+          <button class="btn ghost" onclick="resetBid()">Load sample bid</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ SCHEDULE & CRITICAL PATH ════════ -->
+<section class="panel" id="tab-schedule">
+  <div class="panel-head"><h2>Schedule &amp; Critical Path</h2><span class="muted">Phase 2 · contractor operations</span></div>
+  <p class="panel-sub">Critical Path Method scheduling for the build. The engine runs a forward/backward pass to compute early/late dates, total float, and the critical path — the sequence that drives your completion date. Dispatch crews by text.</p>
+
+  <div class="kpi-grid" id="sched-kpis"></div>
+
+  <div class="gantt-toolbar no-print">
+    <span class="muted" style="font-size:12px">Zoom:</span>
+    <button class="btn ghost sm" onclick="setZoom(28)">Day</button>
+    <button class="btn ghost sm" onclick="setZoom(12)">Week</button>
+    <button class="btn ghost sm" onclick="setZoom(5)">Month</button>
+    <span style="margin-left:auto" class="muted" id="proj-finish"></span>
+  </div>
+  <div class="gantt-scroll"><div id="gantt-host"></div></div>
+  <div class="legend">
+    <span><b style="background:var(--terra)"></b>Critical path</span>
+    <span><b style="background:var(--sage)"></b>Non-critical activity</span>
+    <span><b style="background:rgba(61,82,71,.25)"></b>Total float (slack)</span>
+    <span><b style="background:#C4954A"></b>% complete</span>
+  </div>
+
+  <div class="row" style="margin-top:22px;gap:20px;align-items:start">
+    <div class="card" style="flex:1">
+      <h3 style="font-size:16px;margin-bottom:12px">Crew Dispatch</h3>
+      <p class="muted" style="font-size:12px;margin-bottom:12px">Tap a task to text the assigned crew lead today's assignment (opens your messaging app).</p>
+      <table><thead><tr><th>Activity</th><th>Crew</th><th>Dates</th><th></th></tr></thead><tbody id="dispatch-rows"></tbody></table>
+    </div>
+    <div class="card" style="width:300px">
+      <h3 style="font-size:16px;margin-bottom:12px">Critical Path</h3>
+      <div id="critpath-list" style="font-size:13px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ DESIGN STUDIO ════════ -->
+<section class="panel" id="tab-design">
+  <div class="panel-head"><h2>Design Studio</h2><span class="muted">Phase 3 · client-facing</span></div>
+  <p class="panel-sub">Drag rooms onto the grid (1 square = 1 ft), resize, and watch the live cost estimate and Albuquerque zoning check update. Start from one of the five ABQ ADU models or a blank lot.</p>
+
+  <div class="gantt-toolbar no-print">
+    <span class="muted" style="font-size:12px">Template:</span>
+    <select class="in" id="tpl-select" style="width:auto" onchange="loadTemplate(this.value)">
+      <option value="blank">Blank canvas</option>
+      <option value="hyder-hut">Hyder Hut — 440 sf</option>
+      <option value="hyder-hut-2br">Hyder Hut 2BR — 550 sf</option>
+      <option value="altura">Altura 24×24 — 576 sf</option>
+      <option value="casita" selected>Casita Portal — 640 sf</option>
+      <option value="tierra">Tierra Grande — 780 sf</option>
+    </select>
+    <span style="margin-left:auto" class="dchip" id="d-total">0 sf</span>
+  </div>
+
+  <div class="design-wrap">
+    <div class="palette" id="palette"><div class="ph">Rooms</div></div>
+    <div id="design-canvas-host"></div>
+    <div class="dprops">
+      <div class="ph">Live Estimate</div>
+      <div id="d-bom"></div>
+      <div class="ph" style="margin-top:6px">ABQ Zoning Check</div>
+      <div id="d-zoning" style="font-size:11px;display:flex;flex-direction:column;gap:4px"></div>
+    </div>
+  </div>
+  <p class="muted" style="font-size:12px;margin-top:8px">Click a room type then click the canvas to place it. Drag to move (snaps to grid). Click a placed room and press Delete to remove.</p>
+</section>
+
+<!-- ════════ AI ASSISTANT ════════ -->
+<section class="panel" id="tab-ai">
+  <div class="panel-head"><h2>AI Assistant</h2><span class="muted">Cross-phase · Claude-powered</span></div>
+  <p class="panel-sub">Six Claude agents designed into the platform — three for design, three for scheduling. Click any agent to preview the kind of output it produces.</p>
+  <div class="note">⚠ <b>Preview mode.</b> These show representative sample output. Live AI calls require a backend with a secret API key (a Phase 4 serverless function) and cannot run on a static page. The prompts and logic are already built in the platform's <code>claudeDesign.js</code> and <code>claudeScheduler.js</code> services.</div>
+  <div class="ai-grid" id="ai-grid"></div>
+</section>
+
+<script>
+/* ═══════════════ Shared helpers ═══════════════ */
+const $ = s => document.querySelector(s);
+const fmt = n => '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt0 = n => '$' + Math.round(Number(n||0)).toLocaleString('en-US');
+const store = {
+  get:(k,d)=>{try{return JSON.parse(localStorage.getItem('abqadu_'+k))??d}catch{return d}},
+  set:(k,v)=>localStorage.setItem('abqadu_'+k,JSON.stringify(v))
+};
+const GRID=12;
+
+/* Tabs */
+function showTab(name){
+  const t=document.querySelector(`.tab[data-tab="${name}"]`);if(!t)return;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  $('#tab-'+name).classList.add('active');
+  if(name==='schedule') renderGantt();
+  if(name==='design') ensureDesign();
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.dataset.tab;showTab(t.dataset.tab)});
+window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
+
+/* ═══════════════ PHASE 1 — BIDS ═══════════════ */
+const SAMPLE_BID = {
+  title:'Casita Portal ADU — 640 sf', client:'M. Hyder Residence',
+  items:[
+    {cat:'Structure',desc:'Foundation / slab',qty:640,unit:'sf',cost:18},
+    {cat:'Structure',desc:'Framing lumber & labor',qty:280,unit:'lf',cost:13.5},
+    {cat:'Structure',desc:'Roofing (metal)',qty:736,unit:'sf',cost:6.5},
+    {cat:'Exterior',desc:'Stucco siding',qty:1200,unit:'sf',cost:7},
+    {cat:'Interior',desc:'Insulation',qty:1700,unit:'sf',cost:1.8},
+    {cat:'Interior',desc:'Drywall (walls + ceiling)',qty:2340,unit:'sf',cost:2.2},
+    {cat:'Interior',desc:'Flooring (LVP)',qty:580,unit:'sf',cost:8.5},
+    {cat:'MEP',desc:'Electrical rough-in & trim',qty:640,unit:'sf',cost:12},
+    {cat:'MEP',desc:'HVAC (mini-split)',qty:640,unit:'sf',cost:9},
+    {cat:'Plumbing',desc:'Plumbing fixtures',qty:5,unit:'ea',cost:850},
+    {cat:'Kitchen',desc:'Cabinetry',qty:14,unit:'lf',cost:280},
+    {cat:'Kitchen',desc:'Countertops',qty:14,unit:'lf',cost:95},
+  ]
+};
+let bid = store.get('bid', JSON.parse(JSON.stringify(SAMPLE_BID)));
+let invoices = store.get('invoices', []);
+
+function saveBid(){store.set('bid',bid);store.set('invoices',invoices)}
+function bidTotals(){
+  const sub = bid.items.reduce((s,i)=>s+(+i.qty||0)*(+i.cost||0),0);
+  const mk = sub*(+$('#t-markup').value/100);
+  const co = sub*(+$('#t-cont').value/100);
+  const pre = sub+mk+co;
+  const tx = pre*(+$('#t-tax').value/100);
+  return {sub,mk,co,pre,tx,total:pre+tx};
+}
+function renderBid(){
+  $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
+  const tb=$('#bid-items'); tb.innerHTML='';
+  bid.items.forEach((it,i)=>{
+    const tr=document.createElement('tr'); tr.className='lineitem';
+    tr.innerHTML=`<td><input value="${it.cat||''}" onchange="editLine(${i},'cat',this.value)"></td>
+      <td><input value="${it.desc||''}" onchange="editLine(${i},'desc',this.value)"></td>
+      <td><input class="r" type="number" value="${it.qty}" onchange="editLine(${i},'qty',this.value)"></td>
+      <td><input value="${it.unit||''}" onchange="editLine(${i},'unit',this.value)"></td>
+      <td><input class="r" type="number" value="${it.cost}" onchange="editLine(${i},'cost',this.value)"></td>
+      <td class="r" style="font-weight:600">${fmt((+it.qty||0)*(+it.cost||0))}</td>
+      <td><button onclick="delLine(${i})" style="border:none;background:none;color:var(--terra);font-size:16px">×</button></td>`;
+    tb.appendChild(tr);
+  });
+  const t=bidTotals();
+  $('#t-sub').textContent=fmt(t.sub);$('#t-mk').textContent=fmt(t.mk);
+  $('#t-co').textContent=fmt(t.co);$('#t-tx').textContent=fmt(t.tx);
+  $('#t-total').textContent=fmt(t.total);
+  renderInvoices(); renderBidKpis(t); saveBid();
+}
+function editLine(i,k,v){bid.items[i][k]=(k==='qty'||k==='cost')?+v:v;renderBid()}
+function addLine(){bid.items.push({cat:'General',desc:'',qty:1,unit:'ea',cost:0});renderBid()}
+function delLine(i){bid.items.splice(i,1);renderBid()}
+$('#bid-title').oninput=e=>{bid.title=e.target.value;saveBid()};
+$('#bid-client').oninput=e=>{bid.client=e.target.value;saveBid()};
+['t-markup','t-cont','t-tax'].forEach(id=>$('#'+id).oninput=renderBid);
+function resetBid(){bid=JSON.parse(JSON.stringify(SAMPLE_BID));invoices=[];renderBid()}
+
+function acceptBid(){
+  const t=bidTotals();
+  const draws=[
+    ['deposit','Deposit / mobilization (20%)',.20],
+    ['progress','Foundation & framing complete (30%)',.30],
+    ['progress','Dry-in, MEP rough-in complete (25%)',.25],
+    ['progress','Finishes & fixtures complete (15%)',.15],
+    ['final','Final / certificate of occupancy (10%)',.10],
+  ];
+  invoices=draws.map((d,i)=>({num:`INV-2026-${String(i+1).padStart(4,'0')}`,
+    type:d[0],desc:d[1],amount:Math.round(t.total*d[2]*100)/100,paid:0,status:'draft'}));
+  renderBid();
+  alert('Draw schedule created — 5 invoices generated below.');
+}
+function renderInvoices(){
+  const tb=$('#invoice-rows');tb.innerHTML='';
+  $('#no-invoices').style.display=invoices.length?'none':'block';
+  invoices.forEach((v,i)=>{
+    const bal=v.amount-v.paid;
+    const sc=v.status==='paid'?['#D1FAE5','#065F46']:v.status==='sent'?['#DBEAFE','#1E40AF']:['#F3F4F6','#6B7280'];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:600">${v.num}</td><td>${v.desc}</td>
+      <td class="r">${fmt(v.amount)}</td><td class="r" style="color:var(--sage)">${fmt(v.paid)}</td>
+      <td class="r" style="font-weight:600;color:${bal>0?'var(--terra)':'var(--sage)'}">${fmt(bal)}</td>
+      <td><span class="pill" style="background:${sc[0]};color:${sc[1]}">${v.status}</span></td>
+      <td>${bal>0?`<button class="btn sm" onclick="payInv(${i})">Record payment</button>`:''}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function payInv(i){
+  const bal=invoices[i].amount-invoices[i].paid;
+  const amt=prompt(`Payment amount for ${invoices[i].num} (balance ${fmt(bal)}):`, bal.toFixed(2));
+  if(amt===null)return;
+  invoices[i].paid+=+amt;
+  if(invoices[i].paid>=invoices[i].amount-0.005)invoices[i].status='paid';
+  renderBid();
+}
+function renderBidKpis(t){
+  const billed=invoices.reduce((s,v)=>s+v.amount,0);
+  const paid=invoices.reduce((s,v)=>s+v.paid,0);
+  $('#bid-kpis').innerHTML=`
+    <div class="kpi"><div class="n">${fmt0(t.total)}</div><div class="l">Bid total</div></div>
+    <div class="kpi"><div class="n">${bid.items.length}</div><div class="l">Line items</div></div>
+    <div class="kpi"><div class="n" style="color:var(--sage)">${fmt0(paid)}</div><div class="l">Collected</div></div>
+    <div class="kpi"><div class="n" style="color:var(--terra)">${fmt0(billed-paid)}</div><div class="l">Outstanding</div></div>`;
+}
+
+/* ═══════════════ PHASE 2 — CPM + GANTT ═══════════════ */
+// activity: {id,name,dur,pct,crew,deps:[{p,type,lag}]}
+const ACTS=[
+  {id:'A',name:'Site prep & excavation',dur:3,pct:100,crew:'Earthworks · Diego 505-555-0182',deps:[]},
+  {id:'B',name:'Foundation & slab',dur:5,pct:100,crew:'Concrete · Marco 505-555-0143',deps:[{p:'A',type:'FS',lag:0}]},
+  {id:'C',name:'Framing',dur:8,pct:60,crew:'Framing · Tyler 505-555-0117',deps:[{p:'B',type:'FS',lag:0}]},
+  {id:'D',name:'Roofing (metal)',dur:4,pct:0,crew:'Roofing · Sam 505-555-0166',deps:[{p:'C',type:'FS',lag:0}]},
+  {id:'E',name:'Windows & ext. doors',dur:3,pct:0,crew:'Framing · Tyler 505-555-0117',deps:[{p:'C',type:'FS',lag:0}]},
+  {id:'F',name:'MEP rough-in',dur:6,pct:0,crew:'MEP · Priya 505-555-0190',deps:[{p:'C',type:'FS',lag:0}]},
+  {id:'G',name:'Insulation',dur:2,pct:0,crew:'Insul · Lee 505-555-0124',deps:[{p:'F',type:'FS',lag:0},{p:'D',type:'FS',lag:0}]},
+  {id:'H',name:'Drywall',dur:4,pct:0,crew:'Drywall · Ana 505-555-0138',deps:[{p:'G',type:'FS',lag:0}]},
+  {id:'I',name:'Interior finishes',dur:6,pct:0,crew:'Finish · Ray 505-555-0151',deps:[{p:'H',type:'FS',lag:0}]},
+  {id:'J',name:'Cabinets & fixtures',dur:4,pct:0,crew:'Finish · Ray 505-555-0151',deps:[{p:'I',type:'FS',lag:0}]},
+  {id:'K',name:'Final inspection / CO',dur:2,pct:0,crew:'PM · You',deps:[{p:'J',type:'FS',lag:0},{p:'E',type:'FS',lag:0}]},
+];
+function runCPM(acts){
+  const m=Object.fromEntries(acts.map(a=>[a.id,{...a,es:0,ef:0,ls:0,lf:0,tf:0,crit:false}]));
+  // topo sort (Kahn)
+  const indeg=Object.fromEntries(acts.map(a=>[a.id,a.deps.length]));
+  const succ={};acts.forEach(a=>a.deps.forEach(d=>{(succ[d.p]=succ[d.p]||[]).push(a.id)}));
+  const q=acts.filter(a=>!a.deps.length).map(a=>a.id),order=[];
+  while(q.length){const id=q.shift();order.push(id);(succ[id]||[]).forEach(s=>{if(--indeg[s]===0)q.push(s)})}
+  // forward
+  order.forEach(id=>{const a=m[id];
+    a.es=Math.max(0,...a.deps.map(d=>d.type==='SS'?m[d.p].es+d.lag:m[d.p].ef+d.lag));
+    a.ef=a.es+a.dur;});
+  const finish=Math.max(...acts.map(a=>m[a.id].ef));
+  // backward
+  [...order].reverse().forEach(id=>{const a=m[id];
+    const ss=succ[id]||[];
+    a.lf=ss.length?Math.min(...ss.map(s=>{const d=m[s].deps.find(x=>x.p===id);
+      return d.type==='SS'?m[s].ls+a.dur-d.lag:m[s].ls-d.lag;})):finish;
+    a.ls=a.lf-a.dur; a.tf=a.ls-a.es; a.crit=a.tf===0;});
+  return {map:m,finish,order};
+}
+let ZOOM=20;
+function setZoom(z){ZOOM=z;renderGantt()}
+const START=new Date(2026,6,6); // Jul 6 2026 (Mon)
+function dayDate(off){const d=new Date(START);d.setDate(d.getDate()+off);return d}
+function renderGantt(){
+  const {map,finish}=runCPM(ACTS);
+  const ROW=30,HEAD=40,LBL=190,W=LBL+finish*ZOOM+40,H=HEAD+ACTS.length*ROW+10;
+  let svg=`<svg width="${W}" height="${H}" font-family="DM Sans" style="display:block">`;
+  // weekend shading + day ticks
+  for(let d=0;d<=finish;d++){const dt=dayDate(d),wk=dt.getDay()===0||dt.getDay()===6;
+    if(wk)svg+=`<rect x="${LBL+d*ZOOM}" y="${HEAD}" width="${ZOOM}" height="${H-HEAD}" fill="rgba(15,31,61,.04)"/>`;
+    if(ZOOM>=12||dt.getDay()===1)svg+=`<line x1="${LBL+d*ZOOM}" y1="${HEAD}" x2="${LBL+d*ZOOM}" y2="${H}" stroke="#eee"/>`;
+    if(dt.getDay()===1)svg+=`<text x="${LBL+d*ZOOM+3}" y="${HEAD-14}" font-size="9" fill="#999">${dt.getMonth()+1}/${dt.getDate()}</text>`;
+  }
+  svg+=`<line x1="${LBL}" y1="${HEAD}" x2="${LBL}" y2="${H}" stroke="#ccc"/>`;
+  ACTS.forEach((a,i)=>{
+    const n=map[a.id],y=HEAD+i*ROW,bx=LBL+n.es*ZOOM,bw=Math.max(n.dur*ZOOM,4);
+    svg+=`<text x="10" y="${y+19}" font-size="12" fill="${n.crit?'#B85C38':'#1C1917'}" font-weight="${n.crit?700:400}">${a.id}. ${a.name}</text>`;
+    // float bar
+    if(n.tf>0)svg+=`<rect x="${bx+bw}" y="${y+9}" width="${n.tf*ZOOM}" height="12" fill="rgba(61,82,71,.22)" rx="2"/>`;
+    // main bar
+    svg+=`<rect x="${bx}" y="${y+6}" width="${bw}" height="18" rx="3" fill="${n.crit?'#B85C38':'#3D5247'}"/>`;
+    if(a.pct>0)svg+=`<rect x="${bx}" y="${y+6}" width="${bw*a.pct/100}" height="18" rx="3" fill="#C4954A"/>`;
+    svg+=`<text x="${bx+bw+6}" y="${y+19}" font-size="10" fill="#999">${n.tf>0?n.tf+'d float':'critical'}</text>`;
+  });
+  // dependency arrows
+  ACTS.forEach((a,i)=>{const n=map[a.id];a.deps.forEach(d=>{
+    const pi=ACTS.findIndex(x=>x.id===d.p),pn=map[d.p];
+    const x1=LBL+pn.ef*ZOOM,y1=HEAD+pi*ROW+15,x2=LBL+n.es*ZOOM,y2=HEAD+i*ROW+15;
+    const cr=n.crit&&pn.crit;
+    svg+=`<path d="M${x1},${y1} H${x1+6} V${y2} H${x2}" fill="none" stroke="${cr?'#B85C38':'#bbb'}" stroke-width="${cr?1.6:1}"/>
+      <path d="M${x2},${y2} l-4,-3 l0,6 z" fill="${cr?'#B85C38':'#bbb'}"/>`;
+  })});
+  svg+='</svg>';
+  $('#gantt-host').innerHTML=svg;
+  $('#proj-finish').textContent=`Finish: day ${finish} · ${dayDate(finish).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+  // KPIs
+  const crit=ACTS.filter(a=>map[a.id].crit).length;
+  const avg=Math.round(ACTS.reduce((s,a)=>s+a.pct,0)/ACTS.length);
+  $('#sched-kpis').innerHTML=`
+    <div class="kpi"><div class="n">${finish}<span style="font-size:14px"> days</span></div><div class="l">Project duration</div></div>
+    <div class="kpi"><div class="n" style="color:var(--terra)">${crit}</div><div class="l">Critical activities</div></div>
+    <div class="kpi"><div class="n">${ACTS.length}</div><div class="l">Total activities</div></div>
+    <div class="kpi"><div class="n" style="color:var(--copper)">${avg}%</div><div class="l">Overall complete</div></div>`;
+  // dispatch + crit path
+  $('#dispatch-rows').innerHTML=ACTS.map(a=>{const n=map[a.id];
+    const s=dayDate(n.es).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const f=dayDate(n.ef).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const phone=(a.crew.match(/[\d-]{7,}/)||[''])[0].replace(/-/g,'');
+    const msg=encodeURIComponent(`ABQ ADU — ${a.name} scheduled ${s}–${f}. Reply to confirm.`);
+    return `<tr><td style="font-weight:${n.crit?600:400};color:${n.crit?'var(--terra)':'inherit'}">${a.name}</td>
+      <td class="muted" style="font-size:12px">${a.crew}</td><td class="muted" style="font-size:12px">${s}–${f}</td>
+      <td>${phone?`<a class="btn sm copper" style="text-decoration:none;color:#fff" href="sms:${phone}?&body=${msg}">Text</a>`:''}</td></tr>`;
+  }).join('');
+  const cp=ACTS.filter(a=>map[a.id].crit);
+  $('#critpath-list').innerHTML=cp.map((a,i)=>`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--stucco)">
+    <span style="color:var(--terra);font-weight:700">${i+1}</span><span>${a.name}</span>
+    <span class="muted" style="margin-left:auto">${a.dur}d</span></div>`).join('')
+    +`<div style="margin-top:8px;font-size:12px;color:var(--ink60)">Total critical duration: <b>${cp.reduce((s,a)=>s+a.dur,0)} days</b>. Any slip here moves your finish date.</div>`;
+}
+
+/* ═══════════════ PHASE 3 — DESIGN STUDIO ═══════════════ */
+const ROOM_TYPES=[
+  {t:'bedroom',l:'Bedroom',c:'#C8D8E8',w:12,h:10},{t:'bathroom',l:'Bathroom',c:'#D8E8C8',w:6,h:8},
+  {t:'kitchen',l:'Kitchen',c:'#E8DCC8',w:10,h:8},{t:'living',l:'Living',c:'#E8C8C8',w:14,h:12},
+  {t:'dining',l:'Dining',c:'#D8C8E8',w:10,h:8},{t:'utility',l:'Utility',c:'#C8E8E8',w:6,h:6},
+  {t:'closet',l:'Closet',c:'#E8E8C8',w:4,h:4},{t:'porch',l:'Porch',c:'#D0E0D0',w:8,h:6},
+];
+const TEMPLATES={
+  blank:[],
+  'hyder-hut':[['living','Living/Kitchen','#E8C8C8',12,12,18,14],['bedroom','Bedroom','#C8D8E8',12,192,13,10],['bathroom','Bath','#D8E8C8',180,192,6,8]],
+  'hyder-hut-2br':[['living','Living/Kitchen','#E8C8C8',12,12,21,13],['bedroom','Bedroom 1','#C8D8E8',12,180,11,10],['bedroom','Bedroom 2','#C8D8E8',12,300,11,9],['bathroom','Bath','#D8E8C8',156,180,8,8]],
+  altura:[['living','Living','#E8C8C8',12,12,14,12],['kitchen','Kitchen','#E8DCC8',192,12,10,12],['bedroom','Bedroom','#C8D8E8',12,168,14,11],['bathroom','Bath','#D8E8C8',192,168,8,8]],
+  casita:[['living','Living','#E8C8C8',12,12,16,12],['kitchen','Kitchen','#E8DCC8',12,168,12,10],['dining','Dining','#D8C8E8',168,168,10,10],['bedroom','Bedroom 1','#C8D8E8',12,300,12,11],['bedroom','Bedroom 2','#C8D8E8',168,300,10,11],['bathroom','Bath','#D8E8C8',216,12,8,8],['porch','Portal Porch','#D0E0D0',12,444,21,6]],
+  tierra:[['living','Living','#E8C8C8',12,12,18,13],['kitchen','Kitchen','#E8DCC8',12,180,12,11],['dining','Dining','#D8C8E8',168,180,10,11],['bedroom','Primary BR','#C8D8E8',12,324,14,12],['bathroom','Primary Bath','#D8E8C8',192,324,8,8],['bedroom','Bedroom 2','#C8D8E8',12,480,12,10],['bathroom','Bath 2','#D8E8C8',168,480,8,7]],
+};
+let stage,layer,rooms=[],curTool='select',selNode=null,designReady=false;
+function ensureDesign(){
+  if(designReady){return}
+  const host=$('#design-canvas-host');
+  const W=host.clientWidth||600;
+  stage=new Konva.Stage({container:'design-canvas-host',width:W,height:560});
+  layer=new Konva.Layer();stage.add(layer);
+  // grid
+  const g=new Konva.Layer();
+  for(let x=0;x<=W;x+=GRID)g.add(new Konva.Line({points:[x,0,x,560],stroke:x%(GRID*5)===0?'#ccd4e0':'#e8ecf2',strokeWidth:1}));
+  for(let y=0;y<=560;y+=GRID)g.add(new Konva.Line({points:[0,y,W,y],stroke:y%(GRID*5)===0?'#ccd4e0':'#e8ecf2',strokeWidth:1}));
+  stage.add(g);g.moveToBottom();
+  stage.on('click tap',e=>{
+    if(e.target===stage){
+      if(curTool!=='select'){const p=stage.getPointerPosition();addRoom(curTool,p.x,p.y)}
+      else{select(null)}
+    }
+  });
+  // palette
+  const pal=$('#palette');
+  const sel=document.createElement('button');sel.className='pbtn active';sel.textContent='↖ Select';
+  sel.onclick=()=>setTool('select',sel);pal.appendChild(sel);
+  ROOM_TYPES.forEach(rt=>{const b=document.createElement('button');b.className='pbtn';
+    b.innerHTML=`<span class="sw" style="background:${rt.c}"></span>${rt.l}`;
+    b.onclick=()=>setTool(rt.t,b);pal.appendChild(b);});
+  window.addEventListener('keydown',e=>{if((e.key==='Delete'||e.key==='Backspace')&&selNode){
+    rooms=rooms.filter(r=>r.node!==selNode);selNode.destroy();selNode=null;layer.draw();updateBom();}});
+  designReady=true;
+  loadTemplate('casita');
+}
+function setTool(t,btn){curTool=t;document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+function snap(v){return Math.round(v/GRID)*GRID}
+function addRoom(type,x,y){
+  const rt=ROOM_TYPES.find(r=>r.t===type);if(!rt)return;
+  placeRoom(rt.t,rt.l,rt.c,snap(x),snap(y),rt.w,rt.h);updateBom();
+}
+function placeRoom(type,label,color,x,y,wft,hft){
+  const w=wft*GRID,h=hft*GRID;
+  const grp=new Konva.Group({x,y,draggable:true});
+  const rect=new Konva.Rect({width:w,height:h,fill:color,stroke:'#1a2a4a',strokeWidth:2});
+  const txt=new Konva.Text({text:label,width:w,height:h,align:'center',verticalAlign:'middle',fontSize:11,fontFamily:'DM Sans',fill:'#0F1F3D',fontStyle:'600'});
+  const sf=new Konva.Text({text:`${wft*hft} sf`,y:h/2+8,width:w,align:'center',fontSize:9,fontFamily:'DM Sans',fill:'#4a5a6a'});
+  grp.add(rect);grp.add(txt);grp.add(sf);
+  grp.on('dragend',()=>{grp.x(snap(grp.x()));grp.y(snap(grp.y()));layer.draw();updateBom()});
+  grp.on('click tap',e=>{e.cancelBubble=true;select(grp,rect)});
+  grp._meta={type,wft,hft};
+  layer.add(grp);rooms.push({node:grp,rect});layer.draw();
+}
+function select(grp,rect){
+  rooms.forEach(r=>r.rect.stroke('#1a2a4a').strokeWidth(2));
+  selNode=grp;
+  if(rect){rect.stroke('#C4954A').strokeWidth(3)}
+  layer.draw();
+}
+function loadTemplate(key){
+  if(!designReady){$('#tpl-select').value=key;return}
+  rooms.forEach(r=>r.node.destroy());rooms=[];selNode=null;
+  (TEMPLATES[key]||[]).forEach(r=>placeRoom(r[0],r[1],r[2],r[3],r[4],r[5],r[6]));
+  layer.draw();updateBom();
+}
+function updateBom(){
+  const totalSf=rooms.reduce((s,r)=>s+r.node._meta.wft*r.node._meta.hft,0);
+  $('#d-total').textContent=Math.round(totalSf)+' sf';
+  // BOM
+  const perim=rooms.reduce((s,r)=>s+2*(r.node._meta.wft+r.node._meta.hft),0);
+  const wallSf=perim*9, bath=rooms.filter(r=>r.node._meta.type==='bathroom');
+  const bathSf=bath.reduce((s,r)=>s+r.node._meta.wft*r.node._meta.hft,0);
+  const kit=rooms.filter(r=>r.node._meta.type==='kitchen').reduce((s,r)=>s+Math.min(r.node._meta.wft,r.node._meta.hft),0);
+  const bom=[
+    ['Structure','Foundation/slab',totalSf*18],['Structure','Framing',perim*3*4.5],['Structure','Roofing',totalSf*1.15*6.5],
+    ['Exterior','Siding (stucco)',wallSf*.7*7],['Interior','Insulation',wallSf*1.8],['Interior','Drywall',(wallSf+totalSf)*2.2],
+    ['Interior','Flooring',(totalSf-bathSf)*8.5],['MEP','Electrical',totalSf*12],['MEP','HVAC',totalSf*9],
+  ];
+  if(bath.length){bom.push(['Plumbing','Fixtures',bath.length*3*850],['Bathroom','Tile',bathSf*2.5*14])}
+  if(kit){bom.push(['Kitchen','Cabinetry',kit*280],['Kitchen','Countertop',kit*95])}
+  const grand=bom.reduce((s,b)=>s+b[2],0);
+  let lastCat=null,html='';
+  bom.forEach(b=>{if(b[0]!==lastCat){html+=`<div class="bom-cat">${b[0]}</div>`;lastCat=b[0]}
+    html+=`<div class="bom-row"><span>${b[1]}</span><span>${fmt0(b[2])}</span></div>`});
+  html+=`<div style="border-top:1px solid #2a4070;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between">
+    <span style="color:#8090a8;font-size:11px">Est. build cost${totalSf?` · ${fmt0(grand/totalSf)}/sf`:''}</span>
+    <span style="font-family:var(--fd);font-size:18px;font-weight:700;color:#C4954A">${fmt0(grand)}</span></div>`;
+  $('#d-bom').innerHTML=rooms.length?html:'<div class="muted" style="font-size:11px">Add rooms to see the estimate.</div>';
+  // zoning
+  const z=[];const bedrooms=rooms.filter(r=>r.node._meta.type==='bedroom');
+  if(totalSf>1000)z.push(['err','Exceeds ABQ ADU max of 1,000 sf']);
+  rooms.forEach(r=>{const m=r.node._meta,sf=m.wft*m.hft;
+    if(m.type==='bedroom'&&sf<70)z.push(['err',`Bedroom ${sf}sf < 70sf min`]);
+    if(['living','kitchen','dining'].includes(m.type)&&sf<120)z.push(['err',`${m.type} ${sf}sf < 120sf min`]);
+    if(['bedroom','living','kitchen','dining'].includes(m.type)&&(m.wft<7||m.hft<7))z.push(['warn',`${m.type} < 7ft min dimension`]);
+  });
+  if(bedrooms.length&&!bath.length)z.push(['err','Bedrooms require a bathroom']);
+  const zh=$('#d-zoning');
+  if(!rooms.length){zh.innerHTML='<span class="muted" style="font-size:11px">—</span>';return}
+  if(!z.length){zh.innerHTML='<span style="color:#40b870">✓ Meets ABQ ADU requirements</span>';return}
+  zh.innerHTML=z.map(x=>`<span style="color:${x[0]==='err'?'#e06a5a':'#d4a020'}">${x[0]==='err'?'✗':'⚠'} ${x[1]}</span>`).join('');
+}
+
+/* ═══════════════ AI PREVIEWS ═══════════════ */
+const AI=[
+  {t:'Design Brief',ph:'Phase 3',svc:'claudeDesign.js',out:`This 640 sf Casita Portal makes excellent use of a compact footprint. The living, kitchen, and dining areas flow together in an open arrangement at the front of the home, while the two bedrooms are zoned to the rear for privacy — a smart separation for a guest unit or rental.
+
+The covered portal porch is the signature move here: it extends the living space outdoors and shades the south-facing wall, a real asset in Albuquerque's high-desert sun. Consider deep roof overhangs and clerestory windows to pull in northern light while keeping summer heat out.
+
+For finishes, lean into Southwest character — Saltillo tile at the entry, exposed viga-style beams over the living area, and a warm stucco exterior in a desert tan. These choices ground the ADU in its New Mexico setting without adding cost.`},
+  {t:'Compliance Analysis',ph:'Phase 3',svc:'claudeDesign.js',out:`COMPLIANT: Yes (Conditional)
+
+ISSUES:
+- None blocking. All habitable rooms exceed the 120 sf minimum (IRC R304.1).
+- Both bedrooms exceed 70 sf and meet the 7 ft minimum horizontal dimension.
+
+RECOMMENDATIONS:
+- Confirm each bedroom has an egress window with ≥5.7 sf clear opening, ≥20" width, ≥24" height, sill ≤44" AFF (IRC R310).
+- Total 640 sf is well under the ABQ 1,000 sf ADU cap (IDO §14-16-6-7).
+
+NOTES: Verify rear/side setbacks of 5'/3' on the survey before submittal.`},
+  {t:'Permit Narrative',ph:'Phase 3',svc:'claudeDesign.js',out:`PROJECT NARRATIVE — Accessory Dwelling Unit
+
+Scope: Construction of one new detached accessory dwelling unit of 640 square feet (2 bedrooms / 1 bathroom) on an existing residential lot in Albuquerque, New Mexico.
+
+The proposed ADU conforms to the City of Albuquerque Integrated Development Ordinance §14-16-6-7 governing accessory dwelling units, including size, height, and setback provisions. Construction shall comply with the 2021 International Residential Code and the 2021 International Energy Conservation Code.
+
+The structure is wood-framed on a monolithic slab foundation, with a standing-seam metal roof and three-coat stucco exterior. All electrical, plumbing, and mechanical work shall be performed by New Mexico-licensed trades under separate permit.`},
+  {t:'Delay Forecast',ph:'Phase 2',svc:'claudeScheduler.js',out:`DELAY RISK: Moderate
+
+The critical path runs Framing → MEP rough-in → Insulation → Drywall → Finishes → Cabinets → Final. Framing is 60% complete and tracking on schedule.
+
+Watch items:
+1. MEP rough-in (6 days, zero float) is the pivot point — any inspection delay pushes the finish date day-for-day. Schedule the rough-in inspection now.
+2. A monsoon-season forecast (July–Sept) threatens roofing; build a 2-day weather buffer before insulation, which can't start until the structure is dried in.
+
+Recommendation: Front-load the MEP inspection booking and confirm the insulation crew can flex ±2 days.`},
+  {t:'Risk Analysis',ph:'Phase 2',svc:'claudeScheduler.js',out:`TOP RISKS (probability × impact)
+
+1. MEP inspection delay — P4 × I5 = 20 (Critical). Zero-float activity; a failed or late inspection slips the entire project. Mitigation: pre-inspection walkthrough, book early.
+2. Monsoon weather on roofing/dry-in — P4 × I3 = 12 (High). Mitigation: weather buffer, tarping plan.
+3. Cabinet lead time — P3 × I3 = 9 (Medium). Mitigation: order at drywall start, not finish.
+4. Concrete cure in summer heat — P2 × I3 = 6 (Medium). Mitigation: evening pours, curing blankets.`},
+  {t:'Weekly Briefing',ph:'Phase 2',svc:'claudeScheduler.js',out:`WEEKLY BRIEFING — Casita Portal ADU
+
+Status: On schedule. Project is 14% complete overall; site prep and foundation are done, framing is underway at 60%.
+
+This week: Complete framing (Tyler's crew), begin roofing and window install. Book the MEP rough-in inspection for early next week — it's on the critical path.
+
+Heads-up: No float on MEP. A monsoon system is forecast mid-week; have tarps staged for the dry-in. Cabinets should be ordered now to avoid a finish-stage bottleneck.
+
+Cash: Deposit and foundation draws collected. Next invoice (framing complete, 30%) is ready to send.`},
+];
+$('#ai-grid').innerHTML=AI.map((a,i)=>`<div class="ai-card">
+  <span class="ai-badge">Claude · ${a.ph}</span>
+  <h3>${a.t}</h3>
+  <div class="muted" style="font-size:12px">Service: <code>${a.svc}</code></div>
+  <button class="btn copper sm" style="align-self:flex-start" onclick="aiShow(${i},this)">Preview output</button>
+  <div class="ai-out" id="ai-${i}">${AI[i].out}</div>
+</div>`).join('');
+function aiShow(i,btn){const o=$('#ai-'+i);o.classList.toggle('show');btn.textContent=o.classList.contains('show')?'Hide output':'Preview output'}
+
+/* init */
+renderBid();
+if(location.hash&&document.querySelector(`.tab[data-tab="${location.hash.slice(1)}"]`)) showTab(location.hash.slice(1));
+</script>
+</body>
+</html>
