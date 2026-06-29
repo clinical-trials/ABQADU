@@ -1,0 +1,118 @@
+{
+  "builderReadyModels": [
+    {
+      "id": "hyder-hut",
+      "name": "Hyder Hut",
+      "squareFeet": 440,
+      "variation": "HH1, 12.5x35, 1 bed, 1 bath, covered deck",
+      "orientationOptions": ["left-hand", "right-hand"],
+      "source": "v1 website confirmed"
+    },
+    {
+      "id": "hyder-hut-2br",
+      "name": "Hyder Hut 2BR",
+      "squareFeet": 550,
+      "variation": "12.5x44, 2 bed, 1 bath, central great room",
+      "orientationOptions": ["left-hand", "right-hand"],
+      "source": "v1 website confirmed"
+    },
+    {
+      "id": "altura-24x24",
+      "name": "Altura 24x24",
+      "squareFeet": 576,
+      "variation": "24x24, 1 bed, 1 bath, walk-in closet, patio",
+      "orientationOptions": ["left-hand", "right-hand"],
+      "source": "v1 website confirmed"
+    },
+    {
+      "id": "casita-portal",
+      "name": "Casita Portal",
+      "squareFeet": 640,
+      "variation": "L-shaped, 2 bed, 1 bath, covered portal porch",
+      "orientationOptions": ["left-hand", "right-hand"],
+      "source": "v1 website confirmed"
+    },
+    {
+      "id": "tierra-grande",
+      "name": "Tierra Grande",
+      "squareFeet": 780,
+      "variation": "2 bed, 2 bath, flex room, income-property layout",
+      "orientationOptions": ["left-hand", "right-hand"],
+      "source": "v1 website confirmed"
+    },
+    {
+      "id": "cromwell",
+      "name": "Cromwell",
+      "squareFeet": 1280,
+      "variation": "2 bed, 1.5 bath, two-story, porch, rear deck, storage loft",
+      "orientationOptions": ["confirm"],
+      "source": "v1 website confirmed"
+    }
+  ],
+  "abqaduSourceModels": [
+    {
+      "id": "altura-source",
+      "name": "Altura",
+      "squareFeet": 576,
+      "variation": "ABQADU source page notes Altura 1 or 2 bed; v1 confirms 24x24 at 576 sf",
+      "source": "ABQADU designs page plus v1 website"
+    },
+    {
+      "id": "netherwood",
+      "name": "Netherwood",
+      "squareFeet": null,
+      "variation": "ABQADU source model; square footage and bedroom/bath count need confirmation",
+      "source": "ABQADU designs page"
+    },
+    {
+      "id": "burton",
+      "name": "Burton",
+      "squareFeet": null,
+      "variation": "ABQADU source model; square footage and bedroom/bath count need confirmation",
+      "source": "ABQADU designs page"
+    },
+    {
+      "id": "townhouse",
+      "name": "Townhouse",
+      "squareFeet": null,
+      "variation": "ABQADU source model; square footage and bedroom/bath count need confirmation",
+      "source": "ABQADU designs page"
+    },
+    {
+      "id": "the-750",
+      "name": "The 750",
+      "squareFeet": 750,
+      "variation": "750 sf city-plan size; use flat, pitched, or 3D concrete-print variant",
+      "source": "ABQADU designs page and CABQ plan set"
+    },
+    {
+      "id": "flex-barn",
+      "name": "Flex Barn",
+      "squareFeet": null,
+      "variation": "ABQADU source model; square footage and bedroom/bath count need confirmation",
+      "source": "ABQADU designs page"
+    }
+  ],
+  "cityPlanVariations": [
+    {
+      "squareFeet": 450,
+      "label": "Compact Studio",
+      "variants": ["flat roof", "pitched roof", "3D concrete print"]
+    },
+    {
+      "squareFeet": 550,
+      "label": "1-Bedroom",
+      "variants": ["flat roof", "pitched roof", "3D concrete print"]
+    },
+    {
+      "squareFeet": 650,
+      "label": "1-Bedroom",
+      "variants": ["flat roof", "pitched roof", "3D concrete print"]
+    },
+    {
+      "squareFeet": 750,
+      "label": "Largest City Plan",
+      "variants": ["flat roof", "pitched roof", "3D concrete print"]
+    }
+  ]
+}

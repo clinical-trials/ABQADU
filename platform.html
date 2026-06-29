@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABQ ADU — Platform (v1)</title>
+<title>ABQ ADU — Platform (v2)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
@@ -99,6 +99,32 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bom-row{display:flex;justify-content:space-between;font-size:11px;color:#c0d0e0;padding:2px 0}
 .bom-cat{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#7088a8;padding-top:6px}
 
+/* Blueprint bidout */
+.blueprint-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:20px;align-items:stretch;margin-bottom:20px}
+.bp-panel{background:var(--blue);color:var(--stucco);border-radius:10px;padding:22px;border:1px solid rgba(196,149,74,.28);position:relative;overflow:hidden}
+.bp-panel:before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--bp-line) 1px,transparent 1px),linear-gradient(90deg,var(--bp-line) 1px,transparent 1px);background-size:34px 34px;opacity:.5;pointer-events:none}
+.bp-panel>*{position:relative;z-index:1}
+.bp-title{font-family:var(--fd);font-size:30px;font-weight:900;line-height:1;text-transform:uppercase}
+.bp-title span{color:var(--copper)}
+.bp-copy{color:rgba(240,235,225,.68);font-size:13px;max-width:560px;margin-top:10px}
+.model-catalog{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.model-mini{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;overflow:hidden;cursor:pointer;transition:.18s}
+.model-mini:hover,.model-mini.active{border-color:var(--copper);box-shadow:0 10px 28px rgba(28,25,23,.10);transform:translateY(-2px)}
+.model-mini img{width:100%;height:112px;object-fit:cover;display:block;background:var(--stucco)}
+.model-mini-body{padding:11px 12px}
+.model-mini h4{font-family:var(--fd);font-size:17px;margin-bottom:2px}
+.model-mini p{font-size:11px;color:var(--ink60);line-height:1.35}
+.src-tag{display:inline-block;margin-top:7px;border-radius:99px;padding:2px 7px;font-size:10px;font-weight:700;background:rgba(196,149,74,.12);color:var(--copper)}
+.source-note{background:#fff;border:1px solid var(--stucco-d);border-left:4px solid var(--copper);border-radius:8px;padding:13px 15px;font-size:12px;color:var(--ink60);margin-bottom:16px}
+.bidout-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+.drop-zone{border:1px dashed rgba(196,149,74,.65);border-radius:8px;padding:18px;background:rgba(255,255,255,.04);margin-top:16px}
+.takeoff-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.takeoff-summary .kpi{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:var(--stucco)}
+.takeoff-summary .l{color:rgba(240,235,225,.55)}
+.lowes-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:16px;position:sticky;top:78px}
+.lowes-step{display:flex;gap:9px;border-bottom:1px solid var(--stucco);padding:9px 0;font-size:12px}
+.lowes-step b{color:var(--copper)}
+
 /* AI */
 .ai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .ai-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:10px}
@@ -140,11 +166,13 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .res-unit .cap{font-size:10px;color:var(--ink30);margin-top:4px}
 @media (max-width:900px){
   .kanban{grid-template-columns:repeat(2,1fr)}
-  .bid-wrap,.ai-grid{grid-template-columns:1fr}
+  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid{grid-template-columns:1fr}
+  .model-catalog{grid-template-columns:repeat(2,1fr)}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .design-wrap{grid-template-columns:1fr}
   .tabs{overflow-x:auto}
 }
+@media (max-width:620px){.model-catalog{grid-template-columns:1fr}}
 @media print{
   header.topbar,.tabs,.gantt-toolbar,.no-print{display:none!important}
   .panel{display:none!important}.panel.print-me{display:block!important}
@@ -161,9 +189,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <button class="tab" data-tab="schedule">Schedule &amp; Critical Path</button>
     <button class="tab" data-tab="controls">Project Controls</button>
     <button class="tab" data-tab="design">Design Studio</button>
+    <button class="tab" data-tab="blueprint">Blueprint Bidout</button>
     <button class="tab" data-tab="ai">AI Assistant</button>
   </nav>
-  <span class="v-badge">Version 1</span>
+  <span class="v-badge">Version 2</span>
   <a class="home-link" href="index.html">← Site</a>
 </header>
 
@@ -355,6 +384,60 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   <p class="muted" style="font-size:12px;margin-top:8px">Click a room type then click the canvas to place it. Drag to move (snaps to grid). Click a placed room and press Delete to remove.</p>
 </section>
 
+<!-- ════════ BLUEPRINT BIDOUT ════════ -->
+<section class="panel" id="tab-blueprint">
+  <div class="panel-head"><h2>Plans → Blueprint → Lowe's Bidout</h2><span class="muted">Version 2 · non-negotiable</span></div>
+  <p class="panel-sub">Turn a selected ABQ ADU model or uploaded plan set into a blueprint-aware material takeoff. The first v2 pass uses standard model assemblies; later passes can add AI/vision review for uploaded PDFs.</p>
+
+  <div class="blueprint-hero">
+    <div class="bp-panel">
+      <div class="bp-title">From site visit to <span>submitted bid</span> in 30 hours</div>
+      <p class="bp-copy">Pick the model, confirm square footage, run a rough material takeoff, expose cost per square foot, and prepare a Lowe's/supplier bid package with quantities, alternates, exclusions, and builder review flags.</p>
+      <div class="takeoff-summary">
+        <div class="kpi"><div class="n" id="bp-sqft">440</div><div class="l">Model sq ft</div></div>
+        <div class="kpi"><div class="n" id="bp-cogs">$0</div><div class="l">COGS estimate</div></div>
+        <div class="kpi"><div class="n" id="bp-psf">$0</div><div class="l">COGS / sq ft</div></div>
+      </div>
+      <div class="drop-zone">
+        <div style="font-family:var(--fd);font-size:16px;color:var(--copper);font-weight:700">Future upload lane</div>
+        <div style="font-size:12px;color:rgba(240,235,225,.65)">Upload city-approved plans, a PDF blueprint, or a designer sheet. V2 starts with manual review and standard assemblies; v3 can add an agent to draft the takeoff and flag engineering burden.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:8px">Builder Guardrails</h3>
+      <table>
+        <tbody>
+          <tr><td>Electrical panel upgrade</td><td class="r">$3,500-$6,500 allowance</td></tr>
+          <tr><td>Engineering review</td><td class="r">Openings &gt; 3 ft flagged</td></tr>
+          <tr><td>Weather delay</td><td class="r">1 rain day can add 7 days</td></tr>
+          <tr><td>Site constraints</td><td class="r">10 ft from buildings, setbacks, utilities</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="source-note">
+    Source model list pulled from the v1 site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
+  </div>
+
+  <div class="model-catalog" id="bp-models"></div>
+
+  <div class="bidout-grid">
+    <div class="card" style="padding:0;overflow:hidden">
+      <table>
+        <thead><tr><th>Assembly</th><th>Material / Lowe's bid line</th><th class="r">Qty</th><th>Unit</th><th class="r">Budget</th><th>Review</th></tr></thead>
+        <tbody id="bp-lines"></tbody>
+      </table>
+    </div>
+    <div class="lowes-card">
+      <h3 style="font-size:17px;margin-bottom:6px">Lowe's Package Checklist</h3>
+      <p class="muted" style="font-size:12px;margin-bottom:8px">Use this as the handoff for the store bid desk or supplier pricing.</p>
+      <div id="lowes-checklist"></div>
+      <button class="btn copper" style="width:100%;margin-top:12px" onclick="window.print()">Print Bidout Packet</button>
+    </div>
+  </div>
+</section>
+
 <!-- ════════ AI ASSISTANT ════════ -->
 <section class="panel" id="tab-ai">
   <div class="panel-head"><h2>AI Assistant</h2><span class="muted">Cross-phase · Claude-powered</span></div>
@@ -384,6 +467,7 @@ function showTab(name){
   if(name==='schedule') renderGantt();
   if(name==='controls') renderControls();
   if(name==='design') ensureDesign();
+  if(name==='blueprint') renderBlueprint();
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.dataset.tab;showTab(t.dataset.tab)});
 window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
@@ -700,6 +784,94 @@ function updateBom(){
   if(!rooms.length){zh.innerHTML='<span class="muted" style="font-size:11px">—</span>';return}
   if(!z.length){zh.innerHTML='<span style="color:#40b870">✓ Meets ABQ ADU requirements</span>';return}
   zh.innerHTML=z.map(x=>`<span style="color:${x[0]==='err'?'#e06a5a':'#d4a020'}">${x[0]==='err'?'✗':'⚠'} ${x[1]}</span>`).join('');
+}
+
+/* ═══════════════ VERSION 2 — MODEL CATALOG + LOWE'S BIDOUT ═══════════════ */
+const MODEL_CATALOG=[
+  {id:'hyder-hut',name:'Hyder Hut',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'v1 confirmed',bed:1,bath:1,type:'builder-ready'},
+  {id:'hyder-hut-2br',name:'Hyder Hut 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'v1 confirmed',bed:2,bath:1,type:'builder-ready'},
+  {id:'altura-24x24',name:'Altura 24x24',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'v1 confirmed',bed:1,bath:1,type:'builder-ready'},
+  {id:'casita-portal',name:'Casita Portal',sqft:640,variation:'L-shaped · 2BR/1BA · covered portal',img:'images/adu-exterior.png',source:'v1 confirmed',bed:2,bath:1,type:'builder-ready'},
+  {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · flex room · income-property layout',img:'images/adu-interior.png',source:'v1 confirmed',bed:2,bath:2,type:'builder-ready'},
+  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · two-story · porch/deck',img:'images/source-cromwell-render.webp',source:'v1 confirmed',bed:2,bath:1.5,type:'expanded'},
+  {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
+  {id:'burton',name:'Burton',sqft:null,variation:'ABQADU source model · square footage confirm',img:'images/source-burton-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
+  {id:'townhouse',name:'Townhouse',sqft:null,variation:'ABQADU source model · tighter urban footprint',img:'images/source-townhouse-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
+  {id:'the-750',name:'The 750',sqft:750,variation:'City model size · flat, pitched, or 3D concrete print',img:'images/source-750-render.webp',source:'ABQADU/CABQ plan',bed:'confirm',bath:'confirm',type:'city-plan'},
+  {id:'flex-barn',name:'Flex Barn',sqft:null,variation:'ABQADU source model · flexible barn form',img:'images/source-flex-barn-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
+];
+
+const CITY_PLAN_VARIATIONS=[
+  {sqft:450,label:'Compact Studio',variants:['Flat roof','Pitched roof','3D concrete print']},
+  {sqft:550,label:'1-Bedroom',variants:['Flat roof','Pitched roof','3D concrete print']},
+  {sqft:650,label:'1-Bedroom',variants:['Flat roof','Pitched roof','3D concrete print']},
+  {sqft:750,label:'Largest City Plan',variants:['Flat roof','Pitched roof','3D concrete print']},
+];
+
+let bpModel=MODEL_CATALOG[0], blueprintDone=false;
+function money0(n){return '$'+Math.round(n||0).toLocaleString()}
+function selectBpModel(id){
+  bpModel=MODEL_CATALOG.find(m=>m.id===id)||MODEL_CATALOG[0];
+  renderBlueprint(true);
+}
+function takeoffFor(model){
+  const sf=model.sqft||650;
+  const bathCount=typeof model.bath==='number'?Math.ceil(model.bath):1;
+  const bedCount=typeof model.bed==='number'?model.bed:1;
+  const exteriorWallLf=Math.round(Math.sqrt(sf)*4.15);
+  const roofSf=Math.round(sf*1.16);
+  const wallSf=Math.round(exteriorWallLf*9);
+  const windowCount=Math.max(5,bedCount*2+3);
+  const doorCount=bedCount+4;
+  const cabinetLf=bedCount>=2?16:12;
+  const review=model.sqft?'ready':'confirm sqft before bid';
+  return [
+    {cat:'Blueprint',item:'Plan review, scale check, bid assumptions sheet',qty:1,unit:'set',budget:450,review},
+    {cat:'Structure',item:'Concrete slab package',qty:sf,unit:'sf',budget:sf*18,review:'site/soil review'},
+    {cat:'Structure',item:'Framing lumber package',qty:Math.round(exteriorWallLf*3),unit:'lf',budget:exteriorWallLf*3*4.5,review:'field verify openings'},
+    {cat:'Structure',item:'Roofing metal/pitched alternate',qty:roofSf,unit:'sf',budget:roofSf*6.5,review:'wind/rain delay sensitive'},
+    {cat:'Exterior',item:'Stucco/siding allowance',qty:Math.round(wallSf*.72),unit:'sf',budget:wallSf*.72*7,review:'finish color alternate'},
+    {cat:'Exterior',item:'Windows package',qty:windowCount,unit:'ea',budget:windowCount*625,review:'>3 ft opening = engineer flag'},
+    {cat:'Exterior',item:'Exterior/interior doors package',qty:doorCount,unit:'ea',budget:doorCount*410,review:'sliding-door delete option'},
+    {cat:'Interior',item:'Insulation package',qty:wallSf,unit:'sf',budget:wallSf*1.8,review:'R-value confirm'},
+    {cat:'Interior',item:'Drywall package',qty:wallSf+sf,unit:'sf',budget:(wallSf+sf)*2.2,review:'standard finish'},
+    {cat:'Interior',item:'LVP flooring less wet areas',qty:Math.round(sf-bathCount*55),unit:'sf',budget:(sf-bathCount*55)*8.5,review:'owner selection'},
+    {cat:'MEP',item:'Electrical rough-in and trim',qty:sf,unit:'sf',budget:sf*12,review:'panel upgrade $3,500-$6,500'},
+    {cat:'MEP',item:'Plumbing fixtures',qty:bathCount*3+1,unit:'ea',budget:(bathCount*3+1)*850,review:'sewer/macerator analysis'},
+    {cat:'MEP',item:'Mini-split HVAC package',qty:sf,unit:'sf',budget:sf*9,review:'smart thermostat add-on'},
+    {cat:'Kitchen',item:'Cabinets and countertop',qty:cabinetLf,unit:'lf',budget:cabinetLf*(280+95),review:'Lowe’s cabinet desk'},
+  ];
+}
+function renderBlueprint(force=false){
+  if(blueprintDone&&!force)return;
+  blueprintDone=true;
+  $('#bp-models').innerHTML=MODEL_CATALOG.map(m=>`<div class="model-mini ${m.id===bpModel.id?'active':''}" onclick="selectBpModel('${m.id}')">
+    <img src="${m.img}" alt="${m.name} model image">
+    <div class="model-mini-body">
+      <h4>${m.name}</h4>
+      <p>${m.sqft?m.sqft+' sf':'Square footage confirm'} · ${m.variation}</p>
+      <span class="src-tag">${m.source}</span>
+    </div>
+  </div>`).join('');
+  const lines=takeoffFor(bpModel);
+  const cogs=lines.reduce((s,l)=>s+l.budget,0)+(bpModel.sqft?5000:6500);
+  const sf=bpModel.sqft||650;
+  $('#bp-sqft').textContent=bpModel.sqft||'confirm';
+  $('#bp-cogs').textContent=money0(cogs);
+  $('#bp-psf').textContent=money0(cogs/sf);
+  $('#bp-lines').innerHTML=lines.map(l=>`<tr>
+    <td style="font-weight:600">${l.cat}</td><td>${l.item}</td><td class="r">${Number(l.qty).toLocaleString()}</td>
+    <td class="muted">${l.unit}</td><td class="r" style="font-weight:600">${money0(l.budget)}</td><td class="muted" style="font-size:11px">${l.review}</td>
+  </tr>`).join('')+`<tr><td style="font-weight:700;color:var(--terra)">Allowance</td><td>Electrical panel upgrade range</td><td class="r">1</td><td class="muted">allow</td><td class="r" style="font-weight:700">$3,500-$6,500</td><td class="muted" style="font-size:11px">choose exact bid allowance</td></tr>`;
+  const city=`City free-plan alternates: ${CITY_PLAN_VARIATIONS.map(g=>`${g.sqft} sf (${g.variants.join('/')})`).join('; ')}.`;
+  $('#lowes-checklist').innerHTML=[
+    'Confirm model, square footage, left/right hand orientation, and owner changes.',
+    'Flag large windows/openings over 3 ft in either dimension for engineering review.',
+    'Export material table with quantities, alternates, exclusions, and site allowances.',
+    'Send package to Lowe’s/pro supplier desk for lumber, roofing, windows, doors, cabinet, and finish quotes.',
+    'Import supplier quote back into COGS and calculate bid price per square foot.',
+    city,
+  ].map((txt,i)=>`<div class="lowes-step"><b>${i+1}</b><span>${txt}</span></div>`).join('');
 }
 
 /* ═══════════════ AI PREVIEWS ═══════════════ */

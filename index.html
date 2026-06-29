@@ -429,6 +429,104 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .model-info { padding: 20px 22px 22px; }
 
+.source-catalog {
+  margin-top: 36px;
+  background: var(--blueprint);
+  border-radius: 8px;
+  padding: clamp(22px, 3vw, 34px);
+  color: var(--stucco);
+  position: relative;
+  overflow: hidden;
+}
+
+.source-catalog::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: .55;
+}
+
+.source-catalog > * { position: relative; z-index: 1; }
+
+.source-catalog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.source-catalog-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.source-catalog-title em {
+  color: var(--copper);
+  font-style: normal;
+}
+
+.source-catalog-note {
+  color: rgba(240,235,225,.65);
+  font-size: 13px;
+  max-width: 430px;
+}
+
+.source-model-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.source-model {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.source-model img {
+  width: 100%;
+  height: 116px;
+  object-fit: cover;
+  display: block;
+  background: rgba(255,255,255,.06);
+}
+
+.source-model-body { padding: 12px; }
+
+.source-model-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--stucco);
+}
+
+.source-model-meta {
+  font-size: 12px;
+  color: rgba(240,235,225,.58);
+  line-height: 1.45;
+  margin-top: 3px;
+}
+
+.source-model-badge {
+  display: inline-flex;
+  margin-top: 8px;
+  border-radius: 99px;
+  padding: 3px 8px;
+  background: rgba(196,149,74,.16);
+  color: var(--copper-l);
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .model-name {
   font-family: var(--font-display);
   font-size: 22px;
@@ -1399,6 +1497,8 @@ footer {
   .process-grid { grid-template-columns: repeat(2, 1fr); }
   .models-grid { grid-template-columns: repeat(2, 1fr); }
   .models-row-2 { max-width: 100%; }
+  .source-model-grid { grid-template-columns: repeat(2, 1fr); }
+  .source-catalog-head { align-items: flex-start; flex-direction: column; }
   .qualifier-layout { grid-template-columns: 1fr; }
   .contractor-layout { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
@@ -1428,6 +1528,7 @@ footer {
 
   .models-grid { grid-template-columns: 1fr; gap: 20px; }
   .models-row-2 { grid-template-columns: 1fr; }
+  .source-model-grid { grid-template-columns: 1fr; }
   .model-card { max-width: 100%; }
 
   .process-grid { grid-template-columns: 1fr; }
@@ -1971,6 +2072,90 @@ footer {
           </div>
           <div class="model-price">from $385,000 <small>turnkey est.</small></div>
         </div>
+      </div>
+    </div>
+
+    <div class="source-catalog">
+      <div class="source-catalog-head">
+        <div>
+          <div class="section-eyebrow">V2 Model Intelligence</div>
+          <div class="source-catalog-title">Pulled Model<br><em>Catalog</em></div>
+        </div>
+        <p class="source-catalog-note">
+          This is the builder-facing source list behind the polished homeowner shortlist. Confirm any square footage marked "confirm" before using it in a signed bid packet.
+        </p>
+      </div>
+
+      <div class="source-model-grid">
+        <div class="source-model">
+          <img src="images/hyder-hut-sheet.png" alt="Hyder Hut 440 square foot floor plan">
+          <div class="source-model-body">
+            <div class="source-model-name">Hyder Hut</div>
+            <div class="source-model-meta">440 sq ft · 1 bed / 1 bath · 12.5x35 · left/right hand option</div>
+            <span class="source-model-badge">v1 confirmed</span>
+          </div>
+        </div>
+        <div class="source-model">
+          <img src="images/hyder-hut-2br-sheet.png" alt="Hyder Hut 2BR 550 square foot floor plan">
+          <div class="source-model-body">
+            <div class="source-model-name">Hyder Hut 2BR</div>
+            <div class="source-model-meta">550 sq ft · 2 bed / 1 bath · 12.5x44 · family/rental layout</div>
+            <span class="source-model-badge">v1 confirmed</span>
+          </div>
+        </div>
+        <div class="source-model">
+          <img src="images/altura-sheet.png" alt="Altura 24x24 576 square foot floor plan">
+          <div class="source-model-body">
+            <div class="source-model-name">Altura / Altura 24x24</div>
+            <div class="source-model-meta">576 sq ft confirmed in v1 · ABQADU source notes 1 or 2 bed variation</div>
+            <span class="source-model-badge">v1 + ABQADU source</span>
+          </div>
+        </div>
+        <div class="source-model">
+          <img src="images/source-cromwell-render.webp" alt="Cromwell two-story rendering">
+          <div class="source-model-body">
+            <div class="source-model-name">Cromwell</div>
+            <div class="source-model-meta">1,280 sq ft · 2 bed / 1.5 bath · two-story · larger custom bid</div>
+            <span class="source-model-badge">v1 confirmed</span>
+          </div>
+        </div>
+        <div class="source-model">
+          <img src="images/source-burton-render.webp" alt="Burton source model rendering">
+          <div class="source-model-body">
+            <div class="source-model-name">Burton</div>
+            <div class="source-model-meta">Square footage confirm · ABQADU source model · needs builder data entry</div>
+            <span class="source-model-badge">confirm sqft</span>
+          </div>
+        </div>
+        <div class="source-model">
+          <img src="images/source-townhouse-render.webp" alt="Townhouse source model rendering">
+          <div class="source-model-body">
+            <div class="source-model-name">Townhouse</div>
+            <div class="source-model-meta">Square footage confirm · tight urban form · likely custom bid path</div>
+            <span class="source-model-badge">confirm sqft</span>
+          </div>
+        </div>
+        <div class="source-model">
+          <img src="images/source-750-render.webp" alt="The 750 source model rendering">
+          <div class="source-model-body">
+            <div class="source-model-name">The 750</div>
+            <div class="source-model-meta">750 sq ft · city-plan size · flat, pitched, and 3D concrete print variants</div>
+            <span class="source-model-badge">city-plan variant</span>
+          </div>
+        </div>
+        <div class="source-model">
+          <img src="images/source-flex-barn-render.webp" alt="Flex Barn source model rendering">
+          <div class="source-model-body">
+            <div class="source-model-name">Flex Barn</div>
+            <div class="source-model-meta">Square footage confirm · flexible barn form · good workshop/guest concept</div>
+            <span class="source-model-badge">confirm sqft</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <a href="platform.html#blueprint" class="btn-primary">Open Plans to Lowe's Tool</a>
+        <span style="font-size:12px;color:rgba(240,235,225,.58);">City plan variations: 450, 550, 650, and 750 sq ft, each with flat roof, pitched roof, and 3D concrete print options.</span>
       </div>
     </div>
   </div>
