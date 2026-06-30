@@ -1243,6 +1243,38 @@ h2 em { font-style: normal; color: var(--terra); }
   backdrop-filter: blur(10px);
 }
 
+.view-toggle {
+  background: rgba(28,25,23,.72);
+  border: 1px solid rgba(240,235,225,.2);
+  border-radius: 999px;
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 2;
+  backdrop-filter: blur(10px);
+}
+
+.view-toggle button {
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: rgba(240,235,225,.68);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  padding: 8px 10px;
+  text-transform: uppercase;
+}
+
+.view-toggle button.active {
+  background: var(--copper);
+  color: var(--blueprint);
+}
+
 .photo-preview-caption {
   background: linear-gradient(180deg, transparent, rgba(28,25,23,.72));
   bottom: 0;
@@ -3679,8 +3711,12 @@ footer {
       <div class="config-preview">
         <div class="config-photo-shell">
           <img id="config-image" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Dynamic photorealistic ADU exterior preview">
+          <div class="view-toggle" aria-label="Toggle preview view">
+            <button id="view-exterior-btn" class="active" type="button" onclick="setPreviewView('exterior')">Exterior</button>
+            <button id="view-interior-btn" type="button" onclick="setPreviewView('interior')">Interior</button>
+          </div>
           <div class="photo-preview-badge">Photorealistic Preview</div>
-          <div class="photo-preview-caption">Use this render as the homeowner-facing visual anchor while the turntable below explores options.</div>
+          <div class="photo-preview-caption" id="photo-preview-caption">Use this render as the homeowner-facing visual anchor while the turntable below explores options.</div>
         </div>
         <div class="config-design-board">
           <div class="viewer-card">
@@ -3754,6 +3790,7 @@ footer {
 <script>
 const ADU_CONFIG = {
   step: 0,
+  previewView: 'exterior',
   model: 'hyder-hut-2br',
   color: 'desert-cream',
   siding: 'warm',
@@ -3860,6 +3897,17 @@ function chooseAduOption(group, id) {
   if (group === 'windows') {
     ADU_CONFIG.windowLayout = id === 'more-glass' ? 'more-glass' : id;
   }
+  if (['features', 'interior', 'kitchen', 'bath'].includes(group)) {
+    ADU_CONFIG.previewView = 'interior';
+  }
+  if (['model', 'color', 'siding', 'roof', 'windows', 'orientation', 'outdoor'].includes(group)) {
+    ADU_CONFIG.previewView = 'exterior';
+  }
+  renderAduConfigurator();
+}
+
+function setPreviewView(view) {
+  ADU_CONFIG.previewView = view;
   renderAduConfigurator();
 }
 
@@ -3985,10 +4033,19 @@ function renderAduConfigurator() {
   const revenue = getOption('revenue');
   const selections = [model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue];
   const estimate = selections.reduce((sum, option) => sum + option.price, 0);
-  const previewImage = siding.image || outdoor.image || model.image;
+  const exteriorPreviewImage = siding.image || outdoor.image || model.image;
+  const interiorPreviewImage = interior.image || kitchen.image || bath.image || 'images/adu-interior.png';
+  const previewImage = ADU_CONFIG.previewView === 'interior' ? interiorPreviewImage : exteriorPreviewImage;
+  const previewCaption = ADU_CONFIG.previewView === 'interior'
+    ? `${interior.label}, ${kitchen.label}, and ${bath.label} shown as a homeowner-friendly interior direction.`
+    : `${siding.label}, ${color.label}, and ${outdoor.label} shown as the exterior direction.`;
   const monthly = Math.round((estimate * 0.0074) / 25) * 25;
 
   document.getElementById('config-image').src = previewImage;
+  document.getElementById('config-image').alt = `Dynamic photorealistic ADU ${ADU_CONFIG.previewView} preview`;
+  document.getElementById('photo-preview-caption').textContent = previewCaption;
+  document.getElementById('view-exterior-btn').classList.toggle('active', ADU_CONFIG.previewView === 'exterior');
+  document.getElementById('view-interior-btn').classList.toggle('active', ADU_CONFIG.previewView === 'interior');
   renderAdu3D(color, roof, windows, outdoor);
   document.getElementById('config-plan-svg').innerHTML = renderPlanDiagram(model, orientation, color);
   document.getElementById('config-palette').innerHTML = color.palette.map(hex => `<span class="palette-strip" style="background:${hex};"></span>`).join('');
