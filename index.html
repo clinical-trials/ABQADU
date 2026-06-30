@@ -1276,6 +1276,194 @@ h2 em { font-style: normal; color: var(--terra); }
   line-height: 1.45;
 }
 
+.viewer-card {
+  background:
+    radial-gradient(circle at 50% 22%, rgba(196,149,74,.18), transparent 34%),
+    linear-gradient(180deg, rgba(240,235,225,.06), rgba(28,25,23,.78));
+  border: 1px solid rgba(196,149,74,.24);
+  border-radius: 8px;
+  grid-column: 1 / -1;
+  overflow: hidden;
+  padding: 14px;
+}
+
+.adu-3d-stage {
+  align-items: center;
+  cursor: grab;
+  display: flex;
+  height: 260px;
+  justify-content: center;
+  overflow: hidden;
+  perspective: 900px;
+  position: relative;
+  touch-action: pan-y;
+}
+
+.adu-3d-stage:active { cursor: grabbing; }
+
+.adu-3d-stage::before {
+  background:
+    linear-gradient(90deg, rgba(240,235,225,.04) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(240,235,225,.04) 1px, transparent 1px);
+  background-size: 34px 34px;
+  content: "";
+  inset: 0;
+  opacity: .4;
+  position: absolute;
+}
+
+.adu-model {
+  --rotate: -24deg;
+  --wall: #d9c4a5;
+  --accent: #9a6337;
+  --trim: #3d3028;
+  height: 150px;
+  position: relative;
+  transform: rotateX(58deg) rotateZ(var(--rotate));
+  transform-style: preserve-3d;
+  transition: transform .2s ease;
+  width: 230px;
+  z-index: 1;
+}
+
+.adu-model.spin { animation: aduTurntable 9s linear infinite; }
+
+@keyframes aduTurntable {
+  from { transform: rotateX(58deg) rotateZ(0deg); }
+  to { transform: rotateX(58deg) rotateZ(360deg); }
+}
+
+.adu-face {
+  background: var(--wall);
+  border: 2px solid rgba(28,25,23,.42);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
+  position: absolute;
+}
+
+.adu-floor {
+  background: linear-gradient(135deg, rgba(196,149,74,.22), rgba(240,235,225,.12));
+  border: 1px solid rgba(240,235,225,.18);
+  border-radius: 8px;
+  height: 150px;
+  inset: 0;
+  position: absolute;
+  transform: translateZ(-30px);
+  width: 230px;
+}
+
+.adu-front,
+.adu-back {
+  height: 70px;
+  left: 0;
+  width: 230px;
+}
+
+.adu-front { bottom: 0; transform: rotateX(90deg) translateZ(35px); transform-origin: bottom; }
+.adu-back { top: 0; transform: rotateX(90deg) translateZ(35px); transform-origin: top; filter: brightness(.82); }
+
+.adu-left,
+.adu-right {
+  height: 70px;
+  top: 40px;
+  width: 150px;
+}
+
+.adu-left { left: -75px; transform: rotateY(90deg) translateZ(75px); filter: brightness(.78); }
+.adu-right { right: -75px; transform: rotateY(90deg) translateZ(75px); filter: brightness(.9); }
+
+.adu-roof {
+  background: linear-gradient(135deg, var(--trim), #6f6257);
+  height: 156px;
+  left: -4px;
+  position: absolute;
+  top: -4px;
+  transform: translateZ(42px);
+  width: 238px;
+}
+
+.adu-opening {
+  background: rgba(120,170,230,.46);
+  border: 2px solid var(--trim);
+  box-shadow: inset 0 0 18px rgba(255,255,255,.16);
+  position: absolute;
+}
+
+.adu-door { background: var(--accent); bottom: 0; height: 46px; left: 96px; width: 28px; }
+.adu-window-main { height: 26px; left: 36px; top: 22px; width: 42px; }
+.adu-window-side { height: 22px; right: 32px; top: 24px; width: 38px; }
+
+.adu-model.window-picture .adu-door { display: none; }
+.adu-model.window-picture .adu-window-main { height: 34px; left: 34px; top: 18px; width: 74px; }
+.adu-model.window-picture .adu-window-side { height: 34px; right: 34px; top: 18px; width: 74px; }
+.adu-model.no-slider .adu-door { left: 72px; width: 30px; }
+.adu-model.no-slider .adu-window-main { left: 122px; width: 50px; }
+.adu-model.more-glass .adu-window-main { left: 24px; width: 62px; }
+.adu-model.more-glass .adu-window-side { right: 24px; width: 62px; }
+
+.adu-portal {
+  background: rgba(196,149,74,.24);
+  border: 1px solid rgba(240,235,225,.16);
+  bottom: -38px;
+  height: 36px;
+  left: 34px;
+  position: absolute;
+  width: 160px;
+}
+
+.viewer-controls {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.viewer-slider-row {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto 1fr auto;
+}
+
+.viewer-slider-row span {
+  color: rgba(240,235,225,.56);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.viewer-slider-row input { accent-color: var(--copper); width: 100%; }
+
+.viewer-toggle-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.viewer-toggle {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(240,235,225,.14);
+  border-radius: 999px;
+  color: rgba(240,235,225,.72);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  padding: 9px 10px;
+  text-transform: uppercase;
+}
+
+.viewer-toggle.active {
+  background: rgba(196,149,74,.18);
+  border-color: rgba(196,149,74,.52);
+  color: var(--copper-l);
+}
+
+.viewer-note {
+  color: rgba(240,235,225,.48);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .config-summary {
   padding: 20px;
 }
@@ -2194,6 +2382,15 @@ footer {
   .choice-grid { grid-template-columns: 1fr; }
   .choice-media { aspect-ratio: 16 / 8; }
   .config-design-board { grid-template-columns: 1fr; }
+  .adu-3d-stage { height: 220px; }
+  .adu-model { transform: scale(.86) rotateX(58deg) rotateZ(var(--rotate)); }
+  .adu-model.spin { animation-name: aduTurntableMobile; }
+  @keyframes aduTurntableMobile {
+    from { transform: scale(.86) rotateX(58deg) rotateZ(0deg); }
+    to { transform: scale(.86) rotateX(58deg) rotateZ(360deg); }
+  }
+  .viewer-toggle-grid { grid-template-columns: 1fr; }
+  .viewer-slider-row { grid-template-columns: 1fr; }
   .config-summary-top { flex-direction: column; gap: 4px; }
   .config-price { font-size: 26px; }
   .finance-section { padding: 56px 20px; }
@@ -3322,7 +3519,7 @@ footer {
               <div class="design-launch-title">Build Your ADU<br>Shopping Board</div>
               <p class="design-launch-copy">Start with an ABQ ADU model, then click through colors, orientation, outdoor space, interiors, utilities, and revenue use. The estimate and visual board update as you choose.</p>
             </div>
-            <button class="design-launch-button" type="button" onclick="ADU_CONFIG.step = 0; renderAduConfigurator(); document.getElementById('homeowner-configurator').scrollIntoView({behavior:'smooth', block:'start'});">Start Designing</button>
+            <button class="design-launch-button" type="button" onclick="startAduDesign()">Start Designing</button>
           </div>
           <div class="design-tool-chip-grid" aria-label="Available design tools">
             <div class="design-tool-chip">Model picker</div>
@@ -3442,6 +3639,37 @@ footer {
       <div class="config-preview">
         <img id="config-image" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Dynamic ADU exterior preview">
         <div class="config-design-board">
+          <div class="viewer-card">
+            <div class="board-label">Interactive 3D Concept Viewer</div>
+            <div class="adu-3d-stage" id="adu-3d-stage" aria-label="Drag to rotate ADU concept model">
+              <div class="adu-model" id="adu-3d-model">
+                <div class="adu-floor"></div>
+                <div class="adu-face adu-front">
+                  <div class="adu-opening adu-door"></div>
+                  <div class="adu-opening adu-window-main"></div>
+                  <div class="adu-opening adu-window-side"></div>
+                  <div class="adu-portal" id="adu-portal"></div>
+                </div>
+                <div class="adu-face adu-back"></div>
+                <div class="adu-face adu-left"></div>
+                <div class="adu-face adu-right"></div>
+                <div class="adu-roof"></div>
+              </div>
+            </div>
+            <div class="viewer-controls">
+              <div class="viewer-slider-row">
+                <span>Rotate</span>
+                <input id="adu-rotate-slider" type="range" min="-180" max="180" value="-24" oninput="setAduRotation(this.value)">
+                <button class="viewer-toggle" id="adu-spin-toggle" type="button" onclick="toggleAduSpin()">Auto 360</button>
+              </div>
+              <div class="viewer-toggle-grid" aria-label="Door and window layout">
+                <button class="viewer-toggle active" type="button" data-window-layout="standard" onclick="setWindowLayout('standard')">Slider</button>
+                <button class="viewer-toggle" type="button" data-window-layout="no-slider" onclick="setWindowLayout('no-slider')">Door + Window</button>
+                <button class="viewer-toggle" type="button" data-window-layout="window-picture" onclick="setWindowLayout('window-picture')">Picture Windows</button>
+              </div>
+              <div class="viewer-note">Concept visualization only. True 4K/360 model files can be added later; this version lets homeowners interact immediately on the webpage.</div>
+            </div>
+          </div>
           <div class="plan-diagram-card">
             <div class="board-label">Live Plan Diagram</div>
             <div id="config-plan-svg"></div>
@@ -3487,6 +3715,7 @@ const ADU_CONFIG = {
   siding: 'warm',
   roof: 'flat-metal',
   windows: 'standard',
+  windowLayout: 'standard',
   orientation: 'right-hand',
   outdoor: 'stoop',
   features: 'smart',
@@ -3584,6 +3813,9 @@ function getOption(group) {
 
 function chooseAduOption(group, id) {
   ADU_CONFIG[group] = id;
+  if (group === 'windows') {
+    ADU_CONFIG.windowLayout = id === 'more-glass' ? 'more-glass' : id;
+  }
   renderAduConfigurator();
 }
 
@@ -3626,6 +3858,45 @@ function renderPlanDiagram(model, orientation, color) {
       <text x="130" y="176" text-anchor="middle" fill="rgba(240,235,225,.66)" font-size="10" font-weight="800">${model.sqft} sf · ${orientation.label}</text>
     </svg>
   `;
+}
+
+function setAduRotation(value) {
+  const model = document.getElementById('adu-3d-model');
+  if (!model) return;
+  model.classList.remove('spin');
+  model.style.setProperty('--rotate', `${Number(value)}deg`);
+  const spinToggle = document.getElementById('adu-spin-toggle');
+  if (spinToggle) spinToggle.classList.remove('active');
+}
+
+function toggleAduSpin() {
+  const model = document.getElementById('adu-3d-model');
+  const spinToggle = document.getElementById('adu-spin-toggle');
+  if (!model) return;
+  model.classList.toggle('spin');
+  if (spinToggle) spinToggle.classList.toggle('active', model.classList.contains('spin'));
+}
+
+function setWindowLayout(layout) {
+  ADU_CONFIG.windowLayout = layout;
+  ADU_CONFIG.windows = layout === 'window-picture' ? 'more-glass' : layout;
+  renderAduConfigurator();
+}
+
+function renderAdu3D(color, roof, windows, outdoor) {
+  const model = document.getElementById('adu-3d-model');
+  const portal = document.getElementById('adu-portal');
+  if (!model) return;
+  model.style.setProperty('--wall', color.palette[0]);
+  model.style.setProperty('--accent', color.palette[1]);
+  model.style.setProperty('--trim', roof.id === 'flat-metal' ? color.palette[2] : '#5f5145');
+  model.classList.toggle('no-slider', ADU_CONFIG.windowLayout === 'no-slider');
+  model.classList.toggle('window-picture', ADU_CONFIG.windowLayout === 'window-picture');
+  model.classList.toggle('more-glass', ADU_CONFIG.windowLayout === 'more-glass');
+  if (portal) portal.style.display = outdoor.id === 'stoop' ? 'none' : 'block';
+  document.querySelectorAll('[data-window-layout]').forEach(button => {
+    button.classList.toggle('active', button.dataset.windowLayout === ADU_CONFIG.windowLayout);
+  });
 }
 
 function renderChoiceGroup(group) {
@@ -3674,6 +3945,7 @@ function renderAduConfigurator() {
   const monthly = Math.round((estimate * 0.0074) / 25) * 25;
 
   document.getElementById('config-image').src = previewImage;
+  renderAdu3D(color, roof, windows, outdoor);
   document.getElementById('config-plan-svg').innerHTML = renderPlanDiagram(model, orientation, color);
   document.getElementById('config-palette').innerHTML = color.palette.map(hex => `<span class="palette-strip" style="background:${hex};"></span>`).join('');
   document.getElementById('config-palette-note').textContent = color.note;
@@ -3701,6 +3973,12 @@ function aduWizardBack() {
   renderAduConfigurator();
 }
 
+function startAduDesign() {
+  ADU_CONFIG.step = 0;
+  renderAduConfigurator();
+  document.getElementById('homeowner-configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function handleDesignSubmit(e) {
   e.preventDefault();
   const model = getOption('model');
@@ -3721,6 +3999,29 @@ function handleDesignSubmit(e) {
 }
 
 renderAduConfigurator();
+
+const aduStage = document.getElementById('adu-3d-stage');
+const aduSlider = document.getElementById('adu-rotate-slider');
+let aduDragStartX = 0;
+let aduDragStartRotation = -24;
+let aduDragging = false;
+
+if (aduStage && aduSlider) {
+  aduStage.addEventListener('pointerdown', event => {
+    aduDragging = true;
+    aduDragStartX = event.clientX;
+    aduDragStartRotation = Number(aduSlider.value);
+    aduStage.setPointerCapture(event.pointerId);
+  });
+  aduStage.addEventListener('pointermove', event => {
+    if (!aduDragging) return;
+    const nextRotation = Math.max(-180, Math.min(180, aduDragStartRotation + ((event.clientX - aduDragStartX) * .9)));
+    aduSlider.value = String(Math.round(nextRotation));
+    setAduRotation(nextRotation);
+  });
+  aduStage.addEventListener('pointerup', () => { aduDragging = false; });
+  aduStage.addEventListener('pointercancel', () => { aduDragging = false; });
+}
 </script>
 
 <!-- ── Financing + Lending ───────────────────────────────── -->
