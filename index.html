@@ -1001,6 +1001,16 @@ h2 em { font-style: normal; color: var(--terra); }
   padding: 14px;
 }
 
+.choice-category-label {
+  color: rgba(196,149,74,.86);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  margin: 16px 0 8px;
+  text-transform: uppercase;
+}
+
 .choice-card strong {
   display: block;
   font-family: var(--font-display);
@@ -1083,6 +1093,59 @@ h2 em { font-style: normal; color: var(--terra); }
   aspect-ratio: 16 / 10;
   object-fit: cover;
   display: block;
+}
+
+.config-design-board {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 12px;
+  padding: 14px;
+  background:
+    linear-gradient(135deg, rgba(240,235,225,.06), rgba(196,149,74,.08)),
+    rgba(28,25,23,.5);
+  border-top: 1px solid rgba(196,149,74,.2);
+  border-bottom: 1px solid rgba(196,149,74,.2);
+}
+
+.plan-diagram-card,
+.palette-card {
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.plan-diagram-card svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.board-label {
+  color: rgba(240,235,225,.52);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.palette-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.palette-strip {
+  border-radius: 999px;
+  height: 26px;
+  border: 1px solid rgba(240,235,225,.16);
+  box-shadow: inset 0 0 0 1px rgba(28,25,23,.2);
+}
+
+.palette-note {
+  color: rgba(240,235,225,.56);
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .config-summary {
@@ -1998,6 +2061,7 @@ footer {
   .design-infographic { grid-template-columns: 1fr; }
   .choice-grid { grid-template-columns: 1fr; }
   .choice-media { aspect-ratio: 16 / 8; }
+  .config-design-board { grid-template-columns: 1fr; }
   .config-summary-top { flex-direction: column; gap: 4px; }
   .config-price { font-size: 26px; }
   .finance-section { padding: 56px 20px; }
@@ -3140,7 +3204,11 @@ footer {
         <div class="wizard-panel" data-wizard-step="1">
           <div class="wizard-heading">Pick the exterior feel.</div>
           <p class="wizard-copy">The image and price change as siding, roof, and window choices change. This is where the homeowner starts to see the project as a real home.</p>
+          <div class="choice-category-label">Color Story</div>
+          <div class="choice-grid" data-choice-group="color"></div>
+          <div class="choice-category-label">Exterior Materials</div>
           <div class="choice-grid" data-choice-group="siding"></div>
+          <div class="choice-category-label">Roof, Glass, and Lot Fit</div>
           <div class="choice-grid" data-choice-group="roof" style="margin-top:10px;"></div>
           <div class="choice-grid" data-choice-group="windows" style="margin-top:10px;"></div>
           <div class="choice-grid" data-choice-group="orientation" style="margin-top:10px;"></div>
@@ -3203,6 +3271,17 @@ footer {
 
       <div class="config-preview">
         <img id="config-image" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Dynamic ADU exterior preview">
+        <div class="config-design-board">
+          <div class="plan-diagram-card">
+            <div class="board-label">Live Plan Diagram</div>
+            <div id="config-plan-svg"></div>
+          </div>
+          <div class="palette-card">
+            <div class="board-label">Color Board</div>
+            <div class="palette-stack" id="config-palette"></div>
+            <p class="palette-note" id="config-palette-note">Desert exterior colors selected for Albuquerque light and stucco-friendly finishes.</p>
+          </div>
+        </div>
         <div class="config-summary">
           <div class="config-summary-top">
             <div>
@@ -3212,6 +3291,7 @@ footer {
             <div class="config-price" id="config-price">$198k</div>
           </div>
           <div class="config-line"><span>Square footage</span><strong id="config-sqft">550 sq ft</strong></div>
+          <div class="config-line"><span>Color story</span><strong id="config-color">Desert cream</strong></div>
           <div class="config-line"><span>Exterior</span><strong id="config-siding">Warm stucco + wood accent</strong></div>
           <div class="config-line"><span>Roof and windows</span><strong id="config-roof-windows">Flat metal roof · standard window package</strong></div>
           <div class="config-line"><span>Lot fit</span><strong id="config-lot-fit">Right-hand entry · compact stoop</strong></div>
@@ -3233,6 +3313,7 @@ footer {
 const ADU_CONFIG = {
   step: 0,
   model: 'hyder-hut-2br',
+  color: 'desert-cream',
   siding: 'warm',
   roof: 'flat-metal',
   windows: 'standard',
@@ -3248,11 +3329,17 @@ const ADU_CONFIG = {
 
 const ADU_OPTIONS = {
   model: [
-    { id: 'hyder-hut', label: 'Hyder Hut', sub: '440 sf · 1BR/1BA · compact backyard home', price: 168000, sqft: 440, image: 'images/hyder-hut-sheet.png' },
-    { id: 'hyder-hut-2br', label: 'Hyder Hut 2BR', sub: '550 sf · 2BR/1BA · family or rental ready', price: 198000, sqft: 550, image: 'images/hyder-hut-2br-exterior-finishes.webp' },
-    { id: 'altura-24x24', label: 'Altura 24x24', sub: '576 sf · 1BR/1BA · square efficient plan', price: 212000, sqft: 576, image: 'images/altura-box.png' },
-    { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, image: 'images/adu-exterior.png' },
-    { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · 2BR/2BA · flex room and rental potential', price: 295000, sqft: 780, image: 'images/adu-interior.png' },
+    { id: 'hyder-hut', label: 'Hyder Hut', sub: '440 sf · 1BR/1BA · compact backyard home', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', image: 'images/hyder-hut-sheet.png' },
+    { id: 'hyder-hut-2br', label: 'Hyder Hut 2BR', sub: '550 sf · 2BR/1BA · family or rental ready', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', image: 'images/hyder-hut-2br-exterior-finishes.webp' },
+    { id: 'altura-24x24', label: 'Altura 24x24', sub: '576 sf · 1BR/1BA · square efficient plan', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', image: 'images/altura-box.png' },
+    { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, beds: '1BR', baths: '1BA', image: 'images/adu-exterior.png' },
+    { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · 2BR/2BA · flex room and rental potential', price: 295000, sqft: 780, beds: '2BR', baths: '2BA', image: 'images/adu-interior.png' },
+  ],
+  color: [
+    { id: 'desert-cream', label: 'Desert cream', sub: 'Soft stucco, warm wood, bronze trim', price: 0, swatch: 'linear-gradient(90deg,#d9c4a5 0 33%,#9a6337 33% 66%,#3d3028 66%)', palette: ['#d9c4a5', '#9a6337', '#3d3028'], note: 'Soft desert stucco with warm wood accents and bronze trim.' },
+    { id: 'sage-sand', label: 'Sage + sand', sub: 'Muted green, sand stucco, light wood', price: 1800, swatch: 'linear-gradient(90deg,#7c8a73 0 33%,#cab793 33% 66%,#d6b071 66%)', palette: ['#7c8a73', '#cab793', '#d6b071'], note: 'A softer New Mexico palette for garden-facing yards.' },
+    { id: 'adobe-clay', label: 'Adobe clay', sub: 'Earthy clay, cream trim, dark metal', price: 2200, swatch: 'linear-gradient(90deg,#b65f3b 0 33%,#e6d0ad 33% 66%,#2f3431 66%)', palette: ['#b65f3b', '#e6d0ad', '#2f3431'], note: 'A warmer adobe-style color story with modern dark trim.' },
+    { id: 'charcoal-modern', label: 'Charcoal modern', sub: 'Dark metal, pale stucco, wood entry', price: 4200, swatch: 'linear-gradient(90deg,#2f3431 0 33%,#ddd4c5 33% 66%,#9a6337 66%)', palette: ['#2f3431', '#ddd4c5', '#9a6337'], note: 'Higher-contrast modern finish for a more architectural look.' },
   ],
   siding: [
     { id: 'warm', label: 'Warm stucco + wood', sub: 'Desert-modern finish shown in the preview', price: 0, image: 'images/hyder-hut-2br-exterior-finishes.webp', swatch: 'linear-gradient(135deg,#d7b47d,#8b5a35)' },
@@ -3345,6 +3432,32 @@ function renderChoiceMedia(opt) {
   `;
 }
 
+function renderPlanDiagram(model, orientation, color) {
+  const areaScale = Math.max(.74, Math.min(1, model.sqft / 780));
+  const shellW = Math.round(216 * areaScale);
+  const shellH = Math.round(138 * areaScale);
+  const x = Math.round((260 - shellW) / 2);
+  const y = Math.round((170 - shellH) / 2) + 8;
+  const doorX = orientation.id === 'left-hand' ? x + 14 : x + shellW - 44;
+  const bedroomLabel = model.beds || '1BR';
+  const bathLabel = model.baths || '1BA';
+  return `
+    <svg viewBox="0 0 260 190" role="img" aria-label="${model.label} simplified floor plan">
+      <rect x="1" y="1" width="258" height="188" rx="12" fill="rgba(240,235,225,.05)" stroke="rgba(196,149,74,.22)"/>
+      <rect x="${x}" y="${y}" width="${shellW}" height="${shellH}" rx="4" fill="${color.palette[0]}" opacity=".92" stroke="rgba(28,25,23,.62)" stroke-width="2"/>
+      <rect x="${x + 12}" y="${y + 14}" width="${Math.round(shellW * .46)}" height="${Math.round(shellH * .46)}" fill="rgba(255,255,255,.18)" stroke="rgba(28,25,23,.35)"/>
+      <rect x="${x + shellW - Math.round(shellW * .36) - 12}" y="${y + 14}" width="${Math.round(shellW * .36)}" height="${Math.round(shellH * .34)}" fill="rgba(255,255,255,.16)" stroke="rgba(28,25,23,.35)"/>
+      <rect x="${x + 12}" y="${y + shellH - Math.round(shellH * .32) - 14}" width="${Math.round(shellW * .44)}" height="${Math.round(shellH * .32)}" fill="rgba(255,255,255,.14)" stroke="rgba(28,25,23,.35)"/>
+      <rect x="${doorX}" y="${y + shellH - 7}" width="30" height="8" rx="2" fill="${color.palette[1]}"/>
+      <circle cx="${doorX + 15}" cy="${y + shellH + 18}" r="12" fill="${color.palette[2]}" opacity=".82"/>
+      <text x="${x + 22}" y="${y + 36}" fill="#1c1917" font-size="11" font-weight="800">${bedroomLabel}</text>
+      <text x="${x + shellW - 64}" y="${y + 34}" fill="#1c1917" font-size="11" font-weight="800">${bathLabel}</text>
+      <text x="${x + 22}" y="${y + shellH - 32}" fill="#1c1917" font-size="10" font-weight="800">Living</text>
+      <text x="130" y="176" text-anchor="middle" fill="rgba(240,235,225,.66)" font-size="10" font-weight="800">${model.sqft} sf · ${orientation.label}</text>
+    </svg>
+  `;
+}
+
 function renderChoiceGroup(group) {
   const host = document.querySelector(`[data-choice-group="${group}"]`);
   if (!host) return;
@@ -3360,7 +3473,7 @@ function renderChoiceGroup(group) {
 }
 
 function renderAduConfigurator() {
-  ['model', 'siding', 'roof', 'windows', 'orientation', 'outdoor', 'features', 'interior', 'kitchen', 'bath', 'utilities', 'revenue'].forEach(renderChoiceGroup);
+  ['model', 'color', 'siding', 'roof', 'windows', 'orientation', 'outdoor', 'features', 'interior', 'kitchen', 'bath', 'utilities', 'revenue'].forEach(renderChoiceGroup);
   document.querySelectorAll('[data-wizard-step]').forEach(panel => {
     panel.classList.toggle('active', Number(panel.dataset.wizardStep) === ADU_CONFIG.step);
   });
@@ -3373,6 +3486,7 @@ function renderAduConfigurator() {
   if (nextButton) nextButton.style.display = ADU_CONFIG.step === 3 ? 'none' : 'inline-flex';
 
   const model = getOption('model');
+  const color = getOption('color');
   const siding = getOption('siding');
   const roof = getOption('roof');
   const windows = getOption('windows');
@@ -3384,15 +3498,19 @@ function renderAduConfigurator() {
   const bath = getOption('bath');
   const utilities = getOption('utilities');
   const revenue = getOption('revenue');
-  const selections = [model, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue];
+  const selections = [model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue];
   const estimate = selections.reduce((sum, option) => sum + option.price, 0);
   const previewImage = siding.image || outdoor.image || model.image;
   const monthly = Math.round((estimate * 0.0074) / 25) * 25;
 
   document.getElementById('config-image').src = previewImage;
+  document.getElementById('config-plan-svg').innerHTML = renderPlanDiagram(model, orientation, color);
+  document.getElementById('config-palette').innerHTML = color.palette.map(hex => `<span class="palette-strip" style="background:${hex};"></span>`).join('');
+  document.getElementById('config-palette-note').textContent = color.note;
   document.getElementById('config-model-name').textContent = model.label;
   document.getElementById('config-price').textContent = moneyShort(estimate);
   document.getElementById('config-sqft').textContent = `${model.sqft} sq ft`;
+  document.getElementById('config-color').textContent = color.label;
   document.getElementById('config-siding').textContent = siding.label;
   document.getElementById('config-roof-windows').textContent = `${roof.label} · ${windows.label}`;
   document.getElementById('config-lot-fit').textContent = `${orientation.label} · ${outdoor.label}`;
@@ -3416,6 +3534,7 @@ function aduWizardBack() {
 function handleDesignSubmit(e) {
   e.preventDefault();
   const model = getOption('model');
+  const color = getOption('color');
   const siding = getOption('siding');
   const roof = getOption('roof');
   const windows = getOption('windows');
@@ -3427,7 +3546,7 @@ function handleDesignSubmit(e) {
   const bath = getOption('bath');
   const utilities = getOption('utilities');
   const revenue = getOption('revenue');
-  const summary = encodeURIComponent(`ABQ ADU concept: ${model.label}, ${model.sqft} sf, ${siding.label}, ${roof.label}, ${windows.label}, ${orientation.label}, ${outdoor.label}, ${features.label}, ${interior.label}, ${kitchen.label}, ${bath.label}, ${utilities.label}, ${revenue.label}.`);
+  const summary = encodeURIComponent(`ABQ ADU concept: ${model.label}, ${model.sqft} sf, ${color.label}, ${siding.label}, ${roof.label}, ${windows.label}, ${orientation.label}, ${outdoor.label}, ${features.label}, ${interior.label}, ${kitchen.label}, ${bath.label}, ${utilities.label}, ${revenue.label}.`);
   window.open(`platform.html#design?concept=${summary}`, '_blank');
 }
 
