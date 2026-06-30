@@ -878,6 +878,255 @@ h2 em { font-style: normal; color: var(--terra); }
   min-width: 0;
 }
 
+.design-wizard {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(120,170,230,.25);
+  border-radius: 10px;
+  padding: 28px;
+  min-width: 0;
+}
+
+.wizard-progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.wizard-step-pill {
+  border: 1px solid rgba(120,170,230,.18);
+  border-radius: 999px;
+  color: rgba(240,235,225,.45);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 7px 8px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.wizard-step-pill.active {
+  background: rgba(196,149,74,.16);
+  border-color: rgba(196,149,74,.45);
+  color: var(--copper-l);
+}
+
+.wizard-panel { display: none; }
+.wizard-panel.active { display: block; }
+
+.wizard-heading {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.wizard-copy {
+  color: rgba(240,235,225,.6);
+  font-size: 14px;
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.choice-card {
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(120,170,230,.2);
+  border-radius: 8px;
+  color: var(--stucco);
+  cursor: pointer;
+  padding: 14px;
+  text-align: left;
+  transition: border-color .18s, background .18s, transform .18s;
+}
+
+.choice-card:hover,
+.choice-card.selected {
+  background: rgba(196,149,74,.12);
+  border-color: rgba(196,149,74,.64);
+  transform: translateY(-1px);
+}
+
+.choice-card strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: .02em;
+  line-height: 1.05;
+}
+
+.choice-card span {
+  color: rgba(240,235,225,.52);
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 5px;
+}
+
+.wizard-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.wizard-actions button {
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 12px 18px;
+  text-transform: uppercase;
+}
+
+.wizard-back { background: rgba(255,255,255,.08); color: rgba(240,235,225,.75); }
+.wizard-next { background: var(--copper); color: var(--blueprint); margin-left: auto; }
+
+.config-preview {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(196,149,74,.28);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.config-preview img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+}
+
+.config-summary {
+  padding: 20px;
+}
+
+.config-summary-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.config-model-name {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.config-price {
+  color: var(--copper-l);
+  font-family: var(--font-display);
+  font-size: 29px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.config-line {
+  border-top: 1px solid rgba(120,170,230,.15);
+  color: rgba(240,235,225,.62);
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.config-line strong { color: var(--stucco); font-weight: 600; }
+
+.finance-section {
+  background: var(--stucco);
+  padding: 96px var(--gutter);
+}
+
+.finance-grid {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 36px;
+  align-items: stretch;
+}
+
+.finance-intro {
+  background: var(--white);
+  border: 1px solid var(--stucco-d);
+  border-radius: 8px;
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.finance-intro h2 {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(38px, 5vw, 60px);
+  font-weight: 900;
+  line-height: .95;
+  text-transform: uppercase;
+}
+
+.finance-intro h2 em { color: var(--terra); font-style: normal; }
+
+.finance-intro p {
+  color: var(--ink-60);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-top: 18px;
+}
+
+.lender-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.lender-card {
+  background: var(--white);
+  border: 1px solid var(--stucco-d);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.lender-card h3 {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 9px;
+  text-transform: uppercase;
+}
+
+.lender-card p {
+  color: var(--ink-60);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.lender-tag {
+  background: rgba(196,149,74,.14);
+  border-radius: 999px;
+  color: var(--terra);
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  margin-bottom: 12px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+}
+
 @media (max-width: 900px) {
   .city-plans-grid { grid-template-columns: repeat(2, 1fr); }
   .city-plans-header { grid-template-columns: 1fr; gap: 24px; }
@@ -1577,6 +1826,8 @@ footer {
   .hero { grid-template-columns: 1fr; }
   .hero-photo { display: none; }
   .design-builder-grid { grid-template-columns: 1fr; }
+  .finance-grid { grid-template-columns: 1fr; }
+  .lender-cards { grid-template-columns: 1fr; }
   .process-grid { grid-template-columns: repeat(2, 1fr); }
   .models-grid { grid-template-columns: repeat(2, 1fr); }
   .models-row-2 { max-width: 100%; }
@@ -1634,6 +1885,12 @@ footer {
   .city-plans-footer .btn-primary { text-align: center; width: 100%; }
   .design-form-card { padding: 24px; }
   .finish-preview-card img { aspect-ratio: 4 / 3; }
+  .design-wizard { padding: 22px; }
+  .wizard-progress { grid-template-columns: repeat(2, 1fr); }
+  .choice-grid { grid-template-columns: 1fr; }
+  .config-summary-top { flex-direction: column; gap: 4px; }
+  .config-price { font-size: 26px; }
+  .finance-section { padding: 56px 20px; }
 
   .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
   .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
@@ -1662,6 +1919,10 @@ footer {
   .design-model-list > div[style*="padding"] { padding: 16px !important; }
   .design-model-list > div[style*="padding"] > div { align-items: flex-start !important; gap: 12px; }
   .finish-preview-title { font-size: 21px; }
+  .wizard-actions { flex-direction: column; }
+  .wizard-actions button { width: 100%; }
+  .wizard-next { margin-left: 0; }
+  .config-line { flex-direction: column; gap: 2px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1908,6 +2169,7 @@ footer {
     <li><a href="#process">Process</a></li>
     <li><a href="#platform">Platform</a></li>
     <li><a href="#design">Design</a></li>
+    <li><a href="#financing">Financing</a></li>
     <li><a href="#contractors">For Contractors</a></li>
     <li><a href="#quote">Contact</a></li>
     <li><a href="platform.html" class="nav-cta nav-cta-desktop">Launch Platform</a></li>
@@ -1924,6 +2186,7 @@ footer {
     <li><a href="#process" class="mobile-link">Process</a></li>
     <li><a href="#platform" class="mobile-link">Platform</a></li>
     <li><a href="#design" class="mobile-link">Design</a></li>
+    <li><a href="#financing" class="mobile-link">Financing</a></li>
     <li><a href="#contractors" class="mobile-link">For Contractors</a></li>
     <li><a href="#quote" class="mobile-link">Contact</a></li>
     <li><a href="platform.html" class="mobile-link">Launch Platform</a></li>
@@ -2726,161 +2989,96 @@ footer {
     </div>
 
     <div class="design-builder-grid">
-
-      <!-- Model cards -->
-      <div class="design-model-list">
-        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(120,170,230,.2);border-radius:8px;padding:20px 24px;cursor:pointer;transition:border-color .2s;"
-          onmouseenter="this.style.borderColor='rgba(196,149,74,.6)'" onmouseleave="this.style.borderColor='rgba(120,170,230,.2)'"
-          onclick="document.getElementById('design-form').scrollIntoView({behavior:'smooth'})">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="color:var(--stucco);font-family:var(--font-display);font-size:18px;font-weight:700;letter-spacing:.5px;">Hyder Hut</div>
-              <div style="color:rgba(240,235,225,.5);font-size:13px;margin-top:4px;">Compact 1BR — perfect backyard studio</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="color:var(--copper);font-family:var(--font-display);font-size:20px;font-weight:700;">440 sf</div>
-              <div style="color:rgba(240,235,225,.4);font-size:11px;">1 BD / 1 BA</div>
-            </div>
-          </div>
+      <div class="design-wizard" id="homeowner-configurator">
+        <div class="wizard-progress" aria-label="ADU design steps">
+          <div class="wizard-step-pill active" data-step-pill="0">1. Model</div>
+          <div class="wizard-step-pill" data-step-pill="1">2. Exterior</div>
+          <div class="wizard-step-pill" data-step-pill="2">3. Features</div>
+          <div class="wizard-step-pill" data-step-pill="3">4. Contact</div>
         </div>
 
-        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(120,170,230,.2);border-radius:8px;padding:20px 24px;cursor:pointer;transition:border-color .2s;"
-          onmouseenter="this.style.borderColor='rgba(196,149,74,.6)'" onmouseleave="this.style.borderColor='rgba(120,170,230,.2)'"
-          onclick="document.getElementById('design-form').scrollIntoView({behavior:'smooth'})">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="color:var(--stucco);font-family:var(--font-display);font-size:18px;font-weight:700;">Hyder Hut 2BR</div>
-              <div style="color:rgba(240,235,225,.5);font-size:13px;margin-top:4px;">Two-bedroom expansion of the Hyder Hut</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="color:var(--copper);font-family:var(--font-display);font-size:20px;font-weight:700;">550 sf</div>
-              <div style="color:rgba(240,235,225,.4);font-size:11px;">2 BD / 1 BA</div>
-            </div>
-          </div>
+        <div class="wizard-panel active" data-wizard-step="0">
+          <div class="wizard-heading">Choose your starting home.</div>
+          <p class="wizard-copy">Start with the shape of the ADU first. We save the email for the end, after the homeowner has a real design direction.</p>
+          <div class="choice-grid" data-choice-group="model"></div>
         </div>
 
-        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(120,170,230,.2);border-radius:8px;padding:20px 24px;cursor:pointer;transition:border-color .2s;"
-          onmouseenter="this.style.borderColor='rgba(196,149,74,.6)'" onmouseleave="this.style.borderColor='rgba(120,170,230,.2)'"
-          onclick="document.getElementById('design-form').scrollIntoView({behavior:'smooth'})">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="color:var(--stucco);font-family:var(--font-display);font-size:18px;font-weight:700;">Altura 24×24</div>
-              <div style="color:rgba(240,235,225,.5);font-size:13px;margin-top:4px;">Open-plan, 24×24 footprint</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="color:var(--copper);font-family:var(--font-display);font-size:20px;font-weight:700;">576 sf</div>
-              <div style="color:rgba(240,235,225,.4);font-size:11px;">1 BD / 1 BA</div>
-            </div>
-          </div>
+        <div class="wizard-panel" data-wizard-step="1">
+          <div class="wizard-heading">Pick the exterior feel.</div>
+          <p class="wizard-copy">The image and price change as siding, roof, and window choices change. This is where the homeowner starts to see the project as a real home.</p>
+          <div class="choice-grid" data-choice-group="siding"></div>
+          <div class="choice-grid" data-choice-group="roof" style="margin-top:10px;"></div>
+          <div class="choice-grid" data-choice-group="windows" style="margin-top:10px;"></div>
         </div>
 
-        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(120,170,230,.2);border-radius:8px;padding:20px 24px;cursor:pointer;transition:border-color .2s;"
-          onmouseenter="this.style.borderColor='rgba(196,149,74,.6)'" onmouseleave="this.style.borderColor='rgba(120,170,230,.2)'"
-          onclick="document.getElementById('design-form').scrollIntoView({behavior:'smooth'})">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="color:var(--stucco);font-family:var(--font-display);font-size:18px;font-weight:700;">Casita Portal</div>
-              <div style="color:rgba(240,235,225,.5);font-size:13px;margin-top:4px;">Southwest-style with covered portal porch</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="color:var(--copper);font-family:var(--font-display);font-size:20px;font-weight:700;">640 sf</div>
-              <div style="color:rgba(240,235,225,.4);font-size:11px;">2 BD / 1 BA</div>
-            </div>
-          </div>
+        <div class="wizard-panel" data-wizard-step="2">
+          <div class="wizard-heading">Add family and revenue features.</div>
+          <p class="wizard-copy">Smart home, accessibility, rental readiness, and event-income planning can all change the scope and the price.</p>
+          <div class="choice-grid" data-choice-group="features"></div>
+          <div class="choice-grid" data-choice-group="revenue" style="margin-top:10px;"></div>
         </div>
 
-        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(120,170,230,.2);border-radius:8px;padding:20px 24px;cursor:pointer;transition:border-color .2s;"
-          onmouseenter="this.style.borderColor='rgba(196,149,74,.6)'" onmouseleave="this.style.borderColor='rgba(120,170,230,.2)'"
-          onclick="document.getElementById('design-form').scrollIntoView({behavior:'smooth'})">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="color:var(--stucco);font-family:var(--font-display);font-size:18px;font-weight:700;">Tierra Grande</div>
-              <div style="color:rgba(240,235,225,.5);font-size:13px;margin-top:4px;">Largest model — 2BR/2BA with flex room</div>
+        <div class="wizard-panel" data-wizard-step="3">
+          <div class="wizard-heading">Send this design to ABQ ADU.</div>
+          <p class="wizard-copy">Now that the homeowner has made choices, we ask for contact details and preferred follow-up time.</p>
+          <form id="design-contact-form" onsubmit="handleDesignSubmit(event)" style="display:flex;flex-direction:column;gap:14px;">
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="form-field">
+                <label style="color:rgba(240,235,225,.68);">Name</label>
+                <input type="text" name="name" placeholder="Jane Smith" required>
+              </div>
+              <div class="form-field">
+                <label style="color:rgba(240,235,225,.68);">Email</label>
+                <input type="email" name="email" placeholder="jane@example.com" required>
+              </div>
             </div>
-            <div style="text-align:right;">
-              <div style="color:var(--copper);font-family:var(--font-display);font-size:20px;font-weight:700;">780 sf</div>
-              <div style="color:rgba(240,235,225,.4);font-size:11px;">2 BD / 2 BA</div>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="form-field">
+                <label style="color:rgba(240,235,225,.68);">Phone</label>
+                <input type="tel" name="phone" placeholder="(505) 555-0100">
+              </div>
+              <div class="form-field">
+                <label style="color:rgba(240,235,225,.68);">Best time</label>
+                <select name="bestTime">
+                  <option>Morning</option>
+                  <option>Lunch hour</option>
+                  <option>Afternoon</option>
+                  <option>Evening</option>
+                </select>
+              </div>
             </div>
-          </div>
+            <div class="form-field">
+              <label style="color:rgba(240,235,225,.68);">Property street</label>
+              <input type="text" name="address" placeholder="123 Main St, Albuquerque NM">
+            </div>
+            <button class="wizard-next" type="submit">Save My ADU Concept</button>
+          </form>
         </div>
 
-        <div class="finish-preview-card">
-          <img src="images/hyder-hut-2br-exterior-finishes.webp" alt="Hyder Hut 2-bedroom exterior finish rendering with warm siding, windows, and porch details">
-          <div class="finish-preview-body">
-            <div class="finish-preview-eyebrow">Exterior Finish Preview</div>
-            <div class="finish-preview-title">See the outside before you price the inside.</div>
-            <div class="finish-preview-copy">
-              Homeowners can use this finish preview to talk through siding, roof, window, and entry choices during the first design conversation.
-            </div>
-            <div class="finish-preview-tags">
-              <span>Warm exterior palette</span>
-              <span>Window package</span>
-              <span>Porch detail</span>
-              <span>Bid-ready finishes</span>
-            </div>
-          </div>
+        <div class="wizard-actions">
+          <button class="wizard-back" type="button" onclick="aduWizardBack()">Back</button>
+          <button class="wizard-next" type="button" onclick="aduWizardNext()">Next Step</button>
         </div>
       </div>
 
-      <!-- Lead capture + design launch -->
-      <div id="design-form" class="design-form-card">
-        <div style="color:var(--copper);font-family:var(--font-display);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;">
-          Start Your Design
-        </div>
-        <h3 style="color:var(--stucco);font-family:var(--font-display);font-size:26px;font-weight:700;margin-bottom:6px;">
-          Customize Your Floor Plan
-        </h3>
-        <p style="color:rgba(240,235,225,.55);font-size:14px;margin-bottom:24px;line-height:1.5;">
-          Enter your info and we'll open the design studio — drag rooms, adjust dimensions, and see your cost estimate in real time.
-        </p>
-
-        <form onsubmit="handleDesignSubmit(event)" style="display:flex;flex-direction:column;gap:14px;">
-          <div>
-            <label style="display:block;color:rgba(240,235,225,.6);font-size:12px;margin-bottom:5px;">Your Name</label>
-            <input type="text" name="name" required placeholder="Jane Smith"
-              style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(120,170,230,.25);border-radius:6px;padding:10px 14px;color:var(--stucco);font-family:var(--font-body);font-size:14px;outline:none;"
-              onfocus="this.style.borderColor='rgba(196,149,74,.6)'" onblur="this.style.borderColor='rgba(120,170,230,.25)'">
+      <div class="config-preview">
+        <img id="config-image" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Dynamic ADU exterior preview">
+        <div class="config-summary">
+          <div class="config-summary-top">
+            <div>
+              <div class="finish-preview-eyebrow">Live Homeowner Estimate</div>
+              <div class="config-model-name" id="config-model-name">Hyder Hut 2BR</div>
+            </div>
+            <div class="config-price" id="config-price">$198k</div>
           </div>
-          <div>
-            <label style="display:block;color:rgba(240,235,225,.6);font-size:12px;margin-bottom:5px;">Email Address</label>
-            <input type="email" name="email" required placeholder="jane@example.com"
-              style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(120,170,230,.25);border-radius:6px;padding:10px 14px;color:var(--stucco);font-family:var(--font-body);font-size:14px;outline:none;"
-              onfocus="this.style.borderColor='rgba(196,149,74,.6)'" onblur="this.style.borderColor='rgba(120,170,230,.25)'">
-          </div>
-          <div>
-            <label style="display:block;color:rgba(240,235,225,.6);font-size:12px;margin-bottom:5px;">Property Address (optional)</label>
-            <input type="text" name="address" placeholder="123 Main St, Albuquerque NM"
-              style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(120,170,230,.25);border-radius:6px;padding:10px 14px;color:var(--stucco);font-family:var(--font-body);font-size:14px;outline:none;"
-              onfocus="this.style.borderColor='rgba(196,149,74,.6)'" onblur="this.style.borderColor='rgba(120,170,230,.25)'">
-          </div>
-          <div>
-            <label style="display:block;color:rgba(240,235,225,.6);font-size:12px;margin-bottom:5px;">Starting Model</label>
-            <select name="model"
-              style="width:100%;background:rgba(15,31,61,.9);border:1px solid rgba(120,170,230,.25);border-radius:6px;padding:10px 14px;color:var(--stucco);font-family:var(--font-body);font-size:14px;outline:none;cursor:pointer;">
-              <option value="">Blank canvas</option>
-              <option value="hyder-hut">Hyder Hut — 440 sf / 1BR</option>
-              <option value="hyder-hut-2br">Hyder Hut 2BR — 550 sf / 2BR</option>
-              <option value="altura-24x24">Altura 24×24 — 576 sf / 1BR</option>
-              <option value="casita-portal">Casita Portal — 640 sf / 2BR</option>
-              <option value="tierra-grande">Tierra Grande — 780 sf / 2BR/2BA</option>
-            </select>
-          </div>
-          <button type="submit"
-            style="background:var(--copper);color:var(--blueprint);border:none;border-radius:6px;padding:14px 24px;font-family:var(--font-display);font-size:16px;font-weight:700;letter-spacing:.5px;cursor:pointer;margin-top:6px;transition:opacity .2s;"
-            onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">
-            Open Design Studio →
-          </button>
-        </form>
-
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(120,170,230,.15);display:flex;gap:20px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:6px;color:rgba(240,235,225,.45);font-size:12px;">
-            <span style="color:var(--copper);">✓</span> Real-time cost estimate
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;color:rgba(240,235,225,.45);font-size:12px;">
-            <span style="color:var(--copper);">✓</span> ABQ zoning check
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;color:rgba(240,235,225,.45);font-size:12px;">
-            <span style="color:var(--copper);">✓</span> AI design brief
+          <div class="config-line"><span>Square footage</span><strong id="config-sqft">550 sq ft</strong></div>
+          <div class="config-line"><span>Exterior</span><strong id="config-siding">Warm stucco + wood accent</strong></div>
+          <div class="config-line"><span>Roof and windows</span><strong id="config-roof-windows">Flat metal roof · standard window package</strong></div>
+          <div class="config-line"><span>Add-ons</span><strong id="config-features">Smart thermostat ready</strong></div>
+          <div class="config-line"><span>Possible revenue use</span><strong id="config-revenue">Family-first use</strong></div>
+          <div class="config-line"><span>Rough financing view</span><strong id="config-payment">Payment estimate updates here</strong></div>
+          <div class="finish-preview-copy" style="margin-top:12px;">
+            This is a planning estimate only. Site utilities, panel upgrades, water/sewer, engineering review, and homeowner changes can affect the final bid.
           </div>
         </div>
       </div>
@@ -2889,13 +3087,169 @@ footer {
 </section>
 
 <script>
+const ADU_CONFIG = {
+  step: 0,
+  model: 'hyder-hut-2br',
+  siding: 'warm',
+  roof: 'flat-metal',
+  windows: 'standard',
+  features: 'smart',
+  revenue: 'family',
+};
+
+const ADU_OPTIONS = {
+  model: [
+    { id: 'hyder-hut', label: 'Hyder Hut', sub: '440 sf · 1BR/1BA · compact backyard home', price: 168000, sqft: 440, image: 'images/hyder-hut-sheet.png' },
+    { id: 'hyder-hut-2br', label: 'Hyder Hut 2BR', sub: '550 sf · 2BR/1BA · family or rental ready', price: 198000, sqft: 550, image: 'images/hyder-hut-2br-exterior-finishes.webp' },
+    { id: 'altura-24x24', label: 'Altura 24x24', sub: '576 sf · 1BR/1BA · square efficient plan', price: 212000, sqft: 576, image: 'images/altura-box.png' },
+    { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, image: 'images/adu-exterior.png' },
+    { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · 2BR/2BA · flex room and rental potential', price: 295000, sqft: 780, image: 'images/adu-interior.png' },
+  ],
+  siding: [
+    { id: 'warm', label: 'Warm stucco + wood', sub: 'Desert-modern finish shown in the preview', price: 0, image: 'images/hyder-hut-2br-exterior-finishes.webp' },
+    { id: 'stucco', label: 'Classic stucco', sub: 'Lower maintenance Southwest exterior', price: -3500, image: 'images/adu-exterior.png' },
+    { id: 'premium-wood', label: 'Premium wood accent', sub: 'More architectural warmth at entry and patio', price: 8500, image: 'images/source-altura-render.png' },
+    { id: 'barn', label: 'Flex barn character', sub: 'A more expressive exterior for workshop/guest use', price: 12000, image: 'images/source-flex-barn-render.webp' },
+  ],
+  roof: [
+    { id: 'flat-metal', label: 'Flat metal roof', sub: 'Clean modern look · fastest permit path', price: 0 },
+    { id: 'pitched', label: 'Pitched roof', sub: 'May require NM engineer stamp', price: 7500 },
+  ],
+  windows: [
+    { id: 'standard', label: 'Standard windows', sub: 'Balanced light and cost', price: 0 },
+    { id: 'more-glass', label: 'More windows / larger openings', sub: 'More light, possible engineering burden over 3 ft', price: 11500 },
+    { id: 'no-slider', label: 'Eliminate slider', sub: 'Replace sliding glass with door/window package', price: 4200 },
+  ],
+  features: [
+    { id: 'smart', label: 'Smart thermostat ready', sub: 'Nest-style comfort and energy control', price: 650 },
+    { id: 'accessible', label: 'Multigenerational comfort', sub: 'Wider clearances and aging-friendly details', price: 9000 },
+    { id: 'premium', label: 'Premium finish allowance', sub: 'Cabinets, counters, tile, and lighting upgrade', price: 18000 },
+  ],
+  revenue: [
+    { id: 'family', label: 'Family-first use', sub: 'Designed for parents, adult children, or guests', price: 0 },
+    { id: 'long-term', label: 'Long-term rental ready', sub: 'Durable finish and privacy package', price: 6500 },
+    { id: 'event-rental', label: 'Event income ready', sub: 'Balloon Fiesta, Zozobra, Santa Fe stays', price: 10500 },
+  ],
+};
+
+function moneyShort(n) {
+  return '$' + Math.round(n / 1000).toLocaleString() + 'k';
+}
+
+function moneyWhole(n) {
+  return '$' + Math.round(n).toLocaleString();
+}
+
+function getOption(group) {
+  return ADU_OPTIONS[group].find(o => o.id === ADU_CONFIG[group]) || ADU_OPTIONS[group][0];
+}
+
+function chooseAduOption(group, id) {
+  ADU_CONFIG[group] = id;
+  renderAduConfigurator();
+}
+
+function renderChoiceGroup(group) {
+  const host = document.querySelector(`[data-choice-group="${group}"]`);
+  if (!host) return;
+  host.innerHTML = ADU_OPTIONS[group].map(opt => `
+    <button type="button" class="choice-card ${ADU_CONFIG[group] === opt.id ? 'selected' : ''}" onclick="chooseAduOption('${group}', '${opt.id}')">
+      <strong>${opt.label}</strong>
+      <span>${opt.sub}${opt.price ? ` · ${opt.price > 0 ? '+' : ''}${moneyShort(opt.price)}` : ''}</span>
+    </button>
+  `).join('');
+}
+
+function renderAduConfigurator() {
+  ['model', 'siding', 'roof', 'windows', 'features', 'revenue'].forEach(renderChoiceGroup);
+  document.querySelectorAll('[data-wizard-step]').forEach(panel => {
+    panel.classList.toggle('active', Number(panel.dataset.wizardStep) === ADU_CONFIG.step);
+  });
+  document.querySelectorAll('[data-step-pill]').forEach(pill => {
+    pill.classList.toggle('active', Number(pill.dataset.stepPill) === ADU_CONFIG.step);
+  });
+
+  const model = getOption('model');
+  const siding = getOption('siding');
+  const roof = getOption('roof');
+  const windows = getOption('windows');
+  const features = getOption('features');
+  const revenue = getOption('revenue');
+  const estimate = model.price + siding.price + roof.price + windows.price + features.price + revenue.price;
+  const previewImage = siding.id === 'warm' ? model.image : (siding.image || model.image);
+  const monthly = Math.round((estimate * 0.0074) / 25) * 25;
+
+  document.getElementById('config-image').src = previewImage;
+  document.getElementById('config-model-name').textContent = model.label;
+  document.getElementById('config-price').textContent = moneyShort(estimate);
+  document.getElementById('config-sqft').textContent = `${model.sqft} sq ft`;
+  document.getElementById('config-siding').textContent = siding.label;
+  document.getElementById('config-roof-windows').textContent = `${roof.label} · ${windows.label}`;
+  document.getElementById('config-features').textContent = features.label;
+  document.getElementById('config-revenue').textContent = revenue.label;
+  document.getElementById('config-payment').textContent = `about ${moneyWhole(monthly)}/mo before lender review`;
+}
+
+function aduWizardNext() {
+  ADU_CONFIG.step = Math.min(3, ADU_CONFIG.step + 1);
+  renderAduConfigurator();
+}
+
+function aduWizardBack() {
+  ADU_CONFIG.step = Math.max(0, ADU_CONFIG.step - 1);
+  renderAduConfigurator();
+}
+
 function handleDesignSubmit(e) {
   e.preventDefault();
-  const form = e.target;
-  // Open the in-browser platform Design Studio
-  window.open('platform.html#design', '_blank');
+  const model = getOption('model');
+  const siding = getOption('siding');
+  const roof = getOption('roof');
+  const windows = getOption('windows');
+  const features = getOption('features');
+  const revenue = getOption('revenue');
+  const summary = encodeURIComponent(`ABQ ADU concept: ${model.label}, ${model.sqft} sf, ${siding.label}, ${roof.label}, ${windows.label}, ${features.label}, ${revenue.label}.`);
+  window.open(`platform.html#design?concept=${summary}`, '_blank');
 }
+
+renderAduConfigurator();
 </script>
+
+<!-- ── Financing + Lending ───────────────────────────────── -->
+<section class="finance-section" id="financing">
+  <div class="section-inner">
+    <div class="finance-grid">
+      <div class="finance-intro">
+        <div class="section-eyebrow">Financing Partners</div>
+        <h2>Make the ADU<br><em>Feel Possible.</em></h2>
+        <p>
+          Many homeowners need lending options before they can say yes. V2 should create a clean path for banks, credit unions, and specialty lenders to sponsor placements, advertise ADU loans, and help homeowners compare financing before the site visit.
+        </p>
+        <p>
+          This also creates a real monetization channel for ABQ ADU: featured lender slots, referral tracking, and future prequalification workflows.
+        </p>
+      </div>
+
+      <div class="lender-cards">
+        <div class="lender-card">
+          <span class="lender-tag">Bank / Credit Union</span>
+          <h3>ADU Loan Placement</h3>
+          <p>Sponsored local lender cards for construction loans, HELOCs, and renovation financing. Start with education, then add referral tracking.</p>
+        </div>
+        <div class="lender-card">
+          <span class="lender-tag">Homeowner Tool</span>
+          <h3>Payment Estimate</h3>
+          <p>Show rough monthly payment ranges alongside the dynamic ADU price so homeowners can understand budget before giving contact info.</p>
+        </div>
+        <div class="lender-card">
+          <span class="lender-tag">Revenue Angle</span>
+          <h3>Income Offset</h3>
+          <p>Let families compare multigenerational use, long-term rental, and event rental scenarios such as Balloon Fiesta and Zozobra.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ── Contractor Marketplace ─────────────────────────────── -->
 <section class="contractor-section" id="contractors" style="max-width:100%;padding:96px var(--gutter);">
