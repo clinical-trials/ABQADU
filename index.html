@@ -796,6 +796,88 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .city-source a:hover { color: var(--copper-l); }
 
+/* ─── Homeowner design tool ──────────────────────────────── */
+.design-builder-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.design-model-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.finish-preview-card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(196,149,74,.28);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.finish-preview-card img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+}
+
+.finish-preview-body {
+  padding: 18px 20px 20px;
+}
+
+.finish-preview-eyebrow {
+  color: var(--copper);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.finish-preview-title {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.finish-preview-copy {
+  color: rgba(240,235,225,.62);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.finish-preview-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.finish-preview-tags span {
+  border: 1px solid rgba(196,149,74,.28);
+  border-radius: 99px;
+  color: rgba(240,235,225,.68);
+  font-size: 11px;
+  padding: 4px 9px;
+}
+
+.design-form-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(120,170,230,.25);
+  border-radius: 10px;
+  padding: 32px;
+  min-width: 0;
+}
+
 @media (max-width: 900px) {
   .city-plans-grid { grid-template-columns: repeat(2, 1fr); }
   .city-plans-header { grid-template-columns: 1fr; gap: 24px; }
@@ -1494,6 +1576,7 @@ footer {
 @media (max-width: 1024px) {
   .hero { grid-template-columns: 1fr; }
   .hero-photo { display: none; }
+  .design-builder-grid { grid-template-columns: 1fr; }
   .process-grid { grid-template-columns: repeat(2, 1fr); }
   .models-grid { grid-template-columns: repeat(2, 1fr); }
   .models-row-2 { max-width: 100%; }
@@ -1547,6 +1630,10 @@ footer {
   .qualifier-form textarea { font-size: 16px; } /* prevent iOS zoom */
 
   .free-plans-grid { grid-template-columns: repeat(2, 1fr); }
+  .city-plans-footer { align-items: stretch; }
+  .city-plans-footer .btn-primary { text-align: center; width: 100%; }
+  .design-form-card { padding: 24px; }
+  .finish-preview-card img { aspect-ratio: 4 / 3; }
 
   .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
   .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
@@ -1568,6 +1655,13 @@ footer {
   .contractor-price { font-size: 28px; }
 
   .model-floor-plan svg { height: 160px; }
+  .source-catalog { padding: 22px 16px; }
+  .source-catalog-title { font-size: 30px; }
+  .source-catalog .btn-primary { width: 100%; text-align: center; }
+  .design-form-card { padding: 20px; }
+  .design-model-list > div[style*="padding"] { padding: 16px !important; }
+  .design-model-list > div[style*="padding"] > div { align-items: flex-start !important; gap: 12px; }
+  .finish-preview-title { font-size: 21px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2631,10 +2725,10 @@ footer {
       </p>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
+    <div class="design-builder-grid">
 
       <!-- Model cards -->
-      <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="design-model-list">
         <div style="background:rgba(255,255,255,.04);border:1px solid rgba(120,170,230,.2);border-radius:8px;padding:20px 24px;cursor:pointer;transition:border-color .2s;"
           onmouseenter="this.style.borderColor='rgba(196,149,74,.6)'" onmouseleave="this.style.borderColor='rgba(120,170,230,.2)'"
           onclick="document.getElementById('design-form').scrollIntoView({behavior:'smooth'})">
@@ -2709,10 +2803,27 @@ footer {
             </div>
           </div>
         </div>
+
+        <div class="finish-preview-card">
+          <img src="images/hyder-hut-2br-exterior-finishes.webp" alt="Hyder Hut 2-bedroom exterior finish rendering with warm siding, windows, and porch details">
+          <div class="finish-preview-body">
+            <div class="finish-preview-eyebrow">Exterior Finish Preview</div>
+            <div class="finish-preview-title">See the outside before you price the inside.</div>
+            <div class="finish-preview-copy">
+              Homeowners can use this finish preview to talk through siding, roof, window, and entry choices during the first design conversation.
+            </div>
+            <div class="finish-preview-tags">
+              <span>Warm exterior palette</span>
+              <span>Window package</span>
+              <span>Porch detail</span>
+              <span>Bid-ready finishes</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Lead capture + design launch -->
-      <div id="design-form" style="background:rgba(255,255,255,.04);border:1px solid rgba(120,170,230,.25);border-radius:10px;padding:32px;">
+      <div id="design-form" class="design-form-card">
         <div style="color:var(--copper);font-family:var(--font-display);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;">
           Start Your Design
         </div>
