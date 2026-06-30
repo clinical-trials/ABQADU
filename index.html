@@ -3056,8 +3056,8 @@ footer {
         </div>
 
         <div class="wizard-actions">
-          <button class="wizard-back" type="button" onclick="aduWizardBack()">Back</button>
-          <button class="wizard-next" type="button" onclick="aduWizardNext()">Next Step</button>
+          <button class="wizard-back" id="adu-wizard-back" type="button" onclick="aduWizardBack()">Back</button>
+          <button class="wizard-next" id="adu-wizard-next" type="button" onclick="aduWizardNext()">Next Step</button>
         </div>
       </div>
 
@@ -3168,6 +3168,10 @@ function renderAduConfigurator() {
   document.querySelectorAll('[data-step-pill]').forEach(pill => {
     pill.classList.toggle('active', Number(pill.dataset.stepPill) === ADU_CONFIG.step);
   });
+  const backButton = document.getElementById('adu-wizard-back');
+  const nextButton = document.getElementById('adu-wizard-next');
+  if (backButton) backButton.style.visibility = ADU_CONFIG.step === 0 ? 'hidden' : 'visible';
+  if (nextButton) nextButton.style.display = ADU_CONFIG.step === 3 ? 'none' : 'inline-flex';
 
   const model = getOption('model');
   const siding = getOption('siding');
