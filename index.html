@@ -893,6 +893,54 @@ h2 em { font-style: normal; color: var(--terra); }
   margin-bottom: 24px;
 }
 
+.design-step-strip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.design-step-card {
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(196,149,74,.2);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 14px;
+}
+
+.design-step-num {
+  align-items: center;
+  background: rgba(196,149,74,.18);
+  border: 1px solid rgba(196,149,74,.38);
+  border-radius: 999px;
+  color: var(--copper-l);
+  display: flex;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.design-step-title {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.design-step-copy {
+  color: rgba(240,235,225,.56);
+  font-size: 12px;
+  line-height: 1.45;
+  margin-top: 5px;
+}
+
 .wizard-step-pill {
   border: 1px solid rgba(120,170,230,.18);
   border-radius: 999px;
@@ -2057,6 +2105,7 @@ footer {
   .design-form-card { padding: 24px; }
   .finish-preview-card img { aspect-ratio: 4 / 3; }
   .design-wizard { padding: 22px; }
+  .design-step-strip { grid-template-columns: 1fr; }
   .wizard-progress { grid-template-columns: repeat(2, 1fr); }
   .design-infographic { grid-template-columns: 1fr; }
   .choice-grid { grid-template-columns: 1fr; }
@@ -3183,6 +3232,23 @@ footer {
 
     <div class="design-builder-grid">
       <div class="design-wizard" id="homeowner-configurator">
+        <div class="design-step-strip" aria-label="Homeowner design flow">
+          <div class="design-step-card">
+            <div class="design-step-num">1</div>
+            <div>
+              <div class="design-step-title">Select a Model</div>
+              <div class="design-step-copy">Choose the ADU or studio that fits your space.</div>
+            </div>
+          </div>
+          <div class="design-step-card">
+            <div class="design-step-num">2</div>
+            <div>
+              <div class="design-step-title">Personalize and Save Your Design</div>
+              <div class="design-step-copy">Customize options and save a detailed estimate.</div>
+            </div>
+          </div>
+        </div>
+
         <div class="wizard-progress" aria-label="ADU design steps">
           <div class="wizard-step-pill active" data-step-pill="0">1. Model</div>
           <div class="wizard-step-pill" data-step-pill="1">2. Exterior</div>
