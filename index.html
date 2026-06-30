@@ -399,6 +399,11 @@ h2 em { font-style: normal; color: var(--terra); }
   cursor: pointer;
 }
 
+.model-card:focus-visible {
+  outline: 3px solid rgba(196,149,74,.55);
+  outline-offset: 3px;
+}
+
 .model-card:hover {
   box-shadow: 0 12px 40px rgba(28,25,23,.12);
   transform: translateY(-3px);
@@ -458,6 +463,44 @@ h2 em { font-style: normal; color: var(--terra); }
 .sheet-btn:hover { background: var(--terra); }
 
 .model-info { padding: 20px 22px 22px; }
+
+.model-actions {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.model-design-btn {
+  align-items: center;
+  background: var(--terra);
+  border: 0;
+  border-radius: 4px;
+  color: var(--white);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  justify-content: center;
+  letter-spacing: .08em;
+  min-height: 44px;
+  padding: 12px 16px;
+  text-transform: uppercase;
+  transition: background .2s, transform .15s;
+  width: 100%;
+}
+
+.model-design-btn:hover {
+  background: #a04d2e;
+  transform: translateY(-1px);
+}
+
+.model-design-note {
+  color: var(--ink-60);
+  font-size: 11px;
+  line-height: 1.45;
+  text-align: center;
+}
 
 .source-catalog {
   margin-top: 36px;
@@ -2882,14 +2925,14 @@ footer {
         <div class="section-eyebrow">Our Portfolio</div>
         <h2>Five Proven<br><em>Designs</em></h2>
       </div>
-      <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Pick your starting point — we handle everything from there.</p>
+      <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Click a model to open the Version 2 design tool and customize that exact ADU.</p>
     </div>
 
     <!-- Row 1: 3 cards -->
     <div class="models-grid">
 
       <!-- Hyder Hut HH1 -->
-      <div class="model-card">
+      <div class="model-card" data-design-model="hyder-hut" role="button" tabindex="0" aria-label="Design the Hyder Hut model">
         <div class="model-floor-plan">
           <img src="images/hyder-hut-sheet.png" alt="HH1 Hyder Hut floor plan sheet — 12.5x35 440sf 1 Bedroom" onclick="openLightbox(this.src)">
           <a class="sheet-btn" onclick="openLightbox('images/hyder-hut-sheet.png'); return false;">View Full Sheet</a>
@@ -2904,11 +2947,15 @@ footer {
             <span class="tag green">ADU-ready</span>
           </div>
           <div class="model-price">from $168,000 <small>turnkey est.</small></div>
+          <div class="model-actions">
+            <button class="model-design-btn" type="button" onclick="designSpecificModel('hyder-hut')">Design This Model</button>
+            <div class="model-design-note">Opens Version 2 customization for the Hyder Hut.</div>
+          </div>
         </div>
       </div>
 
       <!-- Hyder Hut 2BR -->
-      <div class="model-card">
+      <div class="model-card" data-design-model="hyder-hut-2br" role="button" tabindex="0" aria-label="Design the Hyder Hut 2BR model">
         <div class="model-floor-plan">
           <img src="images/hyder-hut-2br-sheet.png" alt="Hyder Hut 2 Bedroom floor plan sheet — 12.5x44 550sf" onclick="openLightbox(this.src)">
           <a class="sheet-btn" onclick="openLightbox('images/hyder-hut-2br-sheet.png'); return false;">View Full Sheet</a>
@@ -2923,11 +2970,15 @@ footer {
             <span class="tag green">ADU-ready</span>
           </div>
           <div class="model-price">from $198,000 <small>turnkey est.</small></div>
+          <div class="model-actions">
+            <button class="model-design-btn" type="button" onclick="designSpecificModel('hyder-hut-2br')">Design This Model</button>
+            <div class="model-design-note">Start with this two-bedroom plan and customize finishes.</div>
+          </div>
         </div>
       </div>
 
       <!-- Altura 24x24 -->
-      <div class="model-card">
+      <div class="model-card" data-design-model="altura-24x24" role="button" tabindex="0" aria-label="Design the Altura 24 by 24 model">
         <div class="model-floor-plan">
           <img src="images/altura-sheet.png" alt="Altura 24x24 floor plan sheet — 576sf 1 Bedroom" onclick="openLightbox(this.src)">
           <a class="sheet-btn" onclick="openLightbox('images/altura-sheet.png'); return false;">View Full Sheet</a>
@@ -2949,6 +3000,10 @@ footer {
             </a>
           </div>
           <div class="model-price">from $212,000 <small>turnkey est.</small></div>
+          <div class="model-actions">
+            <button class="model-design-btn" type="button" onclick="designSpecificModel('altura-24x24')">Design This Model</button>
+            <div class="model-design-note">Customize the square Altura layout and finish package.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -2957,7 +3012,7 @@ footer {
     <div class="models-row-2">
 
       <!-- Casita Portal -->
-      <div class="model-card">
+      <div class="model-card" data-design-model="casita-portal" role="button" tabindex="0" aria-label="Design the Casita Portal model">
         <div class="model-floor-plan" style="padding:20px;">
           <svg viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg">
             <polygon points="10,10 160,10 160,80 210,80 210,150 10,150" stroke="#C4954A" stroke-width="2" fill="none"/>
@@ -2984,11 +3039,15 @@ footer {
             <span class="tag green">SW vernacular</span>
           </div>
           <div class="model-price">from $228,000 <small>turnkey est.</small></div>
+          <div class="model-actions">
+            <button class="model-design-btn" type="button" onclick="designSpecificModel('casita-portal')">Design This Model</button>
+            <div class="model-design-note">Open the portal-focused model in the design tool.</div>
+          </div>
         </div>
       </div>
 
       <!-- Tierra Grande -->
-      <div class="model-card">
+      <div class="model-card" data-design-model="tierra-grande" role="button" tabindex="0" aria-label="Design the Tierra Grande model">
         <div class="model-floor-plan" style="padding:20px;">
           <svg viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="10" y="10" width="200" height="140" stroke="#C4954A" stroke-width="2"/>
@@ -3019,11 +3078,15 @@ footer {
             <span class="tag green">Income property</span>
           </div>
           <div class="model-price">from $295,000 <small>turnkey est.</small></div>
+          <div class="model-actions">
+            <button class="model-design-btn" type="button" onclick="designSpecificModel('tierra-grande')">Design This Model</button>
+            <div class="model-design-note">Customize the larger family or income-property layout.</div>
+          </div>
         </div>
       </div>
 
       <!-- Cromwell -->
-      <div class="model-card">
+      <div class="model-card" data-design-model="cromwell" role="button" tabindex="0" aria-label="Design the Cromwell model">
         <div class="model-floor-plan" style="padding:20px;">
           <svg viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg">
             <!-- Ground floor footprint -->
@@ -3070,6 +3133,10 @@ footer {
             <span class="tag green">Largest model</span>
           </div>
           <div class="model-price">from $385,000 <small>turnkey est.</small></div>
+          <div class="model-actions">
+            <button class="model-design-btn" type="button" onclick="designSpecificModel('cromwell')">Design This Model</button>
+            <div class="model-design-note">Customize the two-story Cromwell concept.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -3677,7 +3744,7 @@ footer {
             <div class="design-step-num">1</div>
             <div>
               <div class="design-step-title">Select a Model</div>
-              <div class="design-step-copy">Choose the ADU or studio that fits your space.</div>
+              <div class="design-step-copy">Choose the ADU or studio that fits your space, or click any model card above.</div>
             </div>
           </div>
           <div class="design-step-card">
@@ -3881,6 +3948,7 @@ const ADU_OPTIONS = {
     { id: 'altura-24x24', label: 'Altura 24x24', sub: '576 sf · 1BR/1BA · square efficient plan', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', image: 'images/altura-box.png' },
     { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, beds: '1BR', baths: '1BA', image: 'images/adu-exterior.png' },
     { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · 2BR/2BA · flex room and rental potential', price: 295000, sqft: 780, beds: '2BR', baths: '2BA', image: 'images/adu-interior.png' },
+    { id: 'cromwell', label: 'Cromwell', sub: '1,280 sf · 2BR/1.5BA · two-story flagship', price: 385000, sqft: 1280, beds: '2BR', baths: '1.5BA', image: 'images/source-cromwell-render.webp' },
   ],
   color: [
     { id: 'desert-cream', label: 'Desert cream', sub: 'Soft stucco, warm wood, bronze trim', price: 0, swatch: 'linear-gradient(90deg,#d9c4a5 0 33%,#9a6337 33% 66%,#3d3028 66%)', palette: ['#d9c4a5', '#9a6337', '#3d3028'], note: 'Soft desert stucco with warm wood accents and bronze trim.' },
@@ -4147,6 +4215,15 @@ function startAduDesign() {
   document.getElementById('homeowner-configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function designSpecificModel(modelId) {
+  if (!ADU_OPTIONS.model.some(model => model.id === modelId)) return;
+  ADU_CONFIG.model = modelId;
+  ADU_CONFIG.previewView = 'exterior';
+  ADU_CONFIG.step = 1;
+  renderAduConfigurator();
+  document.getElementById('design').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function handleDesignSubmit(e) {
   e.preventDefault();
   const model = getOption('model');
@@ -4190,6 +4267,18 @@ if (aduStage && aduSlider) {
   aduStage.addEventListener('pointerup', () => { aduDragging = false; });
   aduStage.addEventListener('pointercancel', () => { aduDragging = false; });
 }
+
+document.querySelectorAll('[data-design-model]').forEach(card => {
+  card.addEventListener('click', event => {
+    if (event.target.closest('a, button, img')) return;
+    designSpecificModel(card.dataset.designModel);
+  });
+  card.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    designSpecificModel(card.dataset.designModel);
+  });
+});
 </script>
 
 <!-- ── Financing + Lending ───────────────────────────────── -->
