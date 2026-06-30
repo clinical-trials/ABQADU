@@ -1216,11 +1216,44 @@ h2 em { font-style: normal; color: var(--terra); }
   overflow: hidden;
 }
 
+.config-photo-shell {
+  position: relative;
+}
+
 .config-preview img {
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   display: block;
+}
+
+.photo-preview-badge {
+  background: rgba(28,25,23,.74);
+  border: 1px solid rgba(240,235,225,.2);
+  border-radius: 999px;
+  bottom: 16px;
+  color: var(--stucco);
+  font-size: 10px;
+  font-weight: 900;
+  left: 16px;
+  letter-spacing: .12em;
+  padding: 8px 11px;
+  position: absolute;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+}
+
+.photo-preview-caption {
+  background: linear-gradient(180deg, transparent, rgba(28,25,23,.72));
+  bottom: 0;
+  color: rgba(240,235,225,.72);
+  font-size: 12px;
+  left: 0;
+  line-height: 1.45;
+  padding: 56px 16px 16px;
+  position: absolute;
+  right: 0;
+  text-align: right;
 }
 
 .config-design-board {
@@ -1462,6 +1495,13 @@ h2 em { font-style: normal; color: var(--terra); }
   color: rgba(240,235,225,.48);
   font-size: 11px;
   line-height: 1.45;
+}
+
+.viewer-upgrade-note {
+  color: rgba(196,149,74,.78);
+  display: block;
+  font-weight: 700;
+  margin-top: 4px;
 }
 
 .config-summary {
@@ -3529,7 +3569,7 @@ footer {
             <div class="design-tool-chip">Left/right entry</div>
             <div class="design-tool-chip">Outdoor portal</div>
             <div class="design-tool-chip">Interior packages</div>
-            <div class="design-tool-chip">Save estimate</div>
+            <div class="design-tool-chip">4K model ready</div>
           </div>
         </div>
 
@@ -3637,7 +3677,11 @@ footer {
       </div>
 
       <div class="config-preview">
-        <img id="config-image" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Dynamic ADU exterior preview">
+        <div class="config-photo-shell">
+          <img id="config-image" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Dynamic photorealistic ADU exterior preview">
+          <div class="photo-preview-badge">Photorealistic Preview</div>
+          <div class="photo-preview-caption">Use this render as the homeowner-facing visual anchor while the turntable below explores options.</div>
+        </div>
         <div class="config-design-board">
           <div class="viewer-card">
             <div class="board-label">Interactive 3D Concept Viewer</div>
@@ -3667,7 +3711,7 @@ footer {
                 <button class="viewer-toggle" type="button" data-window-layout="no-slider" onclick="setWindowLayout('no-slider')">Door + Window</button>
                 <button class="viewer-toggle" type="button" data-window-layout="window-picture" onclick="setWindowLayout('window-picture')">Picture Windows</button>
               </div>
-              <div class="viewer-note">Concept visualization only. True 4K/360 model files can be added later; this version lets homeowners interact immediately on the webpage.</div>
+              <div class="viewer-note">Interactive concept visualization for quick option testing.<span class="viewer-upgrade-note">Ideal final version: true 4K photorealistic GLB/USDZ models with 360 rotation and material swaps.</span></div>
             </div>
           </div>
           <div class="plan-diagram-card">
