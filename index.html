@@ -943,7 +943,8 @@ h2 em { font-style: normal; color: var(--terra); }
   border-radius: 8px;
   color: var(--stucco);
   cursor: pointer;
-  padding: 14px;
+  overflow: hidden;
+  padding: 0;
   text-align: left;
   transition: border-color .18s, background .18s, transform .18s;
 }
@@ -953,6 +954,51 @@ h2 em { font-style: normal; color: var(--terra); }
   background: rgba(196,149,74,.12);
   border-color: rgba(196,149,74,.64);
   transform: translateY(-1px);
+}
+
+.choice-media {
+  aspect-ratio: 16 / 9;
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.18), rgba(120,170,230,.1)),
+    rgba(255,255,255,.04);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  overflow: hidden;
+  position: relative;
+}
+
+.choice-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.04) contrast(1.02) brightness(.9);
+}
+
+.choice-swatch {
+  position: absolute;
+  inset: 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(240,235,225,.18);
+  box-shadow: inset 0 0 0 1px rgba(28,25,23,.18);
+}
+
+.choice-price-pill {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border-radius: 999px;
+  background: rgba(28,25,23,.78);
+  border: 1px solid rgba(240,235,225,.18);
+  color: var(--stucco);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  padding: 6px 8px;
+  text-transform: uppercase;
+}
+
+.choice-body {
+  padding: 14px;
 }
 
 .choice-card strong {
@@ -969,6 +1015,38 @@ h2 em { font-style: normal; color: var(--terra); }
   font-size: 12px;
   line-height: 1.4;
   margin-top: 5px;
+}
+
+.design-infographic {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.design-infographic-item {
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(196,149,74,.18);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.design-infographic-item b {
+  color: var(--copper-l);
+  display: block;
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: .04em;
+  line-height: 1;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.design-infographic-item span {
+  color: rgba(240,235,225,.56);
+  display: block;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .wizard-actions {
@@ -1917,7 +1995,9 @@ footer {
   .finish-preview-card img { aspect-ratio: 4 / 3; }
   .design-wizard { padding: 22px; }
   .wizard-progress { grid-template-columns: repeat(2, 1fr); }
+  .design-infographic { grid-template-columns: 1fr; }
   .choice-grid { grid-template-columns: 1fr; }
+  .choice-media { aspect-ratio: 16 / 8; }
   .config-summary-top { flex-direction: column; gap: 4px; }
   .config-price { font-size: 26px; }
   .finance-section { padding: 56px 20px; }
@@ -3049,6 +3129,11 @@ footer {
         <div class="wizard-panel active" data-wizard-step="0">
           <div class="wizard-heading">Choose your starting home.</div>
           <p class="wizard-copy">Start with the shape of the ADU first. We save the email for the end, after the homeowner has a real design direction.</p>
+          <div class="design-infographic">
+            <div class="design-infographic-item"><b>5</b><span>proven ABQ ADU starting models</span></div>
+            <div class="design-infographic-item"><b>90</b><span>day build goal after signed contract</span></div>
+            <div class="design-infographic-item"><b>$ / sf</b><span>live pricing lens for every choice</span></div>
+          </div>
           <div class="choice-grid" data-choice-group="model"></div>
         </div>
 
@@ -3058,12 +3143,18 @@ footer {
           <div class="choice-grid" data-choice-group="siding"></div>
           <div class="choice-grid" data-choice-group="roof" style="margin-top:10px;"></div>
           <div class="choice-grid" data-choice-group="windows" style="margin-top:10px;"></div>
+          <div class="choice-grid" data-choice-group="orientation" style="margin-top:10px;"></div>
+          <div class="choice-grid" data-choice-group="outdoor" style="margin-top:10px;"></div>
         </div>
 
         <div class="wizard-panel" data-wizard-step="2">
           <div class="wizard-heading">Add family and revenue features.</div>
           <p class="wizard-copy">Smart home, accessibility, rental readiness, and event-income planning can all change the scope and the price.</p>
           <div class="choice-grid" data-choice-group="features"></div>
+          <div class="choice-grid" data-choice-group="interior" style="margin-top:10px;"></div>
+          <div class="choice-grid" data-choice-group="kitchen" style="margin-top:10px;"></div>
+          <div class="choice-grid" data-choice-group="bath" style="margin-top:10px;"></div>
+          <div class="choice-grid" data-choice-group="utilities" style="margin-top:10px;"></div>
           <div class="choice-grid" data-choice-group="revenue" style="margin-top:10px;"></div>
         </div>
 
@@ -3123,7 +3214,10 @@ footer {
           <div class="config-line"><span>Square footage</span><strong id="config-sqft">550 sq ft</strong></div>
           <div class="config-line"><span>Exterior</span><strong id="config-siding">Warm stucco + wood accent</strong></div>
           <div class="config-line"><span>Roof and windows</span><strong id="config-roof-windows">Flat metal roof · standard window package</strong></div>
+          <div class="config-line"><span>Lot fit</span><strong id="config-lot-fit">Right-hand entry · compact stoop</strong></div>
           <div class="config-line"><span>Add-ons</span><strong id="config-features">Smart thermostat ready</strong></div>
+          <div class="config-line"><span>Interior package</span><strong id="config-interior">Durable essentials</strong></div>
+          <div class="config-line"><span>Utility readiness</span><strong id="config-utilities">Panel review allowance</strong></div>
           <div class="config-line"><span>Possible revenue use</span><strong id="config-revenue">Family-first use</strong></div>
           <div class="config-line"><span>Rough financing view</span><strong id="config-payment">Payment estimate updates here</strong></div>
           <div class="finish-preview-copy" style="margin-top:12px;">
@@ -3142,7 +3236,13 @@ const ADU_CONFIG = {
   siding: 'warm',
   roof: 'flat-metal',
   windows: 'standard',
+  orientation: 'right-hand',
+  outdoor: 'stoop',
   features: 'smart',
+  interior: 'durable',
+  kitchen: 'standard-kitchen',
+  bath: 'standard-bath',
+  utilities: 'panel-review',
   revenue: 'family',
 };
 
@@ -3155,29 +3255,61 @@ const ADU_OPTIONS = {
     { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · 2BR/2BA · flex room and rental potential', price: 295000, sqft: 780, image: 'images/adu-interior.png' },
   ],
   siding: [
-    { id: 'warm', label: 'Warm stucco + wood', sub: 'Desert-modern finish shown in the preview', price: 0, image: 'images/hyder-hut-2br-exterior-finishes.webp' },
-    { id: 'stucco', label: 'Classic stucco', sub: 'Lower maintenance Southwest exterior', price: -3500, image: 'images/adu-exterior.png' },
+    { id: 'warm', label: 'Warm stucco + wood', sub: 'Desert-modern finish shown in the preview', price: 0, image: 'images/hyder-hut-2br-exterior-finishes.webp', swatch: 'linear-gradient(135deg,#d7b47d,#8b5a35)' },
+    { id: 'stucco', label: 'Classic stucco', sub: 'Lower maintenance Southwest exterior', price: -3500, image: 'images/adu-exterior.png', swatch: 'linear-gradient(135deg,#d9c4a5,#aa8f6b)' },
     { id: 'premium-wood', label: 'Premium wood accent', sub: 'More architectural warmth at entry and patio', price: 8500, image: 'images/source-altura-render.png' },
     { id: 'barn', label: 'Flex barn character', sub: 'A more expressive exterior for workshop/guest use', price: 12000, image: 'images/source-flex-barn-render.webp' },
   ],
   roof: [
-    { id: 'flat-metal', label: 'Flat metal roof', sub: 'Clean modern look · fastest permit path', price: 0 },
-    { id: 'pitched', label: 'Pitched roof', sub: 'May require NM engineer stamp', price: 7500 },
+    { id: 'flat-metal', label: 'Flat metal roof', sub: 'Clean modern look · fastest permit path', price: 0, image: 'images/source-750-render.webp' },
+    { id: 'pitched', label: 'Pitched roof', sub: 'May require NM engineer stamp', price: 7500, image: 'images/source-burton-render.webp' },
+    { id: 'portal-roof', label: 'Portal shade roof', sub: 'Shade-forward New Mexico patio profile', price: 9800, image: 'images/source-cromwell-render.webp' },
   ],
   windows: [
-    { id: 'standard', label: 'Standard windows', sub: 'Balanced light and cost', price: 0 },
-    { id: 'more-glass', label: 'More windows / larger openings', sub: 'More light, possible engineering burden over 3 ft', price: 11500 },
-    { id: 'no-slider', label: 'Eliminate slider', sub: 'Replace sliding glass with door/window package', price: 4200 },
+    { id: 'standard', label: 'Standard windows', sub: 'Balanced light and cost', price: 0, image: 'images/hyder-hut-sheet.png' },
+    { id: 'more-glass', label: 'More windows / larger openings', sub: 'More light, possible engineering burden over 3 ft', price: 11500, image: 'images/source-townhouse-render.webp' },
+    { id: 'no-slider', label: 'Eliminate slider', sub: 'Replace sliding glass with door/window package', price: 4200, image: 'images/hyder-hut-2br-sheet.png' },
+  ],
+  orientation: [
+    { id: 'right-hand', label: 'Right-hand entry', sub: 'Best when access runs along the right fence line', price: 0, image: 'images/altura-sheet.png' },
+    { id: 'left-hand', label: 'Left-hand entry', sub: 'Mirrors the plan for left-side yard access', price: 1800, image: 'images/hyder-hut-sheet.png' },
+    { id: 'privacy-turn', label: 'Privacy turn', sub: 'Rotates entry away from main house sightlines', price: 3200, image: 'images/hyder-hut-2br-sheet.png' },
+  ],
+  outdoor: [
+    { id: 'stoop', label: 'Compact stoop', sub: 'Simple entry landing and code-compliant access', price: 0, image: 'images/source-750-render.webp' },
+    { id: 'covered-portal', label: 'Covered portal', sub: 'Outdoor shade room for family meals and guests', price: 12500, image: 'images/source-cromwell-render.webp' },
+    { id: 'private-courtyard', label: 'Private courtyard', sub: 'Fence, gate, and small patio zone', price: 7800, image: 'images/hyder-hut-2br-exterior-finishes.webp' },
   ],
   features: [
-    { id: 'smart', label: 'Smart thermostat ready', sub: 'Nest-style comfort and energy control', price: 650 },
-    { id: 'accessible', label: 'Multigenerational comfort', sub: 'Wider clearances and aging-friendly details', price: 9000 },
-    { id: 'premium', label: 'Premium finish allowance', sub: 'Cabinets, counters, tile, and lighting upgrade', price: 18000 },
+    { id: 'smart', label: 'Smart thermostat ready', sub: 'Nest-style comfort and energy control', price: 650, image: 'images/adu-interior.png' },
+    { id: 'accessible', label: 'Multigenerational comfort', sub: 'Wider clearances and aging-friendly details', price: 9000, image: 'images/adu-interior.png' },
+    { id: 'premium', label: 'Premium finish allowance', sub: 'Cabinets, counters, tile, and lighting upgrade', price: 18000, image: 'images/adu-interior.png' },
+  ],
+  interior: [
+    { id: 'durable', label: 'Durable essentials', sub: 'Clean rental-ready finishes with easy maintenance', price: 0, image: 'images/adu-interior.png' },
+    { id: 'warm-family', label: 'Warm family suite', sub: 'Softer lighting, warmer surfaces, guest-ready details', price: 7200, image: 'images/adu-interior.png' },
+    { id: 'designer', label: 'Designer palette', sub: 'Upgraded tile, hardware, lighting, and paint package', price: 15500, image: 'images/adu-interior.png' },
+  ],
+  kitchen: [
+    { id: 'standard-kitchen', label: 'Standard kitchen', sub: 'Efficient appliance and cabinet package', price: 0, image: 'images/adu-interior.png' },
+    { id: 'rental-kitchen', label: 'Rental-ready kitchen', sub: 'More durable counters, storage, and appliance allowance', price: 6800, image: 'images/adu-interior.png' },
+    { id: 'family-kitchen', label: 'Family table kitchen', sub: 'More storage and a compact dining moment', price: 9400, image: 'images/adu-interior.png' },
+  ],
+  bath: [
+    { id: 'standard-bath', label: 'Standard bath', sub: 'Efficient shower, vanity, and fixture package', price: 0, image: 'images/adu-interior.png' },
+    { id: 'aging-friendly', label: 'Aging-friendly bath', sub: 'Low-threshold shower and grab-bar blocking', price: 6200, image: 'images/adu-interior.png' },
+    { id: 'tile-upgrade', label: 'Tile upgrade', sub: 'More polished finish for guests or short stays', price: 8400, image: 'images/adu-interior.png' },
+  ],
+  utilities: [
+    { id: 'panel-review', label: 'Panel review allowance', sub: 'Electrical panel review before final bid', price: 0, image: 'images/adu-construction.png' },
+    { id: 'panel-upgrade-low', label: 'Panel upgrade low range', sub: 'Planning placeholder for 220V / 50A minimum', price: 3500, image: 'images/adu-construction.png' },
+    { id: 'panel-upgrade-high', label: 'Panel upgrade high range', sub: 'Higher placeholder for complex electrical work', price: 6500, image: 'images/adu-construction.png' },
+    { id: 'sewer-macerator', label: 'Sewer/macerator review', sub: 'Adds analysis allowance where gravity sewer may not work', price: 4800, image: 'images/adu-construction.png' },
   ],
   revenue: [
-    { id: 'family', label: 'Family-first use', sub: 'Designed for parents, adult children, or guests', price: 0 },
-    { id: 'long-term', label: 'Long-term rental ready', sub: 'Durable finish and privacy package', price: 6500 },
-    { id: 'event-rental', label: 'Event income ready', sub: 'Balloon Fiesta, Zozobra, Santa Fe stays', price: 10500 },
+    { id: 'family', label: 'Family-first use', sub: 'Designed for parents, adult children, or guests', price: 0, image: 'images/hyder-hut-2br-exterior-finishes.webp' },
+    { id: 'long-term', label: 'Long-term rental ready', sub: 'Durable finish and privacy package', price: 6500, image: 'images/adu-exterior.png' },
+    { id: 'event-rental', label: 'Event income ready', sub: 'Balloon Fiesta, Zozobra, Santa Fe stays', price: 10500, image: 'images/source-townhouse-render.webp' },
   ],
 };
 
@@ -3198,19 +3330,37 @@ function chooseAduOption(group, id) {
   renderAduConfigurator();
 }
 
+function renderChoiceMedia(opt) {
+  const price = opt.price ? `${opt.price > 0 ? '+' : ''}${moneyShort(opt.price)}` : 'Included';
+  const visual = opt.swatch
+    ? `<span class="choice-swatch" style="background:${opt.swatch};"></span>`
+    : opt.image
+      ? `<img src="${opt.image}" alt="${opt.label} preview" loading="lazy">`
+      : '';
+  return `
+    <div class="choice-media">
+      ${visual}
+      <span class="choice-price-pill">${price}</span>
+    </div>
+  `;
+}
+
 function renderChoiceGroup(group) {
   const host = document.querySelector(`[data-choice-group="${group}"]`);
   if (!host) return;
   host.innerHTML = ADU_OPTIONS[group].map(opt => `
     <button type="button" class="choice-card ${ADU_CONFIG[group] === opt.id ? 'selected' : ''}" onclick="chooseAduOption('${group}', '${opt.id}')">
-      <strong>${opt.label}</strong>
-      <span>${opt.sub}${opt.price ? ` · ${opt.price > 0 ? '+' : ''}${moneyShort(opt.price)}` : ''}</span>
+      ${renderChoiceMedia(opt)}
+      <div class="choice-body">
+        <strong>${opt.label}</strong>
+        <span>${opt.sub}</span>
+      </div>
     </button>
   `).join('');
 }
 
 function renderAduConfigurator() {
-  ['model', 'siding', 'roof', 'windows', 'features', 'revenue'].forEach(renderChoiceGroup);
+  ['model', 'siding', 'roof', 'windows', 'orientation', 'outdoor', 'features', 'interior', 'kitchen', 'bath', 'utilities', 'revenue'].forEach(renderChoiceGroup);
   document.querySelectorAll('[data-wizard-step]').forEach(panel => {
     panel.classList.toggle('active', Number(panel.dataset.wizardStep) === ADU_CONFIG.step);
   });
@@ -3226,10 +3376,17 @@ function renderAduConfigurator() {
   const siding = getOption('siding');
   const roof = getOption('roof');
   const windows = getOption('windows');
+  const orientation = getOption('orientation');
+  const outdoor = getOption('outdoor');
   const features = getOption('features');
+  const interior = getOption('interior');
+  const kitchen = getOption('kitchen');
+  const bath = getOption('bath');
+  const utilities = getOption('utilities');
   const revenue = getOption('revenue');
-  const estimate = model.price + siding.price + roof.price + windows.price + features.price + revenue.price;
-  const previewImage = siding.id === 'warm' ? model.image : (siding.image || model.image);
+  const selections = [model, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue];
+  const estimate = selections.reduce((sum, option) => sum + option.price, 0);
+  const previewImage = siding.image || outdoor.image || model.image;
   const monthly = Math.round((estimate * 0.0074) / 25) * 25;
 
   document.getElementById('config-image').src = previewImage;
@@ -3238,7 +3395,10 @@ function renderAduConfigurator() {
   document.getElementById('config-sqft').textContent = `${model.sqft} sq ft`;
   document.getElementById('config-siding').textContent = siding.label;
   document.getElementById('config-roof-windows').textContent = `${roof.label} · ${windows.label}`;
+  document.getElementById('config-lot-fit').textContent = `${orientation.label} · ${outdoor.label}`;
   document.getElementById('config-features').textContent = features.label;
+  document.getElementById('config-interior').textContent = `${interior.label} · ${kitchen.label} · ${bath.label}`;
+  document.getElementById('config-utilities').textContent = utilities.label;
   document.getElementById('config-revenue').textContent = revenue.label;
   document.getElementById('config-payment').textContent = `about ${moneyWhole(monthly)}/mo before lender review`;
 }
@@ -3259,9 +3419,15 @@ function handleDesignSubmit(e) {
   const siding = getOption('siding');
   const roof = getOption('roof');
   const windows = getOption('windows');
+  const orientation = getOption('orientation');
+  const outdoor = getOption('outdoor');
   const features = getOption('features');
+  const interior = getOption('interior');
+  const kitchen = getOption('kitchen');
+  const bath = getOption('bath');
+  const utilities = getOption('utilities');
   const revenue = getOption('revenue');
-  const summary = encodeURIComponent(`ABQ ADU concept: ${model.label}, ${model.sqft} sf, ${siding.label}, ${roof.label}, ${windows.label}, ${features.label}, ${revenue.label}.`);
+  const summary = encodeURIComponent(`ABQ ADU concept: ${model.label}, ${model.sqft} sf, ${siding.label}, ${roof.label}, ${windows.label}, ${orientation.label}, ${outdoor.label}, ${features.label}, ${interior.label}, ${kitchen.label}, ${bath.label}, ${utilities.label}, ${revenue.label}.`);
   window.open(`platform.html#design?concept=${summary}`, '_blank');
 }
 
