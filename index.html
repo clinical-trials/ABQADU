@@ -2138,8 +2138,8 @@ footer {
   position: absolute;
 }
 
-/* AI badge strip */
-.ai-badge-strip {
+/* Project control badge strip */
+.control-badge-strip {
   position: relative;
   z-index: 2;
   display: flex;
@@ -2148,7 +2148,7 @@ footer {
   justify-content: center;
 }
 
-.ai-badge {
+.control-badge {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2161,7 +2161,7 @@ footer {
   font-weight: 500;
 }
 
-.ai-badge::before {
+.control-badge::before {
   content: '◆';
   font-size: 8px;
   color: var(--copper);
@@ -2903,9 +2903,9 @@ footer {
         <div class="pf-desc">Permit delays, weather windows, material lead times — every risk logged with probability and impact scores. The team acts on issues before they become schedule slippage.</div>
       </div>
       <div class="pf-card">
-        <div class="pf-icon">🤖</div>
-        <div class="pf-title">AI Forecasting</div>
-        <div class="pf-desc">Claude AI reads your schedule every week and flags delay risks, writes your client briefing, and recommends recovery actions — before you have to ask.</div>
+        <div class="pf-icon">📈</div>
+        <div class="pf-title">Forecasting</div>
+        <div class="pf-desc">Your schedule is reviewed every week to flag delay risks, prepare your client briefing, and recommend recovery actions before small issues become missed dates.</div>
       </div>
     </div>
 
@@ -3003,19 +3003,19 @@ footer {
         <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:12px;height:6px;background:rgba(61,82,71,.7);border-radius:2px;"></span> Non-Critical</span>
         <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:12px;height:6px;background:rgba(196,149,74,.1);border:1px solid rgba(196,149,74,.3);border-radius:2px;"></span> Float (slack)</span>
         <span style="display:flex;align-items:center;gap:6px;"><span style="width:1px;height:10px;background:rgba(184,92,56,.5);display:inline-block;"></span> Today</span>
-        <span style="margin-left:auto;">AI forecast: <span style="color:rgba(196,149,74,.8);">On track · est. completion Sep 15</span></span>
+        <span style="margin-left:auto;">Forecast: <span style="color:rgba(196,149,74,.8);">On track · est. completion Sep 15</span></span>
       </div>
     </div>
 
-    <!-- AI feature badges -->
-    <div class="ai-badge-strip">
-      <div class="ai-badge">Critical path auto-identified</div>
-      <div class="ai-badge">Delay forecast updated daily</div>
-      <div class="ai-badge">Planned vs. actual tracked</div>
-      <div class="ai-badge">Crew SMS confirmation</div>
-      <div class="ai-badge">Risk register with scoring</div>
-      <div class="ai-badge">Weekly client briefings by AI</div>
-      <div class="ai-badge">Executive PDF reports</div>
+    <!-- Project control feature badges -->
+    <div class="control-badge-strip">
+      <div class="control-badge">Critical path auto-identified</div>
+      <div class="control-badge">Delay forecast updated daily</div>
+      <div class="control-badge">Planned vs. actual tracked</div>
+      <div class="control-badge">Crew SMS confirmation</div>
+      <div class="control-badge">Risk register with scoring</div>
+      <div class="control-badge">Weekly client briefings</div>
+      <div class="control-badge">Executive PDF reports</div>
     </div>
 
   </div>
@@ -3380,7 +3380,7 @@ renderAduConfigurator();
             <li>Exclusive category placement</li>
             <li>First-call on all jobs in your trade</li>
             <li>Full platform — CPM, risks, resources</li>
-            <li>AI bid writing & proposal generation</li>
+            <li>Bid writing & proposal generation</li>
             <li>Executive report access for clients</li>
             <li>Dedicated account manager</li>
           </ul>
