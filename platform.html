@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABQ ADU — Platform (v2)</title>
+<title>ABQ ADU — Platform (Version 2)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
@@ -387,7 +387,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 <!-- ════════ BLUEPRINT BIDOUT ════════ -->
 <section class="panel" id="tab-blueprint">
   <div class="panel-head"><h2>Plans → Blueprint → Lowe's Bidout</h2><span class="muted">Version 2 · non-negotiable</span></div>
-  <p class="panel-sub">Turn a selected ABQ ADU model or uploaded plan set into a blueprint-aware material takeoff. The first v2 pass uses standard model assemblies; later passes can add AI/vision review for uploaded PDFs.</p>
+  <p class="panel-sub">Turn a selected ABQ ADU model or uploaded plan set into a blueprint-aware material takeoff. The first Version 2 pass uses standard model assemblies; later passes can add AI/vision review for uploaded PDFs.</p>
 
   <div class="blueprint-hero">
     <div class="bp-panel">
@@ -400,7 +400,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       </div>
       <div class="drop-zone">
         <div style="font-family:var(--fd);font-size:16px;color:var(--copper);font-weight:700">Future upload lane</div>
-        <div style="font-size:12px;color:rgba(240,235,225,.65)">Upload city-approved plans, a PDF blueprint, or a designer sheet. V2 starts with manual review and standard assemblies; v3 can add an agent to draft the takeoff and flag engineering burden.</div>
+        <div style="font-size:12px;color:rgba(240,235,225,.65)">Upload city-approved plans, a PDF blueprint, or a designer sheet. Version 2 starts with manual review and standard assemblies; Version 3 can add an agent to draft the takeoff and flag engineering burden.</div>
       </div>
     </div>
     <div class="card">
@@ -417,7 +417,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   </div>
 
   <div class="source-note">
-    Source model list pulled from the v1 site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
+    Source model list carried into Version 2 from the original site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
   </div>
 
   <div class="model-catalog" id="bp-models"></div>
@@ -788,12 +788,12 @@ function updateBom(){
 
 /* ═══════════════ VERSION 2 — MODEL CATALOG + LOWE'S BIDOUT ═══════════════ */
 const MODEL_CATALOG=[
-  {id:'hyder-hut',name:'Hyder Hut',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'v1 confirmed',bed:1,bath:1,type:'builder-ready'},
-  {id:'hyder-hut-2br',name:'Hyder Hut 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'v1 confirmed',bed:2,bath:1,type:'builder-ready'},
-  {id:'altura-24x24',name:'Altura 24x24',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'v1 confirmed',bed:1,bath:1,type:'builder-ready'},
-  {id:'casita-portal',name:'Casita Portal',sqft:640,variation:'L-shaped · 2BR/1BA · covered portal',img:'images/adu-exterior.png',source:'v1 confirmed',bed:2,bath:1,type:'builder-ready'},
-  {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · flex room · income-property layout',img:'images/adu-interior.png',source:'v1 confirmed',bed:2,bath:2,type:'builder-ready'},
-  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · two-story · porch/deck',img:'images/source-cromwell-render.webp',source:'v1 confirmed',bed:2,bath:1.5,type:'expanded'},
+  {id:'hyder-hut',name:'Hyder Hut',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 2 verified',bed:1,bath:1,type:'builder-ready'},
+  {id:'hyder-hut-2br',name:'Hyder Hut 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 2 verified',bed:2,bath:1,type:'builder-ready'},
+  {id:'altura-24x24',name:'Altura 24x24',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 2 verified',bed:1,bath:1,type:'builder-ready'},
+  {id:'casita-portal',name:'Casita Portal',sqft:640,variation:'L-shaped · 2BR/1BA · covered portal',img:'images/adu-exterior.png',source:'Version 2 verified',bed:2,bath:1,type:'builder-ready'},
+  {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · flex room · income-property layout',img:'images/adu-interior.png',source:'Version 2 verified',bed:2,bath:2,type:'builder-ready'},
+  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · two-story · porch/deck',img:'images/source-cromwell-render.webp',source:'Version 2 verified',bed:2,bath:1.5,type:'expanded'},
   {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
   {id:'burton',name:'Burton',sqft:null,variation:'ABQADU source model · square footage confirm',img:'images/source-burton-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
   {id:'townhouse',name:'Townhouse',sqft:null,variation:'ABQADU source model · tighter urban footprint',img:'images/source-townhouse-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},

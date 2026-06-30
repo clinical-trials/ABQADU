@@ -81,6 +81,22 @@ nav {
 
 .nav-logo-mark svg { width: 18px; height: 18px; }
 
+.version-pill {
+  align-items: center;
+  background: rgba(196,149,74,.16);
+  border: 1px solid rgba(196,149,74,.4);
+  border-radius: 999px;
+  color: var(--copper-l);
+  display: inline-flex;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  line-height: 1;
+  padding: 7px 9px;
+  text-transform: uppercase;
+}
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -158,6 +174,20 @@ nav {
   width: 28px;
   height: 1px;
   background: var(--copper);
+}
+
+.hero-version-pill {
+  background: rgba(196,149,74,.16);
+  border: 1px solid rgba(196,149,74,.38);
+  border-radius: 999px;
+  color: var(--copper-l);
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  text-transform: uppercase;
 }
 
 h1 {
@@ -2384,7 +2414,8 @@ footer {
 @media (max-width: 1024px) {
   .hero { grid-template-columns: 1fr; }
   .hero-photo { display: none; }
-  .design-builder-grid { grid-template-columns: 1fr; }
+  .design-builder-grid { grid-template-columns: minmax(0, 1fr); }
+  .config-preview { max-width: 760px; width: 100%; justify-self: center; }
   .finance-grid { grid-template-columns: 1fr; }
   .lender-cards { grid-template-columns: 1fr; }
   .process-grid { grid-template-columns: repeat(2, 1fr); }
@@ -2403,9 +2434,14 @@ footer {
   .nav-hamburger { display: flex; }
   .nav-links { display: none; }
   .nav-cta-desktop { display: none; }
+  nav { padding: 14px 20px; gap: 10px; }
+  .nav-logo { font-size: 19px; gap: 8px; min-width: 0; }
+  .nav-logo-mark { width: 28px; height: 28px; flex: 0 0 28px; }
+  .version-pill { font-size: 9px; padding: 6px 8px; margin-left: auto; }
 
   h1 { font-size: clamp(44px, 12vw, 72px); }
-  .hero { padding: 90px 20px 56px; gap: 32px; }
+  .hero { padding: 90px 20px 56px !important; gap: 32px; }
+  .hero-version-pill { font-size: 10px; margin-bottom: 12px; }
   .hero-desc { font-size: 15px; max-width: 100%; }
   .hero-actions { flex-direction: column; align-items: stretch; }
   .hero-actions .btn-primary,
@@ -2414,6 +2450,7 @@ footer {
   .stat-num { font-size: 36px; }
 
   section { padding: 56px 20px; }
+  #design { padding: 56px 20px !important; }
 
   .section-eyebrow { font-size: 10px; }
   .section-title { font-size: clamp(28px, 8vw, 48px); }
@@ -2444,15 +2481,23 @@ footer {
   .city-plans-footer .btn-primary { text-align: center; width: 100%; }
   .design-form-card { padding: 24px; }
   .finish-preview-card img { aspect-ratio: 4 / 3; }
-  .design-wizard { padding: 22px; }
+  .design-wizard { padding: 18px; border-radius: 8px; }
+  .design-launch-card { padding: 15px; }
   .design-launch-top { align-items: stretch; flex-direction: column; }
   .design-launch-button { width: 100%; }
   .design-tool-chip-grid { grid-template-columns: repeat(2, 1fr); }
+  .design-tool-chip { padding: 9px 8px; }
   .design-step-strip { grid-template-columns: 1fr; }
+  .design-step-card { padding: 12px; }
   .wizard-progress { grid-template-columns: repeat(2, 1fr); }
+  .wizard-step-pill { white-space: normal; line-height: 1.2; min-height: 38px; display: flex; align-items: center; justify-content: center; }
+  .wizard-heading { font-size: 25px; }
   .design-infographic { grid-template-columns: 1fr; }
   .choice-grid { grid-template-columns: 1fr; }
   .choice-media { aspect-ratio: 16 / 8; }
+  .choice-card strong { font-size: 16px; }
+  .choice-card span { font-size: 12px; }
+  .config-preview img { aspect-ratio: 4 / 3; }
   .config-design-board { grid-template-columns: 1fr; }
   .adu-3d-stage { height: 220px; }
   .adu-model { transform: scale(.86) rotateX(58deg) rotateZ(var(--rotate)); }
@@ -2463,8 +2508,14 @@ footer {
   }
   .viewer-toggle-grid { grid-template-columns: 1fr; }
   .viewer-slider-row { grid-template-columns: 1fr; }
+  .view-toggle { left: 12px; right: 12px; justify-content: center; top: 12px; }
+  .view-toggle button { min-height: 36px; flex: 1; }
+  .photo-preview-badge { bottom: 12px; left: 12px; }
+  .photo-preview-caption { display: none; }
   .config-summary-top { flex-direction: column; gap: 4px; }
   .config-price { font-size: 26px; }
+  .config-line { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .config-line strong { line-height: 1.35; }
   .finance-section { padding: 56px 20px; }
 
   .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -2476,7 +2527,8 @@ footer {
 
 @media (max-width: 480px) {
   h1 { font-size: clamp(38px, 13vw, 56px); }
-  .hero { padding: 80px 16px 48px; }
+  .hero { padding: 80px 16px 48px !important; }
+  #design { padding: 48px 16px !important; }
   .hero-stats { gap: 16px; }
   .stat-num { font-size: 30px; }
 
@@ -2494,6 +2546,19 @@ footer {
   .design-model-list > div[style*="padding"] { padding: 16px !important; }
   .design-model-list > div[style*="padding"] > div { align-items: flex-start !important; gap: 12px; }
   .finish-preview-title { font-size: 21px; }
+  .design-launch-title { font-size: 27px; }
+  .design-tool-chip-grid { grid-template-columns: 1fr; }
+  .config-preview { border-radius: 8px; }
+  .viewer-card,
+  .plan-diagram-card,
+  .palette-card { padding: 10px; }
+  .adu-3d-stage { height: 190px; }
+  .adu-model { transform: scale(.72) rotateX(58deg) rotateZ(var(--rotate)); }
+  .adu-model.spin { animation-name: aduTurntableTiny; }
+  @keyframes aduTurntableTiny {
+    from { transform: scale(.72) rotateX(58deg) rotateZ(0deg); }
+    to { transform: scale(.72) rotateX(58deg) rotateZ(360deg); }
+  }
   .wizard-actions { flex-direction: column; }
   .wizard-actions button { width: 100%; }
   .wizard-next { margin-left: 0; }
@@ -2739,6 +2804,7 @@ footer {
     </div>
     ABQ ADU
   </a>
+  <span class="version-pill">Version 2</span>
   <ul class="nav-links">
     <li><a href="#models">Models</a></li>
     <li><a href="#process">Process</a></li>
@@ -2772,6 +2838,7 @@ footer {
 <!-- ── Hero ─────────────────────────────────────────────── -->
 <section class="hero" style="max-width:100%;padding-top:120px;">
   <div class="hero-content">
+    <div class="hero-version-pill">Version 2 Homeowner Design Experience</div>
     <div class="hero-eyebrow">Albuquerque, New Mexico</div>
     <h1>We Build<br><em>ADUs</em><br>That Last.</h1>
     <p class="hero-desc">
@@ -3010,7 +3077,7 @@ footer {
     <div class="source-catalog">
       <div class="source-catalog-head">
         <div>
-          <div class="section-eyebrow">V2 Model Intelligence</div>
+          <div class="section-eyebrow">Version 2 Model Intelligence</div>
           <div class="source-catalog-title">Pulled Model<br><em>Catalog</em></div>
         </div>
         <p class="source-catalog-note">
@@ -3024,7 +3091,7 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Hyder Hut</div>
             <div class="source-model-meta">440 sq ft · 1 bed / 1 bath · 12.5x35 · left/right hand option</div>
-            <span class="source-model-badge">v1 confirmed</span>
+            <span class="source-model-badge">Version 2 verified</span>
           </div>
         </div>
         <div class="source-model">
@@ -3032,15 +3099,15 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Hyder Hut 2BR</div>
             <div class="source-model-meta">550 sq ft · 2 bed / 1 bath · 12.5x44 · family/rental layout</div>
-            <span class="source-model-badge">v1 confirmed</span>
+            <span class="source-model-badge">Version 2 verified</span>
           </div>
         </div>
         <div class="source-model">
           <img src="images/altura-sheet.png" alt="Altura 24x24 576 square foot floor plan">
           <div class="source-model-body">
             <div class="source-model-name">Altura / Altura 24x24</div>
-            <div class="source-model-meta">576 sq ft confirmed in v1 · ABQADU source notes 1 or 2 bed variation</div>
-            <span class="source-model-badge">v1 + ABQADU source</span>
+            <div class="source-model-meta">576 sq ft carried into Version 2 · ABQADU source notes 1 or 2 bed variation</div>
+            <span class="source-model-badge">Version 2 + ABQADU source</span>
           </div>
         </div>
         <div class="source-model">
@@ -3048,7 +3115,7 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Cromwell</div>
             <div class="source-model-meta">1,280 sq ft · 2 bed / 1.5 bath · two-story · larger custom bid</div>
-            <span class="source-model-badge">v1 confirmed</span>
+            <span class="source-model-badge">Version 2 verified</span>
           </div>
         </div>
         <div class="source-model">
@@ -4133,7 +4200,7 @@ if (aduStage && aduSlider) {
         <div class="section-eyebrow">Financing Partners</div>
         <h2>Make the ADU<br><em>Feel Possible.</em></h2>
         <p>
-          Many homeowners need lending options before they can say yes. V2 should create a clean path for banks, credit unions, and specialty lenders to sponsor placements, advertise ADU loans, and help homeowners compare financing before the site visit.
+          Many homeowners need lending options before they can say yes. Version 2 creates a clean path for banks, credit unions, and specialty lenders to sponsor placements, advertise ADU loans, and help homeowners compare financing before the site visit.
         </p>
         <p>
           This also creates a real monetization channel for ABQ ADU: featured lender slots, referral tracking, and future prequalification workflows.
