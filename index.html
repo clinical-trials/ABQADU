@@ -1273,16 +1273,46 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .process-step.has-photo .step-photo {
-  height: 160px;
+  height: clamp(190px, 17vw, 230px);
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
+  background: rgba(196,149,74,.16);
 }
 
 .process-step.has-photo .step-photo img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(.75);
+  filter: saturate(1.08) contrast(1.04) brightness(.9);
+  transform: scale(1.01);
+}
+
+.process-step.has-photo .step-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(28,25,23,0) 42%, rgba(28,25,23,.58) 100%);
+  pointer-events: none;
+}
+
+.step-photo-label {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  z-index: 1;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(28,25,23,.72);
+  border: 1px solid rgba(240,235,225,.22);
+  color: var(--stucco);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
 }
 
 .process-step.has-photo .step-content {
@@ -2762,6 +2792,7 @@ footer {
       <div class="process-step has-photo">
         <div class="step-photo">
           <img src="images/source-750-render.webp" alt="ABQ ADU model render used for early backyard site planning" loading="lazy">
+          <span class="step-photo-label">Lot Review</span>
         </div>
         <div class="step-content">
           <div class="step-icon">
@@ -2780,6 +2811,7 @@ footer {
       <div class="process-step has-photo">
         <div class="step-photo">
           <img src="images/hyder-hut-2br-exterior-finishes.webp" alt="Hyder Hut two-bedroom exterior finishes for homeowner design choices" loading="lazy">
+          <span class="step-photo-label">Finish Preview</span>
         </div>
         <div class="step-content">
           <div class="step-icon">
@@ -2796,6 +2828,7 @@ footer {
       <div class="process-step has-photo">
         <div class="step-photo">
           <img src="images/altura-sheet.png" alt="ABQ ADU plan sheet used for permitting and city review" loading="lazy">
+          <span class="step-photo-label">Permit Packet</span>
         </div>
         <div class="step-content">
           <div class="step-icon">
@@ -2816,6 +2849,7 @@ footer {
       <div class="process-step has-photo">
         <div class="step-photo">
           <img src="images/adu-construction.png" alt="Foundation and utility rough-in on an ABQ ADU build" loading="lazy">
+          <span class="step-photo-label">Build Phase</span>
         </div>
         <div class="step-content">
           <div class="step-num" style="font-size:40px;margin-bottom:10px;">04</div>
