@@ -886,6 +886,86 @@ h2 em { font-style: normal; color: var(--terra); }
   min-width: 0;
 }
 
+.design-launch-card {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(196,149,74,.22), transparent 34%),
+    linear-gradient(135deg, rgba(240,235,225,.08), rgba(120,170,230,.06)),
+    rgba(28,25,23,.56);
+  border: 1px solid rgba(196,149,74,.34);
+  border-radius: 10px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  padding: 18px;
+}
+
+.design-launch-top {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.design-launch-kicker {
+  color: var(--copper-l);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .16em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.design-launch-title {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.2vw, 38px);
+  font-weight: 900;
+  letter-spacing: .01em;
+  line-height: .95;
+  text-transform: uppercase;
+}
+
+.design-launch-copy {
+  color: rgba(240,235,225,.6);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 10px;
+  max-width: 520px;
+}
+
+.design-launch-button {
+  background: var(--copper);
+  border: 0;
+  border-radius: 999px;
+  color: var(--blueprint);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  padding: 13px 18px;
+  text-transform: uppercase;
+}
+
+.design-tool-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.design-tool-chip {
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 8px;
+  color: rgba(240,235,225,.72);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 10px;
+  text-align: center;
+}
+
 .wizard-progress {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -2105,6 +2185,9 @@ footer {
   .design-form-card { padding: 24px; }
   .finish-preview-card img { aspect-ratio: 4 / 3; }
   .design-wizard { padding: 22px; }
+  .design-launch-top { align-items: stretch; flex-direction: column; }
+  .design-launch-button { width: 100%; }
+  .design-tool-chip-grid { grid-template-columns: repeat(2, 1fr); }
   .design-step-strip { grid-template-columns: 1fr; }
   .wizard-progress { grid-template-columns: repeat(2, 1fr); }
   .design-infographic { grid-template-columns: 1fr; }
@@ -3232,6 +3315,27 @@ footer {
 
     <div class="design-builder-grid">
       <div class="design-wizard" id="homeowner-configurator">
+        <div class="design-launch-card">
+          <div class="design-launch-top">
+            <div>
+              <div class="design-launch-kicker">Design Your Own Tool</div>
+              <div class="design-launch-title">Build Your ADU<br>Shopping Board</div>
+              <p class="design-launch-copy">Start with an ABQ ADU model, then click through colors, orientation, outdoor space, interiors, utilities, and revenue use. The estimate and visual board update as you choose.</p>
+            </div>
+            <button class="design-launch-button" type="button" onclick="ADU_CONFIG.step = 0; renderAduConfigurator(); document.getElementById('homeowner-configurator').scrollIntoView({behavior:'smooth', block:'start'});">Start Designing</button>
+          </div>
+          <div class="design-tool-chip-grid" aria-label="Available design tools">
+            <div class="design-tool-chip">Model picker</div>
+            <div class="design-tool-chip">Color board</div>
+            <div class="design-tool-chip">Plan diagram</div>
+            <div class="design-tool-chip">$ / sf estimate</div>
+            <div class="design-tool-chip">Left/right entry</div>
+            <div class="design-tool-chip">Outdoor portal</div>
+            <div class="design-tool-chip">Interior packages</div>
+            <div class="design-tool-chip">Save estimate</div>
+          </div>
+        </div>
+
         <div class="design-step-strip" aria-label="Homeowner design flow">
           <div class="design-step-card">
             <div class="design-step-num">1</div>
