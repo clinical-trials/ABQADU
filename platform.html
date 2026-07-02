@@ -114,6 +114,14 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .invoice-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
 .invoice-plan{background:#EEF5F1;border:1px solid rgba(61,82,71,.28);border-radius:7px;color:#274338;font-size:12px;line-height:1.45;margin-top:10px;padding:10px 12px}
 .invoice-percent{color:var(--ink60);display:block;font-size:10px;font-weight:700;letter-spacing:.05em;margin-top:3px;text-transform:uppercase}
+.invoice-pay-cell{display:grid;gap:4px;justify-items:end}
+.payment-badge{border-radius:999px;display:inline-block;font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 8px;text-transform:uppercase}
+.payment-badge.paid{background:#D1FAE5;color:#065F46}
+.payment-badge.partial{background:#FEF3C7;color:#92400E}
+.payment-badge.unpaid{background:#FEE2E2;color:#991B1B}
+.payment-note{color:var(--ink60);font-size:10px;line-height:1.25}
+.send-date-input{border-color:var(--stucco-d)!important;background:#fff!important;font-size:12px;min-width:132px}
+.send-date-note{color:var(--ink60);display:block;font-size:10px;font-weight:700;letter-spacing:.05em;margin-top:3px;text-transform:uppercase}
 
 /* Gantt */
 .gantt-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
@@ -312,7 +320,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <div class="card" id="invoice-card">
         <div style="display:flex;align-items:center;margin-bottom:12px">
           <h3 style="font-size:16px">Draw Schedule &amp; Invoices</h3>
-          <span class="muted" style="margin-left:auto;font-size:12px">Invoice 1 is always the $10,000 pre-construction deposit</span>
+          <span class="muted" style="margin-left:auto;font-size:12px">Suggested send dates follow the 90-day build schedule</span>
         </div>
         <button class="invoice-job-card" type="button" onclick="focusInvoicePacket()" aria-label="Open invoice packet for this job">
           <img id="invoice-job-image" src="images/adu-exterior.png" alt="Current ADU job preview">
@@ -333,7 +341,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <button class="btn ghost" onclick="emailInvoicePacket()">Email invoice packet</button>
         </div>
         <table>
-          <thead><tr><th>Invoice</th><th>Draw</th><th class="r">Amount</th><th class="r">Paid</th><th class="r">Balance</th><th>Status</th><th></th></tr></thead>
+          <thead><tr><th>Invoice</th><th>Suggested send date</th><th>Draw</th><th class="r">Amount</th><th class="r">Payment documented</th><th class="r">Balance</th><th>Status</th><th></th></tr></thead>
           <tbody id="invoice-rows"></tbody>
         </table>
         <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Build invoices for current job</b>. Invoice 1 will be exactly <b>$10,000</b>.</div>
@@ -666,6 +674,23 @@ function setBidSaveStatus(text){
 function invoicePct(amount,total){
   return total ? Math.round((amount/total)*1000)/10 : 0;
 }
+function isoDateFromOffset(days){
+  const d=new Date();
+  d.setDate(d.getDate()+days);
+  return d.toISOString().slice(0,10);
+}
+function shortDate(iso){
+  if(!iso)return 'date needed';
+  const d=new Date(`${iso}T12:00:00`);
+  return d.toLocaleDateString([], {month:'short',day:'numeric',year:'numeric'});
+}
+function paymentState(inv){
+  const paid=+inv.paid||0;
+  const amount=+inv.amount||0;
+  if(paid>=amount-0.005&&amount>0)return {kind:'paid',label:'Paid'};
+  if(paid>0)return {kind:'partial',label:'Partial'};
+  return {kind:'unpaid',label:'Unpaid'};
+}
 function invoicePacketTotals(){
   const total=invoices.reduce((s,v)=>s+(+v.amount||0),0);
   const paid=invoices.reduce((s,v)=>s+(+v.paid||0),0);
@@ -727,14 +752,14 @@ function acceptBid(){
   const t=bidTotals();
   const remaining=Math.max(0,t.total-PRECON_DEPOSIT);
   const draws=[
-    ['deposit','Pre-construction contract deposit',PRECON_DEPOSIT],
-    ['progress','Foundation & framing complete',remaining*.375],
-    ['progress','Dry-in, MEP rough-in complete',remaining*.3125],
-    ['progress','Finishes & fixtures complete',remaining*.1875],
-    ['final','Final / certificate of occupancy',remaining*.125],
+    ['deposit','Pre-construction contract deposit',PRECON_DEPOSIT,0],
+    ['progress','Foundation & framing complete',remaining*.375,21],
+    ['progress','Dry-in, MEP rough-in complete',remaining*.3125,45],
+    ['progress','Finishes & fixtures complete',remaining*.1875,70],
+    ['final','Final / certificate of occupancy',remaining*.125,88],
   ];
   invoices=draws.map((d,i)=>({num:`INV-2026-${String(i+1).padStart(4,'0')}`,
-    type:d[0],desc:d[1],amount:Math.round(d[2]*100)/100,paid:0,status:'draft'}));
+    type:d[0],desc:d[1],amount:Math.round(d[2]*100)/100,paid:0,status:'draft',sendDate:isoDateFromOffset(d[3])}));
   renderBid();
   focusInvoicePacket(false);
   alert(`Invoice packet created for this job. Invoice 1 is fixed at ${fmt(PRECON_DEPOSIT)} (${invoicePct(PRECON_DEPOSIT,t.total)}% of the current bid).`);
@@ -748,14 +773,18 @@ function renderInvoices(){
   renderInvoiceJobCard();
   const t=bidTotals();
   invoices.forEach((v,i)=>{
+    v.sendDate ??= isoDateFromOffset([0,21,45,70,88][i] ?? 90);
+    v.paidAt ??= '';
     const bal=v.amount-v.paid;
     const sc=INV_STATUS[v.status]||INV_STATUS.draft;
     const amountLocked=i===0;
+    const pay=paymentState(v);
     const tr=document.createElement('tr');tr.className='lineitem';
     tr.innerHTML=`<td style="font-weight:600">${v.num}</td>
+      <td><input class="send-date-input" type="date" value="${v.sendDate}" onchange="editInv(${i},'sendDate',this.value)"><span class="send-date-note">suggested: ${shortDate(v.sendDate)}</span></td>
       <td><input value="${(v.desc||'').replace(/"/g,'&quot;')}" onchange="editInv(${i},'desc',this.value)"></td>
       <td><input class="r" type="number" step="0.01" min="0" value="${v.amount}" ${amountLocked?'readonly title="Invoice 1 is always the $10,000 pre-construction deposit"':''} onchange="editInv(${i},'amount',this.value)"><span class="invoice-percent">${invoicePct(v.amount,t.total)}% of bid</span></td>
-      <td class="r" style="color:var(--sage)">${fmt(v.paid)}</td>
+      <td class="r"><div class="invoice-pay-cell"><span style="color:var(--sage);font-weight:800">${fmt(v.paid)}</span><span class="payment-badge ${pay.kind}">${pay.label}</span><span class="payment-note">${v.paidAt?`documented ${shortDate(v.paidAt)}`:'not documented yet'}</span></div></td>
       <td class="r" style="font-weight:600;color:${bal>0?'var(--terra)':'var(--sage)'}">${fmt(bal)}</td>
       <td><select style="background:${sc[0]};color:${sc[1]}" onchange="editInv(${i},'status',this.value)">
         ${Object.keys(INV_STATUS).map(s=>`<option value="${s}"${s===v.status?' selected':''}>${s}</option>`).join('')}</select></td>
@@ -813,7 +842,7 @@ function editInv(i,k,v){
 function addInv(){
   const seq=invoices.reduce((m,v)=>Math.max(m,+((v.num.match(/(\d+)$/)||[])[1]||0)),0)+1;
   invoices.push({num:`INV-2026-${String(seq).padStart(4,'0')}`,
-    type:'progress',desc:'Additional draw / change order',amount:0,paid:0,status:'draft'});
+    type:'progress',desc:'Additional draw / change order',amount:0,paid:0,status:'draft',sendDate:isoDateFromOffset(90)});
   renderBid();
 }
 function focusInvoicePacket(shouldBuild=true){
@@ -828,7 +857,10 @@ function printInvoicePacket(){
 function emailInvoicePacket(){
   if(!invoices.length){acceptBid();return}
   const t=bidTotals();
-  const lines=invoices.map(v=>`${v.num}: ${v.desc} - ${fmt(v.amount)} (${invoicePct(v.amount,t.total)}% of bid), status ${v.status}`).join('\n');
+  const lines=invoices.map(v=>{
+    const pay=paymentState(v);
+    return `${v.num}: send ${shortDate(v.sendDate)} - ${v.desc} - ${fmt(v.amount)} (${invoicePct(v.amount,t.total)}% of bid), ${pay.label.toLowerCase()} ${fmt(v.paid)}${v.paidAt ? ` documented ${shortDate(v.paidAt)}` : ''}, status ${v.status}`;
+  }).join('\n');
   const subject=encodeURIComponent(`Invoice packet: ${bid.title || 'ABQ ADU job'}`);
   const body=encodeURIComponent(`Client: ${bid.client || ''}
 Project: ${bid.title || ''}
@@ -850,7 +882,9 @@ function payInv(i){
   const amt=prompt(`Payment amount for ${invoices[i].num} (balance ${fmt(bal)}):`, bal.toFixed(2));
   if(amt===null)return;
   invoices[i].paid+=+amt;
+  if(+amt>0)invoices[i].paidAt=new Date().toISOString().slice(0,10);
   if(invoices[i].paid>=invoices[i].amount-0.005)invoices[i].status='paid';
+  else if(invoices[i].paid>0)invoices[i].status='sent';
   renderBid();
 }
 function renderBidKpis(t){
