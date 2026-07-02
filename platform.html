@@ -121,6 +121,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bid-assist{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:10px;text-align:left;color:var(--ink)}
 .bid-assist b{display:block;font-size:12px;line-height:1.1}
 .bid-assist span{display:block;color:var(--ink60);font-size:10px;line-height:1.35;margin-top:4px}
+.quick-cogs{background:#F8F2E7;border:1px solid rgba(196,149,74,.34);border-radius:8px;margin:12px 0 14px;padding:12px}
+.quick-cogs-head{align-items:flex-start;display:flex;gap:12px;justify-content:space-between;margin-bottom:10px}
+.quick-cogs-head h4{font-family:var(--fd);font-size:19px;line-height:1;text-transform:uppercase}
+.quick-cogs-head p{color:var(--ink60);font-size:11px;line-height:1.35;margin-top:3px}
+.quick-cogs-form{display:grid;grid-template-columns:1fr 1.5fr .8fr .55fr .55fr .75fr auto;gap:8px;align-items:end}
+.quick-cogs-form .btn{min-height:38px;white-space:nowrap}
+.quick-cogs-bundles{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.quick-cogs-bundle{background:#fff;border:1px solid var(--stucco-d);border-radius:999px;color:var(--ink);font-size:11px;font-weight:800;min-height:36px;padding:7px 11px}
+.quick-cogs-bundle:hover{border-color:var(--copper);color:var(--copper)}
+.quick-cogs-hint{color:var(--ink60);font-size:10px;font-weight:700;letter-spacing:.06em;margin-top:8px;text-transform:uppercase}
 .bid-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .bid-toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
 .project-folder-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;margin-bottom:16px}
@@ -267,6 +277,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-flow{grid-template-columns:repeat(2,1fr)}
   .bid-setup{grid-template-columns:1fr}
   .bid-setup-grid{grid-template-columns:1fr}
+  .quick-cogs-form{grid-template-columns:1fr 1fr}
+  .quick-cogs-form>div:nth-child(2){grid-column:1/-1}
+  .quick-cogs-form .btn{grid-column:1/-1}
   .project-folder-grid{grid-template-columns:1fr}
   .invoice-job-card{grid-template-columns:1fr}
   .invoice-job-card img{height:190px}
@@ -293,6 +306,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-app-meta{font-size:12px}
   .bid-app-actions{grid-template-columns:1fr}
   .bid-app-action{min-height:48px}
+  .quick-cogs-head{flex-direction:column}
+  .quick-cogs-head .btn{width:100%}
+  .quick-cogs-form{grid-template-columns:1fr}
+  .quick-cogs-form>div:nth-child(2),.quick-cogs-form .btn{grid-column:auto}
+  .quick-cogs-form .in,.quick-cogs-bundle{min-height:44px;width:100%}
   .row{flex-direction:column;gap:10px}
   .row > div[style*="width"]{width:100%!important}
   .kpi-grid{grid-template-columns:1fr}
@@ -451,6 +469,33 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <button class="btn ghost sm" onclick="saveBidDraft()">Save draft</button>
             <button class="btn ghost sm" style="border-style:dashed;border-color:var(--copper);color:var(--copper)" onclick="addLine()">+ Add line item</button>
           </div>
+        </div>
+        <div class="quick-cogs no-print">
+          <div class="quick-cogs-head">
+            <div>
+              <h4>Fast COGS entry</h4>
+              <p>Add a row from the keyboard, or drop in a whole trade bundle when you are bidding under pressure.</p>
+            </div>
+            <button class="btn ghost sm" onclick="clearQuickCogs()">Clear</button>
+          </div>
+          <form class="quick-cogs-form" id="quick-cogs-form" onsubmit="addQuickCogsLine();return false;">
+            <div><label class="fld">Category</label><select class="in" id="quick-cogs-cat"><option>Structure</option><option>Exterior</option><option>Interior</option><option>MEP</option><option>Plumbing</option><option>Kitchen</option><option>Site</option><option>Design</option><option>Finish</option></select></div>
+            <div><label class="fld">Description</label><input class="in" id="quick-cogs-desc" placeholder="Ex. Cabinets, slab, trenching"></div>
+            <div><label class="fld">Type</label><select class="in" id="quick-cogs-kind"><option value="base">Base</option><option value="upgrade">Upgrade</option><option value="allowance">Allowance</option><option value="review">Review</option><option value="deduction">Deduction</option></select></div>
+            <div><label class="fld">Qty</label><input class="in" id="quick-cogs-qty" type="number" step="0.01" value="1"></div>
+            <div><label class="fld">Unit</label><input class="in" id="quick-cogs-unit" value="ea"></div>
+            <div><label class="fld">COGS / unit</label><input class="in" id="quick-cogs-cost" type="number" step="0.01" placeholder="0"></div>
+            <button class="btn copper" type="submit">Add row</button>
+          </form>
+          <div class="quick-cogs-bundles" aria-label="Fast COGS bundles">
+            <button class="quick-cogs-bundle" onclick="addCogsBundle('sitePrep')">+ Site prep</button>
+            <button class="quick-cogs-bundle" onclick="addCogsBundle('dryIn')">+ Dry-in shell</button>
+            <button class="quick-cogs-bundle" onclick="addCogsBundle('mepRough')">+ MEP rough-in</button>
+            <button class="quick-cogs-bundle" onclick="addCogsBundle('interiorFinish')">+ Interior finish</button>
+            <button class="quick-cogs-bundle" onclick="addCogsBundle('utilityReview')">+ Utility review</button>
+            <button class="quick-cogs-bundle" onclick="addCogsBundle('fullStarter')">+ Full starter bid</button>
+          </div>
+          <div class="quick-cogs-hint">Tip: fill description + cost, press Enter, then keep moving. Draft saves automatically.</div>
         </div>
         <table>
           <thead><tr><th>Category</th><th>Description</th><th style="width:110px">Type</th><th class="r" style="width:70px">Qty</th><th style="width:60px">Unit</th><th class="r" style="width:100px">COGS / unit</th><th class="r" style="width:100px">COGS total</th><th style="width:28px"></th></tr></thead>
@@ -855,6 +900,44 @@ const PRESET_LINES = {
   sewer:{cat:'Plumbing',desc:'Sewer / macerator analysis and utility allowance',kind:'allowance',qty:1,unit:'allow',cost:4800},
   engineering:{cat:'Design',desc:'Professional engineering stamp / structural review allowance',kind:'review',qty:1,unit:'allow',cost:2500},
 };
+const COGS_BUNDLES = {
+  sitePrep:[
+    {cat:'Site',desc:'Site meeting, layout, access protection',kind:'base',qty:1,unit:'allow',cost:1800},
+    {cat:'Site',desc:'Excavation, pad prep, spoils handling',kind:'base',qty:1,unit:'allow',cost:5200},
+    {cat:'Site',desc:'Temporary utilities, fencing, cleanup',kind:'base',qty:1,unit:'allow',cost:2400},
+  ],
+  dryIn:[
+    {cat:'Structure',desc:'Foundation / slab package',kind:'base',qty:1,unit:'allow',cost:11520},
+    {cat:'Structure',desc:'Framing lumber and labor package',kind:'base',qty:1,unit:'allow',cost:3780},
+    {cat:'Structure',desc:'Roofing metal, underlayment, labor',kind:'base',qty:1,unit:'allow',cost:4784},
+    {cat:'Exterior',desc:'Windows and exterior doors allowance',kind:'allowance',qty:1,unit:'allow',cost:9800},
+    {cat:'Exterior',desc:'Stucco / exterior finish package',kind:'base',qty:1,unit:'allow',cost:8400},
+  ],
+  mepRough:[
+    {cat:'MEP',desc:'Electrical rough-in and trim package',kind:'base',qty:1,unit:'allow',cost:7680},
+    {cat:'MEP',desc:'Mini-split HVAC equipment and install',kind:'base',qty:1,unit:'allow',cost:5760},
+    {cat:'Plumbing',desc:'Plumbing rough-in and fixture set',kind:'base',qty:1,unit:'allow',cost:4250},
+  ],
+  interiorFinish:[
+    {cat:'Interior',desc:'Insulation package',kind:'base',qty:1,unit:'allow',cost:3060},
+    {cat:'Interior',desc:'Drywall hang, tape, texture, prime',kind:'base',qty:1,unit:'allow',cost:5148},
+    {cat:'Interior',desc:'LVP flooring and base trim',kind:'base',qty:1,unit:'allow',cost:4930},
+    {cat:'Kitchen',desc:'Cabinetry allowance',kind:'allowance',qty:1,unit:'allow',cost:3920},
+    {cat:'Kitchen',desc:'Countertops allowance',kind:'allowance',qty:1,unit:'allow',cost:1330},
+  ],
+  utilityReview:[
+    {cat:'MEP',desc:'Electrical panel upgrade allowance — low range',kind:'allowance',qty:1,unit:'allow',cost:3500},
+    {cat:'MEP',desc:'Electrical panel upgrade allowance — high range',kind:'allowance',qty:1,unit:'allow',cost:6500},
+    {cat:'Plumbing',desc:'Sewer / macerator analysis and utility allowance',kind:'allowance',qty:1,unit:'allow',cost:4800},
+    {cat:'Design',desc:'Professional engineering stamp / structural review allowance',kind:'review',qty:1,unit:'allow',cost:2500},
+  ],
+};
+COGS_BUNDLES.fullStarter = [
+  ...COGS_BUNDLES.sitePrep,
+  ...COGS_BUNDLES.dryIn,
+  ...COGS_BUNDLES.mepRough,
+  ...COGS_BUNDLES.interiorFinish,
+];
 
 function persistProjects(){
   store.set('projects', projects);
@@ -1038,9 +1121,53 @@ function renderBid(){
   renderReviewCallout(t); renderInvoices(); renderBidKpis(t); renderBidAppShell(t); saveBid();
 }
 function editLine(i,k,v){bid.items[i][k]=(k==='qty'||k==='cost')?+v:v;renderBid()}
-function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid()}
+function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid();focusNewestCogsLine()}
 function addPresetLine(key){bid.items.push({...PRESET_LINES[key]});renderBid();setBidSaveStatus(`Added ${PRESET_LINES[key].desc}. Draft saved.`)}
 function delLine(i){bid.items.splice(i,1);renderBid()}
+function quickCogsValue(id,fallback=''){
+  const el=$('#'+id);
+  return el ? el.value : fallback;
+}
+function clearQuickCogs(){
+  const desc=$('#quick-cogs-desc'), cost=$('#quick-cogs-cost'), qty=$('#quick-cogs-qty'), unit=$('#quick-cogs-unit'), kind=$('#quick-cogs-kind');
+  if(desc)desc.value='';
+  if(cost)cost.value='';
+  if(qty)qty.value='1';
+  if(unit)unit.value='ea';
+  if(kind)kind.value='base';
+  if(desc)desc.focus();
+}
+function addQuickCogsLine(){
+  const desc=quickCogsValue('quick-cogs-desc').trim();
+  const cost=+quickCogsValue('quick-cogs-cost',0)||0;
+  const qty=+quickCogsValue('quick-cogs-qty',1)||1;
+  const line={
+    cat:quickCogsValue('quick-cogs-cat','General'),
+    desc:desc || 'Quick COGS item',
+    kind:quickCogsValue('quick-cogs-kind','base'),
+    qty,
+    unit:quickCogsValue('quick-cogs-unit','ea') || 'ea',
+    cost,
+  };
+  bid.items.push(line);
+  renderBid();
+  setBidSaveStatus(`Added ${line.desc} (${fmt(qty*cost)} COGS). Draft saved.`);
+  clearQuickCogs();
+}
+function addCogsBundle(key){
+  const bundle=COGS_BUNDLES[key];
+  if(!bundle)return;
+  bid.items.push(...bundle.map(line=>({...line})));
+  renderBid();
+  const added=bundle.reduce((s,line)=>s+(+line.qty||0)*(+line.cost||0),0);
+  setBidSaveStatus(`Added ${bundle.length} COGS lines (${fmt(added)} contractor cost). Draft saved.`);
+}
+function focusNewestCogsLine(){
+  const rows=document.querySelectorAll('#bid-items tr');
+  const last=rows[rows.length-1];
+  const input=last?.querySelector('input');
+  if(input)input.focus();
+}
 $('#bid-title').oninput=e=>{bid.title=e.target.value;saveBid()};
 $('#bid-client').oninput=e=>{bid.client=e.target.value;saveBid()};
 $('#bid-model').oninput=e=>{bid.model=e.target.value;saveBid();setBidSaveStatus('Draft saved with model update.')};
