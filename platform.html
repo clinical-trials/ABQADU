@@ -122,6 +122,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bid-assist{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:10px;text-align:left;color:var(--ink)}
 .bid-assist b{display:block;font-size:12px;line-height:1.1}
 .bid-assist span{display:block;color:var(--ink60);font-size:10px;line-height:1.35;margin-top:4px}
+.trade-pull-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;margin:0 0 14px;padding:12px}
+.trade-pull-card h4{font-family:var(--fd);font-size:18px;line-height:1;text-transform:uppercase}
+.trade-pull-card p{color:var(--ink60);font-size:11px;line-height:1.35;margin-top:4px}
+.trade-pull-list{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.trade-pull-item{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:9px}
+.trade-pull-item b{display:block;font-size:12px}.trade-pull-item span{color:var(--ink60);display:block;font-size:10px;line-height:1.35;margin-top:3px}
 .quick-cogs{background:#F8F2E7;border:1px solid rgba(196,149,74,.34);border-radius:8px;margin:12px 0 14px;padding:12px}
 .quick-cogs-head{align-items:flex-start;display:flex;gap:12px;justify-content:space-between;margin-bottom:10px}
 .quick-cogs-head h4{font-family:var(--fd);font-size:19px;line-height:1;text-transform:uppercase}
@@ -368,6 +374,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .quick-cogs-head .btn{width:100%}
   .confidence-head{flex-direction:column}
   .confidence-grid,.readiness-options{grid-template-columns:1fr}
+  .trade-pull-list{grid-template-columns:1fr 1fr}
   .quick-cogs-form{grid-template-columns:1fr}
   .quick-cogs-form>div:nth-child(2),.quick-cogs-form .btn{grid-column:auto}
   .quick-cogs-form .in,.quick-cogs-bundle{min-height:44px;width:100%}
@@ -620,6 +627,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <button class="btn ghost sm" style="border-style:dashed;border-color:var(--copper);color:var(--copper)" onclick="addLine()">+ Add line item</button>
           </div>
         </div>
+        <div class="trade-pull-card no-print">
+          <h4>Finish Subcontractor Bid Pulls</h4>
+          <p>Pull these four finish trades on every job so the builder has real subcontractor pricing before the final bid is sent.</p>
+          <div class="trade-pull-list">
+            <div class="trade-pull-item"><b>Countertops</b><span>Stone/solid surface quote and install lead time.</span></div>
+            <div class="trade-pull-item"><b>Flooring</b><span>LVP or alternate floor material and labor quote.</span></div>
+            <div class="trade-pull-item"><b>Tile</b><span>Bathroom, shower, backsplash, and wet-area scope.</span></div>
+            <div class="trade-pull-item"><b>Cabinets</b><span>Cabinet package, hardware, install, and delivery timing.</span></div>
+          </div>
+        </div>
         <div class="quick-cogs no-print">
           <div class="quick-cogs-head">
             <div>
@@ -642,6 +659,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <button class="quick-cogs-bundle" onclick="addCogsBundle('dryIn')">+ Dry-in shell</button>
             <button class="quick-cogs-bundle" onclick="addCogsBundle('mepRough')">+ MEP rough-in</button>
             <button class="quick-cogs-bundle" onclick="addCogsBundle('interiorFinish')">+ Interior finish</button>
+            <button class="quick-cogs-bundle" onclick="addCogsBundle('finishTradePulls')">+ Finish trade pulls</button>
             <button class="quick-cogs-bundle" onclick="addCogsBundle('utilityReview')">+ Utility review</button>
             <button class="quick-cogs-bundle" onclick="addCogsBundle('fullStarter')">+ Full starter bid</button>
           </div>
@@ -1120,6 +1138,12 @@ const COGS_BUNDLES = {
     {cat:'Kitchen',desc:'Cabinetry allowance',kind:'allowance',qty:1,unit:'allow',cost:3920},
     {cat:'Kitchen',desc:'Countertops allowance',kind:'allowance',qty:1,unit:'allow',cost:1330},
   ],
+  finishTradePulls:[
+    {cat:'Finish',desc:'Countertops subcontractor bid pull',kind:'allowance',qty:1,unit:'quote',cost:0},
+    {cat:'Finish',desc:'Flooring subcontractor bid pull',kind:'allowance',qty:1,unit:'quote',cost:0},
+    {cat:'Finish',desc:'Tile subcontractor bid pull',kind:'allowance',qty:1,unit:'quote',cost:0},
+    {cat:'Finish',desc:'Cabinets subcontractor bid pull',kind:'allowance',qty:1,unit:'quote',cost:0},
+  ],
   utilityReview:[
     {cat:'MEP',desc:'Extra electric meter / panel allowance — low range',kind:'allowance',qty:1,unit:'allow',cost:3500},
     {cat:'MEP',desc:'Extra electric meter / panel allowance — high range',kind:'allowance',qty:1,unit:'allow',cost:6500},
@@ -1132,6 +1156,7 @@ COGS_BUNDLES.fullStarter = [
   ...COGS_BUNDLES.dryIn,
   ...COGS_BUNDLES.mepRough,
   ...COGS_BUNDLES.interiorFinish,
+  ...COGS_BUNDLES.finishTradePulls,
 ];
 
 function persistProjects(){
@@ -2115,6 +2140,8 @@ function takeoffFor(model){
   const windowCount=Math.max(5,bedCount*2+3);
   const doorCount=bedCount+4;
   const cabinetLf=bedCount>=2?16:12;
+  const floorSf=Math.round(sf-bathCount*55);
+  const tileSf=Math.round(bathCount*85+22);
   const review=model.sqft?'ready':'confirm sqft before bid';
   return [
     {cat:'Blueprint',item:'Plan review, scale check, bid assumptions sheet',qty:1,unit:'set',budget:450,review},
@@ -2126,11 +2153,13 @@ function takeoffFor(model){
     {cat:'Exterior',item:'Exterior/interior doors package',qty:doorCount,unit:'ea',budget:doorCount*410,review:'sliding-door delete option'},
     {cat:'Interior',item:'Insulation package',qty:wallSf,unit:'sf',budget:wallSf*1.8,review:'R-value confirm'},
     {cat:'Interior',item:'Drywall package',qty:wallSf+sf,unit:'sf',budget:(wallSf+sf)*2.2,review:'standard finish'},
-    {cat:'Interior',item:'LVP flooring less wet areas',qty:Math.round(sf-bathCount*55),unit:'sf',budget:(sf-bathCount*55)*8.5,review:'owner selection'},
+    {cat:'Finish',item:'Flooring subcontractor quote pull',qty:floorSf,unit:'sf',budget:floorSf*8.5,review:'required finish sub bid'},
+    {cat:'Finish',item:'Tile subcontractor quote pull',qty:tileSf,unit:'sf',budget:tileSf*18,review:'required finish sub bid'},
     {cat:'MEP',item:'Electrical rough-in and trim',qty:sf,unit:'sf',budget:sf*12,review:'panel upgrade $3,500-$6,500'},
     {cat:'MEP',item:'Plumbing fixtures',qty:bathCount*3+1,unit:'ea',budget:(bathCount*3+1)*850,review:'sewer confirmation study'},
     {cat:'MEP',item:'Mini-split HVAC package',qty:sf,unit:'sf',budget:sf*9,review:'smart thermostat add-on'},
-    {cat:'Kitchen',item:'Cabinets and countertop',qty:cabinetLf,unit:'lf',budget:cabinetLf*(280+95),review:'Lowe’s cabinet desk'},
+    {cat:'Finish',item:'Cabinets subcontractor quote pull',qty:cabinetLf,unit:'lf',budget:cabinetLf*280,review:'required finish sub bid'},
+    {cat:'Finish',item:'Countertops subcontractor quote pull',qty:cabinetLf,unit:'lf',budget:cabinetLf*95,review:'required finish sub bid'},
   ];
 }
 function renderBlueprint(force=false){
@@ -2159,6 +2188,7 @@ function renderBlueprint(force=false){
     'Confirm model, square footage, left/right hand orientation, and owner changes.',
     'Flag large windows/openings over 3 ft in either dimension for engineering review.',
     'Export material table with quantities, alternates, exclusions, and site allowances.',
+    'Pull finish subcontractor quotes for countertops, flooring, tile, and cabinets on every job.',
     'Send package to Lowe’s/pro supplier desk for lumber, roofing, windows, doors, cabinet, and finish quotes.',
     'Import supplier quote back into COGS and calculate bid price per square foot.',
     city,
