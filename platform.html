@@ -102,6 +102,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .project-chip b{font-size:13px;line-height:1.2}
 .project-chip span{color:var(--ink60);font-size:11px}
 .project-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.mobile-launch-pad{display:none;background:#fff;border:1px solid var(--stucco-d);border-radius:8px;gap:10px;margin:0 0 16px;padding:12px}
+.mobile-launch-pad a{align-items:center;border:1px solid var(--stucco-d);border-radius:7px;color:var(--ink);display:flex;justify-content:space-between;min-height:48px;padding:10px 12px;text-decoration:none}
+.mobile-launch-pad a.active{background:#FFF7E6;border-color:var(--copper);box-shadow:inset 3px 0 0 var(--copper)}
+.mobile-launch-pad b{font-size:13px}
+.mobile-launch-pad span{color:var(--ink60);font-size:11px}
 .line-kind{min-width:96px}
 .kind-base{background:#F3F4F6;color:#4B5563}.kind-upgrade{background:#FEF3C7;color:#92400E}
 .kind-allowance{background:#DBEAFE;color:#1E40AF}.kind-review{background:#FEE2E2;color:#991B1B}
@@ -250,6 +255,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .panel-head{align-items:flex-start;flex-direction:column;gap:2px}
   .panel-head h2{font-size:24px;line-height:1}
   .panel-sub{font-size:12px}
+  .mobile-launch-pad{display:grid}
   .row{flex-direction:column;gap:10px}
   .row > div[style*="width"]{width:100%!important}
   .kpi-grid{grid-template-columns:1fr}
@@ -305,6 +311,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   <span class="v-badge">Version 3</span>
   <a class="home-link" href="index.html">← Site</a>
 </header>
+
+<div class="mobile-launch-pad" aria-label="Builder platform quick links">
+  <a href="platform.html" data-mobile-tab="bids"><b>Bids &amp; Invoicing</b><span>Bid jobs fast</span></a>
+  <a href="platform.html#blueprint" data-mobile-tab="blueprint"><b>Blueprint Bidout</b><span>Materials + costs</span></a>
+</div>
 
 <!-- ════════ BIDS & INVOICING ════════ -->
 <section class="panel active" id="tab-bids">
@@ -665,10 +676,16 @@ const store = {
 const GRID=12;
 
 /* Tabs */
+function currentTabFromHash(){
+  const raw=(location.hash || '#bids').slice(1).split('?')[0] || 'bids';
+  return document.querySelector(`.tab[data-tab="${raw}"]`) ? raw : 'bids';
+}
 function showTab(name){
+  name = name || 'bids';
   const t=document.querySelector(`.tab[data-tab="${name}"]`);if(!t)return;
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('[data-mobile-tab]').forEach(x=>x.classList.toggle('active', x.dataset.mobileTab===name));
   t.classList.add('active');
   $('#tab-'+name).classList.add('active');
   if(name==='schedule') renderGantt();
@@ -677,7 +694,18 @@ function showTab(name){
   if(name==='blueprint') renderBlueprint();
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.dataset.tab;showTab(t.dataset.tab)});
-window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
+document.querySelectorAll('[data-mobile-tab]').forEach(link=>{
+  link.addEventListener('click', event=>{
+    const tab=link.dataset.mobileTab;
+    if(tab==='bids'){
+      event.preventDefault();
+      history.pushState(null,'',location.pathname);
+      showTab('bids');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  });
+});
+window.addEventListener('hashchange',()=>showTab(currentTabFromHash()));
 
 function clearPrintPanels(){
   document.querySelectorAll('.panel.print-me').forEach(panel=>panel.classList.remove('print-me'));
@@ -1600,7 +1628,7 @@ function renderControls(){
 
 /* init */
 renderBid();
-if(location.hash&&document.querySelector(`.tab[data-tab="${location.hash.slice(1)}"]`)) showTab(location.hash.slice(1));
+showTab(currentTabFromHash());
 </script>
 </body>
 </html>

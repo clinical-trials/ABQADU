@@ -5337,6 +5337,54 @@ if (aduStage && aduSlider) {
   aduStage.addEventListener('pointercancel', () => { aduDragging = false; });
 }
 
+function closeMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const hamburger = document.getElementById('hamburger');
+  if (menu) {
+    menu.classList.remove('open');
+    menu.setAttribute('aria-hidden', 'true');
+  }
+  if (hamburger) {
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function openMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const hamburger = document.getElementById('hamburger');
+  if (menu) {
+    menu.classList.add('open');
+    menu.setAttribute('aria-hidden', 'false');
+  }
+  if (hamburger) {
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  if (menu && menu.classList.contains('open')) closeMobileMenu();
+  else openMobileMenu();
+}
+
+const hamburger = document.getElementById('hamburger');
+if (hamburger) hamburger.addEventListener('click', toggleMobileMenu);
+
+document.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => closeMobileMenu());
+});
+
+function scrollToInitialHash() {
+  if (!location.hash) return;
+  const target = document.getElementById(location.hash.slice(1));
+  if (!target) return;
+  setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+}
+
+window.addEventListener('load', scrollToInitialHash);
+
 document.querySelectorAll('[data-design-model]').forEach(card => {
   card.addEventListener('click', event => {
     if (event.target.closest('a, button, img')) return;
