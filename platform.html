@@ -131,6 +131,28 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .quick-cogs-bundle{background:#fff;border:1px solid var(--stucco-d);border-radius:999px;color:var(--ink);font-size:11px;font-weight:800;min-height:36px;padding:7px 11px}
 .quick-cogs-bundle:hover{border-color:var(--copper);color:var(--copper)}
 .quick-cogs-hint{color:var(--ink60);font-size:10px;font-weight:700;letter-spacing:.06em;margin-top:8px;text-transform:uppercase}
+.print-export-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.print-export-actions .btn{min-height:38px}
+.bid-print-document{background:#fff;color:var(--ink);font-size:11px;line-height:1.4}
+.print-doc-header{border-bottom:3px solid var(--blue);display:flex;justify-content:space-between;gap:18px;margin-bottom:16px;padding-bottom:12px}
+.print-doc-brand{font-family:var(--fd);font-size:28px;font-weight:900;line-height:1;text-transform:uppercase}
+.print-doc-brand span{color:var(--copper)}
+.print-doc-meta{text-align:right;color:var(--ink60)}
+.print-doc-title{font-family:var(--fd);font-size:24px;font-weight:900;line-height:1;text-transform:uppercase}
+.print-doc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 16px}
+.print-doc-kpi{border:1px solid var(--stucco-d);border-radius:6px;padding:8px}
+.print-doc-kpi b{display:block;font-family:var(--fd);font-size:18px;line-height:1}
+.print-doc-kpi span{color:var(--ink60);display:block;font-size:9px;font-weight:800;letter-spacing:.08em;margin-top:3px;text-transform:uppercase}
+.print-doc-section{break-inside:avoid;margin-top:14px}
+.print-doc-section h3{border-bottom:1px solid var(--stucco-d);font-size:17px;margin-bottom:6px;padding-bottom:3px;text-transform:uppercase}
+.print-doc-table{border-collapse:collapse;width:100%}
+.print-doc-table th,.print-doc-table td{border-bottom:1px solid var(--stucco-d);padding:5px 6px;vertical-align:top}
+.print-doc-table th{background:#F4EFE7;font-size:9px}
+.export-fallback{background:#fff;border:1px solid var(--stucco-d);border-left:4px solid var(--copper);border-radius:8px;display:none;margin:0 0 16px;padding:14px}
+.export-fallback.open{display:block}
+.export-fallback-head{align-items:center;display:flex;gap:12px;justify-content:space-between;margin-bottom:8px}
+.export-fallback-head h3{font-size:18px;line-height:1}
+.export-fallback textarea{border:1px solid var(--stucco-d);border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;min-height:180px;padding:10px;width:100%}
 .bid-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .bid-toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
 .project-folder-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;margin-bottom:16px}
@@ -335,7 +357,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 @media print{
   header.topbar,.tabs,.gantt-toolbar,.no-print,.btn,.lineitem td:last-child button{display:none!important}
   .panel{display:none!important}.panel.print-me{display:block!important}
-  .print-only{display:none!important}
+  .print-only{display:block!important}
+  body.print-bid-summary #tab-bids > :not(#bid-print-document){display:none!important}
+  body.print-bid-summary #bid-print-document{display:block!important}
   .invoice-folder-body{display:block!important}
   .bid-wrap,.bid-setup,.bidout-grid{display:block!important}
   .card,.totals-card,.invoice-job-card{break-inside:avoid;box-shadow:none!important}
@@ -396,7 +420,26 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <button class="bid-app-action primary" onclick="acceptBid()">Build Invoices</button>
         <button class="bid-app-action secondary" onclick="printBidsAndInvoicing()">Print</button>
       </div>
+      <div class="print-export-actions">
+        <button class="btn ghost sm" onclick="exportBidCsv()">Export CSV</button>
+        <button class="btn ghost sm" onclick="exportBidJson()">Export JSON</button>
+      </div>
     </div>
+  </div>
+
+  <div class="print-only bid-print-document" id="bid-print-document"></div>
+  <div class="export-fallback no-print" id="export-fallback" aria-live="polite">
+    <div class="export-fallback-head">
+      <div>
+        <h3 id="export-fallback-title">Export ready</h3>
+        <div class="muted" style="font-size:12px">If the download does not appear, copy the text below.</div>
+      </div>
+      <div class="bid-toolbar-actions">
+        <button class="btn ghost sm" onclick="copyExportFallback()">Copy</button>
+        <button class="btn ghost sm" onclick="hideExportFallback()">Close</button>
+      </div>
+    </div>
+    <textarea id="export-fallback-text" readonly></textarea>
   </div>
 
   <div class="bid-flow">
@@ -560,6 +603,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
           <button class="btn copper" onclick="printBidsAndInvoicing()">Print Bids &amp; Invoicing</button>
+          <button class="btn ghost" onclick="exportBidCsv()">Export COGS CSV</button>
+          <button class="btn ghost" onclick="exportBidJson()">Export Project JSON</button>
           <button class="btn blue" onclick="acceptBid()">Build invoices for current job →</button>
           <button class="btn danger" onclick="confirmResetBid()">RESET active form</button>
         </div>
@@ -820,7 +865,11 @@ function printPanel(panelId){
   if(panel)panel.classList.add('print-me');
   window.print();
 }
-window.addEventListener('afterprint',clearPrintPanels);
+function clearPrintMode(){
+  document.body.classList.remove('print-bid-summary');
+  clearPrintPanels();
+}
+window.addEventListener('afterprint',clearPrintMode);
 
 /* ═══════════════ PHASE 1 — BIDS ═══════════════ */
 const SAMPLE_BID = {
@@ -1301,6 +1350,138 @@ function renderDrawRecon(){
     ?`Draws ${fmt(drawTotal)} match the bid total <b style="color:var(--sage)">✓</b>`
     :`Draws ${fmt(drawTotal)} vs bid total ${fmt(t.total)} — <b style="color:var(--terra)">${fmt(Math.abs(diff))} ${diff>0?'over':'under'}</b>`;
 }
+function safeFileName(value){
+  return String(value || 'abq-adu-bid').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,80) || 'abq-adu-bid';
+}
+function csvCell(value){
+  const text=String(value ?? '');
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g,'""')}"` : text;
+}
+function downloadTextFile(name,content,type='text/plain'){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function showExportFallback(name,content){
+  const box=$('#export-fallback');
+  const title=$('#export-fallback-title');
+  const text=$('#export-fallback-text');
+  if(title)title.textContent=`Export ready: ${name}`;
+  if(text)text.value=content;
+  if(box){
+    box.classList.add('open');
+    box.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+function hideExportFallback(){
+  const box=$('#export-fallback');
+  if(box)box.classList.remove('open');
+}
+function copyExportFallback(){
+  const text=$('#export-fallback-text');
+  if(!text)return;
+  text.focus();
+  text.select();
+  try{document.execCommand('copy');setBidSaveStatus('Export text copied.');}
+  catch(e){setBidSaveStatus('Export text selected. Use copy from your browser menu.');}
+}
+function exportBidCsv(){
+  syncBidFromInputs();
+  const t=bidTotals();
+  const rows=[
+    ['section','category','description','type','qty','unit','cost_each','cost_total','invoice','send_date','paid','status'],
+    ...bid.items.map(item=>['cogs',item.cat,item.desc,LINE_KINDS[item.kind]||item.kind,item.qty,item.unit,item.cost,(+item.qty||0)*(+item.cost||0),'','','','']),
+    ...invoices.map(inv=>['invoice','','',inv.type,'','',inv.amount,inv.amount,inv.num,inv.sendDate,inv.paid,inv.status]),
+    ['summary','','Bid total','','','','',t.total,'','','',''],
+    ['summary','','COGS subtotal','','','','',t.sub,'','','',''],
+    ['summary','','Gross profit before tax','','','','',t.profit,'','','',''],
+  ];
+  const name=`${safeFileName(bid.title)}-cogs-invoices.csv`;
+  const content=rows.map(row=>row.map(csvCell).join(',')).join('\n');
+  downloadTextFile(name, content, 'text/csv');
+  showExportFallback(name, content);
+  setBidSaveStatus('CSV export downloaded.');
+}
+function exportBidJson(){
+  syncBidFromInputs();
+  const payload={
+    exportedAt:new Date().toISOString(),
+    project:{id:activeProjectId,title:bid.title,client:bid.client,model:bid.model,sqft:bid.sqft,status:bid.status},
+    pricing:bidTotals(),
+    cogs:bid.items,
+    invoices,
+  };
+  const name=`${safeFileName(bid.title)}-project.json`;
+  const content=JSON.stringify(payload,null,2);
+  downloadTextFile(name, content, 'application/json');
+  showExportFallback(name, content);
+  setBidSaveStatus('Project JSON export downloaded.');
+}
+function buildBidPrintDocument(){
+  syncBidFromInputs();
+  const t=bidTotals();
+  const invoiceRows=invoices.length ? invoices : [{num:'Pending',sendDate:'',desc:'Build invoices for current job',amount:0,paid:0,status:'not built'}];
+  const reviewItems=bid.items.filter(item=>['allowance','review'].includes(item.kind));
+  return `
+    <div class="print-doc-header">
+      <div>
+        <div class="print-doc-brand">ABQ <span>ADU</span></div>
+        <div class="muted">Builder bid, COGS, and invoice snapshot</div>
+      </div>
+      <div class="print-doc-meta">
+        <div><b>Prepared:</b> ${shortDate(new Date().toISOString().slice(0,10))}</div>
+        <div><b>Status:</b> ${esc(bid.status || 'draft')}</div>
+        <div><b>Model:</b> ${esc(bid.model || '')}</div>
+      </div>
+    </div>
+    <div class="print-doc-title">${esc(bid.title || 'ABQ ADU Bid')}</div>
+    <div>${esc(bid.client || 'Client not entered')} · ${esc(bid.model || 'Model')} · ${esc(bid.sqft || 0)} sf</div>
+    <div class="print-doc-grid">
+      <div class="print-doc-kpi"><b>${fmt0(t.total)}</b><span>Bid total</span></div>
+      <div class="print-doc-kpi"><b>${fmt0(t.sub)}</b><span>COGS subtotal</span></div>
+      <div class="print-doc-kpi"><b>${fmt0(t.total/t.sqft)}</b><span>Bid / sq ft</span></div>
+      <div class="print-doc-kpi"><b>${Math.round(t.margin*1000)/10}%</b><span>Margin before tax</span></div>
+    </div>
+    <div class="print-doc-section">
+      <h3>Pricing Summary</h3>
+      <table class="print-doc-table"><tbody>
+        <tr><td>COGS subtotal</td><td class="r">${fmt(t.sub)}</td></tr>
+        <tr><td>Overhead and profit</td><td class="r">${fmt(t.mk)}</td></tr>
+        <tr><td>Contingency</td><td class="r">${fmt(t.co)}</td></tr>
+        <tr><td>NM gross receipts tax</td><td class="r">${fmt(t.tx)}</td></tr>
+        <tr><td><b>Total bid</b></td><td class="r"><b>${fmt(t.total)}</b></td></tr>
+      </tbody></table>
+    </div>
+    <div class="print-doc-section">
+      <h3>COGS Line Items</h3>
+      <table class="print-doc-table">
+        <thead><tr><th>Category</th><th>Description</th><th>Type</th><th class="r">Qty</th><th>Unit</th><th class="r">COGS</th><th class="r">Total</th></tr></thead>
+        <tbody>${bid.items.map(item=>`<tr><td>${esc(item.cat)}</td><td>${esc(item.desc)}</td><td>${esc(LINE_KINDS[item.kind]||item.kind)}</td><td class="r">${esc(item.qty)}</td><td>${esc(item.unit)}</td><td class="r">${fmt(item.cost)}</td><td class="r">${fmt((+item.qty||0)*(+item.cost||0))}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="print-doc-section">
+      <h3>Draw Schedule and Invoices</h3>
+      <table class="print-doc-table">
+        <thead><tr><th>Invoice</th><th>Suggested send</th><th>Draw</th><th class="r">Amount</th><th class="r">Paid</th><th>Status</th></tr></thead>
+        <tbody>${invoiceRows.map(inv=>`<tr><td>${esc(inv.num)}</td><td>${esc(inv.sendDate ? shortDate(inv.sendDate) : 'Not scheduled')}</td><td>${esc(inv.desc)}</td><td class="r">${fmt(inv.amount)}</td><td class="r">${fmt(inv.paid||0)}</td><td>${esc(inv.status)}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="print-doc-section">
+      <h3>Review Notes</h3>
+      <div>${reviewItems.length ? reviewItems.map(item=>`<div>${esc(item.desc)} · ${fmt((+item.qty||0)*(+item.cost||0))}</div>`).join('') : 'No allowance or engineering review flags currently listed.'}</div>
+    </div>
+  `;
+}
+function renderBidPrintDocument(){
+  const el=$('#bid-print-document');
+  if(el)el.innerHTML=buildBidPrintDocument();
+}
 function editInv(i,k,v){
   const inv=invoices[i];
   if(k==='amount'){
@@ -1332,6 +1513,8 @@ function printInvoicePacket(){
   invoiceFolderOpen=true;
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
+  renderBidPrintDocument();
+  document.body.classList.add('print-bid-summary');
   printPanel('tab-bids');
 }
 function printBidsAndInvoicing(){
@@ -1339,6 +1522,8 @@ function printBidsAndInvoicing(){
   invoiceFolderOpen=true;
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
+  renderBidPrintDocument();
+  document.body.classList.add('print-bid-summary');
   printPanel('tab-bids');
 }
 function emailInvoicePacket(){
