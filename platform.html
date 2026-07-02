@@ -582,7 +582,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           </div>
           <div class="bid-setup-grid">
             <div><label class="fld">Model</label><select class="in" id="bid-model">
-              <option>Hyder Hut</option><option>Hyder Hut 2BR</option><option>Altura 24x24</option><option selected>Casita Portal</option><option>Tierra Grande</option><option>Cromwell</option>
+              <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura 24x24</option><option selected>Casita Portal</option><option>Tierra Grande</option><option>Cromwell</option>
             </select></div>
             <div><label class="fld">Square feet</label><input class="in" id="bid-sqft" type="number" min="1" value="640"></div>
             <div><label class="fld">Draft status</label><select class="in" id="bid-status"><option>draft</option><option>ready for review</option><option>sent</option><option>accepted</option></select></div>
@@ -847,8 +847,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <span class="muted" style="font-size:12px">Template:</span>
     <select class="in" id="tpl-select" style="width:auto" onchange="loadTemplate(this.value)">
       <option value="blank">Blank canvas</option>
-      <option value="hyder-hut">Hyder Hut — 440 sf</option>
-      <option value="hyder-hut-2br">Hyder Hut 2BR — 550 sf</option>
+      <option value="hyder-hut">Netherwood House — 440 sf</option>
+      <option value="hyder-hut-2br">Netherwood House 2BR — 550 sf</option>
       <option value="altura">Altura 24×24 — 576 sf</option>
       <option value="casita" selected>Casita Portal — 640 sf</option>
       <option value="tierra">Tierra Grande — 780 sf</option>
@@ -1048,8 +1048,8 @@ let invoiceFolderOpen = store.get('invoiceFolderOpen', false);
 let bidQuizStep = 0;
 const PRECON_DEPOSIT = 10000;
 const MODEL_IMAGES = {
-  'Hyder Hut':'images/hyder-hut-sheet.png',
-  'Hyder Hut 2BR':'images/hyder-hut-2br-exterior-finishes.webp',
+  'Netherwood House':'images/hyder-hut-sheet.png',
+  'Netherwood House 2BR':'images/hyder-hut-2br-exterior-finishes.webp',
   'Altura 24x24':'images/altura-box.png',
   'Casita Portal':'images/adu-exterior.png',
   'Tierra Grande':'images/adu-interior.png',
@@ -2016,8 +2016,8 @@ function updateBom(){
 
 /* ═══════════════ VERSION 3 — MODEL CATALOG + LOWE'S BIDOUT ═══════════════ */
 const MODEL_CATALOG=[
-  {id:'hyder-hut',name:'Hyder Hut',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 3 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'hyder-hut-2br',name:'Hyder Hut 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 3 verified',bed:2,bath:1,type:'builder-ready'},
+  {id:'hyder-hut',name:'Netherwood House',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 3 verified',bed:1,bath:1,type:'builder-ready'},
+  {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 3 verified',bed:2,bath:1,type:'builder-ready'},
   {id:'altura-24x24',name:'Altura 24x24',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 3 verified',bed:1,bath:1,type:'builder-ready'},
   {id:'casita-portal',name:'Casita Portal',sqft:640,variation:'L-shaped · 2BR/1BA · covered portal',img:'images/adu-exterior.png',source:'Version 3 verified',bed:2,bath:1,type:'builder-ready'},
   {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · flex room · income-property layout',img:'images/adu-interior.png',source:'Version 3 verified',bed:2,bath:2,type:'builder-ready'},
@@ -2166,7 +2166,7 @@ const PROJECTS=[
   {name:'Casita Portal',client:'Hyder Residence',pct:14,health:'ok',value:182000,finish:'Sep 18, 2026'},
   {name:'Tierra Grande',client:'Sanchez',pct:42,health:'risk',value:241000,finish:'Aug 30, 2026'},
   {name:'Altura 24×24',client:'Begay',pct:78,health:'ok',value:168000,finish:'Jul 22, 2026'},
-  {name:'Hyder Hut',client:'Romero',pct:30,health:'late',value:128000,finish:'Sep 02, 2026'},
+  {name:'Netherwood House',client:'Romero',pct:30,health:'late',value:128000,finish:'Sep 02, 2026'},
 ];
 const RISKS=[
   {t:'MEP inspection delay',cat:'schedule',p:4,i:5},
@@ -2180,7 +2180,7 @@ const FIELD=[
   {task:'Slab pour',proj:'Tierra Grande',crew:'Marco',status:'progress'},
   {task:'MEP rough-in',proj:'Casita Portal',crew:'Priya',status:'scheduled',crit:true},
   {task:'Window install',proj:'Altura 24×24',crew:'Tyler',status:'scheduled'},
-  {task:'Drywall',proj:'Hyder Hut',crew:'Ana',status:'blocked',note:'awaiting insulation inspection'},
+  {task:'Drywall',proj:'Netherwood House',crew:'Ana',status:'blocked',note:'awaiting insulation inspection'},
   {task:'Roofing',proj:'Casita Portal',crew:'Sam',status:'blocked',note:'weather hold',crit:true},
   {task:'Excavation',proj:'Tierra Grande',crew:'Diego',status:'done'},
   {task:'Foundation',proj:'Altura 24×24',crew:'Marco',status:'done'},

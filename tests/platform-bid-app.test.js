@@ -68,3 +68,7 @@ siteContains('Which ADU feels right for your backyard?');
 siteContains('What should it look like from the outside?');
 siteContains('Who is this ADU for, and how should it feel inside?');
 siteContains('Where should we send your ADU concept?');
+siteContains('Netherwood House');
+contains('Netherwood House');
+assert(!siteHtml.includes('Hyder Hut'), 'Expected index.html visible copy to use Netherwood House instead of Hyder Hut');
+assert(!html.includes('Hyder Hut'), 'Expected platform.html visible copy to use Netherwood House instead of Hyder Hut');

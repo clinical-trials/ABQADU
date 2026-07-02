@@ -2,7 +2,7 @@
   "builderReadyModels": [
     {
       "id": "hyder-hut",
-      "name": "Hyder Hut",
+      "name": "Netherwood House",
       "squareFeet": 440,
       "variation": "HH1, 12.5x35, 1 bed, 1 bath, covered deck",
       "orientationOptions": ["left-hand", "right-hand"],
@@ -10,7 +10,7 @@
     },
     {
       "id": "hyder-hut-2br",
-      "name": "Hyder Hut 2BR",
+      "name": "Netherwood House 2BR",
       "squareFeet": 550,
       "variation": "12.5x44, 2 bed, 1 bath, central great room",
       "orientationOptions": ["left-hand", "right-hand"],
