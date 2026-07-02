@@ -1020,6 +1020,290 @@ h2 em { font-style: normal; color: var(--terra); }
   text-transform: uppercase;
 }
 
+.design-entry-stage {
+  align-items: stretch;
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(0, .92fr) minmax(320px, 1.08fr);
+}
+
+.design-entry-card {
+  background:
+    radial-gradient(circle at 16% 10%, rgba(196,149,74,.22), transparent 32%),
+    linear-gradient(135deg, rgba(240,235,225,.08), rgba(120,170,230,.06)),
+    rgba(28,25,23,.5);
+  border: 1px solid rgba(196,149,74,.32);
+  border-radius: 12px;
+  color: var(--stucco);
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.design-entry-card h3 {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 54px);
+  font-weight: 900;
+  line-height: .94;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.design-entry-card p {
+  color: rgba(240,235,225,.66);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 540px;
+}
+
+.design-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.design-secondary-button {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(240,235,225,.18);
+  border-radius: 999px;
+  color: rgba(240,235,225,.78);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  padding: 13px 18px;
+  text-transform: uppercase;
+}
+
+.design-entry-preview {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(196,149,74,.26);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.design-entry-preview img {
+  display: block;
+  height: 100%;
+  min-height: 360px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.design-modal {
+  align-items: center;
+  background: rgba(15,31,61,.86);
+  display: none;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 220;
+}
+
+.design-modal.open { display: flex; }
+
+.design-modal-window {
+  background: var(--blueprint);
+  border: 1px solid rgba(196,149,74,.38);
+  border-radius: 14px;
+  box-shadow: 0 30px 90px rgba(0,0,0,.48);
+  color: var(--stucco);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  max-height: min(92svh, 920px);
+  max-width: 1180px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.design-modal-header {
+  align-items: center;
+  background: rgba(28,25,23,.45);
+  border-bottom: 1px solid rgba(196,149,74,.2);
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 14px 18px;
+}
+
+.design-modal-title {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.design-modal-subtitle {
+  color: rgba(240,235,225,.52);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.design-modal-close {
+  align-items: center;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(240,235,225,.16);
+  border-radius: 999px;
+  color: var(--stucco);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 18px;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+
+.design-modal-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.design-modal-body .design-builder-grid {
+  grid-template-columns: minmax(0, .96fr) minmax(320px, 1.04fr);
+}
+
+.design-modal-body .design-wizard {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  padding: 22px;
+}
+
+.design-modal-body .config-preview {
+  align-self: start;
+  position: sticky;
+  top: 0;
+}
+
+.design-modal-footer {
+  background: rgba(28,25,23,.72);
+  border-top: 1px solid rgba(196,149,74,.24);
+  padding: 12px 18px 14px;
+}
+
+.wizard-bottom-row {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto 1fr auto;
+}
+
+.wizard-progress-track {
+  background: rgba(240,235,225,.12);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.wizard-progress-fill {
+  background: linear-gradient(90deg, var(--copper), var(--copper-l));
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width .24s ease;
+  width: 14%;
+}
+
+.wizard-step-status,
+.draft-status {
+  color: rgba(240,235,225,.62);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wizard-footer-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.wizard-save {
+  background: rgba(255,255,255,.08);
+  color: rgba(240,235,225,.8);
+}
+
+.choice-price-pill.adds { background: rgba(184,92,56,.92); }
+.choice-price-pill.saves { background: rgba(61,82,71,.92); }
+.choice-price-pill.included { background: rgba(28,25,23,.78); }
+.choice-price-pill.review { background: rgba(196,149,74,.92); color: var(--blueprint); }
+
+.choice-cost-note {
+  color: rgba(232,201,138,.9) !important;
+  font-size: 11px !important;
+  font-weight: 800;
+  letter-spacing: .04em;
+  margin-top: 8px !important;
+  text-transform: uppercase;
+}
+
+.change-log {
+  background: rgba(196,149,74,.1);
+  border: 1px solid rgba(196,149,74,.24);
+  border-radius: 8px;
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.change-log-title {
+  color: var(--copper-l);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.change-log-list {
+  display: grid;
+  gap: 7px;
+}
+
+.change-log-item {
+  color: rgba(240,235,225,.64);
+  display: flex;
+  font-size: 12px;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.review-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.review-card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.review-card b {
+  color: var(--copper-l);
+  display: block;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.review-card span {
+  color: rgba(240,235,225,.58);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .design-tool-chip-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -3877,26 +4161,53 @@ footer {
       </p>
     </div>
 
-    <div class="design-builder-grid">
+    <div class="design-entry-stage">
+      <div class="design-entry-card">
+        <div class="design-launch-kicker">Guided ADU shopping experience</div>
+        <h3>Design in a focused pop-up, one choice at a time.</h3>
+        <p>
+          No more endless scrolling. Homeowners open the studio, choose a model, move through dedicated steps, and always see whether a choice is included, adds cost, saves money, or needs builder review.
+        </p>
+        <div class="design-entry-actions">
+          <button class="design-launch-button" type="button" onclick="startAduDesign()">Open Design Studio</button>
+          <button class="design-secondary-button" type="button" onclick="openAduDesignModal(true)">Restore Draft</button>
+        </div>
+        <div class="design-tool-chip-grid" aria-label="Available design tools">
+          <div class="design-tool-chip">Step-by-step</div>
+          <div class="design-tool-chip">Bottom progress</div>
+          <div class="design-tool-chip">Save draft</div>
+          <div class="design-tool-chip">Change log</div>
+          <div class="design-tool-chip">Clear price pills</div>
+          <div class="design-tool-chip">Review flags</div>
+          <div class="design-tool-chip">Interior / exterior</div>
+          <div class="design-tool-chip">Send to builder</div>
+        </div>
+      </div>
+      <div class="design-entry-preview">
+        <img src="images/hyder-hut-2br-exterior-finishes.webp" alt="Hyder Hut exterior finishes preview for the guided homeowner ADU design studio" loading="lazy">
+      </div>
+    </div>
+
+    <div class="design-modal" id="design-modal" aria-hidden="true">
+      <div class="design-modal-window" role="dialog" aria-modal="true" aria-labelledby="design-modal-title">
+        <div class="design-modal-header">
+          <div>
+            <div class="design-modal-title" id="design-modal-title">ABQ ADU Design Studio</div>
+            <div class="design-modal-subtitle">Focused homeowner wizard · draft saved locally · pricing updates live</div>
+          </div>
+          <button class="design-modal-close" type="button" onclick="closeAduDesignModal()" aria-label="Close design studio">×</button>
+        </div>
+        <div class="design-modal-body">
+          <div class="design-builder-grid">
       <div class="design-wizard" id="homeowner-configurator">
         <div class="design-launch-card">
           <div class="design-launch-top">
             <div>
-              <div class="design-launch-kicker">Design Your Own Tool</div>
-              <div class="design-launch-title">Build Your ADU<br>Shopping Board</div>
-              <p class="design-launch-copy">Start with an ABQ ADU model, then click through colors, orientation, outdoor space, interiors, utilities, and revenue use. The estimate and visual board update as you choose.</p>
+              <div class="design-launch-kicker">Click by click</div>
+              <div class="design-launch-title">One decision<br>per step.</div>
+              <p class="design-launch-copy">Use Back and Next at the bottom. Save a draft any time. Each option shows whether it is included, adds cost, saves money, or needs builder review.</p>
             </div>
-            <button class="design-launch-button" type="button" onclick="startAduDesign()">Start Designing</button>
-          </div>
-          <div class="design-tool-chip-grid" aria-label="Available design tools">
-            <div class="design-tool-chip">Model picker</div>
-            <div class="design-tool-chip">Color board</div>
-            <div class="design-tool-chip">Plan diagram</div>
-            <div class="design-tool-chip">$ / sf estimate</div>
-            <div class="design-tool-chip">Left/right entry</div>
-            <div class="design-tool-chip">Outdoor portal</div>
-            <div class="design-tool-chip">Interior packages</div>
-            <div class="design-tool-chip">4K model ready</div>
+            <button class="design-secondary-button" type="button" onclick="resetAduDraft()">Reset Draft</button>
           </div>
         </div>
 
@@ -3920,8 +4231,11 @@ footer {
         <div class="wizard-progress" aria-label="ADU design steps">
           <div class="wizard-step-pill active" data-step-pill="0">1. Model</div>
           <div class="wizard-step-pill" data-step-pill="1">2. Exterior</div>
-          <div class="wizard-step-pill" data-step-pill="2">3. Features</div>
-          <div class="wizard-step-pill" data-step-pill="3">4. Contact</div>
+          <div class="wizard-step-pill" data-step-pill="2">3. Doors + Lot</div>
+          <div class="wizard-step-pill" data-step-pill="3">4. Interior</div>
+          <div class="wizard-step-pill" data-step-pill="4">5. Utilities</div>
+          <div class="wizard-step-pill" data-step-pill="5">6. Review</div>
+          <div class="wizard-step-pill" data-step-pill="6">7. Contact</div>
         </div>
 
         <div class="wizard-panel active" data-wizard-step="0">
@@ -3937,30 +4251,64 @@ footer {
 
         <div class="wizard-panel" data-wizard-step="1">
           <div class="wizard-heading">Pick the exterior feel.</div>
-          <p class="wizard-copy">The image and price change as siding, roof, and window choices change. This is where the homeowner starts to see the project as a real home.</p>
+          <p class="wizard-copy">Start with the look of the home. Price pills show Included, Adds, Saves, or Needs review so the cost movement is obvious.</p>
           <div class="choice-category-label">Color Story</div>
           <div class="choice-grid" data-choice-group="color"></div>
           <div class="choice-category-label">Exterior Materials</div>
           <div class="choice-grid" data-choice-group="siding"></div>
-          <div class="choice-category-label">Roof, Glass, and Lot Fit</div>
+          <div class="choice-category-label">Roof Shape</div>
           <div class="choice-grid" data-choice-group="roof" style="margin-top:10px;"></div>
-          <div class="choice-grid" data-choice-group="windows" style="margin-top:10px;"></div>
-          <div class="choice-grid" data-choice-group="orientation" style="margin-top:10px;"></div>
-          <div class="choice-grid" data-choice-group="outdoor" style="margin-top:10px;"></div>
         </div>
 
         <div class="wizard-panel" data-wizard-step="2">
-          <div class="wizard-heading">Add family and revenue features.</div>
-          <p class="wizard-copy">Smart home, accessibility, rental readiness, and event-income planning can all change the scope and the price.</p>
-          <div class="choice-grid" data-choice-group="features"></div>
-          <div class="choice-grid" data-choice-group="interior" style="margin-top:10px;"></div>
-          <div class="choice-grid" data-choice-group="kitchen" style="margin-top:10px;"></div>
-          <div class="choice-grid" data-choice-group="bath" style="margin-top:10px;"></div>
-          <div class="choice-grid" data-choice-group="utilities" style="margin-top:10px;"></div>
-          <div class="choice-grid" data-choice-group="revenue" style="margin-top:10px;"></div>
+          <div class="wizard-heading">Choose doors, windows, and lot fit.</div>
+          <p class="wizard-copy">These choices can affect engineering, privacy, setbacks, and the final site plan. Larger openings are flagged before the builder reviews the bid.</p>
+          <div class="choice-category-label">Door and Window Package</div>
+          <div class="choice-grid" data-choice-group="windows" style="margin-top:10px;"></div>
+          <div class="choice-category-label">Left / Right Hand Orientation</div>
+          <div class="choice-grid" data-choice-group="orientation" style="margin-top:10px;"></div>
+          <div class="choice-category-label">Outdoor Living</div>
+          <div class="choice-grid" data-choice-group="outdoor" style="margin-top:10px;"></div>
         </div>
 
         <div class="wizard-panel" data-wizard-step="3">
+          <div class="wizard-heading">Tune the interior.</div>
+          <p class="wizard-copy">Pick the feel inside the ADU. This step groups finishes, kitchen, bath, and family-comfort choices together.</p>
+          <div class="choice-category-label">Comfort and Smart Home</div>
+          <div class="choice-grid" data-choice-group="features" style="margin-top:10px;"></div>
+          <div class="choice-category-label">Interior Finish Package</div>
+          <div class="choice-grid" data-choice-group="interior" style="margin-top:10px;"></div>
+          <div class="choice-category-label">Kitchen</div>
+          <div class="choice-grid" data-choice-group="kitchen" style="margin-top:10px;"></div>
+          <div class="choice-category-label">Bath</div>
+          <div class="choice-grid" data-choice-group="bath" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="wizard-panel" data-wizard-step="4">
+          <div class="wizard-heading">Check utilities and revenue use.</div>
+          <p class="wizard-copy">This is where important allowances and site-review items belong. The builder can refine these after the site visit.</p>
+          <div class="choice-category-label">Utility Readiness</div>
+          <div class="choice-grid" data-choice-group="utilities" style="margin-top:10px;"></div>
+          <div class="choice-category-label">How the ADU Might Be Used</div>
+          <div class="choice-grid" data-choice-group="revenue" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="wizard-panel" data-wizard-step="5">
+          <div class="wizard-heading">Review the draft.</div>
+          <p class="wizard-copy">Before contact information, homeowners can see the current estimate, the main cost movers, and what needs builder review.</p>
+          <div class="review-grid">
+            <div class="review-card"><b id="review-model">Hyder Hut 2BR</b><span>Selected model and square footage.</span></div>
+            <div class="review-card"><b id="review-price">$198k</b><span>Planning estimate before site verification.</span></div>
+            <div class="review-card"><b id="review-psf">$360/sf</b><span>Price per square foot lens for the homeowner.</span></div>
+            <div class="review-card"><b id="review-flags">2 review notes</b><span>Engineering, utility, or site items to verify.</span></div>
+          </div>
+          <div class="change-log" style="margin-top:14px;">
+            <div class="change-log-title">Draft change log</div>
+            <div class="change-log-list" id="review-change-list"></div>
+          </div>
+        </div>
+
+        <div class="wizard-panel" data-wizard-step="6">
           <div class="wizard-heading">Send this design to ABQ ADU.</div>
           <p class="wizard-copy">Now that the homeowner has made choices, we ask for contact details and preferred follow-up time.</p>
           <form id="design-contact-form" onsubmit="handleDesignSubmit(event)" style="display:flex;flex-direction:column;gap:14px;">
@@ -3997,10 +4345,6 @@ footer {
           </form>
         </div>
 
-        <div class="wizard-actions">
-          <button class="wizard-back" id="adu-wizard-back" type="button" onclick="aduWizardBack()">Back</button>
-          <button class="wizard-next" id="adu-wizard-next" type="button" onclick="aduWizardNext()">Next Step</button>
-        </div>
       </div>
 
       <div class="config-preview">
@@ -4076,6 +4420,27 @@ footer {
           <div class="finish-preview-copy" style="margin-top:12px;">
             This is a planning estimate only. Site utilities, panel upgrades, water/sewer, engineering review, and homeowner changes can affect the final bid.
           </div>
+          <div class="change-log" id="config-change-log">
+            <div class="change-log-title">What changed the price</div>
+            <div class="change-log-list" id="config-change-list"></div>
+          </div>
+        </div>
+      </div>
+          </div>
+        </div>
+        <div class="design-modal-footer">
+          <div class="wizard-bottom-row">
+            <div class="wizard-step-status" id="adu-step-status">Step 1 of 7</div>
+            <div>
+              <div class="wizard-progress-track" aria-hidden="true"><span class="wizard-progress-fill" id="adu-progress-fill"></span></div>
+              <div class="draft-status" id="adu-draft-status" style="margin-top:7px;">Draft ready</div>
+            </div>
+            <div class="wizard-footer-actions">
+              <button class="wizard-back wizard-save" id="adu-save-draft" type="button" onclick="saveAduDraft()">Save Draft</button>
+              <button class="wizard-back" id="adu-wizard-back" type="button" onclick="aduWizardBack()">Back</button>
+              <button class="wizard-next" id="adu-wizard-next" type="button" onclick="aduWizardNext()">Next</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -4101,6 +4466,10 @@ const ADU_CONFIG = {
   utilities: 'panel-review',
   revenue: 'family',
 };
+
+const ADU_TOTAL_STEPS = 7;
+const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
+let ADU_DRAFT_TIMER = null;
 
 const ADU_OPTIONS = {
   model: [
@@ -4207,8 +4576,16 @@ function setPreviewView(view) {
   renderAduConfigurator();
 }
 
-function renderChoiceMedia(opt) {
-  const price = opt.price ? `${opt.price > 0 ? '+' : ''}${moneyShort(opt.price)}` : 'Included';
+function priceLabel(opt, group = '') {
+  if (group === 'model') return { text: `From ${moneyShort(opt.price)}`, kind: 'included', note: 'Starting planning estimate for this model.' };
+  if (!opt.price) return { text: 'Included', kind: 'included', note: 'No added cost for this choice.' };
+  if (opt.price < 0) return { text: `Saves ${moneyShort(Math.abs(opt.price))}`, kind: 'saves', note: 'This choice lowers the planning estimate.' };
+  const needsReview = /engineer|engineering|opening|panel|sewer|macerator|upgrade high|larger/i.test(`${opt.label} ${opt.sub}`);
+  return { text: `Adds ${moneyShort(opt.price)}`, kind: needsReview ? 'review' : 'adds', note: needsReview ? 'Adds cost and needs builder review.' : 'Adds cost to the planning estimate.' };
+}
+
+function renderChoiceMedia(opt, group = '') {
+  const price = priceLabel(opt, group);
   const visual = opt.swatch
     ? `<span class="choice-swatch" style="background:${opt.swatch};"></span>`
     : opt.image
@@ -4217,7 +4594,7 @@ function renderChoiceMedia(opt) {
   return `
     <div class="choice-media">
       ${visual}
-      <span class="choice-price-pill">${price}</span>
+      <span class="choice-price-pill ${price.kind}">${price.text}</span>
     </div>
   `;
 }
@@ -4292,13 +4669,143 @@ function renderChoiceGroup(group) {
   if (!host) return;
   host.innerHTML = ADU_OPTIONS[group].map(opt => `
     <button type="button" class="choice-card ${ADU_CONFIG[group] === opt.id ? 'selected' : ''}" onclick="chooseAduOption('${group}', '${opt.id}')">
-      ${renderChoiceMedia(opt)}
+      ${renderChoiceMedia(opt, group)}
       <div class="choice-body">
         <strong>${opt.label}</strong>
         <span>${opt.sub}</span>
+        <span class="choice-cost-note">${priceLabel(opt, group).note}</span>
       </div>
     </button>
   `).join('');
+}
+
+function selectedAduOptions() {
+  return {
+    model: getOption('model'),
+    color: getOption('color'),
+    siding: getOption('siding'),
+    roof: getOption('roof'),
+    windows: getOption('windows'),
+    orientation: getOption('orientation'),
+    outdoor: getOption('outdoor'),
+    features: getOption('features'),
+    interior: getOption('interior'),
+    kitchen: getOption('kitchen'),
+    bath: getOption('bath'),
+    utilities: getOption('utilities'),
+    revenue: getOption('revenue'),
+  };
+}
+
+function getAduEstimate(options = selectedAduOptions()) {
+  return Object.values(options).reduce((sum, option) => sum + option.price, 0);
+}
+
+function getAduChangeItems(options = selectedAduOptions()) {
+  return Object.entries(options)
+    .filter(([group, option]) => group !== 'model' && option.price)
+    .map(([group, option]) => ({ group, option, label: priceLabel(option) }));
+}
+
+function renderAduChangeList(hostId, options = selectedAduOptions()) {
+  const host = document.getElementById(hostId);
+  if (!host) return;
+  const items = getAduChangeItems(options);
+  host.innerHTML = items.length
+    ? items.map(({ option, label }) => `
+      <div class="change-log-item">
+        <span>${option.label}</span>
+        <strong>${label.text}</strong>
+      </div>
+    `).join('')
+    : '<div class="change-log-item"><span>No added-cost changes yet.</span><strong>Base estimate</strong></div>';
+}
+
+function updateAduProgress() {
+  const progress = ((ADU_CONFIG.step + 1) / ADU_TOTAL_STEPS) * 100;
+  const fill = document.getElementById('adu-progress-fill');
+  const status = document.getElementById('adu-step-status');
+  const backButton = document.getElementById('adu-wizard-back');
+  const nextButton = document.getElementById('adu-wizard-next');
+  if (fill) fill.style.width = `${progress}%`;
+  if (status) status.textContent = `Step ${ADU_CONFIG.step + 1} of ${ADU_TOTAL_STEPS}`;
+  if (backButton) backButton.style.visibility = ADU_CONFIG.step === 0 ? 'hidden' : 'visible';
+  if (nextButton) {
+    nextButton.style.display = ADU_CONFIG.step === ADU_TOTAL_STEPS - 1 ? 'none' : 'inline-flex';
+    nextButton.textContent = ADU_CONFIG.step === ADU_TOTAL_STEPS - 2 ? 'Contact' : 'Next';
+  }
+}
+
+function updateAduDraftStatus(text) {
+  const status = document.getElementById('adu-draft-status');
+  if (status) status.textContent = text;
+}
+
+function saveAduDraft() {
+  localStorage.setItem(ADU_DRAFT_KEY, JSON.stringify({ ...ADU_CONFIG, savedAt: new Date().toISOString() }));
+  updateAduDraftStatus(`Draft saved ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`);
+}
+
+function scheduleAduDraftSave() {
+  clearTimeout(ADU_DRAFT_TIMER);
+  ADU_DRAFT_TIMER = setTimeout(saveAduDraft, 400);
+}
+
+function restoreAduDraft() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(ADU_DRAFT_KEY) || 'null');
+    if (!draft) return false;
+    Object.keys(ADU_CONFIG).forEach(key => {
+      if (draft[key] !== undefined) ADU_CONFIG[key] = draft[key];
+    });
+    updateAduDraftStatus('Draft restored');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resetAduDraft() {
+  localStorage.removeItem(ADU_DRAFT_KEY);
+  Object.assign(ADU_CONFIG, {
+    step: 0,
+    previewView: 'exterior',
+    model: 'hyder-hut-2br',
+    color: 'desert-cream',
+    siding: 'warm',
+    roof: 'flat-metal',
+    windows: 'standard',
+    windowLayout: 'standard',
+    orientation: 'right-hand',
+    outdoor: 'stoop',
+    features: 'smart',
+    interior: 'durable',
+    kitchen: 'standard-kitchen',
+    bath: 'standard-bath',
+    utilities: 'panel-review',
+    revenue: 'family',
+  });
+  renderAduConfigurator();
+  updateAduDraftStatus('Draft reset');
+}
+
+function openAduDesignModal(restoreDraft = false) {
+  if (restoreDraft) restoreAduDraft();
+  renderAduConfigurator();
+  const modal = document.getElementById('design-modal');
+  if (!modal) return;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAduDesignModal() {
+  saveAduDraft();
+  const modal = document.getElementById('design-modal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
 }
 
 function renderAduConfigurator() {
@@ -4312,23 +4819,10 @@ function renderAduConfigurator() {
   const backButton = document.getElementById('adu-wizard-back');
   const nextButton = document.getElementById('adu-wizard-next');
   if (backButton) backButton.style.visibility = ADU_CONFIG.step === 0 ? 'hidden' : 'visible';
-  if (nextButton) nextButton.style.display = ADU_CONFIG.step === 3 ? 'none' : 'inline-flex';
+  if (nextButton) nextButton.style.display = ADU_CONFIG.step === ADU_TOTAL_STEPS - 1 ? 'none' : 'inline-flex';
 
-  const model = getOption('model');
-  const color = getOption('color');
-  const siding = getOption('siding');
-  const roof = getOption('roof');
-  const windows = getOption('windows');
-  const orientation = getOption('orientation');
-  const outdoor = getOption('outdoor');
-  const features = getOption('features');
-  const interior = getOption('interior');
-  const kitchen = getOption('kitchen');
-  const bath = getOption('bath');
-  const utilities = getOption('utilities');
-  const revenue = getOption('revenue');
-  const selections = [model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue];
-  const estimate = selections.reduce((sum, option) => sum + option.price, 0);
+  const { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue } = selectedAduOptions();
+  const estimate = getAduEstimate({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   const exteriorPreviewImage = siding.image || outdoor.image || model.image;
   const interiorPreviewImage = interior.image || kitchen.image || bath.image || 'images/adu-interior.png';
   const previewImage = ADU_CONFIG.previewView === 'interior' ? interiorPreviewImage : exteriorPreviewImage;
@@ -4358,10 +4852,20 @@ function renderAduConfigurator() {
   document.getElementById('config-utilities').textContent = utilities.label;
   document.getElementById('config-revenue').textContent = revenue.label;
   document.getElementById('config-payment').textContent = `about ${moneyWhole(monthly)}/mo before lender review`;
+  document.getElementById('review-model').textContent = model.label;
+  document.getElementById('review-price').textContent = moneyShort(estimate);
+  document.getElementById('review-psf').textContent = `${moneyWhole(estimate / model.sqft)}/sf`;
+  const reviewFlags = getAduChangeItems({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue })
+    .filter(item => item.label.kind === 'review').length;
+  document.getElementById('review-flags').textContent = `${reviewFlags} review note${reviewFlags === 1 ? '' : 's'}`;
+  renderAduChangeList('config-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
+  renderAduChangeList('review-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
+  updateAduProgress();
+  scheduleAduDraftSave();
 }
 
 function aduWizardNext() {
-  ADU_CONFIG.step = Math.min(3, ADU_CONFIG.step + 1);
+  ADU_CONFIG.step = Math.min(ADU_TOTAL_STEPS - 1, ADU_CONFIG.step + 1);
   renderAduConfigurator();
 }
 
@@ -4373,7 +4877,7 @@ function aduWizardBack() {
 function startAduDesign() {
   ADU_CONFIG.step = 0;
   renderAduConfigurator();
-  document.getElementById('homeowner-configurator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  openAduDesignModal();
 }
 
 function designSpecificModel(modelId) {
@@ -4382,7 +4886,7 @@ function designSpecificModel(modelId) {
   ADU_CONFIG.previewView = 'exterior';
   ADU_CONFIG.step = 1;
   renderAduConfigurator();
-  document.getElementById('design').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  openAduDesignModal();
 }
 
 function handleDesignSubmit(e) {
@@ -4401,6 +4905,7 @@ function handleDesignSubmit(e) {
   const utilities = getOption('utilities');
   const revenue = getOption('revenue');
   const summary = encodeURIComponent(`ABQ ADU concept: ${model.label}, ${model.sqft} sf, ${color.label}, ${siding.label}, ${roof.label}, ${windows.label}, ${orientation.label}, ${outdoor.label}, ${features.label}, ${interior.label}, ${kitchen.label}, ${bath.label}, ${utilities.label}, ${revenue.label}.`);
+  saveAduDraft();
   window.open(`platform.html#design?concept=${summary}`, '_blank');
 }
 
