@@ -63,6 +63,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .r{text-align:right}
 .pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700}
 .muted{color:var(--ink30)}
+.print-only{display:none}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
 .kpi{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:14px 16px}
 .kpi .n{font-family:var(--fd);font-size:28px;font-weight:900;line-height:1}
@@ -122,6 +123,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .payment-note{color:var(--ink60);font-size:10px;line-height:1.25}
 .send-date-input{border-color:var(--stucco-d)!important;background:#fff!important;font-size:12px;min-width:132px}
 .send-date-note{color:var(--ink60);display:block;font-size:10px;font-weight:700;letter-spacing:.05em;margin-top:3px;text-transform:uppercase}
+.bid-print-summary{background:#fff;border:2px solid var(--blue);border-radius:8px;margin-bottom:18px;padding:18px}
+.bid-print-summary h1{font-size:30px;line-height:1;margin-bottom:6px;text-transform:uppercase}
+.bid-print-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.bid-print-box{border:1px solid var(--stucco-d);border-radius:6px;padding:10px}
+.bid-print-box b{display:block;font-family:var(--fd);font-size:22px;line-height:1;color:var(--blue)}
+.bid-print-box span{color:var(--ink60);display:block;font-size:10px;font-weight:800;letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
 
 /* Gantt */
 .gantt-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
@@ -230,8 +237,20 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .card{padding:14px;overflow-x:auto}
 }
 @media print{
-  header.topbar,.tabs,.gantt-toolbar,.no-print{display:none!important}
+  header.topbar,.tabs,.gantt-toolbar,.no-print,.btn,.lineitem td:last-child button{display:none!important}
   .panel{display:none!important}.panel.print-me{display:block!important}
+  .print-only{display:block!important}
+  .bid-wrap,.bid-setup,.bidout-grid{display:block!important}
+  .card,.totals-card,.invoice-job-card{break-inside:avoid;box-shadow:none!important}
+  .totals-card{background:#fff!important;color:var(--ink)!important;border:2px solid var(--blue);position:static!important}
+  .totals-card .ln{color:var(--ink)!important}
+  .totals-card .grand .amt,.profit-panel .ln strong{color:var(--blue)!important}
+  input,select{border:none!important;background:transparent!important;color:var(--ink)!important;padding:0!important}
+  .invoice-job-card{background:#fff!important;color:var(--ink)!important;grid-template-columns:120px 1fr!important}
+  .invoice-job-card img{min-height:100px!important}
+  .invoice-job-kicker,.invoice-job-stat b{color:var(--blue)!important}
+  .invoice-job-meta,.invoice-job-stat span{color:var(--ink60)!important}
+  .bid-print-summary-grid{grid-template-columns:repeat(2,1fr)}
   body{background:#fff}
 }
 </style>
@@ -264,6 +283,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="bid-flow-step"><b>4. Review</b><span>Engineering, utilities, exclusions.</span></div>
     <div class="bid-flow-step"><b>5. Draws</b><span>Deposit, invoices, payment tracking.</span></div>
   </div>
+
+  <div class="bid-print-summary print-only" id="bid-print-summary"></div>
 
   <div class="kpi-grid" id="bid-kpis"></div>
 
@@ -367,7 +388,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <div class="ln"><span>Review / allowance lines</span><strong id="t-review-count">0</strong></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
-          <button class="btn copper" onclick="window.print()">Print / Save PDF</button>
+          <button class="btn copper" onclick="printBidPacket()">Generate Bid PDF</button>
           <button class="btn blue" onclick="acceptBid()">Build invoices for current job →</button>
           <button class="btn ghost" onclick="resetBid()">Load sample bid</button>
         </div>
@@ -563,7 +584,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <h3 style="font-size:17px;margin-bottom:6px">Lowe's Package Checklist</h3>
       <p class="muted" style="font-size:12px;margin-bottom:8px">Use this as the handoff for the store bid desk or supplier pricing.</p>
       <div id="lowes-checklist"></div>
-      <button class="btn copper" style="width:100%;margin-top:12px" onclick="window.print()">Print Bidout Packet</button>
+      <button class="btn copper" style="width:100%;margin-top:12px" onclick="printPanel('tab-blueprint')">Print Bidout Packet</button>
     </div>
   </div>
 </section>
@@ -601,6 +622,17 @@ function showTab(name){
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.dataset.tab;showTab(t.dataset.tab)});
 window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
+
+function clearPrintPanels(){
+  document.querySelectorAll('.panel.print-me').forEach(panel=>panel.classList.remove('print-me'));
+}
+function printPanel(panelId){
+  clearPrintPanels();
+  const panel=$('#'+panelId);
+  if(panel)panel.classList.add('print-me');
+  window.print();
+}
+window.addEventListener('afterprint',clearPrintPanels);
 
 /* ═══════════════ PHASE 1 — BIDS ═══════════════ */
 const SAMPLE_BID = {
@@ -671,6 +703,31 @@ function setBidSaveStatus(text){
   const el=$('#bid-save-status');
   if(el) el.textContent=text;
 }
+function renderBidPrintSummary(t){
+  const el=$('#bid-print-summary');
+  if(!el)return;
+  const packet=invoicePacketTotals();
+  const depositPct=invoicePct(PRECON_DEPOSIT,t.total);
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;gap:20px;align-items:flex-start">
+      <div>
+        <h1>${esc(bid.title || 'ABQ ADU Bid Packet')}</h1>
+        <div style="color:var(--ink60);font-size:13px">Client: <b>${esc(bid.client || 'Client')}</b> · Model: <b>${esc(bid.model || 'ADU')}</b> · ${bid.sqft || 0} sq ft</div>
+      </div>
+      <div style="text-align:right;color:var(--ink60);font-size:12px">Generated ${shortDate(new Date().toISOString().slice(0,10))}<br>ABQ ADU Platform Version 3</div>
+    </div>
+    <div class="bid-print-summary-grid">
+      <div class="bid-print-box"><b>${fmt0(t.total)}</b><span>Bid total</span></div>
+      <div class="bid-print-box"><b>${fmt0(t.total/t.sqft)}</b><span>Bid price / sq ft</span></div>
+      <div class="bid-print-box"><b>${fmt0(t.sub/t.sqft)}</b><span>COGS / sq ft</span></div>
+      <div class="bid-print-box"><b>${Math.round(t.margin*1000)/10}%</b><span>Margin before tax</span></div>
+      <div class="bid-print-box"><b>${fmt0(PRECON_DEPOSIT)}</b><span>Invoice 1 deposit (${depositPct}% of bid)</span></div>
+      <div class="bid-print-box"><b>${invoices.length || 0}</b><span>Generated invoices</span></div>
+      <div class="bid-print-box"><b>${fmt0(packet.paid)}</b><span>Payment documented</span></div>
+      <div class="bid-print-box"><b>${t.reviewCount}</b><span>Review / allowance lines</span></div>
+    </div>
+  `;
+}
 function invoicePct(amount,total){
   return total ? Math.round((amount/total)*1000)/10 : 0;
 }
@@ -724,7 +781,7 @@ function renderBid(){
   $('#t-profit').textContent=fmt(t.profit);
   $('#t-margin').textContent=Math.round(t.margin*1000)/10+'%';
   $('#t-review-count').textContent=String(t.reviewCount);
-  renderReviewCallout(t); renderInvoices(); renderBidKpis(t); saveBid();
+  renderReviewCallout(t); renderInvoices(); renderBidKpis(t); renderBidPrintSummary(t); saveBid();
 }
 function editLine(i,k,v){bid.items[i][k]=(k==='qty'||k==='cost')?+v:v;renderBid()}
 function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid()}
@@ -852,7 +909,11 @@ function focusInvoicePacket(shouldBuild=true){
 }
 function printInvoicePacket(){
   if(!invoices.length){acceptBid();return}
-  window.print();
+  printPanel('tab-bids');
+}
+function printBidPacket(){
+  renderBid();
+  printPanel('tab-bids');
 }
 function emailInvoicePacket(){
   if(!invoices.length){acceptBid();return}
