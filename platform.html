@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABQ ADU — Platform (Version 2)</title>
+<title>ABQ ADU — Platform (Version 3)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
@@ -100,6 +100,20 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .profit-panel{border-top:1px solid rgba(196,149,74,.25);margin-top:13px;padding-top:12px}
 .profit-panel .ln strong{color:var(--copper-l)}
 .review-callout{background:#FFF7E6;border:1px solid #E8C98A;border-radius:7px;color:#7A4E12;font-size:12px;line-height:1.45;margin-top:10px;padding:10px 12px}
+.invoice-job-card{align-items:stretch;background:var(--blue);border:1px solid rgba(196,149,74,.38);border-radius:8px;color:var(--stucco);cursor:pointer;display:grid;grid-template-columns:170px 1fr;gap:0;margin-bottom:14px;overflow:hidden;transition:transform .16s,border-color .16s,box-shadow .16s}
+.invoice-job-card:hover{border-color:var(--copper);box-shadow:0 12px 28px rgba(15,31,61,.16);transform:translateY(-1px)}
+.invoice-job-card img{display:block;height:100%;min-height:150px;object-fit:cover;width:100%}
+.invoice-job-body{padding:15px 16px}
+.invoice-job-kicker{color:var(--copper-l);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.invoice-job-title{font-family:var(--fd);font-size:24px;font-weight:900;line-height:1.02;margin-top:4px;text-transform:uppercase}
+.invoice-job-meta{color:rgba(240,235,225,.7);font-size:12px;margin-top:7px}
+.invoice-job-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.invoice-job-stat{background:rgba(255,255,255,.08);border:1px solid rgba(240,235,225,.12);border-radius:6px;padding:8px}
+.invoice-job-stat b{display:block;font-family:var(--fd);font-size:20px;line-height:1;color:var(--copper-l)}
+.invoice-job-stat span{color:rgba(240,235,225,.58);display:block;font-size:10px;font-weight:700;letter-spacing:.08em;margin-top:3px;text-transform:uppercase}
+.invoice-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.invoice-plan{background:#EEF5F1;border:1px solid rgba(61,82,71,.28);border-radius:7px;color:#274338;font-size:12px;line-height:1.45;margin-top:10px;padding:10px 12px}
+.invoice-percent{color:var(--ink60);display:block;font-size:10px;font-weight:700;letter-spacing:.05em;margin-top:3px;text-transform:uppercase}
 
 /* Gantt */
 .gantt-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
@@ -192,6 +206,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-flow{grid-template-columns:repeat(2,1fr)}
   .bid-setup{grid-template-columns:1fr}
   .bid-setup-grid{grid-template-columns:1fr}
+  .invoice-job-card{grid-template-columns:1fr}
+  .invoice-job-card img{height:190px}
   .totals-card{position:static}
   .model-catalog{grid-template-columns:repeat(2,1fr)}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
@@ -202,6 +218,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .model-catalog,.bid-flow,.bid-assist-grid{grid-template-columns:1fr}
   .panel{padding:16px}
   .bid-toolbar{align-items:flex-start;flex-direction:column}
+  .invoice-job-stats{grid-template-columns:1fr}
   .card{padding:14px;overflow-x:auto}
 }
 @media print{
@@ -223,7 +240,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <button class="tab" data-tab="blueprint">Blueprint Bidout</button>
     <button class="tab" data-tab="ai">AI Assistant</button>
   </nav>
-  <span class="v-badge">Version 2</span>
+  <span class="v-badge">Version 3</span>
   <a class="home-link" href="index.html">← Site</a>
 </header>
 
@@ -295,15 +312,34 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <div class="card" id="invoice-card">
         <div style="display:flex;align-items:center;margin-bottom:12px">
           <h3 style="font-size:16px">Draw Schedule &amp; Invoices</h3>
-          <span class="muted" style="margin-left:auto;font-size:12px">Generated when a bid is accepted — editable as the build progresses</span>
+          <span class="muted" style="margin-left:auto;font-size:12px">Invoice 1 is always the $10,000 pre-construction deposit</span>
+        </div>
+        <button class="invoice-job-card" type="button" onclick="focusInvoicePacket()" aria-label="Open invoice packet for this job">
+          <img id="invoice-job-image" src="images/adu-exterior.png" alt="Current ADU job preview">
+          <div class="invoice-job-body">
+            <div class="invoice-job-kicker">Current job invoice packet</div>
+            <div class="invoice-job-title" id="invoice-job-title">Casita Portal ADU</div>
+            <div class="invoice-job-meta" id="invoice-job-meta">Click to view generated, editable invoices for this job.</div>
+            <div class="invoice-job-stats">
+              <div class="invoice-job-stat"><b id="invoice-job-deposit">$10k</b><span>Invoice 1</span></div>
+              <div class="invoice-job-stat"><b id="invoice-job-count">0</b><span>Invoices</span></div>
+              <div class="invoice-job-stat"><b id="invoice-job-total">$0</b><span>Packet total</span></div>
+            </div>
+          </div>
+        </button>
+        <div class="invoice-actions no-print">
+          <button class="btn blue" onclick="acceptBid()">Build invoices for current job</button>
+          <button class="btn ghost" onclick="printInvoicePacket()">Print invoice packet</button>
+          <button class="btn ghost" onclick="emailInvoicePacket()">Email invoice packet</button>
         </div>
         <table>
           <thead><tr><th>Invoice</th><th>Draw</th><th class="r">Amount</th><th class="r">Paid</th><th class="r">Balance</th><th>Status</th><th></th></tr></thead>
           <tbody id="invoice-rows"></tbody>
         </table>
-        <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Accept &amp; Create Draw Schedule</b> below.</div>
+        <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Build invoices for current job</b>. Invoice 1 will be exactly <b>$10,000</b>.</div>
         <button class="btn ghost sm" id="add-draw-btn" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper);display:none" onclick="addInv()">+ Add draw</button>
         <div id="draw-recon" class="muted" style="margin-top:10px;font-size:12px;display:none"></div>
+        <div class="invoice-plan">Version 4 plan: connect homeowner phone number, contractor approval, and SMS delivery so invoice summaries can be texted automatically with payment links and weather/schedule context.</div>
       </div>
     </div>
 
@@ -324,7 +360,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
           <button class="btn copper" onclick="window.print()">Print / Save PDF</button>
-          <button class="btn blue" onclick="acceptBid()">Accept &amp; Create Draw Schedule →</button>
+          <button class="btn blue" onclick="acceptBid()">Build invoices for current job →</button>
           <button class="btn ghost" onclick="resetBid()">Load sample bid</button>
         </div>
         <div class="bid-save-note" id="bid-save-status">Draft saves automatically on this device.</div>
@@ -580,6 +616,15 @@ let bid = store.get('bid', JSON.parse(JSON.stringify(SAMPLE_BID)));
 let invoices = store.get('invoices', []);
 bid.model ??= 'Casita Portal'; bid.sqft ??= 640; bid.status ??= 'draft';
 bid.items.forEach(i=>{ i.kind ??= 'base'; });
+const PRECON_DEPOSIT = 10000;
+const MODEL_IMAGES = {
+  'Hyder Hut':'images/hyder-hut-sheet.png',
+  'Hyder Hut 2BR':'images/hyder-hut-2br-exterior-finishes.webp',
+  'Altura 24x24':'images/altura-box.png',
+  'Casita Portal':'images/adu-exterior.png',
+  'Tierra Grande':'images/adu-interior.png',
+  Cromwell:'images/cromwell-sheet.png',
+};
 
 const LINE_KINDS = {
   base:'Base scope',
@@ -617,6 +662,14 @@ function kindOptions(kind){
 function setBidSaveStatus(text){
   const el=$('#bid-save-status');
   if(el) el.textContent=text;
+}
+function invoicePct(amount,total){
+  return total ? Math.round((amount/total)*1000)/10 : 0;
+}
+function invoicePacketTotals(){
+  const total=invoices.reduce((s,v)=>s+(+v.amount||0),0);
+  const paid=invoices.reduce((s,v)=>s+(+v.paid||0),0);
+  return {total,paid,balance:total-paid};
 }
 function renderBid(){
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
@@ -672,30 +725,36 @@ function renderReviewCallout(t){
 function acceptBid(){
   if(invoices.length&&!confirm('Replace the existing draw schedule? Your edits and payment records will be lost.'))return;
   const t=bidTotals();
+  const remaining=Math.max(0,t.total-PRECON_DEPOSIT);
   const draws=[
-    ['deposit','Deposit / mobilization (20%)',.20],
-    ['progress','Foundation & framing complete (30%)',.30],
-    ['progress','Dry-in, MEP rough-in complete (25%)',.25],
-    ['progress','Finishes & fixtures complete (15%)',.15],
-    ['final','Final / certificate of occupancy (10%)',.10],
+    ['deposit','Pre-construction contract deposit',PRECON_DEPOSIT],
+    ['progress','Foundation & framing complete',remaining*.375],
+    ['progress','Dry-in, MEP rough-in complete',remaining*.3125],
+    ['progress','Finishes & fixtures complete',remaining*.1875],
+    ['final','Final / certificate of occupancy',remaining*.125],
   ];
   invoices=draws.map((d,i)=>({num:`INV-2026-${String(i+1).padStart(4,'0')}`,
-    type:d[0],desc:d[1],amount:Math.round(t.total*d[2]*100)/100,paid:0,status:'draft'}));
+    type:d[0],desc:d[1],amount:Math.round(d[2]*100)/100,paid:0,status:'draft'}));
   renderBid();
-  alert('Draw schedule created — 5 invoices generated below. Amounts, descriptions, and status stay editable as the build progresses.');
+  focusInvoicePacket(false);
+  alert(`Invoice packet created for this job. Invoice 1 is fixed at ${fmt(PRECON_DEPOSIT)} (${invoicePct(PRECON_DEPOSIT,t.total)}% of the current bid).`);
 }
 const INV_STATUS={draft:['#F3F4F6','#6B7280'],sent:['#DBEAFE','#1E40AF'],paid:['#D1FAE5','#065F46'],overdue:['#FEE2E2','#B91C1C']};
 function renderInvoices(){
   const tb=$('#invoice-rows');tb.innerHTML='';
+  if(invoices.length)invoices[0].amount=PRECON_DEPOSIT;
   $('#no-invoices').style.display=invoices.length?'none':'block';
   $('#add-draw-btn').style.display=invoices.length?'inline-block':'none';
+  renderInvoiceJobCard();
+  const t=bidTotals();
   invoices.forEach((v,i)=>{
     const bal=v.amount-v.paid;
     const sc=INV_STATUS[v.status]||INV_STATUS.draft;
+    const amountLocked=i===0;
     const tr=document.createElement('tr');tr.className='lineitem';
     tr.innerHTML=`<td style="font-weight:600">${v.num}</td>
       <td><input value="${(v.desc||'').replace(/"/g,'&quot;')}" onchange="editInv(${i},'desc',this.value)"></td>
-      <td><input class="r" type="number" step="0.01" min="0" value="${v.amount}" onchange="editInv(${i},'amount',this.value)"></td>
+      <td><input class="r" type="number" step="0.01" min="0" value="${v.amount}" ${amountLocked?'readonly title="Invoice 1 is always the $10,000 pre-construction deposit"':''} onchange="editInv(${i},'amount',this.value)"><span class="invoice-percent">${invoicePct(v.amount,t.total)}% of bid</span></td>
       <td class="r" style="color:var(--sage)">${fmt(v.paid)}</td>
       <td class="r" style="font-weight:600;color:${bal>0?'var(--terra)':'var(--sage)'}">${fmt(bal)}</td>
       <td><select style="background:${sc[0]};color:${sc[1]}" onchange="editInv(${i},'status',this.value)">
@@ -705,6 +764,25 @@ function renderInvoices(){
     tb.appendChild(tr);
   });
   renderDrawRecon();
+}
+function renderInvoiceJobCard(){
+  const t=bidTotals();
+  const packet=invoicePacketTotals();
+  const first=invoices[0]?.amount || PRECON_DEPOSIT;
+  const img=$('#invoice-job-image');
+  if(img) img.src=MODEL_IMAGES[bid.model] || 'images/adu-exterior.png';
+  const title=$('#invoice-job-title');
+  if(title) title.textContent=bid.title || `${bid.model} ADU`;
+  const meta=$('#invoice-job-meta');
+  if(meta) meta.textContent=invoices.length
+    ? `${bid.client || 'Client'} · ${bid.model || 'Model'} · invoice 1 is ${fmt(first)} (${invoicePct(first,t.total)}% of bid)`
+    : `${bid.client || 'Client'} · click Build invoices for current job to create editable invoices.`;
+  const dep=$('#invoice-job-deposit');
+  if(dep) dep.textContent=fmt0(first);
+  const count=$('#invoice-job-count');
+  if(count) count.textContent=String(invoices.length);
+  const total=$('#invoice-job-total');
+  if(total) total.textContent=fmt0(packet.total || t.total);
 }
 function renderDrawRecon(){
   const el=$('#draw-recon');
@@ -720,6 +798,7 @@ function renderDrawRecon(){
 function editInv(i,k,v){
   const inv=invoices[i];
   if(k==='amount'){
+    if(i===0){inv.amount=PRECON_DEPOSIT;renderBid();return}
     let amt=Math.round((+v||0)*100)/100;
     if(amt<inv.paid){
       alert(`Amount can't go below what's already collected on ${inv.num} (${fmt(inv.paid)}).`);
@@ -736,6 +815,31 @@ function addInv(){
   invoices.push({num:`INV-2026-${String(seq).padStart(4,'0')}`,
     type:'progress',desc:'Additional draw / change order',amount:0,paid:0,status:'draft'});
   renderBid();
+}
+function focusInvoicePacket(shouldBuild=true){
+  if(!invoices.length&&shouldBuild){acceptBid();return}
+  const card=$('#invoice-card');
+  if(card) card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function printInvoicePacket(){
+  if(!invoices.length){acceptBid();return}
+  window.print();
+}
+function emailInvoicePacket(){
+  if(!invoices.length){acceptBid();return}
+  const t=bidTotals();
+  const lines=invoices.map(v=>`${v.num}: ${v.desc} - ${fmt(v.amount)} (${invoicePct(v.amount,t.total)}% of bid), status ${v.status}`).join('\n');
+  const subject=encodeURIComponent(`Invoice packet: ${bid.title || 'ABQ ADU job'}`);
+  const body=encodeURIComponent(`Client: ${bid.client || ''}
+Project: ${bid.title || ''}
+Bid total: ${fmt(t.total)}
+Invoice 1 fixed deposit: ${fmt(PRECON_DEPOSIT)} (${invoicePct(PRECON_DEPOSIT,t.total)}%)
+
+Invoices:
+${lines}
+
+Version 4 plan: send this same packet by SMS with payment links.`);
+  window.location.href=`mailto:?subject=${subject}&body=${body}`;
 }
 function delInv(i){
   if(invoices[i].paid>0){alert(`${invoices[i].num} has recorded payments — adjust the amount instead of deleting.`);return}
