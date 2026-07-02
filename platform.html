@@ -93,6 +93,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bid-assist span{display:block;color:var(--ink60);font-size:10px;line-height:1.35;margin-top:4px}
 .bid-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .bid-toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.project-folder-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;margin-bottom:16px}
+.project-folder-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:15px}
+.project-folder-card h3{font-size:17px;margin-bottom:4px}
+.project-list{display:grid;gap:8px;max-height:220px;overflow:auto;padding-right:4px}
+.project-chip{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;color:var(--ink);display:grid;gap:2px;padding:10px 12px;text-align:left;width:100%}
+.project-chip.active{background:#FFF7E6;border-color:var(--copper);box-shadow:inset 3px 0 0 var(--copper)}
+.project-chip b{font-size:13px;line-height:1.2}
+.project-chip span{color:var(--ink60);font-size:11px}
+.project-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .line-kind{min-width:96px}
 .kind-base{background:#F3F4F6;color:#4B5563}.kind-upgrade{background:#FEF3C7;color:#92400E}
 .kind-allowance{background:#DBEAFE;color:#1E40AF}.kind-review{background:#FEE2E2;color:#991B1B}
@@ -113,6 +122,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .invoice-job-stat b{display:block;font-family:var(--fd);font-size:20px;line-height:1;color:var(--copper-l)}
 .invoice-job-stat span{color:rgba(240,235,225,.58);display:block;font-size:10px;font-weight:700;letter-spacing:.08em;margin-top:3px;text-transform:uppercase}
 .invoice-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.invoice-folder-toggle{align-items:center;background:#fff;border:1px solid var(--stucco-d);border-radius:8px;color:var(--ink);display:flex;gap:12px;justify-content:space-between;margin:10px 0;padding:12px 14px;text-align:left;width:100%}
+.invoice-folder-toggle b{display:block;font-family:var(--fd);font-size:20px;line-height:1;text-transform:uppercase}
+.invoice-folder-toggle span{color:var(--ink60);display:block;font-size:11px;margin-top:3px}
+.invoice-folder-chevron{color:var(--copper);font-family:var(--fd);font-size:24px;font-weight:900}
+.invoice-folder-body{display:none}
+.invoice-folder-body.open{display:block}
 .invoice-plan{background:#EEF5F1;border:1px solid rgba(61,82,71,.28);border-radius:7px;color:#274338;font-size:12px;line-height:1.45;margin-top:10px;padding:10px 12px}
 .invoice-percent{color:var(--ink60);display:block;font-size:10px;font-weight:700;letter-spacing:.05em;margin-top:3px;text-transform:uppercase}
 .invoice-pay-cell{display:grid;gap:4px;justify-items:end}
@@ -230,6 +245,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-flow{grid-template-columns:repeat(2,1fr)}
   .bid-setup{grid-template-columns:1fr}
   .bid-setup-grid{grid-template-columns:1fr}
+  .project-folder-grid{grid-template-columns:1fr}
   .invoice-job-card{grid-template-columns:1fr}
   .invoice-job-card img{height:190px}
   .totals-card{position:static}
@@ -301,6 +317,23 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
   <div class="bid-wrap">
     <div>
+      <div class="project-folder-grid no-print">
+        <div class="project-folder-card">
+          <h3>Homeowner Project Folders</h3>
+          <div class="muted" style="font-size:12px;margin-bottom:10px">Save and switch between individual homeowner bids without overwriting another project.</div>
+          <div class="project-list" id="project-list"></div>
+          <div class="project-actions">
+            <button class="btn blue sm" onclick="newProjectFolder()">+ New homeowner project</button>
+            <button class="btn ghost sm" onclick="saveBidDraft()">Save active draft</button>
+          </div>
+        </div>
+        <div class="project-folder-card">
+          <h3>Active Folder</h3>
+          <div class="muted" id="active-project-note" style="font-size:12px">Current project draft ready.</div>
+          <div class="bid-save-note" id="project-save-status" style="color:var(--ink60)">Draft saves to this homeowner folder.</div>
+        </div>
+      </div>
+
       <div class="bid-setup">
         <div class="card">
           <h3 style="font-size:17px;margin-bottom:10px">Bid Setup</h3>
@@ -372,14 +405,20 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <button class="btn ghost" onclick="printInvoicePacket()">Print invoice packet</button>
           <button class="btn ghost" onclick="emailInvoicePacket()">Email invoice packet</button>
         </div>
-        <table>
-          <thead><tr><th>Invoice</th><th>Suggested send date</th><th>Draw</th><th class="r">Amount</th><th class="r">Payment documented</th><th class="r">Balance</th><th>Status</th><th></th></tr></thead>
-          <tbody id="invoice-rows"></tbody>
-        </table>
-        <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Build invoices for current job</b>. Invoice 1 will be exactly <b>$10,000</b>.</div>
-        <button class="btn ghost sm" id="add-draw-btn" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper);display:none" onclick="addInv()">+ Add draw</button>
-        <div id="draw-recon" class="muted" style="margin-top:10px;font-size:12px;display:none"></div>
-        <div class="invoice-plan">Version 4 plan: connect homeowner phone number, contractor approval, and SMS delivery so invoice summaries can be texted automatically with payment links and weather/schedule context.</div>
+        <button class="invoice-folder-toggle" type="button" onclick="toggleInvoiceFolder()" aria-expanded="false" id="invoice-folder-toggle">
+          <span><b id="invoice-folder-title">Invoice folder</b><span id="invoice-folder-subtitle">Open to view generated invoices for this homeowner project.</span></span>
+          <span class="invoice-folder-chevron" id="invoice-folder-chevron">+</span>
+        </button>
+        <div class="invoice-folder-body" id="invoice-folder-body">
+          <table>
+            <thead><tr><th>Invoice</th><th>Suggested send date</th><th>Draw</th><th class="r">Amount</th><th class="r">Payment documented</th><th class="r">Balance</th><th>Status</th><th></th></tr></thead>
+            <tbody id="invoice-rows"></tbody>
+          </table>
+          <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Build invoices for current job</b>. Invoice 1 will be exactly <b>$10,000</b>.</div>
+          <button class="btn ghost sm" id="add-draw-btn" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper);display:none" onclick="addInv()">+ Add draw</button>
+          <div id="draw-recon" class="muted" style="margin-top:10px;font-size:12px;display:none"></div>
+          <div class="invoice-plan">Version 4 plan: connect homeowner phone number, contractor approval, and SMS delivery so invoice summaries can be texted automatically with payment links and weather/schedule context.</div>
+        </div>
       </div>
     </div>
 
@@ -663,10 +702,41 @@ const SAMPLE_BID = {
     {cat:'Kitchen',desc:'Countertops',kind:'base',qty:14,unit:'lf',cost:95},
   ]
 };
-let bid = store.get('bid', JSON.parse(JSON.stringify(SAMPLE_BID)));
-let invoices = store.get('invoices', []);
-bid.model ??= 'Casita Portal'; bid.sqft ??= 640; bid.status ??= 'draft';
-bid.items.forEach(i=>{ i.kind ??= 'base'; });
+function cloneSampleBid(){return JSON.parse(JSON.stringify(SAMPLE_BID))}
+function makeProject(bidData=cloneSampleBid(), invoiceData=[]){
+  const now=new Date().toISOString();
+  return {
+    id:`proj_${Date.now()}_${Math.random().toString(16).slice(2,8)}`,
+    bid:bidData,
+    invoices:invoiceData,
+    createdAt:now,
+    updatedAt:now,
+  };
+}
+function normalizeBid(bidData){
+  bidData.model ??= 'Casita Portal';
+  bidData.sqft ??= 640;
+  bidData.status ??= 'draft';
+  bidData.items ??= cloneSampleBid().items;
+  bidData.items.forEach(i=>{ i.kind ??= 'base'; });
+  return bidData;
+}
+function loadProjects(){
+  const saved=store.get('projects', null);
+  if(Array.isArray(saved)&&saved.length)return saved.map(project=>({
+    ...project,
+    bid:normalizeBid(project.bid || cloneSampleBid()),
+    invoices:Array.isArray(project.invoices) ? project.invoices : [],
+  }));
+  return [makeProject(normalizeBid(store.get('bid', cloneSampleBid())), store.get('invoices', []))];
+}
+let projects = loadProjects();
+let activeProjectId = store.get('activeProjectId', projects[0].id);
+if(!projects.some(project=>project.id===activeProjectId))activeProjectId=projects[0].id;
+let activeProject = projects.find(project=>project.id===activeProjectId);
+let bid = activeProject.bid;
+let invoices = activeProject.invoices;
+let invoiceFolderOpen = store.get('invoiceFolderOpen', false);
 const PRECON_DEPOSIT = 10000;
 const MODEL_IMAGES = {
   'Hyder Hut':'images/hyder-hut-sheet.png',
@@ -693,7 +763,59 @@ const PRESET_LINES = {
   engineering:{cat:'Design',desc:'Professional engineering stamp / structural review allowance',kind:'review',qty:1,unit:'allow',cost:2500},
 };
 
-function saveBid(){store.set('bid',bid);store.set('invoices',invoices)}
+function persistProjects(){
+  store.set('projects', projects);
+  store.set('activeProjectId', activeProjectId);
+  store.set('bid',bid);
+  store.set('invoices',invoices);
+}
+function saveBid(){
+  activeProject.bid=bid;
+  activeProject.invoices=invoices;
+  activeProject.updatedAt=new Date().toISOString();
+  persistProjects();
+  renderProjectList();
+}
+function renderProjectList(){
+  const list=$('#project-list');
+  if(list){
+    list.innerHTML=projects.map(project=>{
+      const pBid=project.bid || {};
+      const label=pBid.title || 'Untitled ADU project';
+      const meta=`${pBid.client || 'No client yet'} · ${pBid.model || 'Model'} · ${pBid.status || 'draft'}`;
+      return `<button class="project-chip ${project.id===activeProjectId?'active':''}" type="button" onclick="switchProject('${project.id}')"><b>${esc(label)}</b><span>${esc(meta)}</span></button>`;
+    }).join('');
+  }
+  const note=$('#active-project-note');
+  if(note)note.textContent=`${bid.title || 'Untitled ADU project'} · ${bid.client || 'Client not entered'} · ${invoices.length} invoice${invoices.length===1?'':'s'}`;
+}
+function switchProject(id){
+  const next=projects.find(project=>project.id===id);
+  if(!next)return;
+  saveBid();
+  activeProjectId=id;
+  activeProject=next;
+  bid=normalizeBid(activeProject.bid || cloneSampleBid());
+  invoices=Array.isArray(activeProject.invoices) ? activeProject.invoices : [];
+  activeProject.bid=bid;
+  activeProject.invoices=invoices;
+  persistProjects();
+  renderBid();
+  setBidSaveStatus('Project folder loaded.');
+}
+function newProjectFolder(){
+  saveBid();
+  const project=makeProject(normalizeBid({...cloneSampleBid(), title:'New ADU Project', client:'', status:'draft'}), []);
+  projects.unshift(project);
+  activeProjectId=project.id;
+  activeProject=project;
+  bid=activeProject.bid;
+  invoices=activeProject.invoices;
+  invoiceFolderOpen=false;
+  persistProjects();
+  renderBid();
+  setBidSaveStatus('New homeowner project folder created.');
+}
 function bidTotals(){
   const sub = bid.items.reduce((s,i)=>s+(+i.qty||0)*(+i.cost||0),0);
   const mk = sub*(+$('#t-markup').value/100);
@@ -713,6 +835,16 @@ function kindOptions(kind){
 function setBidSaveStatus(text){
   const el=$('#bid-save-status');
   if(el) el.textContent=text;
+  const projectEl=$('#project-save-status');
+  if(projectEl) projectEl.textContent=text;
+}
+function syncBidFromInputs(){
+  const title=$('#bid-title'), client=$('#bid-client'), model=$('#bid-model'), sqft=$('#bid-sqft'), status=$('#bid-status');
+  if(title)bid.title=title.value;
+  if(client)bid.client=client.value;
+  if(model)bid.model=model.value;
+  if(sqft)bid.sqft=+sqft.value||1;
+  if(status)bid.status=status.value;
 }
 function renderBidPrintSummary(t){
   const el=$('#bid-print-summary');
@@ -893,8 +1025,16 @@ $('#bid-model').oninput=e=>{bid.model=e.target.value;saveBid();setBidSaveStatus(
 $('#bid-sqft').oninput=e=>{bid.sqft=+e.target.value||1;renderBid();setBidSaveStatus('Draft saved with square footage update.')};
 $('#bid-status').oninput=e=>{bid.status=e.target.value;saveBid();setBidSaveStatus(`Draft marked ${bid.status}.`)};
 ['t-markup','t-cont','t-tax'].forEach(id=>$('#'+id).oninput=renderBid);
-function saveBidDraft(){saveBid();setBidSaveStatus(`Draft saved at ${new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}.`)}
-function resetBid(){bid=JSON.parse(JSON.stringify(SAMPLE_BID));invoices=[];renderBid();setBidSaveStatus('Sample bid loaded and saved.')}
+function saveBidDraft(){syncBidFromInputs();saveBid();setBidSaveStatus(`Draft saved at ${new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}.`)}
+function resetBid(){
+  bid=cloneSampleBid();
+  invoices=[];
+  activeProject.bid=bid;
+  activeProject.invoices=invoices;
+  activeProject.updatedAt=new Date().toISOString();
+  renderBid();
+  setBidSaveStatus('Sample bid loaded into active homeowner folder.');
+}
 function renderReviewCallout(t){
   const flags = bid.items.filter(i=>['allowance','review'].includes(i.kind));
   const el=$('#bid-review-callout');
@@ -905,6 +1045,7 @@ function renderReviewCallout(t){
 }
 
 function acceptBid(){
+  syncBidFromInputs();
   if(invoices.length&&!confirm('Replace the existing draw schedule? Your edits and payment records will be lost.'))return;
   const t=bidTotals();
   const remaining=Math.max(0,t.total-PRECON_DEPOSIT);
@@ -917,6 +1058,8 @@ function acceptBid(){
   ];
   invoices=draws.map((d,i)=>({num:`INV-2026-${String(i+1).padStart(4,'0')}`,
     type:d[0],desc:d[1],amount:Math.round(d[2]*100)/100,paid:0,status:'draft',sendDate:isoDateFromOffset(d[3])}));
+  invoiceFolderOpen=true;
+  store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
   focusInvoicePacket(false);
   alert(`Invoice packet created for this job. Invoice 1 is fixed at ${fmt(PRECON_DEPOSIT)} (${invoicePct(PRECON_DEPOSIT,t.total)}% of the current bid).`);
@@ -927,6 +1070,7 @@ function renderInvoices(){
   if(invoices.length)invoices[0].amount=PRECON_DEPOSIT;
   $('#no-invoices').style.display=invoices.length?'none':'block';
   $('#add-draw-btn').style.display=invoices.length?'inline-block':'none';
+  renderInvoiceFolderState();
   renderInvoiceJobCard();
   const t=bidTotals();
   invoices.forEach((v,i)=>{
@@ -950,6 +1094,26 @@ function renderInvoices(){
     tb.appendChild(tr);
   });
   renderDrawRecon();
+}
+function renderInvoiceFolderState(){
+  const body=$('#invoice-folder-body');
+  const toggle=$('#invoice-folder-toggle');
+  const chev=$('#invoice-folder-chevron');
+  const title=$('#invoice-folder-title');
+  const subtitle=$('#invoice-folder-subtitle');
+  const packet=invoicePacketTotals();
+  if(body)body.classList.toggle('open', invoiceFolderOpen);
+  if(toggle)toggle.setAttribute('aria-expanded', invoiceFolderOpen ? 'true' : 'false');
+  if(chev)chev.textContent=invoiceFolderOpen ? '-' : '+';
+  if(title)title.textContent=`Invoice folder (${invoices.length})`;
+  if(subtitle)subtitle.textContent=invoices.length
+    ? `${fmt0(packet.total)} scheduled · ${fmt0(packet.paid)} documented paid · ${fmt0(packet.balance)} outstanding`
+    : 'No invoices generated yet. Build invoices for the active homeowner project.';
+}
+function toggleInvoiceFolder(){
+  invoiceFolderOpen=!invoiceFolderOpen;
+  store.set('invoiceFolderOpen', invoiceFolderOpen);
+  renderInvoiceFolderState();
 }
 function renderInvoiceJobCard(){
   const t=bidTotals();
@@ -1012,6 +1176,7 @@ function printInvoicePacket(){
   printPanel('tab-bids');
 }
 function printBidPacket(){
+  syncBidFromInputs();
   renderBid();
   printPanel('tab-bids');
 }
