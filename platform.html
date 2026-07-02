@@ -457,7 +457,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 <!-- ════════ BIDS & INVOICING ════════ -->
 <section class="panel active" id="tab-bids">
   <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="muted">Version 3 · revenue-facing</span></div>
-  <p class="panel-sub">Build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then edit draws and track payments as the build progresses.</p>
+  <p class="panel-sub">Move from customer call to site visit within 24 hours, then build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then edit draws and track payments as the build progresses.</p>
 
   <div class="bid-app-shell no-print">
     <div class="bid-app-main">
@@ -550,7 +550,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   </div>
 
   <div class="bid-flow">
-    <div class="bid-flow-step" data-flow-step="setup"><b>1. Setup</b><span>Model, square footage, client, draft name.</span></div>
+    <div class="bid-flow-step" data-flow-step="setup"><b>1. Setup</b><span>Customer call, 24-hour site visit, model, square footage.</span></div>
     <div class="bid-flow-step" data-flow-step="cogs"><b>2. COGS</b><span>Builder cost lines and allowances.</span></div>
     <div class="bid-flow-step" data-flow-step="price"><b>3. Price</b><span>Markup, contingency, tax, $/sf.</span></div>
     <div class="bid-flow-step" data-flow-step="review"><b>4. Review</b><span>Engineering, utilities, exclusions.</span></div>
@@ -881,8 +881,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
   <div class="blueprint-hero">
     <div class="bp-panel">
-      <div class="bp-title">From site visit to <span>submitted bid</span> in 30 hours</div>
-      <p class="bp-copy">Pick the model, confirm square footage, run a rough material takeoff, expose cost per square foot, and prepare a Lowe's/supplier bid package with quantities, alternates, exclusions, and builder review flags.</p>
+      <div class="bp-title">From customer call to <span>site visit</span> in 24 hours</div>
+      <p class="bp-copy">Then go from site visit to submitted bid in 30 hours: pick the model, confirm square footage, run a rough material takeoff, expose cost per square foot, and prepare a Lowe's/supplier bid package with quantities, alternates, exclusions, and builder review flags.</p>
       <div class="takeoff-summary">
         <div class="kpi"><div class="n" id="bp-sqft">440</div><div class="l">Model sq ft</div></div>
         <div class="kpi"><div class="n" id="bp-cogs">$0</div><div class="l">COGS estimate</div></div>
@@ -1312,7 +1312,7 @@ function updateFlowStep(name,state){
   if(state)el.classList.add(state);
 }
 const BID_QUIZ_STEPS = [
-  {title:'1. Job setup',prompt:'Who is this bid for, which model are they buying, and how many square feet are we pricing?',target:'.bid-setup',action:'setup',actionLabel:'Edit project basics'},
+  {title:'1. Job setup',prompt:'Who called, when can we complete the site visit within 24 hours, which model are they buying, and how many square feet are we pricing?',target:'.bid-setup',action:'setup',actionLabel:'Edit project basics'},
   {title:'2. Bid confidence',prompt:'How likely is this job to close, and what is blocking the bid from being ready to send?',target:'.confidence-panel',action:'confidence',actionLabel:'Grade the lead'},
   {title:'3. COGS',prompt:'What are the real builder costs? Add one line, or tap a bundle to move faster.',target:'.quick-cogs',action:'cogs',actionLabel:'Add COGS line'},
   {title:'4. Review',prompt:'Do utilities, engineering, water/sewer, or missing site data need attention before sending?',target:'#bid-review-callout',action:'review',actionLabel:'Review risk flags'},

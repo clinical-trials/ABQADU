@@ -4629,7 +4629,7 @@ footer {
           <div class="homeowner-question">
             <div class="homeowner-question-kicker">Plain question 6</div>
             <div class="homeowner-question-text">Does this feel like the ADU you want?</div>
-            <div class="homeowner-question-help">Review your choices, estimated price, cost movers, and items ABQ ADU should verify at the site visit.</div>
+            <div class="homeowner-question-help">Review your choices, estimated price, cost movers, and items ABQ ADU should verify during a site visit within 24 hours of your call.</div>
           </div>
           <div class="review-grid">
             <div class="review-card"><b id="review-model">Netherwood House 2BR</b><span>Selected model and square footage.</span></div>
@@ -5310,7 +5310,7 @@ function renderDesignResult(summary) {
   body.innerHTML = `
     <div class="design-result-grid">
       <div class="design-result-box"><b>${summary.model.label}</b><span>${summary.model.sqft} sq ft selected model</span></div>
-      <div class="design-result-box"><b>${moneyShort(summary.estimate)}</b><span>Planning estimate before site visit</span></div>
+      <div class="design-result-box"><b>${moneyShort(summary.estimate)}</b><span>Planning estimate before 24-hour site visit</span></div>
       <div class="design-result-box"><b>${summary.siding.label}</b><span>Exterior finish</span></div>
       <div class="design-result-box"><b>${summary.windows.label}</b><span>Door and window package</span></div>
       <div class="design-result-box"><b>${summary.interior.label}</b><span>Interior finish</span></div>
@@ -5319,7 +5319,7 @@ function renderDesignResult(summary) {
     <p style="color:rgba(28,25,23,.72);line-height:1.55;">
       Contact: <b>${summary.name}</b>${summary.email ? ` · ${summary.email}` : ''}${summary.phone ? ` · ${summary.phone}` : ''}${summary.bestTime ? ` · best time: ${summary.bestTime}` : ''}<br>
       ABQ ADU · Albuquerque, New Mexico · abqadu.com<br>
-      This is a homeowner design summary, not a final construction bid. Site utilities, electrical panel, water/sewer, setbacks, permitting, and engineering review can affect final price and schedule.
+      This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24 hours of the customer call. Site utilities, electrical panel, water/sewer, setbacks, permitting, and engineering review can affect final price and schedule.
     </p>
   `;
   const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}.`;
