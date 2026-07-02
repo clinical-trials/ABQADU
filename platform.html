@@ -194,7 +194,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bid-quiz-top b{font-family:var(--fd);font-size:19px;text-transform:uppercase}
 .bid-quiz-progress{background:var(--stucco);border-radius:999px;height:8px;margin:10px 0;overflow:hidden}
 .bid-quiz-progress i{background:var(--copper);display:block;height:100%;width:20%}
-.bid-quiz-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bid-quiz-answer{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;color:var(--ink);font-size:12px;font-weight:800;line-height:1.35;margin:0 0 10px;padding:9px 10px}
+.bid-quiz-answer.done{background:#EAF8EF;border-color:#A7D9B6;color:#166534}
+.bid-quiz-actions{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px}
 .bid-quiz-actions .btn{min-height:44px}
 .readiness-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
 .readiness-tag{border:1px solid var(--stucco-d);border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.04em;padding:6px 9px;text-transform:uppercase}
@@ -356,6 +358,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .panel-sub{font-size:12px}
   .mobile-launch-pad{display:grid}
   .bid-quiz-card{display:block}
+  .bid-quiz-actions{grid-template-columns:1fr}
   .bid-app-shell{border-radius:8px;padding:14px}
   .bid-app-title{font-size:28px}
   .bid-app-meta{font-size:12px}
@@ -504,8 +507,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     </div>
     <div class="bid-quiz-progress"><i id="bid-quiz-progress"></i></div>
     <div class="muted" id="bid-quiz-prompt" style="font-size:12px;margin-bottom:10px">Start with job setup, then move step by step like a guided bid interview.</div>
+    <div class="bid-quiz-answer" id="bid-quiz-answer">Next: confirm the project basics.</div>
     <div class="bid-quiz-actions">
       <button class="btn ghost" onclick="goBidQuizStep(-1)">Back</button>
+      <button class="btn copper" id="bid-quiz-action" onclick="runBidQuizAction()">Do this now</button>
       <button class="btn copper" onclick="goBidQuizStep(1)">Next question</button>
     </div>
   </div>
@@ -1307,25 +1312,72 @@ function updateFlowStep(name,state){
   if(state)el.classList.add(state);
 }
 const BID_QUIZ_STEPS = [
-  {title:'1. Job setup',prompt:'Confirm the homeowner, model, square footage, and draft status.',target:'.bid-setup'},
-  {title:'2. Bid confidence',prompt:'Grade how likely this job is to close and classify the readiness blockers.',target:'.confidence-panel'},
-  {title:'3. COGS',prompt:'Add contractor costs with fast rows or bundles.',target:'.quick-cogs'},
-  {title:'4. Review',prompt:'Check utility, engineering, and missing site-data warnings.',target:'#bid-review-callout'},
-  {title:'5. Invoices',prompt:'Build or review the draw schedule and payment status.',target:'#invoice-card'},
+  {title:'1. Job setup',prompt:'Who is this bid for, which model are they buying, and how many square feet are we pricing?',target:'.bid-setup',action:'setup',actionLabel:'Edit project basics'},
+  {title:'2. Bid confidence',prompt:'How likely is this job to close, and what is blocking the bid from being ready to send?',target:'.confidence-panel',action:'confidence',actionLabel:'Grade the lead'},
+  {title:'3. COGS',prompt:'What are the real builder costs? Add one line, or tap a bundle to move faster.',target:'.quick-cogs',action:'cogs',actionLabel:'Add COGS line'},
+  {title:'4. Review',prompt:'Do utilities, engineering, water/sewer, or missing site data need attention before sending?',target:'#bid-review-callout',action:'review',actionLabel:'Review risk flags'},
+  {title:'5. Invoices',prompt:'Build the 90-day draw schedule. Invoice 1 is always the $10,000 pre-construction deposit.',target:'#invoice-card',action:'invoices',actionLabel:'Build invoices'},
 ];
-function renderBidQuiz(){
+function bidQuizCompletion(step,t){
+  const hasSetup=Boolean(bid.title && bid.client && bid.model && (+bid.sqft||0)>0);
+  const hasCogs=bid.items.length>0 && t.sub>0;
+  const confidence=bidReadinessSignals(t);
+  const hasManualFlags=(bid.readinessFlags || []).length>0;
+  if(step.action==='setup')return hasSetup ? {done:true,text:'Done: project basics are in place.'} : {done:false,text:'Next: enter homeowner, model, square feet, and status.'};
+  if(step.action==='confidence')return hasManualFlags ? {done:true,text:`Done: ${bid.confidenceGrade || 'B'} lead tagged ${confidence.join(', ')}.`} : {done:false,text:`Next: select a confidence grade and confirm ${confidence.join(', ')}.`};
+  if(step.action==='cogs')return hasCogs ? {done:true,text:`Done: ${bid.items.length} COGS line${bid.items.length===1?'':'s'} totaling ${fmt0(t.sub)}.`} : {done:false,text:'Next: add one real cost or tap Full starter bid.'};
+  if(step.action==='review')return t.reviewCount ? {done:false,text:`Attention: ${t.reviewCount} allowance/review line${t.reviewCount===1?'':'s'} need builder review.`} : {done:true,text:'Done: no allowance or engineering review lines are currently open.'};
+  if(step.action==='invoices')return invoices.length ? {done:true,text:`Done: ${invoices.length} invoices are built and ready to print, email, or edit.`} : {done:false,text:'Next: build invoices from the current bid total.'};
+  return {done:false,text:'Next: complete this bid step.'};
+}
+function focusBidQuizTarget(selector){
+  const target=document.querySelector(selector);
+  if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+  return target;
+}
+function renderBidQuiz(t=bidTotals()){
   const step=BID_QUIZ_STEPS[bidQuizStep] || BID_QUIZ_STEPS[0];
+  const completion=bidQuizCompletion(step,t);
   setText('bid-quiz-title', step.title);
   setText('bid-quiz-count', `${bidQuizStep+1} of ${BID_QUIZ_STEPS.length}`);
   setText('bid-quiz-prompt', step.prompt);
+  setText('bid-quiz-answer', completion.text);
+  const answer=$('#bid-quiz-answer');
+  if(answer)answer.classList.toggle('done', completion.done);
+  const action=$('#bid-quiz-action');
+  if(action)action.textContent=completion.done ? 'Review this step' : step.actionLabel;
   const bar=$('#bid-quiz-progress');
   if(bar)bar.style.width=`${((bidQuizStep+1)/BID_QUIZ_STEPS.length)*100}%`;
 }
 function goBidQuizStep(delta){
+  syncBidFromInputs();
   bidQuizStep=Math.max(0,Math.min(BID_QUIZ_STEPS.length-1,bidQuizStep+delta));
-  renderBidQuiz();
-  const target=document.querySelector(BID_QUIZ_STEPS[bidQuizStep].target);
-  if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+  renderBidQuiz(bidTotals());
+  focusBidQuizTarget(BID_QUIZ_STEPS[bidQuizStep].target);
+}
+function runBidQuizAction(){
+  syncBidFromInputs();
+  const step=BID_QUIZ_STEPS[bidQuizStep] || BID_QUIZ_STEPS[0];
+  focusBidQuizTarget(step.target);
+  if(step.action==='setup'){
+    const target=bid.client ? (bid.title ? $('#bid-model') : $('#bid-title')) : $('#bid-client');
+    if(target)target.focus();
+    setBidSaveStatus('Bid setup is ready for homeowner, model, and square footage.');
+  }else if(step.action==='confidence'){
+    const grade=$('#bid-confidence-grade');
+    if(grade)grade.focus();
+    setBidSaveStatus('Score the lead, then tag any readiness blockers.');
+  }else if(step.action==='cogs'){
+    const desc=$('#quick-cogs-desc');
+    if(desc)desc.focus();
+    setBidSaveStatus('Add a COGS line or choose a starter bundle.');
+  }else if(step.action==='review'){
+    setBidSaveStatus('Review utility, engineering, allowance, and site-data flags before sending.');
+  }else if(step.action==='invoices'){
+    focusInvoicePacket(true);
+    setBidSaveStatus(invoices.length ? 'Invoice folder opened.' : 'Invoices built from the current bid total.');
+  }
+  renderBidQuiz(bidTotals());
 }
 function renderBidAppShell(t){
   const title=bid.title || `${bid.model || 'ADU'} bid`;
@@ -1355,7 +1407,7 @@ function renderBidAppShell(t){
   updateFlowStep('price', hasPrice ? 'done' : (hasCogs ? 'active' : ''));
   updateFlowStep('review', hasReviewFlags ? 'warn' : (hasPrice ? 'done' : ''));
   updateFlowStep('draws', hasInvoices ? 'done' : (hasPrice && !hasReviewFlags ? 'active' : ''));
-  renderBidQuiz();
+  renderBidQuiz(t);
 }
 function renderBid(){
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
