@@ -129,6 +129,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bid-print-box{border:1px solid var(--stucco-d);border-radius:6px;padding:10px}
 .bid-print-box b{display:block;font-family:var(--fd);font-size:22px;line-height:1;color:var(--blue)}
 .bid-print-box span{color:var(--ink60);display:block;font-size:10px;font-weight:800;letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
+.print-section{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;margin:18px 0;padding:16px;break-inside:avoid}
+.print-section h2{color:var(--blue);font-size:22px;line-height:1;margin-bottom:8px;text-transform:uppercase}
+.print-section p{color:var(--ink60);font-size:12px;margin-bottom:10px}
+.print-notes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.print-note{border:1px solid var(--stucco-d);border-left:4px solid var(--copper);border-radius:6px;padding:10px}
+.print-note b{display:block;font-size:12px;margin-bottom:4px}
+.print-note span{color:var(--ink60);display:block;font-size:11px;line-height:1.35}
+.print-signature-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}
+.print-signature-line{border-top:1px solid var(--ink);padding-top:7px;color:var(--ink60);font-size:11px}
 
 /* Gantt */
 .gantt-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
@@ -251,6 +260,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .invoice-job-kicker,.invoice-job-stat b{color:var(--blue)!important}
   .invoice-job-meta,.invoice-job-stat span{color:var(--ink60)!important}
   .bid-print-summary-grid{grid-template-columns:repeat(2,1fr)}
+  .print-notes{grid-template-columns:1fr}
   body{background:#fff}
 }
 </style>
@@ -285,6 +295,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   </div>
 
   <div class="bid-print-summary print-only" id="bid-print-summary"></div>
+  <div class="print-only" id="bid-print-document"></div>
 
   <div class="kpi-grid" id="bid-kpis"></div>
 
@@ -728,6 +739,95 @@ function renderBidPrintSummary(t){
     </div>
   `;
 }
+function renderBidPrintDocument(t){
+  const el=$('#bid-print-document');
+  if(!el)return;
+  const scopeRows=bid.items.map(item=>`
+    <tr>
+      <td>${esc(item.cat)}</td>
+      <td>${esc(item.desc)}</td>
+      <td>${esc(LINE_KINDS[item.kind] || item.kind || 'Base scope')}</td>
+      <td class="r">${(+item.qty||0).toLocaleString()} ${esc(item.unit || '')}</td>
+      <td class="r">${fmt((+item.qty||0)*(+item.cost||0))}</td>
+    </tr>
+  `).join('');
+  const invoiceRows=invoices.length ? invoices.map(inv=>{
+    const pay=paymentState(inv);
+    return `
+      <tr>
+        <td>${esc(inv.num)}</td>
+        <td>${shortDate(inv.sendDate)}</td>
+        <td>${esc(inv.desc)}</td>
+        <td class="r">${fmt(inv.amount)}</td>
+        <td class="r">${fmt(inv.paid)} · ${pay.label}${inv.paidAt ? ` · ${shortDate(inv.paidAt)}` : ''}</td>
+      </tr>
+    `;
+  }).join('') : `
+    <tr><td colspan="5">No invoice packet generated yet. Use "Build invoices for current job" before sending the final bid packet.</td></tr>
+  `;
+  const reviewItems=bid.items.filter(item=>['allowance','review'].includes(item.kind));
+  const reviewRows=reviewItems.length ? reviewItems.map(item=>`
+    <tr>
+      <td>${esc(item.cat)}</td>
+      <td>${esc(item.desc)}</td>
+      <td class="r">${fmt((+item.qty||0)*(+item.cost||0))}</td>
+    </tr>
+  `).join('') : '<tr><td colspan="3">No allowance or review items are currently flagged.</td></tr>';
+  el.innerHTML=`
+    <div class="print-section">
+      <h2>Bid Price Summary</h2>
+      <p>This planning bid converts contractor cost of goods sold into a client-facing price. Final pricing remains subject to site visit findings, permitting, utility review, engineering review, and signed contract documents.</p>
+      <table>
+        <tbody>
+          <tr><td>Cost of goods sold subtotal</td><td class="r">${fmt(t.sub)}</td></tr>
+          <tr><td>Overhead and profit</td><td class="r">${fmt(t.mk)}</td></tr>
+          <tr><td>Contingency</td><td class="r">${fmt(t.co)}</td></tr>
+          <tr><td>NM gross receipts tax</td><td class="r">${fmt(t.tx)}</td></tr>
+          <tr><td><b>Total bid price</b></td><td class="r"><b>${fmt(t.total)}</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="print-section">
+      <h2>Scope and COGS Detail</h2>
+      <table>
+        <thead><tr><th>Category</th><th>Description</th><th>Type</th><th class="r">Qty</th><th class="r">COGS total</th></tr></thead>
+        <tbody>${scopeRows}</tbody>
+      </table>
+    </div>
+
+    <div class="print-section">
+      <h2>Proposed Invoice Schedule</h2>
+      <p>Invoice 1 is the fixed ${fmt(PRECON_DEPOSIT)} pre-construction deposit. Later suggested send dates follow the 90-day build schedule and can be adjusted by the builder.</p>
+      <table>
+        <thead><tr><th>Invoice</th><th>Suggested send date</th><th>Draw</th><th class="r">Amount</th><th class="r">Payment documented</th></tr></thead>
+        <tbody>${invoiceRows}</tbody>
+      </table>
+    </div>
+
+    <div class="print-section">
+      <h2>Allowances and Builder Review Flags</h2>
+      <table>
+        <thead><tr><th>Category</th><th>Review item</th><th class="r">Allowance / COGS</th></tr></thead>
+        <tbody>${reviewRows}</tbody>
+      </table>
+      <div class="print-notes">
+        <div class="print-note"><b>Utility review</b><span>Electrical panel, water, sewer, and macerator findings can change cost and timing.</span></div>
+        <div class="print-note"><b>Engineering review</b><span>Openings larger than 3 ft in either dimension may need professional review.</span></div>
+        <div class="print-note"><b>Schedule risk</b><span>Weather, permitting, and site constraints can shift the target 90-day build schedule.</span></div>
+      </div>
+    </div>
+
+    <div class="print-section">
+      <h2>Client Authorization</h2>
+      <p>Signing below authorizes the builder to move forward with the bid packet review, pre-construction contract, and project scheduling discussions. This print packet is not a substitute for the final signed contract.</p>
+      <div class="print-signature-grid">
+        <div class="print-signature-line">Homeowner signature / date</div>
+        <div class="print-signature-line">Builder representative / date</div>
+      </div>
+    </div>
+  `;
+}
 function invoicePct(amount,total){
   return total ? Math.round((amount/total)*1000)/10 : 0;
 }
@@ -781,7 +881,7 @@ function renderBid(){
   $('#t-profit').textContent=fmt(t.profit);
   $('#t-margin').textContent=Math.round(t.margin*1000)/10+'%';
   $('#t-review-count').textContent=String(t.reviewCount);
-  renderReviewCallout(t); renderInvoices(); renderBidKpis(t); renderBidPrintSummary(t); saveBid();
+  renderReviewCallout(t); renderInvoices(); renderBidKpis(t); renderBidPrintSummary(t); renderBidPrintDocument(t); saveBid();
 }
 function editLine(i,k,v){bid.items[i][k]=(k==='qty'||k==='cost')?+v:v;renderBid()}
 function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid()}
