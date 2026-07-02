@@ -1378,6 +1378,126 @@ h2 em { font-style: normal; color: var(--terra); }
   line-height: 1.45;
 }
 
+.design-result-modal {
+  align-items: center;
+  background: rgba(15,31,61,.88);
+  display: none;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 260;
+}
+
+.design-result-modal.open { display: flex; }
+
+.design-result-card {
+  background: var(--stucco);
+  border: 1px solid rgba(196,149,74,.45);
+  border-radius: 12px;
+  box-shadow: 0 26px 70px rgba(0,0,0,.4);
+  color: var(--charcoal);
+  max-height: 92svh;
+  max-width: 760px;
+  overflow-y: auto;
+  padding: 24px;
+  width: 100%;
+}
+
+.design-result-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.design-result-title {
+  color: var(--blueprint);
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 900;
+  line-height: .95;
+  text-transform: uppercase;
+}
+
+.design-result-meta {
+  color: rgba(28,25,23,.64);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.design-result-close {
+  background: rgba(28,25,23,.08);
+  border: 1px solid rgba(28,25,23,.18);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 22px;
+  height: 40px;
+  width: 40px;
+}
+
+.design-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.design-result-box {
+  background: #fff;
+  border: 1px solid rgba(28,25,23,.12);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.design-result-box b {
+  color: var(--blueprint);
+  display: block;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.design-result-box span {
+  color: rgba(28,25,23,.58);
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+.design-result-actions {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 16px;
+}
+
+.design-result-actions button,
+.design-result-actions a {
+  align-items: center;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  justify-content: center;
+  letter-spacing: .04em;
+  min-height: 46px;
+  padding: 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.design-result-actions .print { background: var(--blueprint); color: var(--stucco); }
+.design-result-actions .email { background: var(--copper); color: var(--blueprint); }
+.design-result-actions .builder { background: rgba(28,25,23,.09); color: var(--charcoal); }
+
 .design-tool-chip-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -3054,6 +3174,19 @@ footer {
     padding-left: 10px;
     padding-right: 10px;
   }
+  .design-result-modal {
+    align-items: stretch;
+    padding: 0;
+  }
+  .design-result-card {
+    border-radius: 0;
+    max-height: 100svh;
+  }
+  .design-result-grid,
+  .design-result-actions {
+    grid-template-columns: 1fr;
+  }
+  .design-result-title { font-size: 28px; }
   .design-wizard { padding: 18px; border-radius: 8px; }
   .design-launch-card { padding: 15px; }
   .design-launch-top { align-items: stretch; flex-direction: column; }
@@ -3184,6 +3317,28 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
   .gallery-item img, .model-card { transition: none; }
+}
+
+@media print {
+  body.design-summary-print > *:not(.design-result-modal) { display: none !important; }
+  body.design-summary-print .design-result-modal {
+    align-items: stretch;
+    background: #fff;
+    display: block !important;
+    inset: 0;
+    padding: 0;
+    position: static;
+  }
+  body.design-summary-print .design-result-card {
+    border: 0;
+    box-shadow: none;
+    color: #1C1917;
+    max-height: none;
+    max-width: none;
+    padding: 24px;
+  }
+  body.design-summary-print .design-result-close,
+  body.design-summary-print .design-result-actions { display: none !important; }
 }
 
 /* ─── Platform Section ────────────────────────────────────── */
@@ -3794,8 +3949,7 @@ footer {
       </div>
 
       <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-        <a href="platform.html#blueprint" class="btn-primary">Open Plans to Lowe's Tool</a>
-        <span style="font-size:12px;color:rgba(240,235,225,.58);">City plan variations: 450, 550, 650, and 750 sq ft, each with flat roof, pitched roof, and 3D concrete print options.</span>
+        <span style="font-size:12px;color:rgba(240,235,225,.58);">City plan variations: 450, 550, 650, and 750 sq ft, each with flat roof, pitched roof, and 3D concrete print options. Detailed material takeoffs are handled inside the private builder platform.</span>
       </div>
     </div>
   </div>
@@ -4580,6 +4734,24 @@ footer {
   </div>
 </section>
 
+<div class="design-result-modal" id="design-result-modal" aria-hidden="true">
+  <div class="design-result-card" role="dialog" aria-modal="true" aria-labelledby="design-result-title">
+    <div class="design-result-head">
+      <div>
+        <div class="design-result-title" id="design-result-title">Your ADU Design Summary</div>
+        <div class="design-result-meta" id="design-result-meta">ABQ ADU · Albuquerque, New Mexico · abqadu.com</div>
+      </div>
+      <button class="design-result-close" type="button" onclick="closeDesignResult()" aria-label="Close design summary">×</button>
+    </div>
+    <div id="design-result-body"></div>
+    <div class="design-result-actions">
+      <button class="print" type="button" onclick="printDesignSummary()">Print / Save PDF</button>
+      <button class="email" type="button" onclick="emailDesignSummary()">Email Summary</button>
+      <a class="builder" id="design-builder-link" href="platform.html#design" target="_blank" rel="noopener">Builder Review</a>
+    </div>
+  </div>
+</div>
+
 <script>
 const ADU_CONFIG = {
   step: 0,
@@ -5051,8 +5223,7 @@ function designSpecificModel(modelId) {
   openAduDesignModal();
 }
 
-function handleDesignSubmit(e) {
-  e.preventDefault();
+function buildDesignSummary() {
   const model = getOption('model');
   const color = getOption('color');
   const siding = getOption('siding');
@@ -5066,9 +5237,79 @@ function handleDesignSubmit(e) {
   const bath = getOption('bath');
   const utilities = getOption('utilities');
   const revenue = getOption('revenue');
-  const summary = encodeURIComponent(`ABQ ADU concept: ${model.label}, ${model.sqft} sf, ${color.label}, ${siding.label}, ${roof.label}, ${windows.label}, ${orientation.label}, ${outdoor.label}, ${features.label}, ${interior.label}, ${kitchen.label}, ${bath.label}, ${utilities.label}, ${revenue.label}.`);
+  const estimate = getAduEstimate({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
+  const form = document.getElementById('design-contact-form');
+  const data = form ? new FormData(form) : new FormData();
+  return {
+    name: data.get('name') || 'Homeowner',
+    email: data.get('email') || '',
+    phone: data.get('phone') || '',
+    bestTime: data.get('bestTime') || '',
+    model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue, estimate,
+  };
+}
+
+function renderDesignResult(summary) {
+  const body = document.getElementById('design-result-body');
+  if (!body) return;
+  body.innerHTML = `
+    <div class="design-result-grid">
+      <div class="design-result-box"><b>${summary.model.label}</b><span>${summary.model.sqft} sq ft selected model</span></div>
+      <div class="design-result-box"><b>${moneyShort(summary.estimate)}</b><span>Planning estimate before site visit</span></div>
+      <div class="design-result-box"><b>${summary.siding.label}</b><span>Exterior finish</span></div>
+      <div class="design-result-box"><b>${summary.windows.label}</b><span>Door and window package</span></div>
+      <div class="design-result-box"><b>${summary.interior.label}</b><span>Interior finish</span></div>
+      <div class="design-result-box"><b>${summary.utilities.label}</b><span>Utility review</span></div>
+    </div>
+    <p style="color:rgba(28,25,23,.72);line-height:1.55;">
+      Contact: <b>${summary.name}</b>${summary.email ? ` · ${summary.email}` : ''}${summary.phone ? ` · ${summary.phone}` : ''}${summary.bestTime ? ` · best time: ${summary.bestTime}` : ''}<br>
+      ABQ ADU · Albuquerque, New Mexico · abqadu.com<br>
+      This is a homeowner design summary, not a final construction bid. Site utilities, electrical panel, water/sewer, setbacks, permitting, and engineering review can affect final price and schedule.
+    </p>
+  `;
+  const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}.`;
+  const encoded = encodeURIComponent(text);
+  const builderLink = document.getElementById('design-builder-link');
+  if (builderLink) builderLink.href = `platform.html#design?concept=${encoded}`;
+  window.ABQ_ADU_LAST_DESIGN_SUMMARY = { ...summary, text };
+}
+
+function openDesignResult() {
+  const modal = document.getElementById('design-result-modal');
+  if (!modal) return;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeDesignResult() {
+  const modal = document.getElementById('design-result-modal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('design-summary-print');
+}
+
+function printDesignSummary() {
+  document.body.classList.add('design-summary-print');
+  window.print();
+}
+
+function emailDesignSummary() {
+  const summary = window.ABQ_ADU_LAST_DESIGN_SUMMARY || buildDesignSummary();
+  const subject = encodeURIComponent(`ABQ ADU design summary - ${summary.model.label}`);
+  const body = encodeURIComponent(`${summary.text}\n\nABQ ADU\nAlbuquerque, New Mexico\nabqadu.com`);
+  window.location.href = `mailto:${summary.email || ''}?subject=${subject}&body=${body}`;
+}
+
+window.addEventListener('afterprint', () => document.body.classList.remove('design-summary-print'));
+
+function handleDesignSubmit(e) {
+  e.preventDefault();
+  const summary = buildDesignSummary();
   saveAduDraft();
-  window.open(`platform.html#design?concept=${summary}`, '_blank');
+  renderDesignResult(summary);
+  closeAduDesignModal();
+  openDesignResult();
 }
 
 renderAduConfigurator();
