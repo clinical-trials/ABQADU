@@ -1181,16 +1181,77 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .design-modal-footer {
-  background: rgba(28,25,23,.72);
-  border-top: 1px solid rgba(196,149,74,.24);
-  padding: 12px 18px 14px;
+  background:
+    linear-gradient(180deg, rgba(28,25,23,.86), rgba(20,28,42,.98)),
+    rgba(28,25,23,.92);
+  border-top: 1px solid rgba(232,201,138,.4);
+  box-shadow: 0 -18px 42px rgba(0,0,0,.26);
+  padding: 13px 18px 15px;
 }
 
 .wizard-bottom-row {
   align-items: center;
   display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(132px, auto) minmax(0, 1fr) auto;
+}
+
+.wizard-progress-column {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wizard-progress-meta {
+  align-items: center;
+  display: flex;
   gap: 12px;
-  grid-template-columns: auto 1fr auto;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.wizard-step-helper {
+  color: rgba(240,235,225,.58);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizard-step-rail {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.wizard-step-rail span {
+  align-items: center;
+  background: rgba(240,235,225,.08);
+  border: 1px solid rgba(240,235,225,.13);
+  border-radius: 999px;
+  color: rgba(240,235,225,.55);
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 900;
+  height: 24px;
+  justify-content: center;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+.wizard-step-rail span.done {
+  background: rgba(196,149,74,.22);
+  border-color: rgba(196,149,74,.44);
+  color: var(--copper-l);
+}
+
+.wizard-step-rail span.active {
+  background: var(--copper-l);
+  border-color: var(--copper-l);
+  color: var(--blueprint);
+  transform: translateY(-1px);
 }
 
 .wizard-progress-track {
@@ -1219,10 +1280,23 @@ h2 em { font-style: normal; color: var(--terra); }
   white-space: nowrap;
 }
 
+.wizard-step-status {
+  background: rgba(196,149,74,.12);
+  border: 1px solid rgba(196,149,74,.26);
+  border-radius: 999px;
+  color: var(--copper-l);
+  padding: 10px 12px;
+  text-align: center;
+}
+
 .wizard-footer-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+}
+
+.wizard-footer-actions button {
+  min-height: 44px;
 }
 
 .wizard-save {
@@ -1324,7 +1398,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .wizard-progress {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-bottom: 24px;
@@ -2925,6 +2999,61 @@ footer {
   .city-plans-footer .btn-primary { text-align: center; width: 100%; }
   .design-form-card { padding: 24px; }
   .finish-preview-card img { aspect-ratio: 4 / 3; }
+  .design-modal {
+    align-items: stretch;
+    padding: 0;
+  }
+  .design-modal-window {
+    border-radius: 0;
+    height: 100svh;
+    max-height: none;
+  }
+  .design-modal-header {
+    padding: 12px 14px;
+  }
+  .design-modal-title { font-size: 19px; }
+  .design-modal-subtitle { font-size: 11px; }
+  .design-modal-body {
+    padding: 12px;
+  }
+  .design-modal-body .design-builder-grid {
+    grid-template-columns: 1fr;
+  }
+  .design-modal-body .config-preview {
+    position: static;
+  }
+  .design-modal-footer {
+    padding: 10px 12px 12px;
+  }
+  .wizard-bottom-row {
+    align-items: stretch;
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+  .wizard-progress-meta {
+    align-items: flex-start;
+    display: grid;
+    gap: 5px;
+  }
+  .wizard-step-helper {
+    white-space: normal;
+  }
+  .wizard-step-rail {
+    gap: 4px;
+  }
+  .wizard-step-rail span {
+    height: 22px;
+  }
+  .wizard-footer-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .wizard-footer-actions button {
+    justify-content: center;
+    min-height: 46px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
   .design-wizard { padding: 18px; border-radius: 8px; }
   .design-launch-card { padding: 15px; }
   .design-launch-top { align-items: stretch; flex-direction: column; }
@@ -4431,9 +4560,13 @@ footer {
         <div class="design-modal-footer">
           <div class="wizard-bottom-row">
             <div class="wizard-step-status" id="adu-step-status">Step 1 of 7</div>
-            <div>
+            <div class="wizard-progress-column">
+              <div class="wizard-step-rail" id="adu-step-rail" aria-label="Design progress"></div>
               <div class="wizard-progress-track" aria-hidden="true"><span class="wizard-progress-fill" id="adu-progress-fill"></span></div>
-              <div class="draft-status" id="adu-draft-status" style="margin-top:7px;">Draft ready</div>
+              <div class="wizard-progress-meta">
+                <div class="wizard-step-helper" id="adu-step-helper">Choose one step, then tap Next. Drafts save automatically.</div>
+                <div class="draft-status" id="adu-draft-status">Draft ready</div>
+              </div>
             </div>
             <div class="wizard-footer-actions">
               <button class="wizard-back wizard-save" id="adu-save-draft" type="button" onclick="saveAduDraft()">Save Draft</button>
@@ -4468,6 +4601,15 @@ const ADU_CONFIG = {
 };
 
 const ADU_TOTAL_STEPS = 7;
+const ADU_STEP_HELPERS = [
+  'Pick the model that fits the family, lot, and rental goal.',
+  'Choose the exterior finish direction and color story.',
+  'Tune doors, windows, orientation, and outdoor entry.',
+  'Select smart, family, and accessibility features.',
+  'Shape the interior finish, kitchen, and bath level.',
+  'Review utilities, financing, and income assumptions.',
+  'Save the design and send it to the builder bid platform.',
+];
 const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
 let ADU_DRAFT_TIMER = null;
 
@@ -4725,15 +4867,32 @@ function updateAduProgress() {
   const progress = ((ADU_CONFIG.step + 1) / ADU_TOTAL_STEPS) * 100;
   const fill = document.getElementById('adu-progress-fill');
   const status = document.getElementById('adu-step-status');
+  const rail = document.getElementById('adu-step-rail');
+  const helper = document.getElementById('adu-step-helper');
   const backButton = document.getElementById('adu-wizard-back');
   const nextButton = document.getElementById('adu-wizard-next');
   if (fill) fill.style.width = `${progress}%`;
   if (status) status.textContent = `Step ${ADU_CONFIG.step + 1} of ${ADU_TOTAL_STEPS}`;
+  if (rail) {
+    rail.innerHTML = Array.from({ length: ADU_TOTAL_STEPS }, (_, index) => {
+      const classes = [
+        index <= ADU_CONFIG.step ? 'done' : '',
+        index === ADU_CONFIG.step ? 'active' : '',
+      ].filter(Boolean).join(' ');
+      return `<span class="${classes}" aria-current="${index === ADU_CONFIG.step ? 'step' : 'false'}">${index + 1}</span>`;
+    }).join('');
+  }
+  if (helper) helper.textContent = ADU_STEP_HELPERS[ADU_CONFIG.step] || 'Choose one step, then tap Next. Drafts save automatically.';
   if (backButton) backButton.style.visibility = ADU_CONFIG.step === 0 ? 'hidden' : 'visible';
   if (nextButton) {
     nextButton.style.display = ADU_CONFIG.step === ADU_TOTAL_STEPS - 1 ? 'none' : 'inline-flex';
     nextButton.textContent = ADU_CONFIG.step === ADU_TOTAL_STEPS - 2 ? 'Contact' : 'Next';
   }
+}
+
+function scrollAduModalToTop() {
+  const modalBody = document.querySelector('.design-modal-body');
+  if (modalBody) modalBody.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateAduDraftStatus(text) {
@@ -4797,6 +4956,7 @@ function openAduDesignModal(restoreDraft = false) {
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  scrollAduModalToTop();
 }
 
 function closeAduDesignModal() {
@@ -4867,11 +5027,13 @@ function renderAduConfigurator() {
 function aduWizardNext() {
   ADU_CONFIG.step = Math.min(ADU_TOTAL_STEPS - 1, ADU_CONFIG.step + 1);
   renderAduConfigurator();
+  scrollAduModalToTop();
 }
 
 function aduWizardBack() {
   ADU_CONFIG.step = Math.max(0, ADU_CONFIG.step - 1);
   renderAduConfigurator();
+  scrollAduModalToTop();
 }
 
 function startAduDesign() {
