@@ -1593,6 +1593,39 @@ h2 em { font-style: normal; color: var(--terra); }
 .wizard-panel { display: none; }
 .wizard-panel.active { display: block; }
 
+.homeowner-question {
+  background: rgba(196,149,74,.12);
+  border: 1px solid rgba(196,149,74,.3);
+  border-radius: 10px;
+  color: var(--stucco);
+  margin-bottom: 16px;
+  padding: 14px;
+}
+
+.homeowner-question-kicker {
+  color: var(--copper-l);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.homeowner-question-text {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 900;
+  line-height: .98;
+  text-transform: uppercase;
+}
+
+.homeowner-question-help {
+  color: rgba(240,235,225,.62);
+  font-size: 13px;
+  line-height: 1.45;
+  margin-top: 8px;
+}
+
 .wizard-heading {
   color: var(--stucco);
   font-family: var(--font-display);
@@ -1622,6 +1655,7 @@ h2 em { font-style: normal; color: var(--terra); }
   border-radius: 8px;
   color: var(--stucco);
   cursor: pointer;
+  min-height: 44px;
   overflow: hidden;
   padding: 0;
   text-align: left;
@@ -4447,9 +4481,9 @@ footer {
     <div class="design-entry-stage">
       <div class="design-entry-card">
         <div class="design-launch-kicker">Guided ADU shopping experience</div>
-        <h3>Design in a focused pop-up, one choice at a time.</h3>
+        <h3>Answer simple questions. See the ADU take shape.</h3>
         <p>
-          No more endless scrolling. Homeowners open the studio, choose a model, move through dedicated steps, and always see whether a choice is included, adds cost, saves money, or needs builder review.
+          No contractor jargon. We ask plain homeowner questions, show picture choices, and help families find the ADU that fits their yard, budget, and future plans.
         </p>
         <div class="design-entry-actions">
           <button class="design-launch-button" type="button" onclick="startAduDesign()">Open Design Studio</button>
@@ -4487,8 +4521,8 @@ footer {
           <div class="design-launch-top">
             <div>
               <div class="design-launch-kicker">Click by click</div>
-              <div class="design-launch-title">One decision<br>per step.</div>
-              <p class="design-launch-copy">Use Back and Next at the bottom. Save a draft any time. Each option shows whether it is included, adds cost, saves money, or needs builder review.</p>
+              <div class="design-launch-title">One question<br>at a time.</div>
+              <p class="design-launch-copy">Choose the picture that feels closest. Use Back and Next at the bottom. Each answer updates price, pictures, and builder-review notes.</p>
             </div>
             <button class="design-secondary-button" type="button" onclick="resetAduDraft()">Reset Draft</button>
           </div>
@@ -4522,8 +4556,11 @@ footer {
         </div>
 
         <div class="wizard-panel active" data-wizard-step="0">
-          <div class="wizard-heading">Choose your starting home.</div>
-          <p class="wizard-copy">Start with the shape of the ADU first. We save the email for the end, after the homeowner has a real design direction.</p>
+          <div class="homeowner-question">
+            <div class="homeowner-question-kicker">Plain question 1</div>
+            <div class="homeowner-question-text">Which ADU feels right for your backyard?</div>
+            <div class="homeowner-question-help">Pick a starting model. You can still adjust finishes, windows, outdoor space, and utility assumptions later.</div>
+          </div>
           <div class="design-infographic">
             <div class="design-infographic-item"><b>5</b><span>proven ABQ ADU starting models</span></div>
             <div class="design-infographic-item"><b>90</b><span>day build goal after signed contract</span></div>
@@ -4533,8 +4570,11 @@ footer {
         </div>
 
         <div class="wizard-panel" data-wizard-step="1">
-          <div class="wizard-heading">Pick the exterior feel.</div>
-          <p class="wizard-copy">Start with the look of the home. Price pills show Included, Adds, Saves, or Needs review so the cost movement is obvious.</p>
+          <div class="homeowner-question">
+            <div class="homeowner-question-kicker">Plain question 2</div>
+            <div class="homeowner-question-text">What should it look like from the outside?</div>
+            <div class="homeowner-question-help">Choose the picture and color direction you would be proud to see in your yard.</div>
+          </div>
           <div class="choice-category-label">Color Story</div>
           <div class="choice-grid" data-choice-group="color"></div>
           <div class="choice-category-label">Exterior Materials</div>
@@ -4544,8 +4584,11 @@ footer {
         </div>
 
         <div class="wizard-panel" data-wizard-step="2">
-          <div class="wizard-heading">Choose doors, windows, and lot fit.</div>
-          <p class="wizard-copy">These choices can affect engineering, privacy, setbacks, and the final site plan. Larger openings are flagged before the builder reviews the bid.</p>
+          <div class="homeowner-question">
+            <div class="homeowner-question-kicker">Plain question 3</div>
+            <div class="homeowner-question-text">How much light, privacy, and outdoor space do you want?</div>
+            <div class="homeowner-question-help">Windows, sliders, and covered outdoor areas can change cost or engineering review, so we flag that clearly.</div>
+          </div>
           <div class="choice-category-label">Door and Window Package</div>
           <div class="choice-grid" data-choice-group="windows" style="margin-top:10px;"></div>
           <div class="choice-category-label">Left / Right Hand Orientation</div>
@@ -4555,8 +4598,11 @@ footer {
         </div>
 
         <div class="wizard-panel" data-wizard-step="3">
-          <div class="wizard-heading">Tune the interior.</div>
-          <p class="wizard-copy">Pick the feel inside the ADU. This step groups finishes, kitchen, bath, and family-comfort choices together.</p>
+          <div class="homeowner-question">
+            <div class="homeowner-question-kicker">Plain question 4</div>
+            <div class="homeowner-question-text">Who is this ADU for, and how should it feel inside?</div>
+            <div class="homeowner-question-help">Think parent suite, adult child, guest house, rental, or a cozy multigenerational home base.</div>
+          </div>
           <div class="choice-category-label">Comfort and Smart Home</div>
           <div class="choice-grid" data-choice-group="features" style="margin-top:10px;"></div>
           <div class="choice-category-label">Interior Finish Package</div>
@@ -4568,8 +4614,11 @@ footer {
         </div>
 
         <div class="wizard-panel" data-wizard-step="4">
-          <div class="wizard-heading">Check utilities and revenue use.</div>
-          <p class="wizard-copy">This is where important allowances and site-review items belong. The builder can refine these after the site visit.</p>
+          <div class="homeowner-question">
+            <div class="homeowner-question-kicker">Plain question 5</div>
+            <div class="homeowner-question-text">What do we need to check before this can be built?</div>
+            <div class="homeowner-question-help">Electrical, water, sewer, rental plans, and event-income ideas all affect the real bid.</div>
+          </div>
           <div class="choice-category-label">Utility Readiness</div>
           <div class="choice-grid" data-choice-group="utilities" style="margin-top:10px;"></div>
           <div class="choice-category-label">How the ADU Might Be Used</div>
@@ -4577,8 +4626,11 @@ footer {
         </div>
 
         <div class="wizard-panel" data-wizard-step="5">
-          <div class="wizard-heading">Review the draft.</div>
-          <p class="wizard-copy">Before contact information, homeowners can see the current estimate, the main cost movers, and what needs builder review.</p>
+          <div class="homeowner-question">
+            <div class="homeowner-question-kicker">Plain question 6</div>
+            <div class="homeowner-question-text">Does this feel like the ADU you want?</div>
+            <div class="homeowner-question-help">Review your choices, estimated price, cost movers, and items ABQ ADU should verify at the site visit.</div>
+          </div>
           <div class="review-grid">
             <div class="review-card"><b id="review-model">Hyder Hut 2BR</b><span>Selected model and square footage.</span></div>
             <div class="review-card"><b id="review-price">$198k</b><span>Planning estimate before site verification.</span></div>
@@ -4592,8 +4644,11 @@ footer {
         </div>
 
         <div class="wizard-panel" data-wizard-step="6">
-          <div class="wizard-heading">Send this design to ABQ ADU.</div>
-          <p class="wizard-copy">Now that the homeowner has made choices, we ask for contact details and preferred follow-up time.</p>
+          <div class="homeowner-question">
+            <div class="homeowner-question-kicker">Final question</div>
+            <div class="homeowner-question-text">Where should we send your ADU concept?</div>
+            <div class="homeowner-question-help">Contact comes last, after you have a design worth saving and discussing.</div>
+          </div>
           <form id="design-contact-form" onsubmit="handleDesignSubmit(event)" style="display:flex;flex-direction:column;gap:14px;">
             <div class="form-row" style="margin-bottom:0;">
               <div class="form-field">
@@ -4774,13 +4829,13 @@ const ADU_CONFIG = {
 
 const ADU_TOTAL_STEPS = 7;
 const ADU_STEP_HELPERS = [
-  'Pick the model that fits the family, lot, and rental goal.',
-  'Choose the exterior finish direction and color story.',
-  'Tune doors, windows, orientation, and outdoor entry.',
-  'Select smart, family, and accessibility features.',
-  'Shape the interior finish, kitchen, and bath level.',
-  'Review utilities, financing, and income assumptions.',
-  'Save the design and send it to the builder bid platform.',
+  'Question 1: Which ADU feels right for your backyard?',
+  'Question 2: What should it look like from the outside?',
+  'Question 3: How much light, privacy, and outdoor space do you want?',
+  'Question 4: Who is this ADU for, and how should it feel inside?',
+  'Question 5: What do we need to check before this can be built?',
+  'Question 6: Does this feel like the ADU you want?',
+  'Final question: Where should we send your ADU concept?',
 ];
 const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
 let ADU_DRAFT_TIMER = null;

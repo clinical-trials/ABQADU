@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'platform.html'), 'utf8');
+const siteHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 
 function contains(snippet) {
   assert(
@@ -54,3 +55,16 @@ contains('function goBidQuizStep(delta)');
 contains('Bid calculator quiz');
 contains('class="invoice-blueprint"');
 contains('id="invoice-blueprint-label"');
+
+function siteContains(snippet) {
+  assert(
+    siteHtml.includes(snippet),
+    `Expected index.html to contain: ${snippet}`
+  );
+}
+
+siteContains('Answer simple questions. See the ADU take shape.');
+siteContains('Which ADU feels right for your backyard?');
+siteContains('What should it look like from the outside?');
+siteContains('Who is this ADU for, and how should it feel inside?');
+siteContains('Where should we send your ADU concept?');
