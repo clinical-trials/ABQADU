@@ -77,7 +77,29 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .totals-card .grand .amt{font-family:var(--fd);font-size:26px;font-weight:900;color:var(--copper)}
 .lineitem input{border:1px solid transparent;background:transparent;padding:5px 6px;border-radius:4px;width:100%}
 .lineitem input:focus{border-color:var(--stucco-d);background:#fff;outline:none}
+.lineitem select{border:1px solid transparent;padding:4px 6px;border-radius:99px;font-size:11px;font-weight:700;cursor:pointer}
+.lineitem select:focus{border-color:var(--stucco-d);outline:none}
 .lineitem:hover{background:var(--paper)}
+.bid-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+.bid-flow-step{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:11px 12px}
+.bid-flow-step b{display:block;font-family:var(--fd);font-size:18px;line-height:1;color:var(--ink);text-transform:uppercase}
+.bid-flow-step span{display:block;color:var(--ink60);font-size:11px;line-height:1.35;margin-top:4px}
+.bid-setup{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:16px}
+.bid-setup-grid{display:grid;grid-template-columns:1.2fr .85fr .65fr;gap:10px}
+.bid-assist-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.bid-assist{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:10px;text-align:left;color:var(--ink)}
+.bid-assist b{display:block;font-size:12px;line-height:1.1}
+.bid-assist span{display:block;color:var(--ink60);font-size:10px;line-height:1.35;margin-top:4px}
+.bid-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.bid-toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.line-kind{min-width:96px}
+.kind-base{background:#F3F4F6;color:#4B5563}.kind-upgrade{background:#FEF3C7;color:#92400E}
+.kind-allowance{background:#DBEAFE;color:#1E40AF}.kind-review{background:#FEE2E2;color:#991B1B}
+.kind-deduction{background:#D1FAE5;color:#065F46}
+.bid-save-note{font-size:11px;color:rgba(240,235,225,.58);line-height:1.4;margin-top:10px}
+.profit-panel{border-top:1px solid rgba(196,149,74,.25);margin-top:13px;padding-top:12px}
+.profit-panel .ln strong{color:var(--copper-l)}
+.review-callout{background:#FFF7E6;border:1px solid #E8C98A;border-radius:7px;color:#7A4E12;font-size:12px;line-height:1.45;margin-top:10px;padding:10px 12px}
 
 /* Gantt */
 .gantt-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
@@ -167,12 +189,21 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 @media (max-width:900px){
   .kanban{grid-template-columns:repeat(2,1fr)}
   .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid{grid-template-columns:1fr}
+  .bid-flow{grid-template-columns:repeat(2,1fr)}
+  .bid-setup{grid-template-columns:1fr}
+  .bid-setup-grid{grid-template-columns:1fr}
+  .totals-card{position:static}
   .model-catalog{grid-template-columns:repeat(2,1fr)}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .design-wrap{grid-template-columns:1fr}
   .tabs{overflow-x:auto}
 }
-@media (max-width:620px){.model-catalog{grid-template-columns:1fr}}
+@media (max-width:620px){
+  .model-catalog,.bid-flow,.bid-assist-grid{grid-template-columns:1fr}
+  .panel{padding:16px}
+  .bid-toolbar{align-items:flex-start;flex-direction:column}
+  .card{padding:14px;overflow-x:auto}
+}
 @media print{
   header.topbar,.tabs,.gantt-toolbar,.no-print{display:none!important}
   .panel{display:none!important}.panel.print-me{display:block!important}
@@ -198,50 +229,105 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ BIDS & INVOICING ════════ -->
 <section class="panel active" id="tab-bids">
-  <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="muted">Version 2 · revenue-facing</span></div>
-  <p class="panel-sub">Build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then track payments.</p>
+  <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="muted">Version 3 · revenue-facing</span></div>
+  <p class="panel-sub">Build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then edit draws and track payments as the build progresses.</p>
+
+  <div class="bid-flow">
+    <div class="bid-flow-step"><b>1. Setup</b><span>Model, square footage, client, draft name.</span></div>
+    <div class="bid-flow-step"><b>2. COGS</b><span>Builder cost lines and allowances.</span></div>
+    <div class="bid-flow-step"><b>3. Price</b><span>Markup, contingency, tax, $/sf.</span></div>
+    <div class="bid-flow-step"><b>4. Review</b><span>Engineering, utilities, exclusions.</span></div>
+    <div class="bid-flow-step"><b>5. Draws</b><span>Deposit, invoices, payment tracking.</span></div>
+  </div>
 
   <div class="kpi-grid" id="bid-kpis"></div>
 
   <div class="bid-wrap">
     <div>
+      <div class="bid-setup">
+        <div class="card">
+          <h3 style="font-size:17px;margin-bottom:10px">Bid Setup</h3>
+          <div class="row" style="gap:12px;margin-bottom:12px">
+            <div style="flex:1"><label class="fld">Bid title</label><input class="in" id="bid-title"></div>
+            <div style="width:220px"><label class="fld">Client</label><input class="in" id="bid-client" placeholder="Client name"></div>
+          </div>
+          <div class="bid-setup-grid">
+            <div><label class="fld">Model</label><select class="in" id="bid-model">
+              <option>Hyder Hut</option><option>Hyder Hut 2BR</option><option>Altura 24x24</option><option selected>Casita Portal</option><option>Tierra Grande</option><option>Cromwell</option>
+            </select></div>
+            <div><label class="fld">Square feet</label><input class="in" id="bid-sqft" type="number" min="1" value="640"></div>
+            <div><label class="fld">Draft status</label><select class="in" id="bid-status"><option>draft</option><option>ready for review</option><option>sent</option><option>accepted</option></select></div>
+          </div>
+          <div class="review-callout" id="bid-review-callout">Review flags will appear here when lines need engineering, utility, or site verification.</div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:17px;margin-bottom:4px">Quick Add Common ADU Items</h3>
+          <div class="muted" style="font-size:12px">Use these to avoid forgetting expensive scope changes.</div>
+          <div class="bid-assist-grid">
+            <button class="bid-assist" onclick="addPresetLine('panelLow')"><b>Panel low range</b><span>Add $3,500 allowance</span></button>
+            <button class="bid-assist" onclick="addPresetLine('panelHigh')"><b>Panel high range</b><span>Add $6,500 allowance</span></button>
+            <button class="bid-assist" onclick="addPresetLine('windows')"><b>Larger openings</b><span>Flags engineering review</span></button>
+            <button class="bid-assist" onclick="addPresetLine('portal')"><b>Covered portal</b><span>Shade roof + slab extension</span></button>
+            <button class="bid-assist" onclick="addPresetLine('sewer')"><b>Sewer / macerator</b><span>Utility review allowance</span></button>
+            <button class="bid-assist" onclick="addPresetLine('engineering')"><b>Engineer stamp</b><span>Openings over 3 ft review</span></button>
+          </div>
+        </div>
+      </div>
+
       <div class="card" style="margin-bottom:16px">
-        <div class="row" style="gap:12px;margin-bottom:12px">
-          <div style="flex:1"><label class="fld">Bid title</label><input class="in" id="bid-title"></div>
-          <div style="width:200px"><label class="fld">Client</label><input class="in" id="bid-client" placeholder="Client name"></div>
+        <div class="bid-toolbar">
+          <div>
+            <h3 style="font-size:17px">COGS Line Items</h3>
+            <div class="muted" style="font-size:12px">Unit cost is contractor cost. The pricing card adds margin, contingency, and tax.</div>
+          </div>
+          <div class="bid-toolbar-actions">
+            <button class="btn ghost sm" onclick="saveBidDraft()">Save draft</button>
+            <button class="btn ghost sm" style="border-style:dashed;border-color:var(--copper);color:var(--copper)" onclick="addLine()">+ Add line item</button>
+          </div>
         </div>
         <table>
-          <thead><tr><th>Category</th><th>Description</th><th class="r" style="width:70px">Qty</th><th style="width:60px">Unit</th><th class="r" style="width:100px">Unit cost</th><th class="r" style="width:100px">Total</th><th style="width:28px"></th></tr></thead>
+          <thead><tr><th>Category</th><th>Description</th><th style="width:110px">Type</th><th class="r" style="width:70px">Qty</th><th style="width:60px">Unit</th><th class="r" style="width:100px">COGS / unit</th><th class="r" style="width:100px">COGS total</th><th style="width:28px"></th></tr></thead>
           <tbody id="bid-items"></tbody>
         </table>
-        <button class="btn ghost sm" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper)" onclick="addLine()">+ Add line item</button>
       </div>
 
       <div class="card" id="invoice-card">
         <div style="display:flex;align-items:center;margin-bottom:12px">
           <h3 style="font-size:16px">Draw Schedule &amp; Invoices</h3>
-          <span class="muted" style="margin-left:auto;font-size:12px">Auto-generated when a bid is accepted</span>
+          <span class="muted" style="margin-left:auto;font-size:12px">Generated when a bid is accepted — editable as the build progresses</span>
         </div>
         <table>
           <thead><tr><th>Invoice</th><th>Draw</th><th class="r">Amount</th><th class="r">Paid</th><th class="r">Balance</th><th>Status</th><th></th></tr></thead>
           <tbody id="invoice-rows"></tbody>
         </table>
         <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Accept &amp; Create Draw Schedule</b> below.</div>
+        <button class="btn ghost sm" id="add-draw-btn" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper);display:none" onclick="addInv()">+ Add draw</button>
+        <div id="draw-recon" class="muted" style="margin-top:10px;font-size:12px;display:none"></div>
       </div>
     </div>
 
     <div>
       <div class="totals-card">
+        <div style="font-family:var(--fd);font-size:18px;font-weight:900;text-transform:uppercase;margin-bottom:10px">Pricing Engine</div>
+        <div class="ln"><span>COGS / sq ft</span><span id="t-psf">$0</span></div>
         <div class="ln"><span>Subtotal</span><span id="t-sub">$0</span></div>
         <div class="ln"><span>Overhead &amp; profit <input id="t-markup" type="number" value="18" style="width:46px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-mk">$0</span></div>
         <div class="ln"><span>Contingency <input id="t-cont" type="number" value="5" style="width:42px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-co">$0</span></div>
         <div class="ln"><span>NM GRT tax <input id="t-tax" type="number" step="0.001" value="7.625" style="width:60px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-tx">$0</span></div>
         <div class="grand"><span class="lab">Total</span><span class="amt" id="t-total">$0</span></div>
+        <div class="profit-panel">
+          <div class="ln"><span>Bid price / sq ft</span><strong id="t-bid-psf">$0</strong></div>
+          <div class="ln"><span>Gross profit before tax</span><strong id="t-profit">$0</strong></div>
+          <div class="ln"><span>Margin before tax</span><strong id="t-margin">0%</strong></div>
+          <div class="ln"><span>Review / allowance lines</span><strong id="t-review-count">0</strong></div>
+        </div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
           <button class="btn copper" onclick="window.print()">Print / Save PDF</button>
           <button class="btn blue" onclick="acceptBid()">Accept &amp; Create Draw Schedule →</button>
           <button class="btn ghost" onclick="resetBid()">Load sample bid</button>
         </div>
+        <div class="bid-save-note" id="bid-save-status">Draft saves automatically on this device.</div>
       </div>
     </div>
   </div>
@@ -474,24 +560,42 @@ window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
 
 /* ═══════════════ PHASE 1 — BIDS ═══════════════ */
 const SAMPLE_BID = {
-  title:'Casita Portal ADU — 640 sf', client:'M. Hyder Residence',
+  title:'Casita Portal ADU — 640 sf', client:'M. Hyder Residence', model:'Casita Portal', sqft:640, status:'draft',
   items:[
-    {cat:'Structure',desc:'Foundation / slab',qty:640,unit:'sf',cost:18},
-    {cat:'Structure',desc:'Framing lumber & labor',qty:280,unit:'lf',cost:13.5},
-    {cat:'Structure',desc:'Roofing (metal)',qty:736,unit:'sf',cost:6.5},
-    {cat:'Exterior',desc:'Stucco siding',qty:1200,unit:'sf',cost:7},
-    {cat:'Interior',desc:'Insulation',qty:1700,unit:'sf',cost:1.8},
-    {cat:'Interior',desc:'Drywall (walls + ceiling)',qty:2340,unit:'sf',cost:2.2},
-    {cat:'Interior',desc:'Flooring (LVP)',qty:580,unit:'sf',cost:8.5},
-    {cat:'MEP',desc:'Electrical rough-in & trim',qty:640,unit:'sf',cost:12},
-    {cat:'MEP',desc:'HVAC (mini-split)',qty:640,unit:'sf',cost:9},
-    {cat:'Plumbing',desc:'Plumbing fixtures',qty:5,unit:'ea',cost:850},
-    {cat:'Kitchen',desc:'Cabinetry',qty:14,unit:'lf',cost:280},
-    {cat:'Kitchen',desc:'Countertops',qty:14,unit:'lf',cost:95},
+    {cat:'Structure',desc:'Foundation / slab',kind:'base',qty:640,unit:'sf',cost:18},
+    {cat:'Structure',desc:'Framing lumber & labor',kind:'base',qty:280,unit:'lf',cost:13.5},
+    {cat:'Structure',desc:'Roofing (metal)',kind:'base',qty:736,unit:'sf',cost:6.5},
+    {cat:'Exterior',desc:'Stucco siding',kind:'base',qty:1200,unit:'sf',cost:7},
+    {cat:'Interior',desc:'Insulation',kind:'base',qty:1700,unit:'sf',cost:1.8},
+    {cat:'Interior',desc:'Drywall (walls + ceiling)',kind:'base',qty:2340,unit:'sf',cost:2.2},
+    {cat:'Interior',desc:'Flooring (LVP)',kind:'base',qty:580,unit:'sf',cost:8.5},
+    {cat:'MEP',desc:'Electrical rough-in & trim',kind:'base',qty:640,unit:'sf',cost:12},
+    {cat:'MEP',desc:'HVAC (mini-split)',kind:'base',qty:640,unit:'sf',cost:9},
+    {cat:'Plumbing',desc:'Plumbing fixtures',kind:'base',qty:5,unit:'ea',cost:850},
+    {cat:'Kitchen',desc:'Cabinetry',kind:'base',qty:14,unit:'lf',cost:280},
+    {cat:'Kitchen',desc:'Countertops',kind:'base',qty:14,unit:'lf',cost:95},
   ]
 };
 let bid = store.get('bid', JSON.parse(JSON.stringify(SAMPLE_BID)));
 let invoices = store.get('invoices', []);
+bid.model ??= 'Casita Portal'; bid.sqft ??= 640; bid.status ??= 'draft';
+bid.items.forEach(i=>{ i.kind ??= 'base'; });
+
+const LINE_KINDS = {
+  base:'Base scope',
+  upgrade:'Upgrade / adds cost',
+  allowance:'Allowance',
+  review:'Needs review',
+  deduction:'Saves money',
+};
+const PRESET_LINES = {
+  panelLow:{cat:'MEP',desc:'Electrical panel upgrade allowance — low range',kind:'allowance',qty:1,unit:'allow',cost:3500},
+  panelHigh:{cat:'MEP',desc:'Electrical panel upgrade allowance — high range',kind:'allowance',qty:1,unit:'allow',cost:6500},
+  windows:{cat:'Exterior',desc:'Larger windows / openings over 3 ft — engineering review',kind:'review',qty:1,unit:'allow',cost:11500},
+  portal:{cat:'Exterior',desc:'Covered portal shade roof, slab extension, finish labor',kind:'upgrade',qty:1,unit:'allow',cost:12500},
+  sewer:{cat:'Plumbing',desc:'Sewer / macerator analysis and utility allowance',kind:'allowance',qty:1,unit:'allow',cost:4800},
+  engineering:{cat:'Design',desc:'Professional engineering stamp / structural review allowance',kind:'review',qty:1,unit:'allow',cost:2500},
+};
 
 function saveBid(){store.set('bid',bid);store.set('invoices',invoices)}
 function bidTotals(){
@@ -500,17 +604,34 @@ function bidTotals(){
   const co = sub*(+$('#t-cont').value/100);
   const pre = sub+mk+co;
   const tx = pre*(+$('#t-tax').value/100);
-  return {sub,mk,co,pre,tx,total:pre+tx};
+  const sqft = Math.max(1,+bid.sqft||1);
+  const profit = pre-sub;
+  const margin = pre ? profit/pre : 0;
+  const reviewCount = bid.items.filter(i=>['allowance','review'].includes(i.kind)).length;
+  return {sub,mk,co,pre,tx,total:pre+tx,sqft,profit,margin,reviewCount};
+}
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function kindOptions(kind){
+  return Object.entries(LINE_KINDS).map(([k,label])=>`<option value="${k}"${k===kind?' selected':''}>${label}</option>`).join('');
+}
+function setBidSaveStatus(text){
+  const el=$('#bid-save-status');
+  if(el) el.textContent=text;
 }
 function renderBid(){
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
+  $('#bid-model').value=bid.model || 'Casita Portal';
+  $('#bid-sqft').value=bid.sqft || 640;
+  $('#bid-status').value=bid.status || 'draft';
   const tb=$('#bid-items'); tb.innerHTML='';
   bid.items.forEach((it,i)=>{
+    it.kind ??= 'base';
     const tr=document.createElement('tr'); tr.className='lineitem';
-    tr.innerHTML=`<td><input value="${it.cat||''}" onchange="editLine(${i},'cat',this.value)"></td>
-      <td><input value="${it.desc||''}" onchange="editLine(${i},'desc',this.value)"></td>
+    tr.innerHTML=`<td><input value="${esc(it.cat)}" onchange="editLine(${i},'cat',this.value)"></td>
+      <td><input value="${esc(it.desc)}" onchange="editLine(${i},'desc',this.value)"></td>
+      <td><select class="line-kind kind-${it.kind}" onchange="editLine(${i},'kind',this.value)">${kindOptions(it.kind)}</select></td>
       <td><input class="r" type="number" value="${it.qty}" onchange="editLine(${i},'qty',this.value)"></td>
-      <td><input value="${it.unit||''}" onchange="editLine(${i},'unit',this.value)"></td>
+      <td><input value="${esc(it.unit)}" onchange="editLine(${i},'unit',this.value)"></td>
       <td><input class="r" type="number" value="${it.cost}" onchange="editLine(${i},'cost',this.value)"></td>
       <td class="r" style="font-weight:600">${fmt((+it.qty||0)*(+it.cost||0))}</td>
       <td><button onclick="delLine(${i})" style="border:none;background:none;color:var(--terra);font-size:16px">×</button></td>`;
@@ -520,17 +641,36 @@ function renderBid(){
   $('#t-sub').textContent=fmt(t.sub);$('#t-mk').textContent=fmt(t.mk);
   $('#t-co').textContent=fmt(t.co);$('#t-tx').textContent=fmt(t.tx);
   $('#t-total').textContent=fmt(t.total);
-  renderInvoices(); renderBidKpis(t); saveBid();
+  $('#t-psf').textContent=fmt0(t.sub/t.sqft);
+  $('#t-bid-psf').textContent=fmt0(t.total/t.sqft);
+  $('#t-profit').textContent=fmt(t.profit);
+  $('#t-margin').textContent=Math.round(t.margin*1000)/10+'%';
+  $('#t-review-count').textContent=String(t.reviewCount);
+  renderReviewCallout(t); renderInvoices(); renderBidKpis(t); saveBid();
 }
 function editLine(i,k,v){bid.items[i][k]=(k==='qty'||k==='cost')?+v:v;renderBid()}
-function addLine(){bid.items.push({cat:'General',desc:'',qty:1,unit:'ea',cost:0});renderBid()}
+function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid()}
+function addPresetLine(key){bid.items.push({...PRESET_LINES[key]});renderBid();setBidSaveStatus(`Added ${PRESET_LINES[key].desc}. Draft saved.`)}
 function delLine(i){bid.items.splice(i,1);renderBid()}
 $('#bid-title').oninput=e=>{bid.title=e.target.value;saveBid()};
 $('#bid-client').oninput=e=>{bid.client=e.target.value;saveBid()};
+$('#bid-model').oninput=e=>{bid.model=e.target.value;saveBid();setBidSaveStatus('Draft saved with model update.')};
+$('#bid-sqft').oninput=e=>{bid.sqft=+e.target.value||1;renderBid();setBidSaveStatus('Draft saved with square footage update.')};
+$('#bid-status').oninput=e=>{bid.status=e.target.value;saveBid();setBidSaveStatus(`Draft marked ${bid.status}.`)};
 ['t-markup','t-cont','t-tax'].forEach(id=>$('#'+id).oninput=renderBid);
-function resetBid(){bid=JSON.parse(JSON.stringify(SAMPLE_BID));invoices=[];renderBid()}
+function saveBidDraft(){saveBid();setBidSaveStatus(`Draft saved at ${new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}.`)}
+function resetBid(){bid=JSON.parse(JSON.stringify(SAMPLE_BID));invoices=[];renderBid();setBidSaveStatus('Sample bid loaded and saved.')}
+function renderReviewCallout(t){
+  const flags = bid.items.filter(i=>['allowance','review'].includes(i.kind));
+  const el=$('#bid-review-callout');
+  if(!el)return;
+  el.innerHTML = flags.length
+    ? `<b>${flags.length} review / allowance item${flags.length===1?'':'s'}:</b> ${flags.slice(0,3).map(f=>esc(f.desc)).join('; ')}${flags.length>3?'...':''}`
+    : 'No review flags yet. Add utilities, openings over 3 ft, engineering, or site allowances when needed.';
+}
 
 function acceptBid(){
+  if(invoices.length&&!confirm('Replace the existing draw schedule? Your edits and payment records will be lost.'))return;
   const t=bidTotals();
   const draws=[
     ['deposit','Deposit / mobilization (20%)',.20],
@@ -542,22 +682,64 @@ function acceptBid(){
   invoices=draws.map((d,i)=>({num:`INV-2026-${String(i+1).padStart(4,'0')}`,
     type:d[0],desc:d[1],amount:Math.round(t.total*d[2]*100)/100,paid:0,status:'draft'}));
   renderBid();
-  alert('Draw schedule created — 5 invoices generated below.');
+  alert('Draw schedule created — 5 invoices generated below. Amounts, descriptions, and status stay editable as the build progresses.');
 }
+const INV_STATUS={draft:['#F3F4F6','#6B7280'],sent:['#DBEAFE','#1E40AF'],paid:['#D1FAE5','#065F46'],overdue:['#FEE2E2','#B91C1C']};
 function renderInvoices(){
   const tb=$('#invoice-rows');tb.innerHTML='';
   $('#no-invoices').style.display=invoices.length?'none':'block';
+  $('#add-draw-btn').style.display=invoices.length?'inline-block':'none';
   invoices.forEach((v,i)=>{
     const bal=v.amount-v.paid;
-    const sc=v.status==='paid'?['#D1FAE5','#065F46']:v.status==='sent'?['#DBEAFE','#1E40AF']:['#F3F4F6','#6B7280'];
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:600">${v.num}</td><td>${v.desc}</td>
-      <td class="r">${fmt(v.amount)}</td><td class="r" style="color:var(--sage)">${fmt(v.paid)}</td>
+    const sc=INV_STATUS[v.status]||INV_STATUS.draft;
+    const tr=document.createElement('tr');tr.className='lineitem';
+    tr.innerHTML=`<td style="font-weight:600">${v.num}</td>
+      <td><input value="${(v.desc||'').replace(/"/g,'&quot;')}" onchange="editInv(${i},'desc',this.value)"></td>
+      <td><input class="r" type="number" step="0.01" min="0" value="${v.amount}" onchange="editInv(${i},'amount',this.value)"></td>
+      <td class="r" style="color:var(--sage)">${fmt(v.paid)}</td>
       <td class="r" style="font-weight:600;color:${bal>0?'var(--terra)':'var(--sage)'}">${fmt(bal)}</td>
-      <td><span class="pill" style="background:${sc[0]};color:${sc[1]}">${v.status}</span></td>
-      <td>${bal>0?`<button class="btn sm" onclick="payInv(${i})">Record payment</button>`:''}</td>`;
+      <td><select style="background:${sc[0]};color:${sc[1]}" onchange="editInv(${i},'status',this.value)">
+        ${Object.keys(INV_STATUS).map(s=>`<option value="${s}"${s===v.status?' selected':''}>${s}</option>`).join('')}</select></td>
+      <td style="white-space:nowrap">${bal>0?`<button class="btn sm" onclick="payInv(${i})">Record payment</button>`:''}
+        <button onclick="delInv(${i})" title="${v.paid>0?'Has payments — adjust amount instead':'Delete draw'}" style="border:none;background:none;color:var(--terra);font-size:16px;cursor:pointer">×</button></td>`;
     tb.appendChild(tr);
   });
+  renderDrawRecon();
+}
+function renderDrawRecon(){
+  const el=$('#draw-recon');
+  if(!invoices.length){el.style.display='none';return}
+  const t=bidTotals();
+  const drawTotal=invoices.reduce((s,v)=>s+(+v.amount||0),0);
+  const diff=Math.round((drawTotal-t.total)*100)/100;
+  el.style.display='block';
+  el.innerHTML=Math.abs(diff)<0.005
+    ?`Draws ${fmt(drawTotal)} match the bid total <b style="color:var(--sage)">✓</b>`
+    :`Draws ${fmt(drawTotal)} vs bid total ${fmt(t.total)} — <b style="color:var(--terra)">${fmt(Math.abs(diff))} ${diff>0?'over':'under'}</b>`;
+}
+function editInv(i,k,v){
+  const inv=invoices[i];
+  if(k==='amount'){
+    let amt=Math.round((+v||0)*100)/100;
+    if(amt<inv.paid){
+      alert(`Amount can't go below what's already collected on ${inv.num} (${fmt(inv.paid)}).`);
+      amt=inv.paid;
+    }
+    inv.amount=amt;
+    if(inv.paid>=inv.amount-0.005&&inv.amount>0)inv.status='paid';
+    else if(inv.status==='paid')inv.status='sent';
+  }else inv[k]=v;
+  renderBid();
+}
+function addInv(){
+  const seq=invoices.reduce((m,v)=>Math.max(m,+((v.num.match(/(\d+)$/)||[])[1]||0)),0)+1;
+  invoices.push({num:`INV-2026-${String(seq).padStart(4,'0')}`,
+    type:'progress',desc:'Additional draw / change order',amount:0,paid:0,status:'draft'});
+  renderBid();
+}
+function delInv(i){
+  if(invoices[i].paid>0){alert(`${invoices[i].num} has recorded payments — adjust the amount instead of deleting.`);return}
+  invoices.splice(i,1);renderBid();
 }
 function payInv(i){
   const bal=invoices[i].amount-invoices[i].paid;
@@ -572,9 +754,14 @@ function renderBidKpis(t){
   const paid=invoices.reduce((s,v)=>s+v.paid,0);
   $('#bid-kpis').innerHTML=`
     <div class="kpi"><div class="n">${fmt0(t.total)}</div><div class="l">Bid total</div></div>
-    <div class="kpi"><div class="n">${bid.items.length}</div><div class="l">Line items</div></div>
-    <div class="kpi"><div class="n" style="color:var(--sage)">${fmt0(paid)}</div><div class="l">Collected</div></div>
-    <div class="kpi"><div class="n" style="color:var(--terra)">${fmt0(billed-paid)}</div><div class="l">Outstanding</div></div>`;
+    <div class="kpi"><div class="n">${fmt0(t.sub/t.sqft)}</div><div class="l">COGS / sq ft</div></div>
+    <div class="kpi"><div class="n" style="color:var(--sage)">${Math.round(t.margin*1000)/10}%</div><div class="l">Margin before tax</div></div>
+    <div class="kpi"><div class="n" style="color:${t.reviewCount?'var(--terra)':'var(--sage)'}">${t.reviewCount}</div><div class="l">Review flags</div></div>`;
+  if(invoices.length){
+    $('#bid-kpis').innerHTML+=`
+      <div class="kpi"><div class="n" style="color:var(--sage)">${fmt0(paid)}</div><div class="l">Collected</div></div>
+      <div class="kpi"><div class="n" style="color:var(--terra)">${fmt0(billed-paid)}</div><div class="l">Outstanding</div></div>`;
+  }
 }
 
 /* ═══════════════ PHASE 2 — CPM + GANTT ═══════════════ */
