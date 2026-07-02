@@ -1524,13 +1524,12 @@ function acceptBid(){
   syncBidFromInputs();
   if(invoices.length&&!confirm('Replace the existing draw schedule? Your edits and payment records will be lost.'))return;
   const t=bidTotals();
-  const remaining=Math.max(0,t.total-PRECON_DEPOSIT);
+  const cityPermitDraw=Math.round(t.total*.5*100)/100;
+  const progressDraw=Math.max(0,Math.round((t.total-PRECON_DEPOSIT-cityPermitDraw)*100)/100);
   const draws=[
-    ['deposit','Pre-construction contract deposit',PRECON_DEPOSIT,0],
-    ['progress','Foundation & framing complete',remaining*.375,21],
-    ['progress','Dry-in, MEP rough-in complete',remaining*.3125,45],
-    ['progress','Finishes & fixtures complete',remaining*.1875,70],
-    ['final','Final / certificate of occupancy',remaining*.125,88],
+    ['deposit','Pre-construction contract + city permitting deposit',PRECON_DEPOSIT,0],
+    ['permit','City permitting complete / construction start draw — 50% of total bid',cityPermitDraw,19],
+    ['progress','Progress draw — remaining construction balance',progressDraw,45],
   ];
   invoices=draws.map((d,i)=>({num:`INV-2026-${String(i+1).padStart(4,'0')}`,
     type:d[0],desc:d[1],amount:Math.round(d[2]*100)/100,paid:0,status:'draft',sendDate:isoDateFromOffset(d[3])}));
@@ -1538,7 +1537,7 @@ function acceptBid(){
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
   focusInvoicePacket(false);
-  alert(`Invoice packet created for this job. Invoice 1 is fixed at ${fmt(PRECON_DEPOSIT)} (${invoicePct(PRECON_DEPOSIT,t.total)}% of the current bid).`);
+  alert(`Invoice packet created for this job. Invoice 1 is fixed at ${fmt(PRECON_DEPOSIT)}, invoice 2 is 50% of the bid, and invoice 3 is the remaining draw.`);
 }
 const INV_STATUS={draft:['#F3F4F6','#6B7280'],sent:['#DBEAFE','#1E40AF'],paid:['#D1FAE5','#065F46'],overdue:['#FEE2E2','#B91C1C']};
 function renderInvoices(){
@@ -1550,7 +1549,7 @@ function renderInvoices(){
   renderInvoiceJobCard();
   const t=bidTotals();
   invoices.forEach((v,i)=>{
-    v.sendDate ??= isoDateFromOffset([0,21,45,70,88][i] ?? 90);
+    v.sendDate ??= isoDateFromOffset([0,19,45][i] ?? 90);
     v.paidAt ??= '';
     const bal=v.amount-v.paid;
     const sc=INV_STATUS[v.status]||INV_STATUS.draft;
@@ -1603,7 +1602,7 @@ function renderInvoiceJobCard(){
   if(title) title.textContent=bid.title || `${bid.model} ADU`;
   const meta=$('#invoice-job-meta');
   if(meta) meta.textContent=invoices.length
-    ? `${bid.client || 'Client'} · ${bid.model || 'Model'} · invoice 1 is ${fmt(first)} (${invoicePct(first,t.total)}% of bid)`
+    ? `${bid.client || 'Client'} · invoice 1 ${fmt(first)} · invoice 2 is 50% · invoice 3 is the remaining draw`
     : `${bid.client || 'Client'} · click Build invoices for current job to create editable invoices.`;
   const dep=$('#invoice-job-deposit');
   if(dep) dep.textContent=fmt0(first);
@@ -1821,6 +1820,8 @@ function emailInvoicePacket(){
 Project: ${bid.title || ''}
 Bid total: ${fmt(t.total)}
 Invoice 1 fixed deposit: ${fmt(PRECON_DEPOSIT)} (${invoicePct(PRECON_DEPOSIT,t.total)}%)
+Invoice 2 city permitting / construction start: 50% of bid
+Invoice 3 progress draw: remaining balance
 
 Invoices:
 ${lines}
