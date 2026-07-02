@@ -856,7 +856,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <option value="hyder-hut-2br">Netherwood House 2BR — 550 sf</option>
       <option value="altura">Altura 24×24 — 576 sf</option>
       <option value="casita" selected>Casita Portal — 640 sf</option>
-      <option value="tierra">Tierra Grande — 780 sf</option>
+      <option value="tierra">Tierra Grande — 780 sf custom review</option>
     </select>
     <span style="margin-left:auto" class="dchip" id="d-total">0 sf</span>
   </div>
@@ -2054,7 +2054,7 @@ function updateBom(){
   $('#d-bom').innerHTML=rooms.length?html:'<div class="muted" style="font-size:11px">Add rooms to see the estimate.</div>';
   // zoning
   const z=[];const bedrooms=rooms.filter(r=>r.node._meta.type==='bedroom');
-  if(totalSf>1000)z.push(['err','Exceeds ABQ ADU max of 1,000 sf']);
+  if(totalSf>750)z.push(['warn','Above typical 750 sf homeowner ADU planning max']);
   rooms.forEach(r=>{const m=r.node._meta,sf=m.wft*m.hft;
     if(m.type==='bedroom'&&sf<70)z.push(['err',`Bedroom ${sf}sf < 70sf min`]);
     if(['living','kitchen','dining'].includes(m.type)&&sf<120)z.push(['err',`${m.type} ${sf}sf < 120sf min`]);
@@ -2073,12 +2073,12 @@ const MODEL_CATALOG=[
   {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 3 verified',bed:2,bath:1,type:'builder-ready'},
   {id:'altura-24x24',name:'Altura 24x24',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 3 verified',bed:1,bath:1,type:'builder-ready'},
   {id:'casita-portal',name:'Casita Portal',sqft:640,variation:'L-shaped · 2BR/1BA · covered portal',img:'images/adu-exterior.png',source:'Version 3 verified',bed:2,bath:1,type:'builder-ready'},
-  {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · flex room · income-property layout',img:'images/adu-interior.png',source:'Version 3 verified',bed:2,bath:2,type:'builder-ready'},
-  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · two-story · porch/deck',img:'images/source-cromwell-render.webp',source:'Version 3 verified',bed:2,bath:1.5,type:'expanded'},
+  {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · custom review above typical 750 sf homeowner max',img:'images/adu-interior.png',source:'Version 3 verified',bed:2,bath:2,type:'custom-review'},
+  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · expanded custom project above typical ADU size',img:'images/source-cromwell-render.webp',source:'Version 3 verified',bed:2,bath:1.5,type:'expanded'},
   {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
   {id:'burton',name:'Burton',sqft:null,variation:'ABQADU source model · square footage confirm',img:'images/source-burton-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
   {id:'townhouse',name:'Townhouse',sqft:null,variation:'ABQADU source model · tighter urban footprint',img:'images/source-townhouse-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
-  {id:'the-750',name:'The 750',sqft:750,variation:'City model size · flat, pitched, or 3D concrete print',img:'images/source-750-render.webp',source:'ABQADU/CABQ plan',bed:'confirm',bath:'confirm',type:'city-plan'},
+  {id:'the-750',name:'The 750',sqft:750,variation:'Typical homeowner max ADU · flat, pitched, or 3D concrete print',img:'images/source-750-render.webp',source:'ABQADU/CABQ plan',bed:'confirm',bath:'confirm',type:'city-plan'},
   {id:'flex-barn',name:'Flex Barn',sqft:null,variation:'ABQADU source model · flexible barn form',img:'images/source-flex-barn-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
 ];
 
@@ -2086,7 +2086,7 @@ const CITY_PLAN_VARIATIONS=[
   {sqft:450,label:'Compact Studio',variants:['Flat roof','Pitched roof','3D concrete print']},
   {sqft:550,label:'1-Bedroom',variants:['Flat roof','Pitched roof','3D concrete print']},
   {sqft:650,label:'1-Bedroom',variants:['Flat roof','Pitched roof','3D concrete print']},
-  {sqft:750,label:'Largest City Plan',variants:['Flat roof','Pitched roof','3D concrete print']},
+  {sqft:750,label:'Typical Homeowner Max',variants:['Flat roof','Pitched roof','3D concrete print']},
 ];
 
 let bpModel=MODEL_CATALOG[0], blueprintDone=false;
@@ -2170,7 +2170,7 @@ ISSUES:
 
 RECOMMENDATIONS:
 - Confirm each bedroom has an egress window with ≥5.7 sf clear opening, ≥20" width, ≥24" height, sill ≤44" AFF (IRC R310).
-- Total 640 sf is well under the ABQ 1,000 sf ADU cap (IDO §14-16-6-7).
+- Total 640 sf is below the typical 750 sf homeowner ADU planning max.
 
 NOTES: Verify rear/side setbacks of 5'/3' on the survey before submittal.`},
   {t:'Permit Narrative',ph:'Phase 3',svc:'claudeDesign.js',out:`PROJECT NARRATIVE — Accessory Dwelling Unit
