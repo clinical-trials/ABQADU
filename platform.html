@@ -70,7 +70,30 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .kpi .l{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink60);margin-top:4px}
 
 /* Bid layout */
-.bid-wrap{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.bid-app-shell{background:linear-gradient(135deg,var(--blue),#172b51);border:1px solid rgba(196,149,74,.32);border-radius:10px;color:var(--stucco);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;margin:0 0 16px;padding:18px;position:relative;overflow:hidden}
+.bid-app-shell:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(240,235,225,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(240,235,225,.055) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.bid-app-main,.bid-app-side{position:relative;z-index:1}
+.bid-app-kicker{color:var(--copper-l);font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.bid-app-title{font-family:var(--fd);font-size:34px;font-weight:900;line-height:.96;margin-top:5px;text-transform:uppercase}
+.bid-app-meta{color:rgba(240,235,225,.7);font-size:13px;margin-top:8px}
+.bid-app-chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.bid-app-chip{background:rgba(255,255,255,.08);border:1px solid rgba(240,235,225,.14);border-radius:999px;color:rgba(240,235,225,.78);font-size:11px;font-weight:800;letter-spacing:.05em;padding:6px 10px;text-transform:uppercase}
+.bid-app-chip.ready{background:rgba(209,250,229,.12);border-color:rgba(61,82,71,.55);color:#D1FAE5}
+.bid-app-chip.warn{background:rgba(254,243,199,.12);border-color:rgba(232,201,138,.48);color:#FDE7B1}
+.bid-app-chip.money{background:rgba(196,149,74,.16);border-color:rgba(196,149,74,.55);color:var(--copper-l)}
+.bid-app-side{align-self:stretch;display:grid;grid-template-columns:1fr;gap:10px;min-width:310px}
+.bid-app-total{background:rgba(255,255,255,.08);border:1px solid rgba(240,235,225,.14);border-radius:8px;padding:12px 14px}
+.bid-app-total span{color:rgba(240,235,225,.58);display:block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.bid-app-total b{color:var(--copper-l);display:block;font-family:var(--fd);font-size:30px;line-height:1;margin-top:4px}
+.bid-app-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bid-app-action{align-items:center;border:none;border-radius:7px;display:flex;font-size:12px;font-weight:900;justify-content:center;min-height:44px;padding:9px 11px;text-align:center}
+.bid-app-action.primary{background:var(--copper);color:#fff}
+.bid-app-action.secondary{background:rgba(255,255,255,.1);border:1px solid rgba(240,235,225,.18);color:var(--stucco)}
+.bid-app-action.light{background:#fff;color:var(--blue)}
+.bid-app-action:hover{transform:translateY(-1px)}
+.bid-wrap{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;min-width:0}
+.bid-wrap>div,.bid-setup>div,.project-folder-card{min-width:0}
+#tab-bids .card{max-width:100%;min-width:0;overflow-x:auto}
 .totals-card{background:var(--blue);color:var(--stucco);border-radius:8px;padding:18px;position:sticky;top:78px}
 .totals-card .ln{display:flex;justify-content:space-between;font-size:13px;color:rgba(240,235,225,.72);margin-bottom:7px}
 .totals-card .grand{border-top:2px solid rgba(196,149,74,.4);padding-top:11px;margin-top:9px;display:flex;justify-content:space-between;align-items:baseline}
@@ -82,7 +105,14 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .lineitem select:focus{border-color:var(--stucco-d);outline:none}
 .lineitem:hover{background:var(--paper)}
 .bid-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
-.bid-flow-step{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:11px 12px}
+.bid-flow-step{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:11px 12px;position:relative;transition:border-color .16s,box-shadow .16s,transform .16s}
+.bid-flow-step:after{content:"";position:absolute;right:10px;top:10px;width:9px;height:9px;border-radius:99px;background:var(--ink30)}
+.bid-flow-step.done{border-color:rgba(61,82,71,.35);box-shadow:inset 3px 0 0 var(--sage)}
+.bid-flow-step.done:after{background:var(--sage)}
+.bid-flow-step.active{border-color:var(--copper);box-shadow:0 10px 24px rgba(196,149,74,.14),inset 3px 0 0 var(--copper);transform:translateY(-1px)}
+.bid-flow-step.active:after{background:var(--copper)}
+.bid-flow-step.warn{border-color:var(--terra);box-shadow:inset 3px 0 0 var(--terra)}
+.bid-flow-step.warn:after{background:var(--terra)}
 .bid-flow-step b{display:block;font-family:var(--fd);font-size:18px;line-height:1;color:var(--ink);text-transform:uppercase}
 .bid-flow-step span{display:block;color:var(--ink60);font-size:11px;line-height:1.35;margin-top:4px}
 .bid-setup{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:16px}
@@ -232,6 +262,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 @media (max-width:900px){
   .kanban{grid-template-columns:repeat(2,1fr)}
   .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid{grid-template-columns:1fr}
+  .bid-app-shell{grid-template-columns:1fr}
+  .bid-app-side{min-width:0}
   .bid-flow{grid-template-columns:repeat(2,1fr)}
   .bid-setup{grid-template-columns:1fr}
   .bid-setup-grid{grid-template-columns:1fr}
@@ -256,6 +288,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .panel-head h2{font-size:24px;line-height:1}
   .panel-sub{font-size:12px}
   .mobile-launch-pad{display:grid}
+  .bid-app-shell{border-radius:8px;padding:14px}
+  .bid-app-title{font-size:28px}
+  .bid-app-meta{font-size:12px}
+  .bid-app-actions{grid-template-columns:1fr}
+  .bid-app-action{min-height:48px}
   .row{flex-direction:column;gap:10px}
   .row > div[style*="width"]{width:100%!important}
   .kpi-grid{grid-template-columns:1fr}
@@ -322,12 +359,34 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="muted">Version 3 · revenue-facing</span></div>
   <p class="panel-sub">Build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then edit draws and track payments as the build progresses.</p>
 
+  <div class="bid-app-shell no-print">
+    <div class="bid-app-main">
+      <div class="bid-app-kicker">Bid command center</div>
+      <div class="bid-app-title" id="app-project-title">Current ADU Bid</div>
+      <div class="bid-app-meta" id="app-project-meta">Pick a homeowner folder, update scope, and keep the bid moving.</div>
+      <div class="bid-app-chip-row">
+        <span class="bid-app-chip" id="app-status-pill">Draft autosaved</span>
+        <span class="bid-app-chip money" id="app-invoice-pill">Invoices not built</span>
+        <span class="bid-app-chip" id="app-readiness-pill">Needs setup</span>
+      </div>
+    </div>
+    <div class="bid-app-side">
+      <div class="bid-app-total"><span>Current bid total</span><b id="app-bid-total">$0</b></div>
+      <div class="bid-app-actions" aria-label="Bid tool primary actions">
+        <button class="bid-app-action light" onclick="newProjectFolder()">New Project</button>
+        <button class="bid-app-action secondary" onclick="saveBidDraft()">Save Draft</button>
+        <button class="bid-app-action primary" onclick="acceptBid()">Build Invoices</button>
+        <button class="bid-app-action secondary" onclick="printBidsAndInvoicing()">Print</button>
+      </div>
+    </div>
+  </div>
+
   <div class="bid-flow">
-    <div class="bid-flow-step"><b>1. Setup</b><span>Model, square footage, client, draft name.</span></div>
-    <div class="bid-flow-step"><b>2. COGS</b><span>Builder cost lines and allowances.</span></div>
-    <div class="bid-flow-step"><b>3. Price</b><span>Markup, contingency, tax, $/sf.</span></div>
-    <div class="bid-flow-step"><b>4. Review</b><span>Engineering, utilities, exclusions.</span></div>
-    <div class="bid-flow-step"><b>5. Draws</b><span>Deposit, invoices, payment tracking.</span></div>
+    <div class="bid-flow-step" data-flow-step="setup"><b>1. Setup</b><span>Model, square footage, client, draft name.</span></div>
+    <div class="bid-flow-step" data-flow-step="cogs"><b>2. COGS</b><span>Builder cost lines and allowances.</span></div>
+    <div class="bid-flow-step" data-flow-step="price"><b>3. Price</b><span>Markup, contingency, tax, $/sf.</span></div>
+    <div class="bid-flow-step" data-flow-step="review"><b>4. Review</b><span>Engineering, utilities, exclusions.</span></div>
+    <div class="bid-flow-step" data-flow-step="draws"><b>5. Draws</b><span>Deposit, invoices, payment tracking.</span></div>
   </div>
 
   <div class="kpi-grid" id="bid-kpis"></div>
@@ -336,7 +395,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div>
       <div class="project-folder-grid no-print">
         <div class="project-folder-card">
-          <h3>Homeowner Project Folders</h3>
+          <h3>Projects</h3>
           <div class="muted" style="font-size:12px;margin-bottom:10px">Save and switch between individual homeowner bids without overwriting another project.</div>
           <div class="project-list" id="project-list"></div>
           <div class="project-actions">
@@ -345,7 +404,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           </div>
         </div>
         <div class="project-folder-card">
-          <h3>Active Folder</h3>
+          <h3>Current Workspace</h3>
           <div class="muted" id="active-project-note" style="font-size:12px">Current project draft ready.</div>
           <div class="bid-save-note" id="project-save-status" style="color:var(--ink60)">Draft saves to this homeowner folder.</div>
         </div>
@@ -905,6 +964,49 @@ function invoicePacketTotals(){
   const paid=invoices.reduce((s,v)=>s+(+v.paid||0),0);
   return {total,paid,balance:total-paid};
 }
+function setText(id,value){
+  const el=$('#'+id);
+  if(el)el.textContent=value;
+}
+function setChip(id,label,kind=''){
+  const el=$('#'+id);
+  if(!el)return;
+  el.textContent=label;
+  el.className=`bid-app-chip ${kind}`.trim();
+}
+function updateFlowStep(name,state){
+  const el=document.querySelector(`[data-flow-step="${name}"]`);
+  if(!el)return;
+  el.classList.remove('active','done','warn');
+  if(state)el.classList.add(state);
+}
+function renderBidAppShell(t){
+  const title=bid.title || `${bid.model || 'ADU'} bid`;
+  const client=bid.client || 'Client not entered';
+  const model=bid.model || 'Model needed';
+  const sqft=+bid.sqft || 0;
+  const packet=invoicePacketTotals();
+  const hasSetup=Boolean(bid.title && bid.client && bid.model && sqft);
+  const hasCogs=bid.items.length>0 && t.sub>0;
+  const hasPrice=t.total>0;
+  const hasReviewFlags=t.reviewCount>0;
+  const hasInvoices=invoices.length>0;
+  const paid=invoices.reduce((s,v)=>s+(+v.paid||0),0);
+  const nextAction=!hasSetup ? 'Finish setup' : !hasCogs ? 'Add COGS' : hasReviewFlags ? 'Resolve review flags' : !hasInvoices ? 'Build invoices' : paid>0 ? 'Track remaining draws' : 'Send invoice 1';
+
+  setText('app-project-title', title);
+  setText('app-project-meta', `${client} · ${model} · ${sqft || '0'} sf · next: ${nextAction}`);
+  setText('app-bid-total', fmt0(t.total));
+  setChip('app-status-pill', `${bid.status || 'draft'} · autosaved`, hasSetup ? 'ready' : 'warn');
+  setChip('app-invoice-pill', hasInvoices ? `${invoices.length} invoices · ${fmt0(packet.balance)} open` : 'Invoices not built', hasInvoices ? 'money' : 'warn');
+  setChip('app-readiness-pill', hasReviewFlags ? `${t.reviewCount} review flags` : hasPrice ? 'Ready to price/send' : 'Needs setup', hasReviewFlags ? 'warn' : (hasPrice ? 'ready' : 'warn'));
+
+  updateFlowStep('setup', hasSetup ? 'done' : 'active');
+  updateFlowStep('cogs', hasCogs ? 'done' : (hasSetup ? 'active' : ''));
+  updateFlowStep('price', hasPrice ? 'done' : (hasCogs ? 'active' : ''));
+  updateFlowStep('review', hasReviewFlags ? 'warn' : (hasPrice ? 'done' : ''));
+  updateFlowStep('draws', hasInvoices ? 'done' : (hasPrice && !hasReviewFlags ? 'active' : ''));
+}
 function renderBid(){
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
   $('#bid-model').value=bid.model || 'Casita Portal';
@@ -933,7 +1035,7 @@ function renderBid(){
   $('#t-profit').textContent=fmt(t.profit);
   $('#t-margin').textContent=Math.round(t.margin*1000)/10+'%';
   $('#t-review-count').textContent=String(t.reviewCount);
-  renderReviewCallout(t); renderInvoices(); renderBidKpis(t); saveBid();
+  renderReviewCallout(t); renderInvoices(); renderBidKpis(t); renderBidAppShell(t); saveBid();
 }
 function editLine(i,k,v){bid.items[i][k]=(k==='qty'||k==='cost')?+v:v;renderBid()}
 function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid()}
