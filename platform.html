@@ -288,6 +288,14 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .takeoff-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
 .takeoff-summary .kpi{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:var(--stucco)}
 .takeoff-summary .l{color:rgba(240,235,225,.55)}
+.bp-workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:0 0 16px}
+.bp-workflow-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:11px 12px;min-height:96px}
+.bp-workflow-card b{align-items:center;color:var(--copper);display:flex;font-family:var(--fd);font-size:16px;gap:8px;margin-bottom:5px;text-transform:uppercase}
+.bp-workflow-card i{align-items:center;background:rgba(196,149,74,.13);border-radius:999px;color:var(--copper);display:inline-flex;font-family:var(--fb);font-size:11px;font-style:normal;height:24px;justify-content:center;width:24px}
+.bp-workflow-card span{color:var(--ink60);display:block;font-size:11px;line-height:1.35}
+.bp-review-flags{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 16px}
+.bp-flag{background:#FEF6E7;border:1px solid rgba(196,149,74,.32);border-radius:8px;color:#6f4b16;font-size:12px;line-height:1.35;padding:10px 12px}
+.bp-flag b{display:block;color:var(--terra);font-size:11px;letter-spacing:.08em;margin-bottom:3px;text-transform:uppercase}
 .lowes-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:16px;position:sticky;top:78px}
 .lowes-step{display:flex;gap:9px;border-bottom:1px solid var(--stucco);padding:9px 0;font-size:12px}
 .lowes-step b{color:var(--copper)}
@@ -347,12 +355,14 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .invoice-job-card img{height:190px}
   .totals-card{position:static}
   .model-catalog{grid-template-columns:repeat(2,1fr)}
+  .bp-workflow{grid-template-columns:repeat(2,1fr)}
+  .bp-review-flags{grid-template-columns:1fr}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .design-wrap{grid-template-columns:1fr}
   .tabs{overflow-x:auto}
 }
 @media (max-width:620px){
-  .model-catalog,.bid-flow,.bid-assist-grid{grid-template-columns:1fr}
+  .model-catalog,.bp-workflow,.bid-flow,.bid-assist-grid{grid-template-columns:1fr}
   header.topbar{align-items:flex-start;flex-wrap:wrap;gap:10px;height:auto;padding:10px 14px}
   .logo{font-size:19px;width:100%}
   .tabs{height:auto;min-width:100%;overflow-x:auto;padding-bottom:4px}
@@ -409,6 +419,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   #tab-bids td input,#tab-bids td select{background:#fff;border-color:var(--stucco-d);min-height:40px}
   .invoice-job-stats{grid-template-columns:1fr}
   .card{padding:14px;overflow-x:auto}
+  #tab-blueprint table{min-width:680px}
   .invoice-folder-toggle{align-items:flex-start}
   .invoice-folder-toggle b{font-size:18px}
 }
@@ -927,6 +938,17 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   <div class="source-note">
     Source model list carried into Version 3 from the original site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
   </div>
+
+  <h3 style="font-size:18px;margin-bottom:8px">Blueprint-to-materials workflow</h3>
+  <div class="bp-workflow">
+    <div class="bp-workflow-card"><b><i>1</i>Choose model</b><span>Select the ADU plan or city-plan variant and lock the bid assumptions before site quantities move.</span></div>
+    <div class="bp-workflow-card"><b><i>2</i>Generate takeoff</b><span>Convert square footage, openings, roof area, bath count, and cabinet runs into blueprint-aware material lines.</span></div>
+    <div class="bp-workflow-card"><b><i>3</i>Pull supplier / Lowe's package</b><span>Send lumber, roof, exterior, windows, doors, MEP, and finish quantities to the bid desk.</span></div>
+    <div class="bp-workflow-card"><b><i>4</i>Pull finish subcontractor quotes</b><span>Countertops, flooring, tile, and cabinets are required quote pulls on every job.</span></div>
+    <div class="bp-workflow-card"><b><i>5</i>Import / compare final COGS</b><span>Bring supplier and subcontractor quotes back into the bid file to compare final COGS and $/sf.</span></div>
+  </div>
+
+  <div class="bp-review-flags" id="bp-review-flags"></div>
 
   <div class="model-catalog" id="bp-models"></div>
 
@@ -2124,6 +2146,30 @@ const CITY_PLAN_VARIATIONS=[
   {sqft:750,label:'Typical Homeowner Max',variants:['Flat roof','Pitched roof','3D concrete print']},
 ];
 
+const BLUEPRINT_MATERIAL_GROUPS = [
+  {cat:'Slab',item:'Slab package',unit:'sf',calc:c=>c.sf,rate:18,review:'site/soil review'},
+  {cat:'Framing',item:'Framing package',unit:'lf',calc:c=>Math.round(c.exteriorWallLf*3),rate:4.5,review:'field verify openings'},
+  {cat:'Roof',item:'Roof package',unit:'sf',calc:c=>c.roofSf,rate:6.5,review:'wind/rain delay sensitive'},
+  {cat:'Exterior',item:'Exterior finish package',unit:'sf',calc:c=>Math.round(c.wallSf*.72),rate:7,review:'stucco/siding color alternate'},
+  {cat:'Exterior',item:'Windows / doors package',unit:'ea',calc:c=>c.windowCount+c.doorCount,rate:520,review:'openings over 3 ft need engineering review'},
+  {cat:'Interior',item:'Insulation package',unit:'sf',calc:c=>c.wallSf,rate:1.8,review:'R-value confirm'},
+  {cat:'Interior',item:'Drywall package',unit:'sf',calc:c=>c.wallSf+c.sf,rate:2.2,review:'standard finish'},
+  {cat:'MEP',item:'Electrical package',unit:'sf',calc:c=>c.sf,rate:12,review:'extra electric meter/panel $3,500-$6,500'},
+  {cat:'MEP',item:'Plumbing package',unit:'ea',calc:c=>c.bathCount*3+1,rate:850,review:'sewer confirmation study'},
+  {cat:'MEP',item:'HVAC package',unit:'sf',calc:c=>c.sf,rate:9,review:'mini-split + smart thermostat'},
+  {cat:'Finish',item:'Flooring quote pull',unit:'sf',calc:c=>c.floorSf,rate:8.5,review:'required finish subcontractor quote'},
+  {cat:'Finish',item:'Tile quote pull',unit:'sf',calc:c=>c.tileSf,rate:18,review:'required finish subcontractor quote'},
+  {cat:'Finish',item:'Cabinets quote pull',unit:'lf',calc:c=>c.cabinetLf,rate:280,review:'required finish subcontractor quote'},
+  {cat:'Finish',item:'Countertops quote pull',unit:'lf',calc:c=>c.cabinetLf,rate:95,review:'required finish subcontractor quote'},
+];
+
+const BLUEPRINT_REVIEW_FLAGS = [
+  'Extra electric meter / panel: carry $3,500-$6,500 review allowance.',
+  'Sewer confirmation study: verify route, tie-in, slope, and pump/equipment risk before final bid.',
+  'Openings over 3 ft: engineering review before ordering windows, doors, or headers.',
+  'Typical homeowner ADU max: 750 sf; larger models route to custom review.',
+];
+
 let bpModel=MODEL_CATALOG[0], blueprintDone=false;
 function money0(n){return '$'+Math.round(n||0).toLocaleString()}
 function selectBpModel(id){
@@ -2143,23 +2189,13 @@ function takeoffFor(model){
   const floorSf=Math.round(sf-bathCount*55);
   const tileSf=Math.round(bathCount*85+22);
   const review=model.sqft?'ready':'confirm sqft before bid';
+  const context={sf,bathCount,bedCount,exteriorWallLf,roofSf,wallSf,windowCount,doorCount,cabinetLf,floorSf,tileSf};
   return [
     {cat:'Blueprint',item:'Plan review, scale check, bid assumptions sheet',qty:1,unit:'set',budget:450,review},
-    {cat:'Structure',item:'Concrete slab package',qty:sf,unit:'sf',budget:sf*18,review:'site/soil review'},
-    {cat:'Structure',item:'Framing lumber package',qty:Math.round(exteriorWallLf*3),unit:'lf',budget:exteriorWallLf*3*4.5,review:'field verify openings'},
-    {cat:'Structure',item:'Roofing metal/pitched alternate',qty:roofSf,unit:'sf',budget:roofSf*6.5,review:'wind/rain delay sensitive'},
-    {cat:'Exterior',item:'Stucco/siding allowance',qty:Math.round(wallSf*.72),unit:'sf',budget:wallSf*.72*7,review:'finish color alternate'},
-    {cat:'Exterior',item:'Windows package',qty:windowCount,unit:'ea',budget:windowCount*625,review:'>3 ft opening = engineer flag'},
-    {cat:'Exterior',item:'Exterior/interior doors package',qty:doorCount,unit:'ea',budget:doorCount*410,review:'sliding-door delete option'},
-    {cat:'Interior',item:'Insulation package',qty:wallSf,unit:'sf',budget:wallSf*1.8,review:'R-value confirm'},
-    {cat:'Interior',item:'Drywall package',qty:wallSf+sf,unit:'sf',budget:(wallSf+sf)*2.2,review:'standard finish'},
-    {cat:'Finish',item:'Flooring subcontractor quote pull',qty:floorSf,unit:'sf',budget:floorSf*8.5,review:'required finish sub bid'},
-    {cat:'Finish',item:'Tile subcontractor quote pull',qty:tileSf,unit:'sf',budget:tileSf*18,review:'required finish sub bid'},
-    {cat:'MEP',item:'Electrical rough-in and trim',qty:sf,unit:'sf',budget:sf*12,review:'panel upgrade $3,500-$6,500'},
-    {cat:'MEP',item:'Plumbing fixtures',qty:bathCount*3+1,unit:'ea',budget:(bathCount*3+1)*850,review:'sewer confirmation study'},
-    {cat:'MEP',item:'Mini-split HVAC package',qty:sf,unit:'sf',budget:sf*9,review:'smart thermostat add-on'},
-    {cat:'Finish',item:'Cabinets subcontractor quote pull',qty:cabinetLf,unit:'lf',budget:cabinetLf*280,review:'required finish sub bid'},
-    {cat:'Finish',item:'Countertops subcontractor quote pull',qty:cabinetLf,unit:'lf',budget:cabinetLf*95,review:'required finish sub bid'},
+    ...BLUEPRINT_MATERIAL_GROUPS.map(g=>{
+      const qty=g.calc(context);
+      return {cat:g.cat,item:g.item,qty,unit:g.unit,budget:qty*g.rate,review:g.review};
+    }),
   ];
 }
 function renderBlueprint(force=false){
@@ -2182,15 +2218,16 @@ function renderBlueprint(force=false){
   $('#bp-lines').innerHTML=lines.map(l=>`<tr>
     <td style="font-weight:600">${l.cat}</td><td>${l.item}</td><td class="r">${Number(l.qty).toLocaleString()}</td>
     <td class="muted">${l.unit}</td><td class="r" style="font-weight:600">${money0(l.budget)}</td><td class="muted" style="font-size:11px">${l.review}</td>
-  </tr>`).join('')+`<tr><td style="font-weight:700;color:var(--terra)">Allowance</td><td>Electrical panel upgrade range</td><td class="r">1</td><td class="muted">allow</td><td class="r" style="font-weight:700">$3,500-$6,500</td><td class="muted" style="font-size:11px">choose exact bid allowance</td></tr>`;
+  </tr>`).join('')+`<tr><td style="font-weight:700;color:var(--terra)">Allowance</td><td>Extra electric meter / panel range</td><td class="r">1</td><td class="muted">allow</td><td class="r" style="font-weight:700">$3,500-$6,500</td><td class="muted" style="font-size:11px">choose exact bid allowance</td></tr>`;
+  $('#bp-review-flags').innerHTML=BLUEPRINT_REVIEW_FLAGS.map(txt=>`<div class="bp-flag"><b>Review flag</b>${txt}</div>`).join('');
   const city=`City free-plan alternates: ${CITY_PLAN_VARIATIONS.map(g=>`${g.sqft} sf (${g.variants.join('/')})`).join('; ')}.`;
   $('#lowes-checklist').innerHTML=[
-    'Confirm model, square footage, left/right hand orientation, and owner changes.',
-    'Flag large windows/openings over 3 ft in either dimension for engineering review.',
-    'Export material table with quantities, alternates, exclusions, and site allowances.',
+    'Choose model: confirm square footage, left/right orientation, owner changes, and custom review status.',
+    'Generate takeoff: review slab, framing, roof, exterior finish, windows/doors, insulation, drywall, MEP, and finishes.',
+    'Pull supplier / Lowe’s package: send quantities, alternates, exclusions, and site allowances to the bid desk.',
     'Pull finish subcontractor quotes for countertops, flooring, tile, and cabinets on every job.',
-    'Send package to Lowe’s/pro supplier desk for lumber, roofing, windows, doors, cabinet, and finish quotes.',
-    'Import supplier quote back into COGS and calculate bid price per square foot.',
+    'Import / compare final COGS: bring supplier and subcontractor quotes back into this bid file and recalc $/sf.',
+    'Review flags: extra meter/panel, sewer confirmation study, openings over 3 ft, and 750 sf homeowner max.',
     city,
   ].map((txt,i)=>`<div class="lowes-step"><b>${i+1}</b><span>${txt}</span></div>`).join('');
 }
