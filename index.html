@@ -4617,7 +4617,7 @@ footer {
           <div class="homeowner-question">
             <div class="homeowner-question-kicker">Plain question 5</div>
             <div class="homeowner-question-text">What do we need to check before this can be built?</div>
-            <div class="homeowner-question-help">Electrical, water, sewer, rental plans, and event-income ideas all affect the real bid.</div>
+            <div class="homeowner-question-help">Electrical service, extra meter needs, sewer confirmation study, rental plans, and event-income ideas all affect the real bid.</div>
           </div>
           <div class="choice-category-label">Utility Readiness</div>
           <div class="choice-grid" data-choice-group="utilities" style="margin-top:10px;"></div>
@@ -4752,11 +4752,11 @@ footer {
           <div class="config-line"><span>Lot fit</span><strong id="config-lot-fit">Right-hand entry · compact stoop</strong></div>
           <div class="config-line"><span>Add-ons</span><strong id="config-features">Smart thermostat ready</strong></div>
           <div class="config-line"><span>Interior package</span><strong id="config-interior">Durable essentials</strong></div>
-          <div class="config-line"><span>Utility readiness</span><strong id="config-utilities">Panel review allowance</strong></div>
+          <div class="config-line"><span>Utility readiness</span><strong id="config-utilities">Electrical service review</strong></div>
           <div class="config-line"><span>Possible revenue use</span><strong id="config-revenue">Family-first use</strong></div>
           <div class="config-line"><span>Rough financing view</span><strong id="config-payment">Payment estimate updates here</strong></div>
           <div class="finish-preview-copy" style="margin-top:12px;">
-            This is a planning estimate only. Site utilities, panel upgrades, water/sewer, engineering review, and homeowner changes can affect the final bid.
+            This is a planning estimate only. Site utilities, extra meter needs, sewer confirmation study, engineering review, and homeowner changes can affect the final bid.
           </div>
           <div class="change-log" id="config-change-log">
             <div class="change-log-title">What changed the price</div>
@@ -4902,10 +4902,10 @@ const ADU_OPTIONS = {
     { id: 'tile-upgrade', label: 'Tile upgrade', sub: 'More polished finish for guests or short stays', price: 8400, image: 'images/adu-interior.png' },
   ],
   utilities: [
-    { id: 'panel-review', label: 'Panel review allowance', sub: 'Electrical panel review before final bid', price: 0, image: 'images/adu-construction.png' },
-    { id: 'panel-upgrade-low', label: 'Panel upgrade low range', sub: 'Planning placeholder for 220V / 50A minimum', price: 3500, image: 'images/adu-construction.png' },
-    { id: 'panel-upgrade-high', label: 'Panel upgrade high range', sub: 'Higher placeholder for complex electrical work', price: 6500, image: 'images/adu-construction.png' },
-    { id: 'sewer-macerator', label: 'Sewer/macerator review', sub: 'Adds analysis allowance where gravity sewer may not work', price: 4800, image: 'images/adu-construction.png' },
+    { id: 'panel-review', label: 'Electrical service review', sub: 'Confirm panel capacity and whether a separate meter is needed', price: 0, image: 'images/adu-construction.png' },
+    { id: 'panel-upgrade-low', label: 'Extra meter low range', sub: 'Planning placeholder for 220V / 50A minimum', price: 3500, image: 'images/adu-construction.png' },
+    { id: 'panel-upgrade-high', label: 'Extra meter high range', sub: 'Planning placeholder for more complex electrical work', price: 6500, image: 'images/adu-construction.png' },
+    { id: 'sewer-confirmation', label: 'Sewer confirmation study', sub: 'We confirm the ADU toilet and drainage will work properly', price: 0, image: 'images/adu-construction.png' },
   ],
   revenue: [
     { id: 'family', label: 'Family-first use', sub: 'Designed for parents, adult children, or guests', price: 0, image: 'images/hyder-hut-2br-exterior-finishes.webp' },
@@ -4949,7 +4949,7 @@ function priceLabel(opt, group = '') {
   if (group === 'model') return { text: `From ${moneyShort(opt.price)}`, kind: 'included', note: 'Starting planning estimate for this model.' };
   if (!opt.price) return { text: 'Included', kind: 'included', note: 'No added cost for this choice.' };
   if (opt.price < 0) return { text: `Saves ${moneyShort(Math.abs(opt.price))}`, kind: 'saves', note: 'This choice lowers the planning estimate.' };
-  const needsReview = /engineer|engineering|opening|panel|sewer|macerator|upgrade high|larger/i.test(`${opt.label} ${opt.sub}`);
+  const needsReview = /engineer|engineering|opening|panel|meter|sewer|upgrade high|larger/i.test(`${opt.label} ${opt.sub}`);
   return { text: `Adds ${moneyShort(opt.price)}`, kind: needsReview ? 'review' : 'adds', note: needsReview ? 'Adds cost and needs builder review.' : 'Adds cost to the planning estimate.' };
 }
 
@@ -5319,7 +5319,7 @@ function renderDesignResult(summary) {
     <p style="color:rgba(28,25,23,.72);line-height:1.55;">
       Contact: <b>${summary.name}</b>${summary.email ? ` · ${summary.email}` : ''}${summary.phone ? ` · ${summary.phone}` : ''}${summary.bestTime ? ` · best time: ${summary.bestTime}` : ''}<br>
       ABQ ADU · Albuquerque, New Mexico · abqadu.com<br>
-      This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24 hours of the customer call. Site utilities, electrical panel, water/sewer, setbacks, permitting, and engineering review can affect final price and schedule.
+      This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24 hours of the customer call. Site utilities, extra meter needs, sewer confirmation study, setbacks, permitting, and engineering review can affect final price and schedule.
     </p>
   `;
   const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}.`;

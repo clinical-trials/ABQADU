@@ -599,11 +599,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <h3 style="font-size:17px;margin-bottom:4px">Quick Add Common ADU Items</h3>
           <div class="muted" style="font-size:12px">Use these to avoid forgetting expensive scope changes.</div>
           <div class="bid-assist-grid">
-            <button class="bid-assist" onclick="addPresetLine('panelLow')"><b>Panel low range</b><span>Add $3,500 allowance</span></button>
-            <button class="bid-assist" onclick="addPresetLine('panelHigh')"><b>Panel high range</b><span>Add $6,500 allowance</span></button>
+            <button class="bid-assist" onclick="addPresetLine('panelLow')"><b>Extra meter low</b><span>Add $3,500 allowance</span></button>
+            <button class="bid-assist" onclick="addPresetLine('panelHigh')"><b>Extra meter high</b><span>Add $6,500 allowance</span></button>
             <button class="bid-assist" onclick="addPresetLine('windows')"><b>Larger openings</b><span>Flags engineering review</span></button>
             <button class="bid-assist" onclick="addPresetLine('portal')"><b>Covered portal</b><span>Shade roof + slab extension</span></button>
-            <button class="bid-assist" onclick="addPresetLine('sewer')"><b>Sewer / macerator</b><span>Utility review allowance</span></button>
+            <button class="bid-assist" onclick="addPresetLine('sewer')"><b>Sewer confirmation</b><span>Ian internal utility review</span></button>
             <button class="bid-assist" onclick="addPresetLine('engineering')"><b>Engineer stamp</b><span>Openings over 3 ft review</span></button>
           </div>
         </div>
@@ -1088,11 +1088,11 @@ const READINESS_CLASSES = {
   'missing site data':'site',
 };
 const PRESET_LINES = {
-  panelLow:{cat:'MEP',desc:'Electrical panel upgrade allowance — low range',kind:'allowance',qty:1,unit:'allow',cost:3500},
-  panelHigh:{cat:'MEP',desc:'Electrical panel upgrade allowance — high range',kind:'allowance',qty:1,unit:'allow',cost:6500},
+  panelLow:{cat:'MEP',desc:'Extra electric meter / panel allowance — low range',kind:'allowance',qty:1,unit:'allow',cost:3500},
+  panelHigh:{cat:'MEP',desc:'Extra electric meter / panel allowance — high range',kind:'allowance',qty:1,unit:'allow',cost:6500},
   windows:{cat:'Exterior',desc:'Larger windows / openings over 3 ft — engineering review',kind:'review',qty:1,unit:'allow',cost:11500},
   portal:{cat:'Exterior',desc:'Covered portal shade roof, slab extension, finish labor',kind:'upgrade',qty:1,unit:'allow',cost:12500},
-  sewer:{cat:'Plumbing',desc:'Sewer / macerator analysis and utility allowance',kind:'allowance',qty:1,unit:'allow',cost:4800},
+  sewer:{cat:'Plumbing',desc:'Ian internal: sewer confirmation study - verify gravity flow; macerating pump / masticator risk allowance',kind:'allowance',qty:1,unit:'allow',cost:4800},
   engineering:{cat:'Design',desc:'Professional engineering stamp / structural review allowance',kind:'review',qty:1,unit:'allow',cost:2500},
 };
 const COGS_BUNDLES = {
@@ -1121,9 +1121,9 @@ const COGS_BUNDLES = {
     {cat:'Kitchen',desc:'Countertops allowance',kind:'allowance',qty:1,unit:'allow',cost:1330},
   ],
   utilityReview:[
-    {cat:'MEP',desc:'Electrical panel upgrade allowance — low range',kind:'allowance',qty:1,unit:'allow',cost:3500},
-    {cat:'MEP',desc:'Electrical panel upgrade allowance — high range',kind:'allowance',qty:1,unit:'allow',cost:6500},
-    {cat:'Plumbing',desc:'Sewer / macerator analysis and utility allowance',kind:'allowance',qty:1,unit:'allow',cost:4800},
+    {cat:'MEP',desc:'Extra electric meter / panel allowance — low range',kind:'allowance',qty:1,unit:'allow',cost:3500},
+    {cat:'MEP',desc:'Extra electric meter / panel allowance — high range',kind:'allowance',qty:1,unit:'allow',cost:6500},
+    {cat:'Plumbing',desc:'Ian internal: sewer confirmation study - verify gravity flow; macerating pump / masticator risk allowance',kind:'allowance',qty:1,unit:'allow',cost:4800},
     {cat:'Design',desc:'Professional engineering stamp / structural review allowance',kind:'review',qty:1,unit:'allow',cost:2500},
   ],
 };
@@ -1261,7 +1261,7 @@ function bidReadinessSignals(t){
   const signals=[];
   const hasSite=Boolean(bid.title && bid.client && bid.model && +bid.sqft>0);
   if(!hasSite)signals.push('missing site data');
-  if(/panel|electrical|utility|sewer|macerator|water/.test(text))signals.push('needs utility review');
+  if(/panel|meter|electrical|utility|sewer|macerator|macerating|masticator|water/.test(text))signals.push('needs utility review');
   if(bid.items.some(item=>item.kind==='review') || /engineering|engineer|opening|openings|stamp|structural/.test(text))signals.push('needs engineering');
   if(hasSite && t.sub>0 && t.total>0 && !signals.length)signals.push('ready to send');
   return signals;
@@ -1315,7 +1315,7 @@ const BID_QUIZ_STEPS = [
   {title:'1. Job setup',prompt:'Who called, when can we complete the site visit within 24 hours, which model are they buying, and how many square feet are we pricing?',target:'.bid-setup',action:'setup',actionLabel:'Edit project basics'},
   {title:'2. Bid confidence',prompt:'How likely is this job to close, and what is blocking the bid from being ready to send?',target:'.confidence-panel',action:'confidence',actionLabel:'Grade the lead'},
   {title:'3. COGS',prompt:'What are the real builder costs? Add one line, or tap a bundle to move faster.',target:'.quick-cogs',action:'cogs',actionLabel:'Add COGS line'},
-  {title:'4. Review',prompt:'Do utilities, engineering, water/sewer, or missing site data need attention before sending?',target:'#bid-review-callout',action:'review',actionLabel:'Review risk flags'},
+  {title:'4. Review',prompt:'Do utilities, engineering, sewer confirmation study, or missing site data need attention before sending?',target:'#bid-review-callout',action:'review',actionLabel:'Review risk flags'},
   {title:'5. Invoices',prompt:'Build the 90-day draw schedule. Invoice 1 is always the $10,000 pre-construction deposit.',target:'#invoice-card',action:'invoices',actionLabel:'Build invoices'},
 ];
 function bidQuizCompletion(step,t){
@@ -1739,6 +1739,16 @@ function buildBidPrintDocument(){
       </tbody></table>
     </div>
     <div class="print-doc-section">
+      <h3>Homeowner Utility Summary</h3>
+      <div>Electrical service and meter review: confirm whether a separate meter or panel work is needed.</div>
+      <div>Sewer confirmation study: verify the ADU toilet and drainage will work properly before final construction pricing.</div>
+    </div>
+    <div class="print-doc-section">
+      <h3>Ian Internal Utility Review</h3>
+      <div>Electrical: most homeowners ask about an extra meter; carry $3,500-$6,500 as the internal planning range until confirmed.</div>
+      <div>Sewer: confirm gravity sewer path; keep any pump/equipment risk on the internal bid form instead of the homeowner-facing summary.</div>
+    </div>
+    <div class="print-doc-section">
       <h3>COGS Line Items</h3>
       <table class="print-doc-table">
         <thead><tr><th>Category</th><th>Description</th><th>Type</th><th class="r">Qty</th><th>Unit</th><th class="r">COGS</th><th class="r">Total</th></tr></thead>
@@ -2118,7 +2128,7 @@ function takeoffFor(model){
     {cat:'Interior',item:'Drywall package',qty:wallSf+sf,unit:'sf',budget:(wallSf+sf)*2.2,review:'standard finish'},
     {cat:'Interior',item:'LVP flooring less wet areas',qty:Math.round(sf-bathCount*55),unit:'sf',budget:(sf-bathCount*55)*8.5,review:'owner selection'},
     {cat:'MEP',item:'Electrical rough-in and trim',qty:sf,unit:'sf',budget:sf*12,review:'panel upgrade $3,500-$6,500'},
-    {cat:'MEP',item:'Plumbing fixtures',qty:bathCount*3+1,unit:'ea',budget:(bathCount*3+1)*850,review:'sewer/macerator analysis'},
+    {cat:'MEP',item:'Plumbing fixtures',qty:bathCount*3+1,unit:'ea',budget:(bathCount*3+1)*850,review:'sewer confirmation study'},
     {cat:'MEP',item:'Mini-split HVAC package',qty:sf,unit:'sf',budget:sf*9,review:'smart thermostat add-on'},
     {cat:'Kitchen',item:'Cabinets and countertop',qty:cabinetLf,unit:'lf',budget:cabinetLf*(280+95),review:'Lowe’s cabinet desk'},
   ];
