@@ -4800,7 +4800,6 @@ footer {
         </p>
         <div class="design-entry-actions">
           <button class="design-launch-button" type="button" onclick="startAduDesign()">Open Design Studio</button>
-          <button class="design-secondary-button" id="adu-restore-draft" type="button" onclick="openAduDesignModal(true)">Restore Draft</button>
         </div>
       </div>
       <div class="design-entry-preview">
@@ -5743,7 +5742,7 @@ function handleDesignSubmit(e) {
 
 function handleAduDesignClick(e) {
   const target = e.target;
-  const action = target.closest('.design-launch-button, #adu-restore-draft, #adu-reset-draft, #adu-wizard-next, #adu-wizard-back, #adu-save-draft, .design-modal-close, .model-detail-primary, .model-detail-secondary, #view-exterior-btn, #view-interior-btn, #adu-spin-toggle, [data-window-layout], [data-choice-id], .model-design-btn');
+  const action = target.closest('.design-launch-button, #adu-reset-draft, #adu-wizard-next, #adu-wizard-back, #adu-save-draft, .design-modal-close, .model-detail-primary, .model-detail-secondary, #view-exterior-btn, #view-interior-btn, #adu-spin-toggle, [data-window-layout], [data-choice-id], .model-design-btn');
   if (!action) return;
 
   const run = (fn) => {
@@ -5753,7 +5752,6 @@ function handleAduDesignClick(e) {
   };
 
   if (action.classList.contains('design-launch-button')) return run(startAduDesign);
-  if (action.id === 'adu-restore-draft') return run(() => openAduDesignModal(true));
   if (action.id === 'adu-reset-draft') return run(resetAduDraft);
   if (action.id === 'adu-wizard-next') return run(aduWizardNext);
   if (action.id === 'adu-wizard-back') return run(aduWizardBack);
