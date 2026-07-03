@@ -1351,6 +1351,11 @@ h2 em { font-style: normal; color: var(--terra); }
 .choice-price-pill.saves { background: rgba(61,82,71,.92); }
 .choice-price-pill.included { background: rgba(28,25,23,.78); }
 .choice-price-pill.review { background: rgba(196,149,74,.92); color: var(--blueprint); }
+.choice-price-pill.added {
+  background: rgba(196,149,74,.96);
+  color: var(--blueprint);
+}
+.choice-price-pill.removed { background: rgba(61,82,71,.96); }
 
 .choice-cost-note {
   color: rgba(232,201,138,.9) !important;
@@ -1358,6 +1363,22 @@ h2 em { font-style: normal; color: var(--terra); }
   font-weight: 800;
   letter-spacing: .04em;
   margin-top: 8px !important;
+  text-transform: uppercase;
+}
+
+.choice-toggle-note {
+  align-items: center;
+  background: rgba(240,235,225,.08);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 999px;
+  color: rgba(240,235,225,.78) !important;
+  display: inline-flex !important;
+  font-size: 10px !important;
+  font-weight: 900;
+  gap: 6px;
+  letter-spacing: .08em;
+  margin-top: 10px !important;
+  padding: 7px 9px;
   text-transform: uppercase;
 }
 
@@ -1707,9 +1728,34 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .choice-card:hover,
 .choice-card.selected {
-  background: rgba(196,149,74,.12);
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.24), rgba(120,170,230,.08)),
+    rgba(196,149,74,.12);
   border-color: rgba(196,149,74,.64);
+  box-shadow: 0 0 0 2px rgba(196,149,74,.15), 0 16px 36px rgba(0,0,0,.18);
   transform: translateY(-1px);
+}
+
+.choice-card.selected strong {
+  color: var(--copper-l);
+}
+
+.choice-card.selected .choice-media::after {
+  align-items: center;
+  background: rgba(196,149,74,.94);
+  border: 1px solid rgba(240,235,225,.38);
+  border-radius: 999px;
+  color: var(--blueprint);
+  content: "Selected";
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  left: 10px;
+  letter-spacing: .1em;
+  padding: 6px 9px;
+  position: absolute;
+  text-transform: uppercase;
+  top: 10px;
 }
 
 .choice-media {
@@ -5186,10 +5232,17 @@ function getOption(group) {
   return ADU_OPTIONS[group].find(o => o.id === ADU_CONFIG[group]) || ADU_OPTIONS[group][0];
 }
 
+function getDefaultOption(group) {
+  return ADU_OPTIONS[group][0];
+}
+
 function chooseAduOption(group, id) {
-  ADU_CONFIG[group] = id;
+  const selected = ADU_OPTIONS[group].find(o => o.id === id);
+  const defaultOption = getDefaultOption(group);
+  const isRemovingAddOn = group !== 'model' && ADU_CONFIG[group] === id && selected && selected.id !== defaultOption.id;
+  ADU_CONFIG[group] = isRemovingAddOn ? defaultOption.id : id;
   if (group === 'windows') {
-    ADU_CONFIG.windowLayout = id === 'more-glass' ? 'more-glass' : id;
+    ADU_CONFIG.windowLayout = ADU_CONFIG.windows === 'more-glass' ? 'more-glass' : ADU_CONFIG.windows;
   }
   if (['features', 'interior', 'kitchen', 'bath'].includes(group)) {
     ADU_CONFIG.previewView = 'interior';
@@ -5205,16 +5258,19 @@ function setPreviewView(view) {
   renderAduConfigurator();
 }
 
-function priceLabel(opt, group = '') {
+function priceLabel(opt, group = '', selected = false) {
   if (group === 'model') return { text: `From ${moneyShort(opt.price)}`, kind: 'included', note: 'Starting planning estimate for this model.' };
+  if (selected && opt.price > 0) return { text: `Added ${moneyShort(opt.price)}`, kind: 'added', note: 'Added to your planning estimate. Tap again to remove.' };
+  if (selected && opt.price < 0) return { text: `Saves ${moneyShort(Math.abs(opt.price))}`, kind: 'removed', note: 'This lowers your planning estimate. Tap again to restore the default.' };
+  if (selected && !opt.price) return { text: 'Selected', kind: 'included', note: 'Included in the base estimate.' };
   if (!opt.price) return { text: 'Included', kind: 'included', note: 'No added cost for this choice.' };
   if (opt.price < 0) return { text: `Saves ${moneyShort(Math.abs(opt.price))}`, kind: 'saves', note: 'This choice lowers the planning estimate.' };
   const needsReview = /engineer|engineering|opening|panel|meter|sewer|upgrade high|larger/i.test(`${opt.label} ${opt.sub}`);
   return { text: `Adds ${moneyShort(opt.price)}`, kind: needsReview ? 'review' : 'adds', note: needsReview ? 'Adds cost and needs builder review.' : 'Adds cost to the planning estimate.' };
 }
 
-function renderChoiceMedia(opt, group = '') {
-  const price = priceLabel(opt, group);
+function renderChoiceMedia(opt, group = '', selected = false) {
+  const price = priceLabel(opt, group, selected);
   const visual = opt.swatch
     ? `<span class="choice-swatch" style="background:${opt.swatch};"></span>`
     : opt.image
@@ -5339,9 +5395,13 @@ function renderChoiceGroup(group) {
   const host = document.querySelector(`[data-choice-group="${group}"]`);
   if (!host) return;
   host.classList.toggle('model-choice-grid', group === 'model');
-  host.innerHTML = ADU_OPTIONS[group].map(opt => `
-    <button type="button" class="choice-card ${group === 'model' ? 'model-choice-card' : ''} ${ADU_CONFIG[group] === opt.id ? 'selected' : ''}" data-choice-key="${group}" data-choice-id="${opt.id}" onclick="chooseAduOption('${group}', '${opt.id}')">
-      ${renderChoiceMedia(opt, group)}
+  host.innerHTML = ADU_OPTIONS[group].map(opt => {
+    const selected = ADU_CONFIG[group] === opt.id;
+    const isReversible = group !== 'model' && selected && opt.id !== getDefaultOption(group).id;
+    const label = priceLabel(opt, group, selected);
+    return `
+    <button type="button" class="choice-card ${group === 'model' ? 'model-choice-card' : ''} ${selected ? 'selected' : ''}" data-choice-key="${group}" data-choice-id="${opt.id}" onclick="chooseAduOption('${group}', '${opt.id}')">
+      ${renderChoiceMedia(opt, group, selected)}
       <div class="choice-body">
         <strong>${opt.label}</strong>
         <span>${opt.sub}</span>
@@ -5351,10 +5411,11 @@ function renderChoiceGroup(group) {
             <span class="model-meta-pill">${opt.beds} / ${opt.baths}</span>
           </div>
         ` : ''}
-        <span class="choice-cost-note">${priceLabel(opt, group).note}</span>
+        <span class="choice-cost-note">${label.note}</span>
+        ${isReversible ? '<span class="choice-toggle-note">Tap again to remove</span>' : ''}
       </div>
     </button>
-  `).join('');
+  `}).join('');
 }
 
 function selectedAduOptions() {
