@@ -1006,16 +1006,20 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .design-launch-button {
+  align-items: center;
   background: var(--copper);
   border: 0;
   border-radius: 999px;
   color: var(--blueprint);
   cursor: pointer;
+  display: inline-flex;
   flex: 0 0 auto;
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 900;
+  justify-content: center;
   letter-spacing: .08em;
+  min-height: 46px;
   padding: 13px 18px;
   text-transform: uppercase;
 }
@@ -1063,15 +1067,19 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .design-secondary-button {
+  align-items: center;
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(240,235,225,.18);
   border-radius: 999px;
   color: rgba(240,235,225,.78);
   cursor: pointer;
+  display: inline-flex;
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 800;
+  justify-content: center;
   letter-spacing: .08em;
+  min-height: 46px;
   padding: 13px 18px;
   text-transform: uppercase;
 }
@@ -1112,8 +1120,8 @@ h2 em { font-style: normal; color: var(--terra); }
   color: var(--stucco);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  max-height: min(92svh, 920px);
-  max-width: 1180px;
+  max-height: min(96svh, 980px);
+  max-width: 1380px;
   overflow: hidden;
   width: 100%;
 }
@@ -1164,7 +1172,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .design-modal-body .design-builder-grid {
-  grid-template-columns: minmax(0, .96fr) minmax(320px, 1.04fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
 }
 
 .design-modal-body .design-wizard {
@@ -1223,7 +1231,10 @@ h2 em { font-style: normal; color: var(--terra); }
 .wizard-step-rail {
   display: grid;
   gap: 6px;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(88px, 1fr));
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
 }
 
 .wizard-step-rail span {
@@ -1234,11 +1245,25 @@ h2 em { font-style: normal; color: var(--terra); }
   color: rgba(240,235,225,.55);
   display: inline-flex;
   font-family: var(--font-display);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
-  height: 24px;
+  gap: 5px;
+  height: 31px;
   justify-content: center;
+  line-height: 1;
+  padding: 0 10px;
   transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+  white-space: nowrap;
+}
+
+.wizard-step-rail b {
+  align-items: center;
+  background: rgba(255,255,255,.12);
+  border-radius: 999px;
+  display: inline-flex;
+  height: 18px;
+  justify-content: center;
+  width: 18px;
 }
 
 .wizard-step-rail span.done {
@@ -1296,7 +1321,25 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .wizard-footer-actions button {
+  align-items: center;
+  border: 1px solid rgba(240,235,225,.14);
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 900;
+  gap: 8px;
+  justify-content: center;
+  letter-spacing: .08em;
   min-height: 44px;
+  padding: 12px 16px;
+  text-transform: uppercase;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.wizard-footer-actions button:hover {
+  transform: translateY(-1px);
 }
 
 .wizard-save {
@@ -1740,6 +1783,172 @@ h2 em { font-style: normal; color: var(--terra); }
   margin-top: 5px;
 }
 
+.model-choice-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.model-choice-card {
+  min-height: 100%;
+}
+
+.model-choice-card .choice-media {
+  aspect-ratio: 4 / 3;
+}
+
+.model-meta-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.model-meta-pill {
+  background: rgba(240,235,225,.07);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 8px;
+  color: rgba(240,235,225,.74);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  padding: 8px 9px;
+  text-transform: uppercase;
+}
+
+.model-detail-panel {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.16), rgba(120,170,230,.07)),
+    rgba(255,255,255,.045);
+  border: 1px solid rgba(196,149,74,.34);
+  border-radius: 10px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(180px, .78fr) minmax(0, 1fr);
+  margin-top: 16px;
+  overflow: hidden;
+  padding: 14px;
+}
+
+.model-detail-art {
+  background: rgba(28,25,23,.35);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.model-detail-art img {
+  aspect-ratio: 4 / 3;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.model-detail-badge {
+  background: rgba(28,25,23,.78);
+  border: 1px solid rgba(240,235,225,.2);
+  border-radius: 999px;
+  color: var(--stucco);
+  font-size: 10px;
+  font-weight: 900;
+  left: 10px;
+  letter-spacing: .1em;
+  padding: 7px 9px;
+  position: absolute;
+  text-transform: uppercase;
+  top: 10px;
+}
+
+.model-detail-kicker {
+  color: var(--copper-l);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.model-detail-title {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 900;
+  line-height: .94;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+.model-detail-copy {
+  color: rgba(240,235,225,.64);
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 9px;
+}
+
+.model-detail-specs {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.model-detail-spec {
+  background: rgba(28,25,23,.35);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.model-detail-spec b {
+  color: var(--copper-l);
+  display: block;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.model-detail-spec span {
+  color: rgba(240,235,225,.54);
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+.model-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.model-detail-actions button {
+  align-items: center;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: .08em;
+  min-height: 44px;
+  padding: 12px 16px;
+  text-transform: uppercase;
+}
+
+.model-detail-primary {
+  background: var(--copper);
+  color: var(--blueprint);
+}
+
+.model-detail-secondary {
+  background: rgba(255,255,255,.08);
+  color: rgba(240,235,225,.8);
+}
+
 .design-infographic {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1791,8 +2000,33 @@ h2 em { font-style: normal; color: var(--terra); }
   text-transform: uppercase;
 }
 
-.wizard-back { background: rgba(255,255,255,.08); color: rgba(240,235,225,.75); }
-.wizard-next { background: var(--copper); color: var(--blueprint); margin-left: auto; }
+.wizard-back {
+  background: rgba(255,255,255,.075);
+  color: rgba(240,235,225,.82);
+}
+
+.wizard-back::before {
+  content: "<";
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 900;
+}
+
+.wizard-save::before {
+  content: "";
+  display: none;
+}
+
+.wizard-next {
+  background: linear-gradient(135deg, var(--copper), var(--copper-l));
+  color: var(--blueprint);
+  margin-left: auto;
+}
+
+.wizard-next::after {
+  content: ">";
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 900;
+}
 
 .config-preview {
   background: rgba(255,255,255,.05);
@@ -3153,6 +3387,9 @@ footer {
   .city-plans-footer .btn-primary { text-align: center; width: 100%; }
   .design-form-card { padding: 24px; }
   .finish-preview-card img { aspect-ratio: 4 / 3; }
+  .design-entry-stage {
+    grid-template-columns: 1fr;
+  }
   .design-modal {
     align-items: stretch;
     padding: 0;
@@ -3194,19 +3431,23 @@ footer {
   }
   .wizard-step-rail {
     gap: 4px;
+    grid-template-columns: repeat(7, minmax(84px, 1fr));
   }
   .wizard-step-rail span {
-    height: 22px;
+    height: 30px;
   }
   .wizard-footer-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
   .wizard-footer-actions button {
     justify-content: center;
     min-height: 46px;
     padding-left: 10px;
     padding-right: 10px;
+  }
+  .wizard-footer-actions .wizard-next {
+    grid-column: 1 / -1;
   }
   .design-result-modal {
     align-items: stretch;
@@ -3224,7 +3465,16 @@ footer {
   .design-wizard { padding: 18px; border-radius: 8px; }
   .design-launch-card { padding: 15px; }
   .design-launch-top { align-items: stretch; flex-direction: column; }
-  .design-launch-button { width: 100%; }
+  .design-entry-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .design-entry-actions .design-launch-button,
+  .design-entry-actions .design-secondary-button {
+    flex: 1 1 auto;
+    min-height: 48px;
+    width: 100%;
+  }
   .design-tool-chip-grid { grid-template-columns: repeat(2, 1fr); }
   .design-tool-chip { padding: 9px 8px; }
   .design-step-strip { grid-template-columns: 1fr; }
@@ -3234,6 +3484,10 @@ footer {
   .wizard-heading { font-size: 25px; }
   .design-infographic { grid-template-columns: 1fr; }
   .choice-grid { grid-template-columns: 1fr; }
+  .model-choice-grid { grid-template-columns: 1fr; }
+  .model-detail-panel { grid-template-columns: 1fr; }
+  .model-detail-art img { aspect-ratio: 16 / 9; }
+  .model-detail-specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .choice-card {
     display: grid;
     grid-template-columns: 118px minmax(0, 1fr);
@@ -3328,10 +3582,14 @@ footer {
     display: block;
     min-height: 0;
   }
+  .model-choice-card { display: block; }
   .choice-media {
     aspect-ratio: 16 / 8.5;
     min-height: 0;
   }
+  .model-meta-grid { grid-template-columns: 1fr; }
+  .model-detail-specs { grid-template-columns: 1fr 1fr; }
+  .model-detail-actions { display: grid; grid-template-columns: 1fr; }
   .config-preview { border-radius: 8px; }
   .viewer-card,
   .plan-diagram-card,
@@ -4487,7 +4745,7 @@ footer {
         </p>
         <div class="design-entry-actions">
           <button class="design-launch-button" type="button" onclick="startAduDesign()">Open Design Studio</button>
-          <button class="design-secondary-button" type="button" onclick="openAduDesignModal(true)">Restore Draft</button>
+          <button class="design-secondary-button" id="adu-restore-draft" type="button" onclick="openAduDesignModal(true)">Restore Draft</button>
         </div>
         <div class="design-tool-chip-grid" aria-label="Available design tools">
           <div class="design-tool-chip">Step-by-step</div>
@@ -4524,7 +4782,7 @@ footer {
               <div class="design-launch-title">One question<br>at a time.</div>
               <p class="design-launch-copy">Choose the picture that feels closest. Use Back and Next at the bottom. Each answer updates price, pictures, and builder-review notes.</p>
             </div>
-            <button class="design-secondary-button" type="button" onclick="resetAduDraft()">Reset Draft</button>
+            <button class="design-secondary-button" id="adu-reset-draft" type="button" onclick="resetAduDraft()">Reset Draft</button>
           </div>
         </div>
 
@@ -4567,6 +4825,7 @@ footer {
             <div class="design-infographic-item"><b>$ / sf</b><span>live pricing lens for every choice</span></div>
           </div>
           <div class="choice-grid" data-choice-group="model"></div>
+          <div id="model-detail-panel"></div>
         </div>
 
         <div class="wizard-panel" data-wizard-step="1">
@@ -4837,17 +5096,18 @@ const ADU_STEP_HELPERS = [
   'Question 6: Does this feel like the ADU you want?',
   'Final question: Where should we send your ADU concept?',
 ];
+const ADU_STEP_SHORT_LABELS = ['Model', 'Exterior', 'Doors', 'Interior', 'Utilities', 'Review', 'Contact'];
 const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
 let ADU_DRAFT_TIMER = null;
 
 const ADU_OPTIONS = {
   model: [
-    { id: 'hyder-hut', label: 'Netherwood House', sub: '440 sf · 1BR/1BA · compact backyard home', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', image: 'images/hyder-hut-sheet.png' },
-    { id: 'hyder-hut-2br', label: 'Netherwood House 2BR', sub: '550 sf · 2BR/1BA · family or rental ready', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', image: 'images/hyder-hut-2br-exterior-finishes.webp' },
-    { id: 'altura-24x24', label: 'Altura 24x24', sub: '576 sf · 1BR/1BA · square efficient plan', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', image: 'images/altura-box.png' },
-    { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, beds: '1BR', baths: '1BA', image: 'images/adu-exterior.png' },
-    { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · larger custom review path above typical 750 sf homeowner max', price: 295000, sqft: 780, beds: '2BR', baths: '2BA', image: 'images/adu-interior.png' },
-    { id: 'cromwell', label: 'Cromwell', sub: '1,280 sf · expanded custom project above typical ADU planning size', price: 385000, sqft: 1280, beds: '2BR', baths: '1.5BA', image: 'images/source-cromwell-render.webp' },
+    { id: 'hyder-hut', label: 'Netherwood House', sub: '440 sf · 1BR/1BA · compact backyard home', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12.5 ft x 35 ft', use: 'Parent suite, guest house, or rental starter', detail: 'A compact, warm backyard home with enough room for a true bedroom, bath, kitchen, and small living area without overwhelming tighter Albuquerque lots.', image: 'images/hyder-hut-sheet.png' },
+    { id: 'hyder-hut-2br', label: 'Netherwood House 2BR', sub: '550 sf · 2BR/1BA · family or rental ready', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', dimensions: '12.5 ft x 44 ft', use: 'Multigenerational family, adult child, or guests', detail: 'The family-friendly Netherwood layout adds a second bedroom while keeping the footprint efficient for homeowners who want flexibility now and rental value later.', image: 'images/hyder-hut-2br-exterior-finishes.webp' },
+    { id: 'altura-24x24', label: 'Altura 24x24', sub: '576 sf · 1BR/1BA · square efficient plan', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', dimensions: '24 ft x 24 ft', use: 'Open living, accessible planning, and easy furniture layouts', detail: 'Altura is a simple square plan that feels calm and efficient, especially when the homeowner wants a balanced living room, kitchen, bedroom, and patio connection.', image: 'images/altura-box.png' },
+    { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, beds: '1BR', baths: '1BA', dimensions: 'L-shaped plan · site fit verified', use: 'Outdoor living, shaded entries, and privacy', detail: 'A New Mexico porch-forward option for homeowners who want the ADU to feel like a small casita with shade, outdoor meals, and a softer connection to the yard.', image: 'images/adu-exterior.png' },
+    { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · larger custom review path above typical 750 sf homeowner max', price: 295000, sqft: 780, beds: '2BR', baths: '2BA', dimensions: 'Larger custom footprint', use: 'Bigger family needs and custom review', detail: 'A larger home-like option for families who need more space. Because 750 sf is the typical homeowner ADU planning max, this path should be reviewed carefully before final bid.', image: 'images/adu-interior.png' },
+    { id: 'cromwell', label: 'Cromwell', sub: '1,280 sf · expanded custom project above typical ADU planning size', price: 385000, sqft: 1280, beds: '2BR', baths: '1.5BA', dimensions: 'Two-story custom plan', use: 'Large custom studio or detached home project', detail: 'A more ambitious custom project with a larger footprint and more design review. Best shown as an inspiration option before confirming ordinance fit.', image: 'images/source-cromwell-render.webp' },
   ],
   color: [
     { id: 'desert-cream', label: 'Desert cream', sub: 'Soft stucco, warm wood, bronze trim', price: 0, swatch: 'linear-gradient(90deg,#d9c4a5 0 33%,#9a6337 33% 66%,#3d3028 66%)', palette: ['#d9c4a5', '#9a6337', '#3d3028'], note: 'Soft desert stucco with warm wood accents and bronze trim.' },
@@ -4968,6 +5228,48 @@ function renderChoiceMedia(opt, group = '') {
   `;
 }
 
+function renderModelDetailPanel() {
+  const host = document.getElementById('model-detail-panel');
+  if (!host) return;
+  const model = getOption('model');
+  const psf = model.sqft ? moneyWhole(model.price / model.sqft) : 'Site review';
+  host.innerHTML = `
+    <div class="model-detail-panel" aria-live="polite">
+      <div class="model-detail-art">
+        <img src="${model.image}" alt="${model.label} model detail preview" loading="lazy">
+        <span class="model-detail-badge">${moneyShort(model.price)} starting estimate</span>
+      </div>
+      <div>
+        <div class="model-detail-kicker">Selected backyard home</div>
+        <div class="model-detail-title">${model.label}</div>
+        <p class="model-detail-copy">${model.detail}</p>
+        <div class="model-detail-specs" aria-label="${model.label} model facts">
+          <div class="model-detail-spec"><b>${model.sqft}</b><span>Square feet</span></div>
+          <div class="model-detail-spec"><b>${model.dimensions}</b><span>Dimensions</span></div>
+          <div class="model-detail-spec"><b>${model.beds} / ${model.baths}</b><span>Rooms</span></div>
+          <div class="model-detail-spec"><b>${psf}/sf</b><span>Planning lens</span></div>
+        </div>
+        <p class="model-detail-copy">${model.use}. You can still change doors, windows, finishes, orientation, and utility assumptions in the next steps.</p>
+        <div class="model-detail-actions">
+          <button class="model-detail-primary" type="button" onclick="customizeSelectedModel()">Customize this model</button>
+          <button class="model-detail-secondary" type="button" onclick="viewModelList()">Back to model choices</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function viewModelList() {
+  const modelGrid = document.querySelector('[data-choice-group="model"]');
+  if (modelGrid) modelGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function customizeSelectedModel() {
+  ADU_CONFIG.step = 1;
+  renderAduConfigurator();
+  scrollAduModalToTop();
+}
+
 function renderPlanDiagram(model, orientation, color) {
   const areaScale = Math.max(.74, Math.min(1, model.sqft / 780));
   const shellW = Math.round(216 * areaScale);
@@ -5036,12 +5338,19 @@ function renderAdu3D(color, roof, windows, outdoor) {
 function renderChoiceGroup(group) {
   const host = document.querySelector(`[data-choice-group="${group}"]`);
   if (!host) return;
+  host.classList.toggle('model-choice-grid', group === 'model');
   host.innerHTML = ADU_OPTIONS[group].map(opt => `
-    <button type="button" class="choice-card ${ADU_CONFIG[group] === opt.id ? 'selected' : ''}" onclick="chooseAduOption('${group}', '${opt.id}')">
+    <button type="button" class="choice-card ${group === 'model' ? 'model-choice-card' : ''} ${ADU_CONFIG[group] === opt.id ? 'selected' : ''}" data-choice-key="${group}" data-choice-id="${opt.id}" onclick="chooseAduOption('${group}', '${opt.id}')">
       ${renderChoiceMedia(opt, group)}
       <div class="choice-body">
         <strong>${opt.label}</strong>
         <span>${opt.sub}</span>
+        ${group === 'model' ? `
+          <div class="model-meta-grid" aria-label="${opt.label} quick facts">
+            <span class="model-meta-pill">${opt.dimensions}</span>
+            <span class="model-meta-pill">${opt.beds} / ${opt.baths}</span>
+          </div>
+        ` : ''}
         <span class="choice-cost-note">${priceLabel(opt, group).note}</span>
       </div>
     </button>
@@ -5106,14 +5415,14 @@ function updateAduProgress() {
         index <= ADU_CONFIG.step ? 'done' : '',
         index === ADU_CONFIG.step ? 'active' : '',
       ].filter(Boolean).join(' ');
-      return `<span class="${classes}" aria-current="${index === ADU_CONFIG.step ? 'step' : 'false'}">${index + 1}</span>`;
+      return `<span class="${classes}" aria-current="${index === ADU_CONFIG.step ? 'step' : 'false'}"><b>${index + 1}</b>${ADU_STEP_SHORT_LABELS[index]}</span>`;
     }).join('');
   }
   if (helper) helper.textContent = ADU_STEP_HELPERS[ADU_CONFIG.step] || 'Choose one step, then tap Next. Drafts save automatically.';
   if (backButton) backButton.style.visibility = ADU_CONFIG.step === 0 ? 'hidden' : 'visible';
   if (nextButton) {
     nextButton.style.display = ADU_CONFIG.step === ADU_TOTAL_STEPS - 1 ? 'none' : 'inline-flex';
-    nextButton.textContent = ADU_CONFIG.step === ADU_TOTAL_STEPS - 2 ? 'Contact' : 'Next';
+    nextButton.textContent = ADU_CONFIG.step === 0 ? 'Customize Selected Model' : ADU_CONFIG.step === ADU_TOTAL_STEPS - 2 ? 'Contact' : 'Next';
   }
 }
 
@@ -5207,6 +5516,7 @@ function renderAduConfigurator() {
   const nextButton = document.getElementById('adu-wizard-next');
   if (backButton) backButton.style.visibility = ADU_CONFIG.step === 0 ? 'hidden' : 'visible';
   if (nextButton) nextButton.style.display = ADU_CONFIG.step === ADU_TOTAL_STEPS - 1 ? 'none' : 'inline-flex';
+  renderModelDetailPanel();
 
   const { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue } = selectedAduOptions();
   const estimate = getAduEstimate({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
@@ -5252,6 +5562,10 @@ function renderAduConfigurator() {
 }
 
 function aduWizardNext() {
+  if (ADU_CONFIG.step === 0) {
+    customizeSelectedModel();
+    return;
+  }
   ADU_CONFIG.step = Math.min(ADU_TOTAL_STEPS - 1, ADU_CONFIG.step + 1);
   renderAduConfigurator();
   scrollAduModalToTop();
@@ -5273,7 +5587,7 @@ function designSpecificModel(modelId) {
   if (!ADU_OPTIONS.model.some(model => model.id === modelId)) return;
   ADU_CONFIG.model = modelId;
   ADU_CONFIG.previewView = 'exterior';
-  ADU_CONFIG.step = 1;
+  ADU_CONFIG.step = 0;
   renderAduConfigurator();
   openAduDesignModal();
 }
@@ -5366,6 +5680,61 @@ function handleDesignSubmit(e) {
   closeAduDesignModal();
   openDesignResult();
 }
+
+function handleAduDesignClick(e) {
+  const target = e.target;
+  const action = target.closest('.design-launch-button, #adu-restore-draft, #adu-reset-draft, #adu-wizard-next, #adu-wizard-back, #adu-save-draft, .design-modal-close, .model-detail-primary, .model-detail-secondary, #view-exterior-btn, #view-interior-btn, #adu-spin-toggle, [data-window-layout], [data-choice-id], .model-design-btn');
+  if (!action) return;
+
+  const run = (fn) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fn();
+  };
+
+  if (action.classList.contains('design-launch-button')) return run(startAduDesign);
+  if (action.id === 'adu-restore-draft') return run(() => openAduDesignModal(true));
+  if (action.id === 'adu-reset-draft') return run(resetAduDraft);
+  if (action.id === 'adu-wizard-next') return run(aduWizardNext);
+  if (action.id === 'adu-wizard-back') return run(aduWizardBack);
+  if (action.id === 'adu-save-draft') return run(saveAduDraft);
+  if (action.classList.contains('design-modal-close')) return run(closeAduDesignModal);
+  if (action.classList.contains('model-detail-primary')) return run(customizeSelectedModel);
+  if (action.classList.contains('model-detail-secondary')) return run(viewModelList);
+  if (action.id === 'view-exterior-btn') return run(() => setPreviewView('exterior'));
+  if (action.id === 'view-interior-btn') return run(() => setPreviewView('interior'));
+  if (action.id === 'adu-spin-toggle') return run(toggleAduSpin);
+  if (action.dataset.windowLayout) return run(() => setWindowLayout(action.dataset.windowLayout));
+  if (action.dataset.choiceKey && action.dataset.choiceId) return run(() => chooseAduOption(action.dataset.choiceKey, action.dataset.choiceId));
+
+  const modelCard = action.closest('[data-design-model]');
+  if (modelCard?.dataset.designModel) return run(() => designSpecificModel(modelCard.dataset.designModel));
+}
+
+document.addEventListener('click', handleAduDesignClick, true);
+
+Object.assign(window, {
+  aduWizardBack,
+  aduWizardNext,
+  chooseAduOption,
+  closeAduDesignModal,
+  closeDesignResult,
+  customizeSelectedModel,
+  designSpecificModel,
+  emailDesignSummary,
+  handleDesignSubmit,
+  openAduDesignModal,
+  openDesignResult,
+  printDesignSummary,
+  resetAduDraft,
+  saveAduDraft,
+  setAduRotation,
+  setPreviewView,
+  setWindowLayout,
+  startAduDesign,
+  toggleAduSpin,
+  viewModelList,
+});
 
 renderAduConfigurator();
 
