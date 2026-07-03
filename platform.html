@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABQ ADU — Platform (Version 4)</title>
+<title>ABQ ADU — Platform (Version 5)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
@@ -121,6 +121,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .design-draft-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 4px;border-bottom:1px solid var(--stucco)}
 .design-draft-row b{font-size:13px}
 .design-draft-row .muted{font-size:11px}
+.bp-plan-wrap{margin:0 0 16px;max-width:470px}
+.bp-plan-wrap svg{width:100%;height:auto;border-radius:10px;display:block;box-shadow:0 6px 22px rgba(15,31,61,.28)}
 .cart-drops{display:grid;gap:10px;grid-template-columns:repeat(3,1fr);margin:0 0 12px}
 .cart-drop-box{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:9px 12px}
 .cart-drop-box b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--copper)}
@@ -447,6 +449,13 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   #tab-blueprint table{min-width:680px}
   .cart-pro-note{grid-template-columns:1fr}
   .cart-drops{grid-template-columns:1fr}
+  .cart-actions{flex-direction:column;align-items:stretch}
+  .cart-actions .btn,.cart-actions select{width:100%}
+  .cart-actions label{margin:0}
+  .cart-drop-box input[type=date]{width:100%;min-height:40px}
+  .bp-plan-wrap{max-width:100%}
+  #cart-body table{min-width:760px}
+  .trade-pull-item button{width:100%;min-height:42px}
   .invoice-folder-toggle{align-items:flex-start}
   .invoice-folder-toggle b{font-size:18px}
 }
@@ -492,7 +501,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <button class="tab" data-tab="blueprint">Blueprint Bidout</button>
     <button class="tab" data-tab="ai">AI Assistant</button>
   </nav>
-  <span class="v-badge">Version 4</span>
+  <span class="v-badge">Version 5</span>
   <a class="home-link" href="index.html">← Site</a>
 </header>
 
@@ -672,10 +681,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <h4>Finish Subcontractor Bid Pulls</h4>
           <p>Pull these four finish trades on every job so the builder has real subcontractor pricing before the final bid is sent.</p>
           <div class="trade-pull-list">
-            <div class="trade-pull-item"><b>Countertops</b><span>Stone/solid surface quote and install lead time.</span></div>
-            <div class="trade-pull-item"><b>Flooring</b><span>LVP or alternate floor material and labor quote.</span></div>
-            <div class="trade-pull-item"><b>Tile</b><span>Bathroom, shower, backsplash, and wet-area scope.</span></div>
-            <div class="trade-pull-item"><b>Cabinets</b><span>Cabinet package, hardware, install, and delivery timing.</span></div>
+            <div class="trade-pull-item"><b>Countertops</b><span>Stone/solid surface quote and install lead time.</span><button class="btn sm copper" style="margin-top:7px" onclick="textTrade('Countertops','5055550151','Ray')">Text Ray for quote</button></div>
+            <div class="trade-pull-item"><b>Flooring</b><span>LVP or alternate floor material and labor quote.</span><button class="btn sm copper" style="margin-top:7px" onclick="textTrade('Flooring','5055550124','Lee')">Text Lee for quote</button></div>
+            <div class="trade-pull-item"><b>Tile</b><span>Bathroom, shower, backsplash, and wet-area scope.</span><button class="btn sm copper" style="margin-top:7px" onclick="textTrade('Tile','5055550138','Ana')">Text Ana for quote</button></div>
+            <div class="trade-pull-item"><b>Cabinets</b><span>Cabinet package, hardware, install, and delivery timing.</span><button class="btn sm copper" style="margin-top:7px" onclick="textTrade('Cabinets','5055550166','Sam')">Text Sam for quote</button></div>
           </div>
         </div>
         <div class="quick-cogs no-print">
@@ -999,6 +1008,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
   <div class="model-catalog" id="bp-models"></div>
 
+  <div class="bp-plan-wrap no-print" id="bp-plan-preview"></div>
+
   <div class="bidout-grid">
     <div class="card" style="padding:0;overflow:hidden">
       <table>
@@ -1045,10 +1056,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <span class="muted" id="cart-paste-result" style="font-size:12px;margin-left:8px"></span>
       </details>
     </div>
-    <div class="row no-print" style="gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center">
+    <div class="row no-print cart-actions" style="gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center">
       <button class="btn blue" onclick="generateLowesCart()">Generate cart from model</button>
       <button class="btn copper" onclick="exportLowesCartCsv()">Export Pro Desk CSV</button>
-      <button class="btn ghost" onclick="printLowesQuote()">Print one-page quote request</button>
+      <button class="btn ghost" onclick="printLowesQuote()">Print / PDF quote request</button>
+      <button class="btn ghost" onclick="textLowesQuote()">Text quote summary</button>
       <label class="fld" style="margin:0 0 0 auto">Cart status</label>
       <select class="in" style="width:150px" id="cart-status" onchange="setCartStatus(this.value)">
         <option value="draft">draft</option><option value="submitted">submitted</option><option value="quoted">quoted</option><option value="ordered">ordered</option><option value="delivered">delivered</option>
@@ -1184,6 +1196,7 @@ let invoices = activeProject.invoices;
 let invoiceFolderOpen = store.get('invoiceFolderOpen', false);
 let bidQuizStep = 0;
 const PRECON_DEPOSIT = 10000;
+const INVOICE_PACKET_TO = 'ian@company.com'; // placeholder — replace with Ian's real email before sending live packets
 const MODEL_IMAGES = {
   'Netherwood House':'images/hyder-hut-sheet.png',
   'Netherwood House 2BR':'images/hyder-hut-2br-exterior-finishes.webp',
@@ -1598,8 +1611,14 @@ function renderBid(){
   renderReviewCallout(t); renderInvoices(); renderBidKpis(t); renderBidAppShell(t); saveBid();
 }
 function editLine(i,k,v){bid.items[i][k]=(k==='qty'||k==='cost')?+v:v;renderBid()}
-function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid();focusNewestCogsLine()}
+function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid();focusNewestCogsLine();setBidSaveStatus('New COGS line added at the bottom of the table — start typing. Draft saved.')}
 function addPresetLine(key){bid.items.push({...PRESET_LINES[key]});renderBid();setBidSaveStatus(`Added ${PRESET_LINES[key].desc}. Draft saved.`)}
+function textTrade(trade,phone,name){
+  syncBidFromInputs();
+  const body=encodeURIComponent(`ABQ ADU — ${name}, requesting a ${trade.toLowerCase()} quote for ${bid.title||'an ADU job'} (${bid.sqft||640} sf ${bid.model||'ADU'}). Plans and specs are ready. Can you walk the site this week? Reply to confirm.`);
+  window.location.href=`sms:${phone}?&body=${body}`;
+  setBidSaveStatus(`Opened a text to ${name} for the ${trade.toLowerCase()} bid pull.`);
+}
 function delLine(i){bid.items.splice(i,1);renderBid()}
 function quickCogsValue(id,fallback=''){
   const el=$('#'+id);
@@ -1642,8 +1661,14 @@ function addCogsBundle(key){
 function focusNewestCogsLine(){
   const rows=document.querySelectorAll('#bid-items tr');
   const last=rows[rows.length-1];
-  const input=last?.querySelector('input');
-  if(input)input.focus();
+  if(!last)return;
+  last.scrollIntoView({behavior:'smooth',block:'center'});
+  last.style.transition='background .3s';
+  last.style.background='rgba(196,149,74,.22)';
+  setTimeout(()=>{last.style.background=''},1800);
+  const inputs=last.querySelectorAll('input');
+  const target=inputs[1]||inputs[0];
+  if(target)target.focus();
 }
 $('#bid-title').oninput=e=>{bid.title=e.target.value;saveBid()};
 $('#bid-client').oninput=e=>{bid.client=e.target.value;saveBid()};
@@ -1960,6 +1985,7 @@ function focusInvoicePacket(shouldBuild=true){
 }
 function printInvoicePacket(){
   if(!invoices.length){acceptBid();return}
+  location.hash='bids';showTab('bids');
   invoiceFolderOpen=true;
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
@@ -1994,8 +2020,8 @@ Invoice 3 progress draw: remaining balance
 Invoices:
 ${lines}
 
-Version 4 plan: send this same packet by SMS with payment links.`);
-  window.location.href=`mailto:?subject=${subject}&body=${body}`;
+Version 5 plan: send this same packet by SMS with payment links.`);
+  window.location.href=`mailto:${INVOICE_PACKET_TO}?subject=${subject}&body=${body}`;
 }
 function delInv(i){
   if(invoices[i].paid>0){alert(`${invoices[i].num} has recorded payments — adjust the amount instead of deleting.`);return}
@@ -2431,6 +2457,7 @@ function renderBlueprint(force=false){
     'Review flags: extra meter/panel, sewer confirmation study, openings over 3 ft, and 750 sf homeowner max.',
     city,
   ].map((txt,i)=>`<div class="lowes-step"><b>${i+1}</b><span>${txt}</span></div>`).join('');
+  renderPlanPreview();
   renderLowesCart();
 }
 
@@ -2455,6 +2482,55 @@ function setDropDate(drop,val){
   const cart=activeProject.lowesCart;if(!cart)return;
   cart.drops[drop]={date:val};
   saveBid();renderLowesCart();
+}
+const MODEL_TEMPLATE_KEYS={'hyder-hut':'hyder-hut','hyder-hut-2br':'hyder-hut-2br','altura-24x24':'altura','casita-portal':'casita','tierra-grande':'tierra'};
+function blueprintPlanSvg(model){
+  const key=MODEL_TEMPLATE_KEYS[model.id];
+  const tpl=key&&TEMPLATES[key];
+  if(!tpl||!tpl.length)return '';
+  const u=10,pad=28,titleH=44;
+  const roomsFt=tpl.map(r=>({label:r[1],x:r[3]/GRID,y:r[4]/GRID,w:r[5],h:r[6]}));
+  const minX=Math.min(...roomsFt.map(r=>r.x)),minY=Math.min(...roomsFt.map(r=>r.y));
+  const maxX=Math.max(...roomsFt.map(r=>r.x+r.w)),maxY=Math.max(...roomsFt.map(r=>r.y+r.h));
+  const W=(maxX-minX)*u+pad*2,H=(maxY-minY)*u+pad*2+titleH;
+  let grid='';
+  for(let gx=0;gx<=W;gx+=u)grid+=`<line x1="${gx}" y1="0" x2="${gx}" y2="${H}" stroke="rgba(120,170,230,.10)"/>`;
+  for(let gy=0;gy<=H;gy+=u)grid+=`<line x1="0" y1="${gy}" x2="${W}" y2="${gy}" stroke="rgba(120,170,230,.10)"/>`;
+  const roomRects=roomsFt.map(r=>{
+    const x=pad+(r.x-minX)*u,y=pad+(r.y-minY)*u,w=r.w*u,h=r.h*u;
+    const horiz=w>=h,doorLen=Math.min(18,(horiz?w:h)*.3);
+    const door=horiz
+      ?`<rect x="${x+w/2-doorLen/2}" y="${y-2.5}" width="${doorLen}" height="5" rx="2.5" fill="#E8C98A"/>`
+      :`<rect x="${x-2.5}" y="${y+h/2-doorLen/2}" width="5" height="${doorLen}" rx="2.5" fill="#E8C98A"/>`;
+    const short=r.label.length>9?r.label.split(/[\s/]/)[0]:r.label;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="rgba(155,192,238,.07)" stroke="#8FB6E8" stroke-width="3"/>${door}
+      <text x="${x+w/2}" y="${y+h/2+4}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" fill="#EDF2F9">${esc(short.toUpperCase())}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(model.name)} blueprint plan">
+    <rect width="${W}" height="${H}" fill="#0F1F3D"/>${grid}
+    <rect x="${pad-6}" y="${pad-6}" width="${(maxX-minX)*u+12}" height="${(maxY-minY)*u+12}" rx="8" fill="none" stroke="#9BC0EE" stroke-width="5"/>
+    ${roomRects}
+    <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="17" font-weight="800" letter-spacing="4" fill="#C4954A">${esc(model.name.toUpperCase())} PLAN</text>
+  </svg>`;
+}
+function renderPlanPreview(){
+  const el=$('#bp-plan-preview');if(!el)return;
+  const svg=blueprintPlanSvg(bpModel);
+  el.innerHTML=svg
+    ?svg+`<div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap"><span class="muted" style="font-size:11px">Blueprint plan auto-drawn from the ${esc(bpModel.name)} floor-plan data — included on the printed quote sheet.</span><button class="btn ghost sm" style="margin-left:auto" onclick="downloadPlanSvg()">Download plan image</button></div>`
+    :`<div class="muted" style="font-size:12px">No floor-plan data for ${esc(bpModel.name)} yet — plan previews cover the builder-ready models.</div>`;
+}
+function downloadPlanSvg(){
+  const svg=blueprintPlanSvg(bpModel);
+  if(!svg){alert('No floor-plan data for this model yet.');return}
+  downloadTextFile(`${safeFileName(bpModel.name)}-plan.svg`,svg,'image/svg+xml');
+}
+function textLowesQuote(){
+  const cart=ensureCartShape(activeProject.lowesCart);
+  if(!cart||!cart.lines.length){alert('Generate a cart first.');return}
+  const t=cartTotals();
+  const body=encodeURIComponent(`ABQ ADU quote request — ${bid.title||'ADU project'} (${cart.modelName||bid.model}). ${t.total} material lines, job-site delivery in 3 drops (targets ${[1,2,3].map(d=>shortDropDate(cart.drops[d])).join(', ')}). 24-hour quote requested. CSV and plan sheet to follow. Reply to confirm.`);
+  window.location.href=`sms:?&body=${body}`;
 }
 function lowesCartLines(model){
   const c=takeoffContext(model);
@@ -2670,6 +2746,7 @@ function printLowesQuote(){
         <div>${today} · response requested within 24 hours</div>
         <div>12th Street Lowe's Pro Desk · job-site delivery in 3 drops</div></div>
     </div>
+    ${(()=>{const m=MODEL_CATALOG.find(x=>x.id===cart.modelId);const p=m?blueprintPlanSvg(m):'';return p?`<div style="max-width:320px;margin:0 auto 14px">${p}</div>`:''})()}
     <table style="width:100%;border-collapse:collapse;font-size:11px">
       <thead><tr><th>Item #</th><th>Item</th><th>Spec / note</th><th class="r">Qty</th><th>Unit</th><th style="width:90px">Quoted unit $</th></tr></thead>
       <tbody>${rows}</tbody>
