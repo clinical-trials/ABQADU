@@ -3891,6 +3891,26 @@ footer {
   .platform-features { grid-template-columns: 1fr; }
   .gantt-mockup-body { grid-template-columns: 1fr; }
   .gantt-wbs { display: none; }
+  .gantt-bars-area {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 20px;
+  }
+  .gantt-bars-area > div,
+  .gantt-bar-row {
+    min-width: 520px;
+  }
+  .gantt-bars-area::after {
+    color: rgba(240,235,225,.46);
+    content: "Swipe schedule";
+    display: block;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    margin-top: 8px;
+    text-align: right;
+    text-transform: uppercase;
+  }
 }
 </style>
 </head>
