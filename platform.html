@@ -104,6 +104,21 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .lineitem input:focus{border-color:var(--stucco-d);background:#fff;outline:none}
 .lineitem select{border:1px solid transparent;padding:4px 6px;border-radius:99px;font-size:11px;font-weight:700;cursor:pointer}
 .lineitem select:focus{border-color:var(--stucco-d);outline:none}
+.facing-chip{display:inline-block;margin-left:10px;padding:4px 11px;border-radius:99px;font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;vertical-align:middle}
+.facing-chip.builder{background:var(--blue);color:#BBD3F8}
+.facing-chip.homeowner{background:var(--sage);color:#E4EEE8}
+.lowes-cart{margin-top:22px}
+.cart-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.cart-kpis{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 14px}
+.cart-kpis .ck{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:9px 14px;min-width:130px}
+.cart-kpis .ck b{display:block;font-family:var(--fd);font-size:20px}
+.cart-kpis .ck span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink60);font-weight:700}
+.cart-drop-row td{background:var(--stucco);font-family:var(--fd);font-weight:700;font-size:13px;letter-spacing:.03em;padding:7px 10px}
+.cart-var-over{color:var(--err)}
+.cart-var-under{color:var(--ok)}
+.cart-pro-note{background:#F8F2E7;border:1px solid rgba(196,149,74,.34);border-radius:8px;display:grid;gap:8px;grid-template-columns:repeat(4,1fr);margin:0 0 12px;padding:10px}
+.cart-pro-note b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--copper)}
+.cart-pro-note span{color:var(--ink60);display:block;font-size:11px;line-height:1.35;margin-top:2px}
 .lineitem:hover{background:var(--paper)}
 .bid-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
 .bid-flow-step{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:11px 12px;position:relative;transition:border-color .16s,box-shadow .16s,transform .16s}
@@ -420,6 +435,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .invoice-job-stats{grid-template-columns:1fr}
   .card{padding:14px;overflow-x:auto}
   #tab-blueprint table{min-width:680px}
+  .cart-pro-note{grid-template-columns:1fr}
   .invoice-folder-toggle{align-items:flex-start}
   .invoice-folder-toggle b{font-size:18px}
 }
@@ -474,7 +490,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ BIDS & INVOICING ════════ -->
 <section class="panel active" id="tab-bids">
-  <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="muted">Version 3 · revenue-facing</span></div>
+  <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Version 3 · revenue-facing · prints a homeowner-safe summary</span></div>
   <p class="panel-sub">Move from customer call to site visit within 24 hours, then build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then edit draws and track payments as the build progresses.</p>
 
   <div class="bid-app-shell no-print">
@@ -586,6 +602,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <div class="project-list" id="project-list"></div>
           <div class="project-actions">
             <button class="btn blue sm" onclick="newProjectFolder()">+ New homeowner project</button>
+            <button class="btn ghost sm" onclick="duplicateProjectFolder()">Duplicate as revision</button>
             <button class="btn ghost sm" onclick="saveBidDraft()">Save active draft</button>
           </div>
         </div>
@@ -768,7 +785,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ SCHEDULE & CRITICAL PATH ════════ -->
 <section class="panel" id="tab-schedule">
-  <div class="panel-head"><h2>Schedule &amp; Critical Path</h2><span class="muted">Phase 2 · contractor operations</span></div>
+  <div class="panel-head"><h2>Schedule &amp; Critical Path</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Phase 2 · contractor operations</span></div>
   <p class="panel-sub">Critical Path Method scheduling for the build. The engine runs a forward/backward pass to compute early/late dates, total float, and the critical path — the sequence that drives your completion date. Dispatch crews by text.</p>
 
   <div class="kpi-grid" id="sched-kpis"></div>
@@ -803,7 +820,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ PROJECT CONTROLS ════════ -->
 <section class="panel" id="tab-controls">
-  <div class="panel-head"><h2>Project Controls</h2><span class="muted">Phase 2 · portfolio &amp; PM</span></div>
+  <div class="panel-head"><h2>Project Controls</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Phase 2 · portfolio &amp; PM</span></div>
   <p class="panel-sub">Portfolio-level command center: track every active ADU build, score risks on a 5×5 matrix, run the daily field board, and watch resource load and baseline schedule variance.</p>
 
   <div class="subnav">
@@ -874,7 +891,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ DESIGN STUDIO ════════ -->
 <section class="panel" id="tab-design">
-  <div class="panel-head"><h2>Design Studio</h2><span class="muted">Phase 3 · client-facing</span></div>
+  <div class="panel-head"><h2>Design Studio</h2><span class="facing-chip homeowner">Homeowner-facing</span><span class="muted">Phase 3 · client-facing</span></div>
   <p class="panel-sub">Drag rooms onto the grid (1 square = 1 ft), resize, and watch the live cost estimate and Albuquerque zoning check update. Start from one of the five ABQ ADU models or a blank lot.</p>
 
   <div class="gantt-toolbar no-print">
@@ -905,7 +922,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ BLUEPRINT BIDOUT ════════ -->
 <section class="panel" id="tab-blueprint">
-  <div class="panel-head"><h2>Plans → Blueprint → Lowe's Bidout</h2><span class="muted">Version 3 · non-negotiable</span></div>
+  <div class="panel-head"><h2>Plans → Blueprint → Lowe's Bidout</h2><span class="facing-chip builder">Builder-facing · internal pricing</span><span class="muted">Version 3 · non-negotiable</span></div>
   <p class="panel-sub">Turn a selected ABQ ADU model or uploaded plan set into a blueprint-aware material takeoff. The first Version 3 pass uses standard model assemblies; later passes can add AI/vision review for uploaded PDFs.</p>
 
   <div class="blueprint-hero">
@@ -966,11 +983,46 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <button class="btn copper" style="width:100%;margin-top:12px" onclick="printPanel('tab-blueprint')">Print Bidout Packet</button>
     </div>
   </div>
+
+  <div class="card lowes-cart" id="lowes-cart-card">
+    <div class="cart-head">
+      <h3 style="font-size:17px">Lowe's Pro Cart · 12th Street Lowe's · <span id="cart-project-label">active project</span></h3>
+      <span class="pill" id="cart-status-pill">no cart yet</span>
+      <span class="muted" id="cart-clock" style="font-size:12px;font-weight:600"></span>
+      <span class="muted" style="margin-left:auto;font-size:11px">Materials only — labor stays in bid COGS</span>
+    </div>
+    <div class="muted" style="font-size:12px;margin-bottom:10px">Build the cart from the selected model, tune quantities and specs, export for the 12th Street Lowe's Pro Desk (24-hour quote turnaround, job-site delivery in three drops), then type quoted prices next to budget and push real material COGS into the bid.</div>
+    <div class="cart-pro-note">
+      <div><b>Pro Desk</b><span>12th Street Lowe's Pro; ask for best builder pricing and 24-hour quote response.</span></div>
+      <div><b>Delivery</b><span>Quote job-site delivery in drops so materials land when crews need them.</span></div>
+      <div><b>Installer</b><span>Confirm whether an additional installer is needed if Ramie works out as an employee.</span></div>
+      <div><b>Big Spends</b><span>Lumber, sheetrock, and mud must be explicit quote lines, not hidden in allowances.</span></div>
+    </div>
+    <div id="cart-empty" class="muted" style="padding:14px;text-align:center">No cart for this project yet — pick a model above and click <b>Generate cart from model</b>.</div>
+    <div id="cart-body" style="display:none">
+      <div class="cart-kpis" id="cart-kpis"></div>
+      <table>
+        <thead><tr><th>Dept</th><th>Item</th><th>Spec / SKU note</th><th class="r" style="width:64px">Qty</th><th style="width:52px">Unit</th><th class="r" style="width:90px">Budget unit</th><th class="r">Budget total</th><th class="r" style="width:90px">Quoted unit</th><th class="r">Quoted total</th><th style="width:26px"></th></tr></thead>
+        <tbody id="cart-rows"></tbody>
+      </table>
+      <button class="btn ghost sm" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper)" onclick="addCartLine()">+ Add cart line</button>
+    </div>
+    <div class="row no-print" style="gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center">
+      <button class="btn blue" onclick="generateLowesCart()">Generate cart from model</button>
+      <button class="btn copper" onclick="exportLowesCartCsv()">Export Pro Desk CSV</button>
+      <button class="btn ghost" onclick="printPanel('tab-blueprint')">Print quote request</button>
+      <label class="fld" style="margin:0 0 0 auto">Cart status</label>
+      <select class="in" style="width:150px" id="cart-status" onchange="setCartStatus(this.value)">
+        <option value="draft">draft</option><option value="submitted">submitted</option><option value="quoted">quoted</option><option value="ordered">ordered</option><option value="delivered">delivered</option>
+      </select>
+      <button class="btn copper" onclick="sendCartToBid()">Send quoted COGS → bid</button>
+    </div>
+  </div>
 </section>
 
 <!-- ════════ AI ASSISTANT ════════ -->
 <section class="panel" id="tab-ai">
-  <div class="panel-head"><h2>AI Assistant</h2><span class="muted">Cross-phase · Claude-powered</span></div>
+  <div class="panel-head"><h2>AI Assistant</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Cross-phase · Claude-powered</span></div>
   <p class="panel-sub">Six Claude agents designed into the platform — three for design, three for scheduling. Click any agent to preview the kind of output it produces.</p>
   <div class="note">⚠ <b>Preview mode.</b> These show representative sample output. Live AI calls require a backend with a secret API key (a Phase 4 serverless function) and cannot run on a static page. The prompts and logic are already built in the platform's <code>claudeDesign.js</code> and <code>claudeScheduler.js</code> services.</div>
   <div class="ai-grid" id="ai-grid"></div>
@@ -1218,6 +1270,7 @@ function switchProject(id){
   activeProject.bid=bid;
   activeProject.invoices=invoices;
   persistProjects();
+  blueprintDone=false;
   renderBid();
   setBidSaveStatus('Project folder loaded.');
 }
@@ -1231,8 +1284,26 @@ function newProjectFolder(){
   invoices=activeProject.invoices;
   invoiceFolderOpen=false;
   persistProjects();
+  blueprintDone=false;
   renderBid();
   setBidSaveStatus('New homeowner project folder created.');
+}
+function duplicateProjectFolder(){
+  saveBid();
+  const copy=makeProject(normalizeBid(JSON.parse(JSON.stringify(bid))),[]);
+  copy.bid.title=`${bid.title||'Untitled ADU project'} — revision`;
+  copy.bid.status='draft';
+  if(activeProject.lowesCart)copy.lowesCart=JSON.parse(JSON.stringify(activeProject.lowesCart));
+  projects.unshift(copy);
+  activeProjectId=copy.id;
+  activeProject=copy;
+  bid=copy.bid;
+  invoices=copy.invoices;
+  invoiceFolderOpen=false;
+  persistProjects();
+  blueprintDone=false;
+  renderBid();
+  setBidSaveStatus('Duplicated into a new revision draft — bid lines and Lowe\'s cart copied, invoices start fresh.');
 }
 function bidTotals(){
   const sub = bid.items.reduce((s,i)=>s+(+i.qty||0)*(+i.cost||0),0);
@@ -2148,12 +2219,12 @@ const CITY_PLAN_VARIATIONS=[
 
 const BLUEPRINT_MATERIAL_GROUPS = [
   {cat:'Slab',item:'Slab package',unit:'sf',calc:c=>c.sf,rate:18,review:'site/soil review'},
-  {cat:'Framing',item:'Framing package',unit:'lf',calc:c=>Math.round(c.exteriorWallLf*3),rate:4.5,review:'field verify openings'},
+  {cat:'Framing',item:'Lumber / framing package',unit:'lf',calc:c=>Math.round(c.exteriorWallLf*3),rate:4.5,review:'lumber is a big spend - quote hard'},
   {cat:'Roof',item:'Roof package',unit:'sf',calc:c=>c.roofSf,rate:6.5,review:'wind/rain delay sensitive'},
   {cat:'Exterior',item:'Exterior finish package',unit:'sf',calc:c=>Math.round(c.wallSf*.72),rate:7,review:'stucco/siding color alternate'},
   {cat:'Exterior',item:'Windows / doors package',unit:'ea',calc:c=>c.windowCount+c.doorCount,rate:520,review:'openings over 3 ft need engineering review'},
   {cat:'Interior',item:'Insulation package',unit:'sf',calc:c=>c.wallSf,rate:1.8,review:'R-value confirm'},
-  {cat:'Interior',item:'Drywall package',unit:'sf',calc:c=>c.wallSf+c.sf,rate:2.2,review:'standard finish'},
+  {cat:'Interior',item:'Sheetrock + mud package',unit:'sf',calc:c=>c.wallSf+c.sf,rate:2.2,review:'quote sheetrock, mud, tape, and corner bead'},
   {cat:'MEP',item:'Electrical package',unit:'sf',calc:c=>c.sf,rate:12,review:'extra electric meter/panel $3,500-$6,500'},
   {cat:'MEP',item:'Plumbing package',unit:'ea',calc:c=>c.bathCount*3+1,rate:850,review:'sewer confirmation study'},
   {cat:'MEP',item:'HVAC package',unit:'sf',calc:c=>c.sf,rate:9,review:'mini-split + smart thermostat'},
@@ -2176,20 +2247,20 @@ function selectBpModel(id){
   bpModel=MODEL_CATALOG.find(m=>m.id===id)||MODEL_CATALOG[0];
   renderBlueprint(true);
 }
-function takeoffFor(model){
+function takeoffContext(model){
   const sf=model.sqft||650;
   const bathCount=typeof model.bath==='number'?Math.ceil(model.bath):1;
   const bedCount=typeof model.bed==='number'?model.bed:1;
   const exteriorWallLf=Math.round(Math.sqrt(sf)*4.15);
   const roofSf=Math.round(sf*1.16);
   const wallSf=Math.round(exteriorWallLf*9);
-  const windowCount=Math.max(5,bedCount*2+3);
-  const doorCount=bedCount+4;
-  const cabinetLf=bedCount>=2?16:12;
-  const floorSf=Math.round(sf-bathCount*55);
-  const tileSf=Math.round(bathCount*85+22);
+  return {sf,bathCount,bedCount,exteriorWallLf,roofSf,wallSf,
+    windowCount:Math.max(5,bedCount*2+3),doorCount:bedCount+4,
+    cabinetLf:bedCount>=2?16:12,floorSf:Math.round(sf-bathCount*55),tileSf:Math.round(bathCount*85+22)};
+}
+function takeoffFor(model){
   const review=model.sqft?'ready':'confirm sqft before bid';
-  const context={sf,bathCount,bedCount,exteriorWallLf,roofSf,wallSf,windowCount,doorCount,cabinetLf,floorSf,tileSf};
+  const context=takeoffContext(model);
   return [
     {cat:'Blueprint',item:'Plan review, scale check, bid assumptions sheet',qty:1,unit:'set',budget:450,review},
     ...BLUEPRINT_MATERIAL_GROUPS.map(g=>{
@@ -2224,12 +2295,176 @@ function renderBlueprint(force=false){
   $('#lowes-checklist').innerHTML=[
     'Choose model: confirm square footage, left/right orientation, owner changes, and custom review status.',
     'Generate takeoff: review slab, framing, roof, exterior finish, windows/doors, insulation, drywall, MEP, and finishes.',
-    'Pull supplier / Lowe’s package: send quantities, alternates, exclusions, and site allowances to the bid desk.',
+    'Pull supplier / Lowe’s package: send quantities, alternates, exclusions, site allowances, job-site delivery, and installer notes to the 12th Street Pro Desk.',
+    'Build cart priority lines: lumber/2x4s, sheetrock, mud, house wrap, roofing nails, and the roughly $1,000 job-site fastener package.',
     'Pull finish subcontractor quotes for countertops, flooring, tile, and cabinets on every job.',
     'Import / compare final COGS: bring supplier and subcontractor quotes back into this bid file and recalc $/sf.',
     'Review flags: extra meter/panel, sewer confirmation study, openings over 3 ft, and 750 sf homeowner max.',
     city,
   ].map((txt,i)=>`<div class="lowes-step"><b>${i+1}</b><span>${txt}</span></div>`).join('');
+  renderLowesCart();
+}
+
+/* ── Lowe's Pro Cart — builder-facing, materials only, per project folder ── */
+const CART_STATUS_STYLE={draft:['#F3F4F6','#6B7280'],submitted:['#FEF3C7','#92400E'],quoted:['#DBEAFE','#1E40AF'],ordered:['#EDE9FE','#5B21B6'],delivered:['#D1FAE5','#065F46']};
+const CART_DROPS={1:'Drop 1 · Framing & shell (order first)',2:'Drop 2 · Dry-in',3:'Drop 3 · Finish & appliances'};
+function lowesCartLines(model){
+  const c=takeoffContext(model);
+  const sheets=Math.ceil((c.wallSf+c.sf)/32);
+  const L=(drop,dept,item,spec,qty,unit,budget)=>({id:'cl_'+Math.random().toString(16).slice(2,9),drop,dept,item,spec,qty,unit,budget,quoted:null});
+  return [
+    L(1,'Lumber','2x4 studs','KD SPF stud grade — lumber is the big spend, quote hard',c.exteriorWallLf*3,'ea',4.25),
+    L(1,'Lumber','2x4 plates and blocking','Bottom/top plates, blocking, backing, nailers',Math.ceil(c.exteriorWallLf*2.2),'ea',5.25),
+    L(1,'Lumber','Headers, beams, misc framing lumber','2x6/2x8/LVL allowance — Pro Desk to refine from plan',1,'allow',1450),
+    L(1,'Building Materials','House wrap','9 ft x 100 ft roll (~900 sf)',Math.max(1,Math.ceil(c.wallSf/850)),'roll',185),
+    L(1,'Hardware','Framing nails','21° 3-1/4 in — 3 boxes per job site',3,'box',115),
+    L(1,'Hardware','Roofing nails','1-1/4 in coil',2,'box',98),
+    L(1,'Hardware','Fastener & consumables kit','Nails/fasteners/consumables target roughly $1,000 per job site',1,'kit',460),
+    L(2,'Windows & Doors','Windows','New construction, low-E — openings over 3 ft need engineering first',c.windowCount,'ea',420),
+    L(2,'Windows & Doors','Exterior doors','Prehung, weather-rated',2,'ea',480),
+    L(2,'Windows & Doors','Interior doors','Prehung',Math.max(1,c.doorCount-2),'ea',220),
+    L(2,'Building Materials','Sheetrock / drywall 4x8 — 1/2 in','Walls + ceiling; confirm moisture board at bath',sheets,'sheet',16),
+    L(2,'Building Materials','Mud / joint compound — 4.5 gal','All-purpose mud; quote enough buckets for one job',Math.max(2,Math.ceil(sheets/8)),'bucket',19),
+    L(2,'Building Materials','Drywall tape + corner bead kit','Tape, bead, screws, sanding supplies',1,'kit',95),
+    L(3,'Appliances','Refrigerator','Confirm width with homeowner',1,'ea',1450),
+    L(3,'Appliances','Gas range / oven','30 in — confirm gas line',1,'ea',950),
+    L(3,'Appliances','Dishwasher','Standard 24 in',1,'ea',600),
+    L(3,'Appliances','Microwave','Over-the-range',1,'ea',320),
+    L(3,'Kitchen & Bath','Cabinets','In-stock vs special order — check lead time',c.cabinetLf,'lf',280),
+    L(3,'Kitchen & Bath','Countertops','Post-form or quote pull',c.cabinetLf,'lf',95),
+    L(3,'Kitchen & Bath','Kitchen sink','Double bowl stainless',1,'ea',280),
+    L(3,'Kitchen & Bath','Kitchen faucet','',1,'ea',220),
+    L(3,'Kitchen & Bath','Bath vanity + sink','Per bath',c.bathCount,'ea',450),
+    L(3,'Kitchen & Bath','Bath faucet','Per bath',c.bathCount,'ea',120),
+    L(3,'Kitchen & Bath','Toilet','Comfort height, per bath',c.bathCount,'ea',220),
+    L(3,'Flooring','LVP flooring','Materials only · +10% waste',Math.ceil(c.floorSf*1.1),'sf',3.5),
+    L(3,'Lighting','Lighting package','Flush mounts, vanity bars, exterior',c.bedCount*2+6,'ea',85),
+  ];
+}
+function generateLowesCart(){
+  const existing=activeProject.lowesCart;
+  if(existing&&existing.lines.length&&!confirm("Replace this project's Lowe's cart? Edited quantities and quoted prices will be lost."))return;
+  activeProject.lowesCart={status:'draft',submittedAt:null,quotedAt:null,modelId:bpModel.id,modelName:bpModel.name,lines:lowesCartLines(bpModel)};
+  saveBid();
+  renderLowesCart();
+}
+function cartTotals(){
+  const cart=activeProject.lowesCart;
+  const lines=cart?cart.lines:[];
+  const budget=lines.reduce((s,l)=>s+(+l.qty||0)*(+l.budget||0),0);
+  const quotedLines=lines.filter(l=>l.quoted!=null);
+  return {
+    budget,
+    quoted:quotedLines.reduce((s,l)=>s+(+l.qty||0)*(+l.quoted||0),0),
+    quotedBudget:quotedLines.reduce((s,l)=>s+(+l.qty||0)*(+l.budget||0),0),
+    quotedCount:quotedLines.length,
+    total:lines.length,
+  };
+}
+function renderLowesCart(){
+  const card=$('#lowes-cart-card');if(!card)return;
+  const cart=activeProject.lowesCart;
+  $('#cart-project-label').textContent=bid.title||'active project';
+  const sc=CART_STATUS_STYLE[cart?cart.status:'draft']||CART_STATUS_STYLE.draft;
+  const pill=$('#cart-status-pill');
+  pill.textContent=cart?cart.status:'no cart yet';
+  pill.style.background=sc[0];pill.style.color=sc[1];
+  $('#cart-empty').style.display=cart?'none':'block';
+  $('#cart-body').style.display=cart?'block':'none';
+  $('#cart-status').value=cart?cart.status:'draft';
+  const clock=$('#cart-clock');
+  if(cart&&cart.status==='submitted'&&cart.submittedAt){
+    const due=new Date(new Date(cart.submittedAt).getTime()+24*3600*1000);
+    const hrs=Math.round((due-Date.now())/3600000);
+    clock.textContent=hrs>=0
+      ?`Quote due ${due.toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'})} · ~${hrs}h left`
+      :'Quote overdue — follow up with the Pro Desk';
+  }else clock.textContent='';
+  if(!cart)return;
+  const tb=$('#cart-rows');tb.innerHTML='';
+  let lastDrop=null;
+  cart.lines.forEach((l,i)=>{
+    if(l.drop!==lastDrop){
+      lastDrop=l.drop;
+      const dr=document.createElement('tr');dr.className='cart-drop-row';
+      dr.innerHTML=`<td colspan="10">${CART_DROPS[l.drop]||('Drop '+l.drop)}</td>`;
+      tb.appendChild(dr);
+    }
+    const bt=(+l.qty||0)*(+l.budget||0);
+    const qt=l.quoted==null?null:(+l.qty||0)*(+l.quoted||0);
+    const tr=document.createElement('tr');tr.className='lineitem';
+    tr.innerHTML=`<td class="muted" style="font-size:11px;white-space:nowrap">${esc(l.dept)}</td>
+      <td><input value="${esc(l.item)}" onchange="editCartLine(${i},'item',this.value)"></td>
+      <td><input value="${esc(l.spec||'')}" onchange="editCartLine(${i},'spec',this.value)" style="font-size:12px;color:var(--ink60)"></td>
+      <td><input class="r" type="number" step="1" min="0" value="${l.qty}" onchange="editCartLine(${i},'qty',this.value)"></td>
+      <td class="muted">${esc(l.unit)}</td>
+      <td><input class="r" type="number" step="0.01" min="0" value="${l.budget}" onchange="editCartLine(${i},'budget',this.value)"></td>
+      <td class="r" style="font-weight:600">${fmt(bt)}</td>
+      <td><input class="r" type="number" step="0.01" min="0" value="${l.quoted??''}" placeholder="—" onchange="editCartLine(${i},'quoted',this.value)"></td>
+      <td class="r ${qt!=null?(qt>bt?'cart-var-over':'cart-var-under'):''}" style="font-weight:600">${qt==null?'—':fmt(qt)}</td>
+      <td><button onclick="delCartLine(${i})" style="border:none;background:none;color:var(--terra);font-size:16px;cursor:pointer">×</button></td>`;
+    tb.appendChild(tr);
+  });
+  const t=cartTotals();
+  const diff=Math.round((t.quoted-t.quotedBudget)*100)/100;
+  $('#cart-kpis').innerHTML=`
+    <div class="ck"><b>${fmt0(t.budget)}</b><span>Cart budget</span></div>
+    <div class="ck"><b>${t.quotedCount?fmt0(t.quoted):'—'}</b><span>Quoted (${t.quotedCount}/${t.total} lines)</span></div>
+    <div class="ck"><b class="${diff>0?'cart-var-over':'cart-var-under'}">${t.quotedCount?(diff>0?'+':'')+fmt0(diff):'—'}</b><span>Quoted vs budget</span></div>`;
+}
+function editCartLine(i,k,v){
+  const l=activeProject.lowesCart.lines[i];
+  if(k==='qty'||k==='budget')l[k]=+v||0;
+  else if(k==='quoted')l.quoted=v===''?null:Math.round((+v||0)*100)/100;
+  else l[k]=v;
+  saveBid();renderLowesCart();
+}
+function addCartLine(){
+  activeProject.lowesCart.lines.push({id:'cl_'+Math.random().toString(16).slice(2,9),drop:3,dept:'General',item:'New item',spec:'',qty:1,unit:'ea',budget:0,quoted:null});
+  saveBid();renderLowesCart();
+}
+function delCartLine(i){activeProject.lowesCart.lines.splice(i,1);saveBid();renderLowesCart()}
+function setCartStatus(status){
+  const cart=activeProject.lowesCart;
+  if(!cart){alert('Generate a cart first.');$('#cart-status').value='draft';return}
+  cart.status=status;
+  if(status==='submitted'&&!cart.submittedAt)cart.submittedAt=new Date().toISOString();
+  if(status==='quoted'&&!cart.quotedAt)cart.quotedAt=new Date().toISOString();
+  saveBid();renderLowesCart();
+}
+function exportLowesCartCsv(){
+  const cart=activeProject.lowesCart;
+  if(!cart||!cart.lines.length){alert('Generate a cart first.');return}
+  const rows=[
+    ["ABQ ADU — Lowe's Pro quote request"],
+    ['Preferred Pro Desk','12th Street Lowe\'s Pro','','Response target','24 hours'],
+    ['Project',bid.title||'','','Client',bid.client||''],
+    ['Model',cart.modelName||'','','Requested','24-hour Pro Desk quote · job-site delivery in 3 drops'],
+    ['Delivery','Deliver to job site in drops','','Installer note','Confirm whether additional installer is needed if Ramie becomes employee'],
+    [],
+    ['Drop','Department','Item','Spec / note','Qty','Unit','Budget unit $','Budget total $','Quoted unit $','Quoted total $'],
+    ...cart.lines.map(l=>[CART_DROPS[l.drop]||l.drop,l.dept,l.item,l.spec||'',l.qty,l.unit,l.budget,
+      (+l.qty||0)*(+l.budget||0),l.quoted??'',l.quoted!=null?(+l.qty||0)*(+l.quoted||0):'']),
+  ];
+  const csv=rows.map(r=>r.map(csvCell).join(',')).join('\n');
+  downloadTextFile(`lowes-cart-${safeFileName(bid.title||'project')}.csv`,csv,'text/csv');
+}
+function sendCartToBid(){
+  const cart=activeProject.lowesCart;
+  if(!cart||!cart.lines.length){alert('Generate a cart first.');return}
+  const t=cartTotals();
+  const useQuoted=t.quotedCount===t.total&&t.total>0;
+  if(!useQuoted&&!confirm(`${t.total-t.quotedCount} of ${t.total} lines have no quoted price yet — send using budget prices for those lines?`))return;
+  bid.items=bid.items.filter(it=>it.source!=='lowes');
+  [1,2,3].forEach(drop=>{
+    const lines=cart.lines.filter(l=>l.drop===drop);
+    if(!lines.length)return;
+    const cost=lines.reduce((s,l)=>s+(+l.qty||0)*(l.quoted!=null?+l.quoted:(+l.budget||0)),0);
+    bid.items.push({cat:'Materials',desc:`Lowe's ${CART_DROPS[drop]}${useQuoted?' — quoted':' — budget/quoted mix'}`,kind:'base',qty:1,unit:'pkg',cost:Math.round(cost*100)/100,source:'lowes'});
+  });
+  saveBid();renderBid();
+  location.hash='bids';showTab('bids');
+  setBidSaveStatus("Lowe's cart pushed into bid COGS as three material drops. Review other base lines so labor+material rates don't double-count materials.");
 }
 
 /* ═══════════════ AI PREVIEWS ═══════════════ */
