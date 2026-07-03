@@ -116,6 +116,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .cart-drop-row td{background:var(--stucco);font-family:var(--fd);font-weight:700;font-size:13px;letter-spacing:.03em;padding:7px 10px}
 .cart-var-over{color:var(--err)}
 .cart-var-under{color:var(--ok)}
+.palette .pbtn{display:flex;align-items:center;gap:6px}
+.palette .pbtn em{margin-left:auto;font-style:normal;font-size:10px;color:var(--copper);font-weight:700}
+.design-draft-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 4px;border-bottom:1px solid var(--stucco)}
+.design-draft-row b{font-size:13px}
+.design-draft-row .muted{font-size:11px}
 .cart-pro-note{background:#F8F2E7;border:1px solid rgba(196,149,74,.34);border-radius:8px;display:grid;gap:8px;grid-template-columns:repeat(4,1fr);margin:0 0 12px;padding:10px}
 .cart-pro-note b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--copper)}
 .cart-pro-note span{color:var(--ink60);display:block;font-size:11px;line-height:1.35;margin-top:2px}
@@ -892,7 +897,13 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 <!-- ════════ DESIGN STUDIO ════════ -->
 <section class="panel" id="tab-design">
   <div class="panel-head"><h2>Design Studio</h2><span class="facing-chip homeowner">Homeowner-facing</span><span class="muted">Phase 3 · client-facing</span></div>
-  <p class="panel-sub">Drag rooms onto the grid (1 square = 1 ft), resize, and watch the live cost estimate and Albuquerque zoning check update. Start from one of the five ABQ ADU models or a blank lot.</p>
+  <p class="panel-sub">Design your ADU in three steps — with no surprises about what changes the price.</p>
+
+  <div class="bid-flow no-print" style="margin-bottom:12px">
+    <div class="bid-flow-step"><b>1. Pick a starting point</b><span>Choose a model — that sets your starting price.</span></div>
+    <div class="bid-flow-step"><b>2. Make it yours</b><span>Every room button shows what it adds before you click. The price picture updates with each change.</span></div>
+    <div class="bid-flow-step"><b>3. Save &amp; request pricing</b><span>Save design drafts, compare them, and request a firm quote — confirmed within 24 hours.</span></div>
+  </div>
 
   <div class="gantt-toolbar no-print">
     <span class="muted" style="font-size:12px">Template:</span>
@@ -911,13 +922,24 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="palette" id="palette"><div class="ph">Rooms</div></div>
     <div id="design-canvas-host"></div>
     <div class="dprops">
-      <div class="ph">Live Estimate</div>
-      <div id="d-bom"></div>
-      <div class="ph" style="margin-top:6px">ABQ Zoning Check</div>
+      <div class="ph">Your Price Picture</div>
+      <div id="d-ledger"></div>
+      <details style="margin-top:8px"><summary style="cursor:pointer;font-size:11px;color:#8090a8">Full cost detail</summary><div id="d-bom"></div></details>
+      <div class="ph" style="margin-top:10px">ABQ Zoning Check</div>
       <div id="d-zoning" style="font-size:11px;display:flex;flex-direction:column;gap:4px"></div>
     </div>
   </div>
-  <p class="muted" style="font-size:12px;margin-top:8px">Click a room type then click the canvas to place it. Drag to move (snaps to grid). Click a placed room and press Delete to remove.</p>
+  <p class="muted" style="font-size:12px;margin-top:8px">Click a room type, then click the canvas to place it. Drag to move (snaps to grid). Click a placed room and use <b>Remove selected room</b> (or the Delete key).</p>
+
+  <div class="card no-print" style="margin-top:14px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <h3 style="font-size:16px">My Saved Designs</h3>
+      <span class="muted" style="font-size:12px">Drafts save on this device — pick up right where you left off.</span>
+      <button class="btn copper sm" style="margin-left:auto" onclick="saveDesignDraft()">Save current design</button>
+      <button class="btn ghost sm" onclick="removeSelected()">Remove selected room</button>
+    </div>
+    <div id="design-drafts" style="margin-top:10px"></div>
+  </div>
 </section>
 
 <!-- ════════ BLUEPRINT BIDOUT ════════ -->
@@ -2120,18 +2142,24 @@ function ensureDesign(){
   const sel=document.createElement('button');sel.className='pbtn active';sel.textContent='↖ Select';
   sel.onclick=()=>setTool('select',sel);pal.appendChild(sel);
   ROOM_TYPES.forEach(rt=>{const b=document.createElement('button');b.className='pbtn';
-    b.innerHTML=`<span class="sw" style="background:${rt.c}"></span>${rt.l}`;
+    b.innerHTML=`<span class="sw" style="background:${rt.c}"></span>${rt.l}<em title="Approximate cost this room adds at ${rt.w}×${rt.h} ft">+${fmt0(roomAddCost(rt))}</em>`;
     b.onclick=()=>setTool(rt.t,b);pal.appendChild(b);});
-  window.addEventListener('keydown',e=>{if((e.key==='Delete'||e.key==='Backspace')&&selNode){
-    rooms=rooms.filter(r=>r.node!==selNode);selNode.destroy();selNode=null;layer.draw();updateBom();}});
+  window.addEventListener('keydown',e=>{
+    if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
+    if((e.key==='Delete'||e.key==='Backspace')&&selNode)removeSelected();
+  });
   designReady=true;
   loadTemplate('casita');
+  renderDesignDrafts();
 }
 function setTool(t,btn){curTool=t;document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
 function snap(v){return Math.round(v/GRID)*GRID}
 function addRoom(type,x,y){
   const rt=ROOM_TYPES.find(r=>r.t===type);if(!rt)return;
+  const before=lastDesignGrand;
   placeRoom(rt.t,rt.l,rt.c,snap(x),snap(y),rt.w,rt.h);updateBom();
+  designLog.push({label:`Added ${rt.l}`,delta:lastDesignGrand-before});
+  renderDesignLedger();
 }
 function placeRoom(type,label,color,x,y,wft,hft){
   const w=wft*GRID,h=hft*GRID;
@@ -2142,7 +2170,7 @@ function placeRoom(type,label,color,x,y,wft,hft){
   grp.add(rect);grp.add(txt);grp.add(sf);
   grp.on('dragend',()=>{grp.x(snap(grp.x()));grp.y(snap(grp.y()));layer.draw();updateBom()});
   grp.on('click tap',e=>{e.cancelBubble=true;select(grp,rect)});
-  grp._meta={type,wft,hft};
+  grp._meta={type,label,color,wft,hft};
   layer.add(grp);rooms.push({node:grp,rect});layer.draw();
 }
 function select(grp,rect){
@@ -2155,24 +2183,48 @@ function loadTemplate(key){
   if(!designReady){$('#tpl-select').value=key;return}
   rooms.forEach(r=>r.node.destroy());rooms=[];selNode=null;
   (TEMPLATES[key]||[]).forEach(r=>placeRoom(r[0],r[1],r[2],r[3],r[4],r[5],r[6]));
-  layer.draw();updateBom();
+  layer.draw();
+  const opt=[...$('#tpl-select').options].find(o=>o.value===key);
+  designLog=[];
+  updateBom();
+  designBaseline={label:opt?opt.textContent:'Starting point',cost:lastDesignGrand};
+  renderDesignLedger();
 }
-function updateBom(){
-  const totalSf=rooms.reduce((s,r)=>s+r.node._meta.wft*r.node._meta.hft,0);
-  $('#d-total').textContent=Math.round(totalSf)+' sf';
-  // BOM
-  const perim=rooms.reduce((s,r)=>s+2*(r.node._meta.wft+r.node._meta.hft),0);
-  const wallSf=perim*9, bath=rooms.filter(r=>r.node._meta.type==='bathroom');
-  const bathSf=bath.reduce((s,r)=>s+r.node._meta.wft*r.node._meta.hft,0);
-  const kit=rooms.filter(r=>r.node._meta.type==='kitchen').reduce((s,r)=>s+Math.min(r.node._meta.wft,r.node._meta.hft),0);
+function designCost(metas){
+  const totalSf=metas.reduce((s,m)=>s+m.wft*m.hft,0);
+  const perim=metas.reduce((s,m)=>s+2*(m.wft+m.hft),0);
+  const wallSf=perim*9;
+  const baths=metas.filter(m=>m.type==='bathroom');
+  const bathSf=baths.reduce((s,m)=>s+m.wft*m.hft,0);
+  const kit=metas.filter(m=>m.type==='kitchen').reduce((s,m)=>s+Math.min(m.wft,m.hft),0);
   const bom=[
     ['Structure','Foundation/slab',totalSf*18],['Structure','Framing',perim*3*4.5],['Structure','Roofing',totalSf*1.15*6.5],
     ['Exterior','Siding (stucco)',wallSf*.7*7],['Interior','Insulation',wallSf*1.8],['Interior','Drywall',(wallSf+totalSf)*2.2],
     ['Interior','Flooring',(totalSf-bathSf)*8.5],['MEP','Electrical',totalSf*12],['MEP','HVAC',totalSf*9],
   ];
-  if(bath.length){bom.push(['Plumbing','Fixtures',bath.length*3*850],['Bathroom','Tile',bathSf*2.5*14])}
+  if(baths.length){bom.push(['Plumbing','Fixtures',baths.length*3*850],['Bathroom','Tile',bathSf*2.5*14])}
   if(kit){bom.push(['Kitchen','Cabinetry',kit*280],['Kitchen','Countertop',kit*95])}
-  const grand=bom.reduce((s,b)=>s+b[2],0);
+  return {bom,grand:bom.reduce((s,b)=>s+b[2],0),totalSf};
+}
+function roomAddCost(rt){return designCost([{type:rt.t,wft:rt.w,hft:rt.h}]).grand}
+let lastDesignGrand=0,designLog=[],designBaseline={label:'Casita Portal — 640 sf',cost:0};
+function renderDesignLedger(){
+  const el=$('#d-ledger');if(!el)return;
+  if(!rooms.length){el.innerHTML='<div class="muted" style="font-size:11px">Pick a starting point above.</div>';return}
+  let html=`<div class="bom-row"><span>Starting point · ${esc(designBaseline.label)}</span><span>${fmt0(designBaseline.cost)}</span></div>`;
+  designLog.forEach(e=>{
+    html+=`<div class="bom-row"><span>${esc(e.label)}</span><span style="font-weight:700;color:${e.delta>=0?'#e0a06a':'#7fb89a'}">${e.delta>=0?'+':'−'}${fmt0(Math.abs(e.delta))}</span></div>`;
+  });
+  html+=`<div style="border-top:1px solid #2a4070;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between">
+    <span style="font-size:11px;color:#8090a8">Your design today</span>
+    <span style="font-family:var(--fd);font-size:17px;font-weight:700;color:#C4954A">${fmt0(lastDesignGrand)}</span></div>`;
+  el.innerHTML=html;
+}
+function updateBom(){
+  const {bom,grand,totalSf}=designCost(rooms.map(r=>r.node._meta));
+  lastDesignGrand=grand;
+  $('#d-total').textContent=Math.round(totalSf)+' sf';
+  const bath=rooms.filter(r=>r.node._meta.type==='bathroom');
   let lastCat=null,html='';
   bom.forEach(b=>{if(b[0]!==lastCat){html+=`<div class="bom-cat">${b[0]}</div>`;lastCat=b[0]}
     html+=`<div class="bom-row"><span>${b[1]}</span><span>${fmt0(b[2])}</span></div>`});
@@ -2180,6 +2232,7 @@ function updateBom(){
     <span style="color:#8090a8;font-size:11px">Est. build cost${totalSf?` · ${fmt0(grand/totalSf)}/sf`:''}</span>
     <span style="font-family:var(--fd);font-size:18px;font-weight:700;color:#C4954A">${fmt0(grand)}</span></div>`;
   $('#d-bom').innerHTML=rooms.length?html:'<div class="muted" style="font-size:11px">Add rooms to see the estimate.</div>';
+  renderDesignLedger();
   // zoning
   const z=[];const bedrooms=rooms.filter(r=>r.node._meta.type==='bedroom');
   if(totalSf>750)z.push(['warn','Above typical 750 sf homeowner ADU planning max']);
@@ -2193,6 +2246,64 @@ function updateBom(){
   if(!rooms.length){zh.innerHTML='<span class="muted" style="font-size:11px">—</span>';return}
   if(!z.length){zh.innerHTML='<span style="color:#40b870">✓ Meets ABQ ADU requirements</span>';return}
   zh.innerHTML=z.map(x=>`<span style="color:${x[0]==='err'?'#e06a5a':'#d4a020'}">${x[0]==='err'?'✗':'⚠'} ${x[1]}</span>`).join('');
+}
+
+/* ── Homeowner design drafts + room removal ── */
+function removeSelected(){
+  if(!selNode){alert('Click a room on the canvas first, then remove it.');return}
+  const m=selNode._meta,before=lastDesignGrand;
+  rooms=rooms.filter(r=>r.node!==selNode);selNode.destroy();selNode=null;layer.draw();updateBom();
+  designLog.push({label:`Removed ${m.label||m.type}`,delta:lastDesignGrand-before});
+  renderDesignLedger();
+}
+let savedDesigns=store.get('designs',[]);
+function serializeDesignRooms(){
+  return rooms.map(r=>({type:r.node._meta.type,label:r.node._meta.label||r.node._meta.type,color:r.node._meta.color||'#C8D8E8',x:r.node.x(),y:r.node.y(),wft:r.node._meta.wft,hft:r.node._meta.hft}));
+}
+function saveDesignDraft(){
+  if(!designReady||!rooms.length){alert('Add rooms to the canvas first, then save.');return}
+  const name=prompt('Name this design:','My ADU design');
+  if(name===null)return;
+  savedDesigns.unshift({id:'dd_'+Date.now(),name:name||'My ADU design',savedAt:new Date().toISOString(),
+    sf:Math.round(designCost(rooms.map(r=>r.node._meta)).totalSf),cost:lastDesignGrand,
+    baseline:designBaseline,log:designLog.slice(),rooms:serializeDesignRooms(),requested:false});
+  store.set('designs',savedDesigns);
+  renderDesignDrafts();
+}
+function loadDesignDraft(id){
+  const d=savedDesigns.find(x=>x.id===id);if(!d||!designReady)return;
+  rooms.forEach(r=>r.node.destroy());rooms=[];selNode=null;
+  d.rooms.forEach(r=>placeRoom(r.type,r.label,r.color,r.x,r.y,r.wft,r.hft));
+  layer.draw();
+  designLog=(d.log||[]).slice();
+  designBaseline=d.baseline||{label:d.name,cost:d.cost};
+  updateBom();
+}
+function deleteDesignDraft(id){
+  const d=savedDesigns.find(x=>x.id===id);
+  if(!d||!confirm(`Delete saved design "${d.name}"?`))return;
+  savedDesigns=savedDesigns.filter(x=>x.id!==id);
+  store.set('designs',savedDesigns);renderDesignDrafts();
+}
+function requestDesignQuote(id){
+  const d=savedDesigns.find(x=>x.id===id);if(!d)return;
+  d.requested=true;d.requestedAt=new Date().toISOString();
+  store.set('designs',savedDesigns);renderDesignDrafts();
+  alert(`"${d.name}" marked for pricing — ABQ ADU confirms a firm quote within 24 hours.`);
+}
+function renderDesignDrafts(){
+  const el=$('#design-drafts');if(!el)return;
+  if(!savedDesigns.length){el.innerHTML='<div class="muted" style="font-size:12px;padding:6px 0">No saved designs yet — click <b>Save current design</b> to keep a draft.</div>';return}
+  el.innerHTML=savedDesigns.map(d=>`<div class="design-draft-row">
+    <b>${esc(d.name)}</b>
+    <span class="muted">${new Date(d.savedAt).toLocaleDateString([],{month:'short',day:'numeric'})} · ${d.sf} sf · est ${fmt0(d.cost)}</span>
+    ${d.requested?'<span class="pill" style="background:#D1FAE5;color:#065F46">quote requested ✓</span>':''}
+    <span style="margin-left:auto;display:flex;gap:6px">
+      <button class="btn ghost sm" onclick="loadDesignDraft('${d.id}')">Load</button>
+      ${d.requested?'':`<button class="btn copper sm" onclick="requestDesignQuote('${d.id}')">Request firm quote</button>`}
+      <button class="btn ghost sm" onclick="deleteDesignDraft('${d.id}')" title="Delete" style="color:var(--terra)">×</button>
+    </span>
+  </div>`).join('');
 }
 
 /* ═══════════════ VERSION 3 — MODEL CATALOG + LOWE'S BIDOUT ═══════════════ */
