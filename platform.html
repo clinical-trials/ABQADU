@@ -147,6 +147,24 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .tool-sprint-item{align-items:center;background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;color:var(--ink);display:flex;gap:9px;min-height:50px;padding:8px 10px}
 .tool-sprint-item b{align-items:center;background:var(--blue);border-radius:999px;color:var(--copper-l);display:inline-flex;flex:0 0 auto;font-family:var(--fd);font-size:14px;height:30px;justify-content:center;width:30px}
 .tool-sprint-item span{color:var(--ink60);display:block;font-size:11px;font-weight:800;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}
+.bid-identity-card{background:#fff;border:1px solid var(--stucco-d);border-left:5px solid var(--copper);border-radius:9px;display:grid;gap:12px;margin:0 0 16px;padding:15px}
+.bid-identity-head{align-items:flex-start;display:flex;gap:12px;justify-content:space-between}
+.bid-identity-head h3{font-size:20px;line-height:1;text-transform:uppercase}
+.bid-identity-head p{color:var(--ink60);font-size:12px;line-height:1.35;margin-top:3px}
+.bid-identity-grid{display:grid;grid-template-columns:1.1fr 1.25fr .9fr .55fr .65fr;gap:10px}
+.bid-identity-card .in{min-height:42px}
+.bid-readiness-summary{align-items:center;display:flex;flex-wrap:wrap;gap:7px}
+.bid-workflow-strip{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:8px;grid-template-columns:repeat(6,minmax(0,1fr));margin:0 0 16px;padding:10px}
+.bid-workflow-step{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;min-height:66px;padding:10px;position:relative;transition:border-color .16s,box-shadow .16s,transform .16s}
+.bid-workflow-step:after{background:var(--ink30);border-radius:999px;content:"";height:9px;position:absolute;right:9px;top:9px;width:9px}
+.bid-workflow-step b{color:var(--ink);display:block;font-family:var(--fd);font-size:17px;line-height:1;text-transform:uppercase}
+.bid-workflow-step span{color:var(--ink60);display:block;font-size:11px;line-height:1.3;margin-top:5px}
+.bid-workflow-step.done{border-color:rgba(61,82,71,.35);box-shadow:inset 3px 0 0 var(--sage)}
+.bid-workflow-step.done:after{background:var(--sage)}
+.bid-workflow-step.active{border-color:var(--copper);box-shadow:0 10px 24px rgba(196,149,74,.14),inset 3px 0 0 var(--copper);transform:translateY(-1px)}
+.bid-workflow-step.active:after{background:var(--copper)}
+.bid-workflow-step.warn{border-color:var(--terra);box-shadow:inset 3px 0 0 var(--terra)}
+.bid-workflow-step.warn:after{background:var(--terra)}
 .materials-lane{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:8px;grid-template-columns:repeat(5,minmax(0,1fr));margin:0 0 14px;padding:10px}
 .materials-lane-card{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:10px}
 .materials-lane-card b{color:var(--copper);display:block;font-family:var(--fd);font-size:17px;line-height:1;text-transform:uppercase}
@@ -175,6 +193,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .quick-cogs-bundle{background:#fff;border:1px solid var(--stucco-d);border-radius:999px;color:var(--ink);font-size:11px;font-weight:800;min-height:36px;padding:7px 11px}
 .quick-cogs-bundle:hover{border-color:var(--copper);color:var(--copper)}
 .quick-cogs-hint{color:var(--ink60);font-size:10px;font-weight:700;letter-spacing:.06em;margin-top:8px;text-transform:uppercase}
+.one-tap-cogs{display:grid;gap:8px;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:10px}
+.one-tap-cogs button{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;color:var(--ink);min-height:56px;padding:9px;text-align:left}
+.one-tap-cogs button:hover{border-color:var(--copper);box-shadow:0 8px 18px rgba(28,25,23,.08)}
+.one-tap-cogs b{display:block;font-size:12px;line-height:1.15}
+.one-tap-cogs span{color:var(--ink60);display:block;font-size:10px;line-height:1.25;margin-top:3px}
 .print-export-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .print-export-actions .btn{min-height:38px}
 .bid-print-document{background:#fff;color:var(--ink);font-size:11px;line-height:1.4}
@@ -270,6 +293,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .invoice-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
 .btn.print-red{background:var(--err);border-color:var(--err);color:#fff}
 .btn.print-red:hover{filter:brightness(.96)}
+.invoice-deposit-banner{background:#FFF7E6;border:1px solid var(--copper);border-left:5px solid var(--err);border-radius:8px;color:#6f3f19;display:grid;gap:4px;margin:0 0 12px;padding:12px}
+.invoice-deposit-banner b{color:var(--err);font-family:var(--fd);font-size:22px;line-height:1;text-transform:uppercase}
+.invoice-deposit-banner span{font-size:12px;line-height:1.4}
 .invoice-folder-toggle{align-items:center;background:#fff;border:1px solid var(--stucco-d);border-radius:8px;color:var(--ink);display:flex;gap:12px;justify-content:space-between;margin:10px 0;padding:12px 14px;text-align:left;width:100%}
 .invoice-folder-toggle b{display:block;font-family:var(--fd);font-size:20px;line-height:1;text-transform:uppercase}
 .invoice-folder-toggle span{color:var(--ink60);display:block;font-size:11px;margin-top:3px}
@@ -385,6 +411,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid{grid-template-columns:1fr}
   .bid-app-shell{grid-template-columns:1fr}
   .bid-app-side{min-width:0}
+  .bid-identity-grid{grid-template-columns:1fr 1fr}
+  .bid-workflow-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .one-tap-cogs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bid-flow{grid-template-columns:repeat(2,1fr)}
   .tool-sprint-strip,.materials-lane{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bid-setup{grid-template-columns:1fr}
@@ -405,6 +434,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 }
 @media (max-width:620px){
   .model-catalog,.bp-workflow,.bid-flow,.bid-assist-grid{grid-template-columns:1fr}
+  .bid-identity-head{flex-direction:column}
+  .bid-identity-grid,.bid-workflow-strip,.one-tap-cogs{grid-template-columns:1fr}
+  .bid-workflow-step{min-height:58px}
+  .bid-readiness-summary{width:100%}
   .tool-sprint-strip,.materials-lane{grid-template-columns:1fr}
   header.topbar{align-items:flex-start;flex-wrap:wrap;gap:10px;height:auto;padding:10px 14px}
   .logo{font-size:19px;width:100%}
@@ -542,10 +575,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <button class="bid-app-action light" onclick="newProjectFolder()">New Project</button>
         <button class="bid-app-action secondary" onclick="saveBidDraft()">Save Draft Locally</button>
         <button class="bid-app-action primary" onclick="acceptBid()">Build Invoices</button>
-        <button class="bid-app-action secondary" onclick="printBidsAndInvoicing()">Print</button>
+        <button class="bid-app-action secondary" onclick="printBidsAndInvoicing()">Print Bid Packet</button>
       </div>
       <div class="print-export-actions">
-        <button class="btn ghost sm" onclick="exportBidCsv()">Export CSV</button>
+        <button class="btn ghost sm" onclick="exportBidCsv()">Export COGS + invoices CSV</button>
       </div>
     </div>
   </div>
@@ -587,20 +620,46 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="tool-sprint-item"><b>4</b><span>Invoice 1 is $10,000</span></div>
   </div>
 
+  <div class="bid-identity-card no-print">
+    <div class="bid-identity-head">
+      <div>
+        <h3>Site Visit Bid Jacket</h3>
+        <p>Keep the contractor's critical facts in one place before pricing: homeowner, address, model, square footage, and close confidence.</p>
+      </div>
+      <div class="bid-readiness-summary" id="bid-readiness-summary"></div>
+    </div>
+    <div class="bid-identity-grid">
+      <div><label class="fld">Contact / client name</label><input class="in" id="bid-client" placeholder="Homeowner or client name"></div>
+      <div><label class="fld">Project address</label><input class="in" id="bid-address" placeholder="Street address from site visit"></div>
+      <div><label class="fld">Model</label><select class="in" id="bid-model">
+        <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura 24x24</option><option selected>Casita Portal</option><option>Tierra Grande</option><option>Cromwell</option>
+      </select></div>
+      <div><label class="fld">Square feet</label><input class="in" id="bid-sqft" type="number" min="1" value="640"></div>
+      <div><label class="fld">Confidence grade</label><select class="in" id="bid-confidence-grade">
+        <option>A+</option><option>A</option><option>A-</option>
+        <option>B+</option><option selected>B</option><option>B-</option>
+        <option>C+</option><option>C</option><option>C-</option>
+        <option>D</option><option>F</option>
+      </select></div>
+    </div>
+  </div>
+
+  <div class="bid-workflow-strip no-print" aria-label="Fast builder bid checklist">
+    <div class="bid-workflow-step" data-flow-step="site"><b>Site Visit</b><span>Client, address, model, square feet.</span></div>
+    <div class="bid-workflow-step" data-flow-step="utilities"><b>Utilities</b><span>Electric, sewer confirmation, water.</span></div>
+    <div class="bid-workflow-step" data-flow-step="cogs"><b>COGS</b><span>One-tap costs and trade pulls.</span></div>
+    <div class="bid-workflow-step" data-flow-step="price"><b>Price</b><span>Margin, contingency, tax, $/sf.</span></div>
+    <div class="bid-workflow-step" data-flow-step="invoices"><b>Invoices</b><span>$10k preconstruction first.</span></div>
+    <div class="bid-workflow-step" data-flow-step="ready"><b>Ready to Send</b><span>No open site, utility, or engineering blockers.</span></div>
+  </div>
+
   <div class="bid-command-grid no-print">
     <div class="bid-setup">
       <div class="card">
         <h3 style="font-size:17px;margin-bottom:10px">Photovoltonic Bid Tool</h3>
-        <div class="muted" style="font-size:12px;margin-bottom:10px">Start here after the site visit: name the homeowner contact, pick the model, and keep the bid connected to the right folder.</div>
+        <div class="muted" style="font-size:12px;margin-bottom:10px">Use this for bid title and internal status after the site visit jacket above is complete.</div>
         <div class="row" style="gap:12px;margin-bottom:12px">
           <div style="flex:1"><label class="fld">Bid title</label><input class="in" id="bid-title"></div>
-          <div style="width:240px"><label class="fld">Contact / client name</label><input class="in" id="bid-client" placeholder="Homeowner or client name"></div>
-        </div>
-        <div class="bid-setup-grid">
-          <div><label class="fld">Model</label><select class="in" id="bid-model">
-            <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura 24x24</option><option selected>Casita Portal</option><option>Tierra Grande</option><option>Cromwell</option>
-          </select></div>
-          <div><label class="fld">Square feet</label><input class="in" id="bid-sqft" type="number" min="1" value="640"></div>
           <div><label class="fld">Draft status</label><select class="in" id="bid-status"><option>draft</option><option>ready for review</option><option>sent</option><option>accepted</option></select></div>
         </div>
         <div class="review-callout" id="bid-review-callout">Review flags will appear here when lines need engineering, utility, or site verification.</div>
@@ -626,15 +685,6 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <h3>Bid confidence</h3>
           <div class="muted" style="font-size:12px">Grade how likely the builder feels this job is to close, then tag what still blocks sending.</div>
         </div>
-        <div style="min-width:170px">
-          <label class="fld">Win confidence grade</label>
-          <select class="in" id="bid-confidence-grade">
-            <option>A+</option><option>A</option><option>A-</option>
-            <option>B+</option><option selected>B</option><option>B-</option>
-            <option>C+</option><option>C</option><option>C-</option>
-            <option>D</option><option>F</option>
-          </select>
-        </div>
       </div>
       <div class="confidence-grid">
         <div class="confidence-grade-box" id="confidence-grade-box">
@@ -644,23 +694,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <div>
           <div class="readiness-tags" id="bid-readiness-tags"></div>
           <div class="readiness-options" id="bid-readiness-flags">
-            <label class="readiness-option"><input type="checkbox" value="ready to send" onchange="toggleReadinessFlag('ready to send',this.checked)"> ready to send</label>
-            <label class="readiness-option"><input type="checkbox" value="needs utility review" onchange="toggleReadinessFlag('needs utility review',this.checked)"> needs utility review</label>
-            <label class="readiness-option"><input type="checkbox" value="needs engineering" onchange="toggleReadinessFlag('needs engineering',this.checked)"> needs engineering</label>
-            <label class="readiness-option"><input type="checkbox" value="missing site data" onchange="toggleReadinessFlag('missing site data',this.checked)"> missing site data</label>
+            <label class="readiness-option"><input type="checkbox" value="ready to send" onchange="toggleReadinessFlag('ready to send',this.checked)"> Ready to send</label>
+            <label class="readiness-option"><input type="checkbox" value="needs utility review" onchange="toggleReadinessFlag('needs utility review',this.checked)"> Needs utility review</label>
+            <label class="readiness-option"><input type="checkbox" value="needs engineering" onchange="toggleReadinessFlag('needs engineering',this.checked)"> Needs engineering</label>
+            <label class="readiness-option"><input type="checkbox" value="missing site data" onchange="toggleReadinessFlag('missing site data',this.checked)"> Missing site data</label>
           </div>
           <div class="muted" id="bid-readiness-note" style="font-size:12px;margin-top:9px">The app will suggest readiness tags from utilities, engineering flags, and setup gaps.</div>
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="bid-flow">
-    <div class="bid-flow-step" data-flow-step="setup"><b>1. Setup</b><span>Customer call, 24-hour site visit, model, square footage.</span></div>
-    <div class="bid-flow-step" data-flow-step="cogs"><b>2. COGS</b><span>Builder cost lines and allowances.</span></div>
-    <div class="bid-flow-step" data-flow-step="price"><b>3. Price</b><span>Markup, contingency, tax, $/sf.</span></div>
-    <div class="bid-flow-step" data-flow-step="review"><b>4. Review</b><span>Engineering, utilities, exclusions.</span></div>
-    <div class="bid-flow-step" data-flow-step="draws"><b>5. Draws</b><span>Deposit, invoices, payment tracking.</span></div>
   </div>
 
   <div class="kpi-grid" id="bid-kpis"></div>
@@ -732,6 +774,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <button class="quick-cogs-bundle" onclick="addCogsBundle('utilityReview')">+ Utility review</button>
             <button class="quick-cogs-bundle" onclick="addCogsBundle('fullStarter')">+ Full starter bid</button>
           </div>
+          <div class="one-tap-cogs" aria-label="One tap common COGS line items">
+            <button type="button" onclick="addPresetLine('lumber')"><b>Lumber package</b><span>Big spend placeholder</span></button>
+            <button type="button" onclick="addPresetLine('sheetrock')"><b>Sheetrock</b><span>Panels allowance</span></button>
+            <button type="button" onclick="addPresetLine('mud')"><b>Mud + tape</b><span>Drywall finish</span></button>
+            <button type="button" onclick="addPresetLine('roofingNails')"><b>Nails + wrap</b><span>Job-site consumables</span></button>
+            <button type="button" onclick="addPresetLine('appliances')"><b>Lowe's appliances</b><span>Dishwasher, range, fridge</span></button>
+            <button type="button" onclick="addPresetLine('windowsLowes')"><b>Windows</b><span>Lowe's Pro quote line</span></button>
+            <button type="button" onclick="addPresetLine('flooringLowes')"><b>Flooring</b><span>Material + install placeholder</span></button>
+            <button type="button" onclick="addPresetLine('delivery')"><b>Job-site delivery</b><span>Lowe's delivery/drop</span></button>
+          </div>
           <div class="quick-cogs-hint">Tip: fill description + cost, press Enter, then keep moving. Draft saves automatically.</div>
         </div>
         <table>
@@ -744,6 +796,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <div style="display:flex;align-items:center;margin-bottom:12px">
           <h3 style="font-size:16px">Draw Schedule &amp; Invoices</h3>
           <span class="muted" style="margin-left:auto;font-size:12px">Suggested send dates follow the 90-day build schedule</span>
+        </div>
+        <div class="invoice-deposit-banner">
+          <b>Invoice 1: $10,000 Preconstruction</b>
+          <span>This first invoice is fixed. It starts the pre-construction contract, proper bid work, ordinance checks, site planning, design coordination, subcontractor bid pulls, and permitting preparation.</span>
         </div>
         <button class="invoice-job-card" type="button" onclick="focusInvoicePacket()" aria-label="Open invoice packet for this job">
           <div class="invoice-blueprint" aria-hidden="true">
@@ -776,8 +832,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         </button>
         <div class="invoice-actions no-print">
           <button class="btn blue" onclick="acceptBid()">Build invoices for current job</button>
-          <button class="btn print-red" onclick="printInvoicePacket()"><span aria-hidden="true">Print</span> invoice packet</button>
-          <button class="btn ghost" onclick="emailInvoicePacket()">Email invoice 1 summary</button>
+          <button class="btn print-red" onclick="printInvoicePacket()">Print professional invoice packet</button>
+          <button class="btn ghost" onclick="emailInvoicePacket()">Email only invoice 1 summary</button>
         </div>
         <button class="invoice-folder-toggle" type="button" onclick="toggleInvoiceFolder()" aria-expanded="false" id="invoice-folder-toggle">
           <span><b id="invoice-folder-title">Invoice folder</b><span id="invoice-folder-subtitle">Open to view generated invoices for this homeowner project.</span></span>
@@ -1166,7 +1222,7 @@ window.addEventListener('afterprint',clearPrintMode);
 
 /* ═══════════════ PHASE 1 — BIDS ═══════════════ */
 const SAMPLE_BID = {
-  title:'Casita Portal ADU — 640 sf', client:'M. Hyder Residence', model:'Casita Portal', sqft:640, status:'draft',
+  title:'Casita Portal ADU — 640 sf', client:'M. Hyder Residence', address:'412 Netherwood Lane NE, Albuquerque NM', model:'Casita Portal', sqft:640, status:'draft',
   confidenceGrade:'B', readinessFlags:['missing site data'],
   items:[
     {cat:'Structure',desc:'Foundation / slab',kind:'base',qty:640,unit:'sf',cost:18},
@@ -1195,6 +1251,9 @@ function makeProject(bidData=cloneSampleBid(), invoiceData=[]){
   };
 }
 function normalizeBid(bidData){
+  bidData.title ??= '';
+  bidData.client ??= '';
+  bidData.address ??= '';
   bidData.model ??= 'Casita Portal';
   bidData.sqft ??= 640;
   bidData.status ??= 'draft';
@@ -1264,6 +1323,14 @@ const PRESET_LINES = {
   portal:{cat:'Exterior',desc:'Covered portal shade roof, slab extension, finish labor',kind:'upgrade',qty:1,unit:'allow',cost:12500},
   sewer:{cat:'Plumbing',desc:'Ian internal: sewer confirmation study - verify gravity flow; macerating pump / masticator risk allowance',kind:'allowance',qty:1,unit:'allow',cost:4800},
   engineering:{cat:'Design',desc:'Professional engineering stamp / structural review allowance',kind:'review',qty:1,unit:'allow',cost:2500},
+  lumber:{cat:'Structure',desc:'Lumber package - framing material placeholder',kind:'allowance',qty:1,unit:'allow',cost:18500},
+  sheetrock:{cat:'Interior',desc:'Sheetrock panels / drywall material allowance',kind:'allowance',qty:1,unit:'allow',cost:3200},
+  mud:{cat:'Interior',desc:'Drywall mud, tape, texture finish allowance',kind:'allowance',qty:1,unit:'allow',cost:2600},
+  roofingNails:{cat:'Exterior',desc:'House wrap, roofing nails, fasteners, job-site consumables',kind:'allowance',qty:1,unit:'allow',cost:1000},
+  appliances:{cat:'Kitchen',desc:"Lowe's appliance package - dishwasher, microwave, gas oven, sink, fridge",kind:'allowance',qty:1,unit:'allow',cost:6800},
+  windowsLowes:{cat:'Exterior',desc:"Lowe's Pro window package quote placeholder",kind:'allowance',qty:1,unit:'allow',cost:9200},
+  flooringLowes:{cat:'Interior',desc:"Lowe's flooring material and install placeholder",kind:'allowance',qty:1,unit:'allow',cost:7200},
+  delivery:{cat:'Site',desc:"Lowe's job-site delivery / material drop allowance",kind:'allowance',qty:1,unit:'allow',cost:850},
 };
 const COGS_BUNDLES = {
   sitePrep:[
@@ -1330,12 +1397,12 @@ function renderProjectList(){
     list.innerHTML=projects.map(project=>{
       const pBid=project.bid || {};
       const label=pBid.title || 'Untitled ADU project';
-      const meta=`${pBid.client || 'No client yet'} · ${pBid.model || 'Model'} · ${pBid.status || 'draft'}`;
+      const meta=`${pBid.client || 'No client yet'} · ${pBid.address || 'No address'} · ${pBid.model || 'Model'} · ${pBid.status || 'draft'}`;
       return `<button class="project-chip ${project.id===activeProjectId?'active':''}" type="button" onclick="switchProject('${project.id}')"><b>${esc(label)}</b><span>${esc(meta)}</span></button>`;
     }).join('');
   }
   const note=$('#active-project-note');
-  if(note)note.textContent=`${bid.title || 'Untitled ADU project'} · ${bid.client || 'Client not entered'} · ${invoices.length} invoice${invoices.length===1?'':'s'}`;
+  if(note)note.textContent=`${bid.title || 'Untitled ADU project'} · ${bid.client || 'Client not entered'} · ${bid.address || 'Address needed'} · ${invoices.length} invoice${invoices.length===1?'':'s'}`;
 }
 function switchProject(id){
   const next=projects.find(project=>project.id===id);
@@ -1354,7 +1421,7 @@ function switchProject(id){
 }
 function newProjectFolder(){
   saveBid();
-  const project=makeProject(normalizeBid({...cloneSampleBid(), title:'New ADU Project', client:'', status:'draft'}), []);
+  const project=makeProject(normalizeBid({...cloneSampleBid(), title:'New ADU Project', client:'', address:'', status:'draft'}), []);
   projects.unshift(project);
   activeProjectId=project.id;
   activeProject=project;
@@ -1406,9 +1473,10 @@ function setBidSaveStatus(text){
   if(projectEl) projectEl.textContent=text;
 }
 function syncBidFromInputs(){
-  const title=$('#bid-title'), client=$('#bid-client'), model=$('#bid-model'), sqft=$('#bid-sqft'), status=$('#bid-status'), grade=$('#bid-confidence-grade');
+  const title=$('#bid-title'), client=$('#bid-client'), address=$('#bid-address'), model=$('#bid-model'), sqft=$('#bid-sqft'), status=$('#bid-status'), grade=$('#bid-confidence-grade');
   if(title)bid.title=title.value;
   if(client)bid.client=client.value;
+  if(address)bid.address=address.value;
   if(model)bid.model=model.value;
   if(sqft)bid.sqft=+sqft.value||1;
   if(status)bid.status=status.value;
@@ -1449,13 +1517,21 @@ function setChip(id,label,kind=''){
   el.textContent=label;
   el.className=`bid-app-chip ${kind}`.trim();
 }
+function readinessLabel(flag){
+  return {
+    'ready to send':'Ready to send',
+    'needs utility review':'Needs utility review',
+    'needs engineering':'Needs engineering',
+    'missing site data':'Missing site data',
+  }[flag] || flag;
+}
 function uniqueList(items){
   return [...new Set(items.filter(Boolean))];
 }
 function bidReadinessSignals(t){
   const text=bid.items.map(item=>`${item.cat} ${item.desc} ${item.kind}`).join(' ').toLowerCase();
   const signals=[];
-  const hasSite=Boolean(bid.title && bid.client && bid.model && +bid.sqft>0);
+  const hasSite=Boolean(bid.title && bid.client && bid.address && bid.model && +bid.sqft>0);
   if(!hasSite)signals.push('missing site data');
   if(/panel|meter|electrical|utility|sewer|macerator|macerating|masticator|water/.test(text))signals.push('needs utility review');
   if(bid.items.some(item=>item.kind==='review') || /engineering|engineer|opening|openings|stamp|structural/.test(text))signals.push('needs engineering');
@@ -1470,7 +1546,7 @@ function mergedReadinessFlags(t){
 }
 function readinessTagHtml(flag){
   const cls=READINESS_CLASSES[flag] || 'site';
-  return `<span class="readiness-tag ${cls}">${esc(flag)}</span>`;
+  return `<span class="readiness-tag ${cls}">${esc(readinessLabel(flag))}</span>`;
 }
 function renderBidConfidence(t){
   const grade=CONFIDENCE_GRADES[bid.confidenceGrade] ? bid.confidenceGrade : 'B';
@@ -1485,6 +1561,8 @@ function renderBidConfidence(t){
   const flags=mergedReadinessFlags(t);
   const tagBox=$('#bid-readiness-tags');
   if(tagBox)tagBox.innerHTML=flags.map(readinessTagHtml).join('');
+  const summary=$('#bid-readiness-summary');
+  if(summary)summary.innerHTML=flags.map(readinessTagHtml).join('');
   document.querySelectorAll('#bid-readiness-flags input[type="checkbox"]').forEach(input=>{
     input.checked=(bid.readinessFlags || []).includes(input.value);
   });
@@ -1508,19 +1586,19 @@ function updateFlowStep(name,state){
   if(state)el.classList.add(state);
 }
 const BID_QUIZ_STEPS = [
-  {title:'1. Job setup',prompt:'Who called, when can we complete the site visit within 24 hours, which model are they buying, and how many square feet are we pricing?',target:'.bid-setup',action:'setup',actionLabel:'Edit project basics'},
+  {title:'1. Site visit',prompt:'Who is the homeowner, what is the project address, which model are they buying, and how many square feet are we pricing?',target:'.bid-identity-card',action:'setup',actionLabel:'Edit site visit facts'},
   {title:'2. Bid confidence',prompt:'How likely is this job to close, and what is blocking the bid from being ready to send?',target:'.confidence-panel',action:'confidence',actionLabel:'Grade the lead'},
   {title:'3. COGS',prompt:'What are the real builder costs? Add one line, or tap a bundle to move faster.',target:'.quick-cogs',action:'cogs',actionLabel:'Add COGS line'},
   {title:'4. Review',prompt:'Do utilities, engineering, sewer confirmation study, or missing site data need attention before sending?',target:'#bid-review-callout',action:'review',actionLabel:'Review risk flags'},
   {title:'5. Invoices',prompt:'Build the 90-day draw schedule. Invoice 1 is always the $10,000 pre-construction deposit.',target:'#invoice-card',action:'invoices',actionLabel:'Build invoices'},
 ];
 function bidQuizCompletion(step,t){
-  const hasSetup=Boolean(bid.title && bid.client && bid.model && (+bid.sqft||0)>0);
+  const hasSetup=Boolean(bid.title && bid.client && bid.address && bid.model && (+bid.sqft||0)>0);
   const hasCogs=bid.items.length>0 && t.sub>0;
   const confidence=bidReadinessSignals(t);
   const hasManualFlags=(bid.readinessFlags || []).length>0;
-  if(step.action==='setup')return hasSetup ? {done:true,text:'Done: project basics are in place.'} : {done:false,text:'Next: enter homeowner, model, square feet, and status.'};
-  if(step.action==='confidence')return hasManualFlags ? {done:true,text:`Done: ${bid.confidenceGrade || 'B'} lead tagged ${confidence.join(', ')}.`} : {done:false,text:`Next: select a confidence grade and confirm ${confidence.join(', ')}.`};
+  if(step.action==='setup')return hasSetup ? {done:true,text:'Done: site visit facts are in place.'} : {done:false,text:'Next: enter homeowner, project address, model, square feet, and status.'};
+  if(step.action==='confidence')return hasManualFlags ? {done:true,text:`Done: ${bid.confidenceGrade || 'B'} lead tagged ${confidence.map(readinessLabel).join(', ')}.`} : {done:false,text:`Next: select a confidence grade and confirm ${confidence.map(readinessLabel).join(', ')}.`};
   if(step.action==='cogs')return hasCogs ? {done:true,text:`Done: ${bid.items.length} COGS line${bid.items.length===1?'':'s'} totaling ${fmt0(t.sub)}.`} : {done:false,text:'Next: add one real cost or tap Full starter bid.'};
   if(step.action==='review')return t.reviewCount ? {done:false,text:`Attention: ${t.reviewCount} allowance/review line${t.reviewCount===1?'':'s'} need builder review.`} : {done:true,text:'Done: no allowance or engineering review lines are currently open.'};
   if(step.action==='invoices')return invoices.length ? {done:true,text:`Done: ${invoices.length} invoices are built and ready to print, email, or edit.`} : {done:false,text:'Next: build invoices from the current bid total.'};
@@ -1556,9 +1634,9 @@ function runBidQuizAction(){
   const step=BID_QUIZ_STEPS[bidQuizStep] || BID_QUIZ_STEPS[0];
   focusBidQuizTarget(step.target);
   if(step.action==='setup'){
-    const target=bid.client ? (bid.title ? $('#bid-model') : $('#bid-title')) : $('#bid-client');
+    const target=bid.client ? (bid.address ? (bid.title ? $('#bid-model') : $('#bid-title')) : $('#bid-address')) : $('#bid-client');
     if(target)target.focus();
-    setBidSaveStatus('Bid setup is ready for homeowner, model, and square footage.');
+    setBidSaveStatus('Site visit jacket is ready for homeowner, address, model, and square footage.');
   }else if(step.action==='confidence'){
     const grade=$('#bid-confidence-grade');
     if(grade)grade.focus();
@@ -1578,35 +1656,41 @@ function runBidQuizAction(){
 function renderBidAppShell(t){
   const title=bid.title || `${bid.model || 'ADU'} bid`;
   const client=bid.client || 'Client not entered';
+  const address=bid.address || 'Address needed';
   const model=bid.model || 'Model needed';
   const sqft=+bid.sqft || 0;
   const packet=invoicePacketTotals();
-  const hasSetup=Boolean(bid.title && bid.client && bid.model && sqft);
+  const hasSetup=Boolean(bid.title && bid.client && bid.address && bid.model && sqft);
   const hasCogs=bid.items.length>0 && t.sub>0;
   const hasPrice=t.total>0;
-  const hasReviewFlags=t.reviewCount>0;
   const hasInvoices=invoices.length>0;
   const paid=invoices.reduce((s,v)=>s+(+v.paid||0),0);
   const confidence=renderBidConfidence(t);
+  const hasUtilityReview=confidence.flags.includes('needs utility review');
+  const hasEngineering=confidence.flags.includes('needs engineering');
+  const hasMissingSite=confidence.flags.includes('missing site data');
+  const hasReviewFlags=t.reviewCount>0 || hasUtilityReview || hasEngineering || hasMissingSite;
   const primaryReadiness=confidence.flags[0] || 'needs review';
   const nextAction=!hasSetup ? 'Finish setup' : !hasCogs ? 'Add COGS' : confidence.flags.includes('needs engineering') ? 'Resolve engineering' : confidence.flags.includes('needs utility review') ? 'Resolve utilities' : !hasInvoices ? 'Build invoices' : paid>0 ? 'Track remaining draws' : 'Send invoice 1';
 
   setText('app-project-title', title);
-  setText('app-project-meta', `${client} · ${model} · ${sqft || '0'} sf · next: ${nextAction}`);
+  setText('app-project-meta', `${client} · ${address} · ${model} · ${sqft || '0'} sf · next: ${nextAction}`);
   setText('app-bid-total', fmt0(t.total));
   setChip('app-status-pill', `${bid.status || 'draft'} · autosaved`, hasSetup ? 'ready' : 'warn');
   setChip('app-invoice-pill', hasInvoices ? `${invoices.length} invoices · ${fmt0(packet.balance)} open` : 'Invoices not built', hasInvoices ? 'money' : 'warn');
-  setChip('app-readiness-pill', `${confidence.grade} · ${primaryReadiness}`, primaryReadiness==='ready to send' ? 'ready' : (primaryReadiness.includes('utility') ? 'info' : 'warn'));
+  setChip('app-readiness-pill', `${confidence.grade} · ${readinessLabel(primaryReadiness)}`, primaryReadiness==='ready to send' ? 'ready' : (primaryReadiness.includes('utility') ? 'info' : 'warn'));
 
-  updateFlowStep('setup', hasSetup ? 'done' : 'active');
+  updateFlowStep('site', hasSetup ? 'done' : 'active');
+  updateFlowStep('utilities', hasUtilityReview ? 'warn' : (hasSetup ? 'done' : ''));
   updateFlowStep('cogs', hasCogs ? 'done' : (hasSetup ? 'active' : ''));
   updateFlowStep('price', hasPrice ? 'done' : (hasCogs ? 'active' : ''));
-  updateFlowStep('review', hasReviewFlags ? 'warn' : (hasPrice ? 'done' : ''));
-  updateFlowStep('draws', hasInvoices ? 'done' : (hasPrice && !hasReviewFlags ? 'active' : ''));
+  updateFlowStep('invoices', hasInvoices ? 'done' : (hasPrice && !hasReviewFlags ? 'active' : ''));
+  updateFlowStep('ready', confidence.flags.includes('ready to send') && hasInvoices ? 'done' : (hasReviewFlags ? 'warn' : (hasInvoices ? 'active' : '')));
   renderBidQuiz(t);
 }
 function renderBid(){
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
+  const addressInput=$('#bid-address'); if(addressInput)addressInput.value=bid.address || '';
   $('#bid-model').value=bid.model || 'Casita Portal';
   $('#bid-sqft').value=bid.sqft || 640;
   $('#bid-status').value=bid.status || 'draft';
@@ -1637,7 +1721,13 @@ function renderBid(){
 }
 function editLine(i,k,v){bid.items[i][k]=(k==='qty'||k==='cost')?+v:v;renderBid()}
 function addLine(){bid.items.push({cat:'General',desc:'',kind:'base',qty:1,unit:'ea',cost:0});renderBid();focusNewestCogsLine()}
-function addPresetLine(key){bid.items.push({...PRESET_LINES[key]});renderBid();setBidSaveStatus(`Added ${PRESET_LINES[key].desc}. Draft saved.`)}
+function addPresetLine(key){
+  const line=PRESET_LINES[key];
+  if(!line)return;
+  bid.items.push({...line});
+  renderBid();
+  setBidSaveStatus(`Added ${line.desc}. Draft saved.`);
+}
 function delLine(i){bid.items.splice(i,1);renderBid()}
 function quickCogsValue(id,fallback=''){
   const el=$('#'+id);
@@ -1683,11 +1773,12 @@ function focusNewestCogsLine(){
   const input=last?.querySelector('input');
   if(input)input.focus();
 }
-$('#bid-title').oninput=e=>{bid.title=e.target.value;saveBid()};
-$('#bid-client').oninput=e=>{bid.client=e.target.value;saveBid()};
-$('#bid-model').oninput=e=>{bid.model=e.target.value;saveBid();setBidSaveStatus('Draft saved with model update.')};
+$('#bid-title').oninput=e=>{bid.title=e.target.value;renderBid()};
+$('#bid-client').oninput=e=>{bid.client=e.target.value;renderBid()};
+$('#bid-address').oninput=e=>{bid.address=e.target.value;renderBid()};
+$('#bid-model').oninput=e=>{bid.model=e.target.value;renderBid();setBidSaveStatus('Draft saved with model update.')};
 $('#bid-sqft').oninput=e=>{bid.sqft=+e.target.value||1;renderBid();setBidSaveStatus('Draft saved with square footage update.')};
-$('#bid-status').oninput=e=>{bid.status=e.target.value;saveBid();setBidSaveStatus(`Draft marked ${bid.status}.`)};
+$('#bid-status').oninput=e=>{bid.status=e.target.value;renderBid();setBidSaveStatus(`Draft marked ${bid.status}.`)};
 $('#bid-confidence-grade').oninput=e=>{bid.confidenceGrade=e.target.value;renderBid();setBidSaveStatus(`Bid confidence set to ${bid.confidenceGrade}.`)};
 ['t-markup','t-cont','t-tax'].forEach(id=>$('#'+id).oninput=renderBid);
 function saveBidDraft(){
@@ -1802,8 +1893,8 @@ function renderInvoiceJobCard(){
   if(title) title.textContent=bid.title || `${bid.model} ADU`;
   const meta=$('#invoice-job-meta');
   if(meta) meta.textContent=invoices.length
-    ? `${bid.client || 'Client'} · invoice 1 ${fmt(first)} · invoice 2 is 50% · invoice 3 is the remaining draw`
-    : `${bid.client || 'Client'} · click Build invoices for current job to create editable invoices.`;
+    ? `${bid.client || 'Client'} · ${bid.address || 'address needed'} · invoice 1 ${fmt(first)} · invoice 2 is 50% · invoice 3 is the remaining draw`
+    : `${bid.client || 'Client'} · ${bid.address || 'address needed'} · click Build invoices for current job to create editable invoices.`;
   const dep=$('#invoice-job-deposit');
   if(dep) dep.textContent=fmt0(first);
   const count=$('#invoice-job-count');
@@ -1869,13 +1960,16 @@ function exportBidCsv(){
   const confidence=renderBidConfidence(t);
   const rows=[
     ['section','category','description','type','qty','unit','cost_each','cost_total','invoice','send_date','paid','status'],
+    ['project','identity',`Client: ${bid.client || ''}`,'','','','','','','','',''],
+    ['project','identity',`Address: ${bid.address || ''}`,'','','','','','','','',''],
+    ['project','identity',`Model: ${bid.model || ''} · ${bid.sqft || 0} sf`,'','','','','','','','',''],
     ...bid.items.map(item=>['cogs',item.cat,item.desc,LINE_KINDS[item.kind]||item.kind,item.qty,item.unit,item.cost,(+item.qty||0)*(+item.cost||0),'','','','']),
     ...invoices.map(inv=>['invoice','','',inv.type,'','',inv.amount,inv.amount,inv.num,inv.sendDate,inv.paid,inv.status]),
     ['summary','','Bid total','','','','',t.total,'','','',''],
     ['summary','','COGS subtotal','','','','',t.sub,'','','',''],
     ['summary','','Gross profit before tax','','','','',t.profit,'','','',''],
     ['summary','','Bid confidence','','','','',confidence.grade,'','','',confidence.label],
-    ['summary','','Readiness','','','','',confidence.flags.join('; '),'','','',''],
+    ['summary','','Readiness','','','','',confidence.flags.map(readinessLabel).join('; '),'','','',''],
   ];
   const name=`${safeFileName(bid.title)}-cogs-invoices.csv`;
   const content=rows.map(row=>row.map(csvCell).join(',')).join('\n');
@@ -1889,7 +1983,7 @@ function exportBidJson(){
   const confidence=renderBidConfidence(t);
   const payload={
     exportedAt:new Date().toISOString(),
-    project:{id:activeProjectId,title:bid.title,client:bid.client,model:bid.model,sqft:bid.sqft,status:bid.status},
+    project:{id:activeProjectId,title:bid.title,client:bid.client,address:bid.address,model:bid.model,sqft:bid.sqft,status:bid.status},
     confidence,
     pricing:t,
     cogs:bid.items,
@@ -1918,10 +2012,11 @@ function buildBidPrintDocument(){
         <div><b>Status:</b> ${esc(bid.status || 'draft')}</div>
         <div><b>Confidence:</b> ${esc(confidence.grade)} · ${esc(confidence.label)}</div>
         <div><b>Model:</b> ${esc(bid.model || '')}</div>
+        <div><b>Address:</b> ${esc(bid.address || 'Address not entered')}</div>
       </div>
     </div>
     <div class="print-doc-title">${esc(bid.title || 'ABQ ADU Bid')}</div>
-    <div>${esc(bid.client || 'Client not entered')} · ${esc(bid.model || 'Model')} · ${esc(bid.sqft || 0)} sf</div>
+    <div>${esc(bid.client || 'Client not entered')} · ${esc(bid.address || 'Address not entered')} · ${esc(bid.model || 'Model')} · ${esc(bid.sqft || 0)} sf</div>
     <div class="print-doc-grid">
       <div class="print-doc-kpi"><b>${fmt0(t.total)}</b><span>Bid total</span></div>
       <div class="print-doc-kpi"><b>${fmt0(t.sub)}</b><span>COGS subtotal</span></div>
@@ -1956,6 +2051,10 @@ function buildBidPrintDocument(){
       </table>
     </div>
     <div class="print-doc-section">
+      <h3>Invoice 1 Fixed Preconstruction Deposit</h3>
+      <div><b>Invoice 1 is always ${fmt(PRECON_DEPOSIT)}.</b> This is the preconstruction contract deposit for proper bid work, ordinance checks, site planning, design coordination, subcontractor bid pulls, and permitting preparation.</div>
+    </div>
+    <div class="print-doc-section">
       <h3>Draw Schedule and Invoices</h3>
       <table class="print-doc-table">
         <thead><tr><th>Invoice</th><th>Suggested send</th><th>Draw</th><th class="r">Amount</th><th class="r">Paid</th><th>Status</th></tr></thead>
@@ -1965,7 +2064,7 @@ function buildBidPrintDocument(){
     <div class="print-doc-section">
       <h3>Review Notes</h3>
       <div><b>Bid confidence:</b> ${esc(confidence.grade)} · ${esc(confidence.label)}</div>
-      <div><b>Readiness:</b> ${esc(confidence.flags.join(', ') || 'auto-classified')}</div>
+      <div><b>Readiness:</b> ${esc(confidence.flags.map(readinessLabel).join(', ') || 'Auto-classified')}</div>
       <div>${reviewItems.length ? reviewItems.map(item=>`<div>${esc(item.desc)} · ${fmt((+item.qty||0)*(+item.cost||0))}</div>`).join('') : 'No allowance or engineering review flags currently listed.'}</div>
     </div>
   `;
@@ -2026,6 +2125,7 @@ function emailInvoicePacket(){
   const subject=encodeURIComponent(`Invoice 1 preconstruction deposit: ${bid.title || 'ABQ ADU job'}`);
   const body=encodeURIComponent(`Client: ${bid.client || ''}
 Project: ${bid.title || ''}
+Address: ${bid.address || ''}
 Bid total: ${fmt(t.total)}
 Invoice 1 fixed deposit: ${fmt(PRECON_DEPOSIT)} (${invoicePct(PRECON_DEPOSIT,t.total)}%)
 
