@@ -1006,6 +1006,22 @@ h2 em { font-style: normal; color: var(--terra); }
   max-width: 520px;
 }
 
+.design-launch-cue {
+  align-items: center;
+  background: rgba(196,149,74,.16);
+  border: 1px solid rgba(196,149,74,.34);
+  border-radius: 999px;
+  color: var(--copper-l);
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  gap: 6px;
+  letter-spacing: .12em;
+  margin-top: 8px;
+  padding: 7px 10px;
+  text-transform: uppercase;
+}
+
 .design-launch-button {
   align-items: center;
   background: var(--copper);
@@ -1496,6 +1512,32 @@ h2 em { font-style: normal; color: var(--terra); }
   line-height: 1.45;
 }
 
+.review-next-step {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.14), rgba(120,170,230,.06)),
+    rgba(255,255,255,.045);
+  border: 1px solid rgba(196,149,74,.28);
+  border-radius: 8px;
+  color: rgba(240,235,225,.68);
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 12px;
+}
+
+.review-next-step b {
+  color: var(--copper-l);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.review-next-step span {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .design-result-modal {
   align-items: center;
   background: rgba(15,31,61,.88);
@@ -1636,7 +1678,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .wizard-progress {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 18px;
@@ -1662,6 +1704,11 @@ h2 em { font-style: normal; color: var(--terra); }
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-bottom: 10px;
   padding: 7px;
+}
+
+.design-modal .design-focus-strip,
+.design-modal .design-infographic {
+  display: none;
 }
 
 .design-focus-item {
@@ -1859,6 +1906,29 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .choice-card.selected strong {
   color: var(--copper-l);
+}
+
+.choice-card.has-added-cost:not(.selected) {
+  background:
+    linear-gradient(135deg, rgba(184,92,56,.13), rgba(255,255,255,.035)),
+    rgba(255,255,255,.035);
+  border-color: rgba(184,92,56,.34);
+}
+
+.choice-card.needs-review:not(.selected) {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.16), rgba(120,170,230,.055)),
+    rgba(255,255,255,.035);
+  border-color: rgba(196,149,74,.42);
+}
+
+.choice-card.has-savings:not(.selected) {
+  border-color: rgba(104,132,107,.35);
+}
+
+.choice-card.has-added-cost:not(.selected) .choice-cost-note,
+.choice-card.needs-review:not(.selected) .choice-cost-note {
+  color: #ffd8ca !important;
 }
 
 .choice-card.selected .choice-media::after {
@@ -4952,9 +5022,10 @@ footer {
         <div class="design-launch-card">
           <div class="design-launch-top">
             <div>
-              <div class="design-launch-kicker">Click by click</div>
-              <div class="design-launch-title">One question<br>at a time.</div>
-              <p class="design-launch-copy">Choose the picture that feels closest. Use Back and Next at the bottom. Each answer updates price, pictures, and builder-review notes.</p>
+              <div class="design-launch-kicker">Simple ADU shopping</div>
+              <div class="design-launch-title">Pick your<br>model first.</div>
+              <p class="design-launch-copy">Start with the backyard home shape. Then move one question at a time while the preview, price, $/sf, and site-review notes update live.</p>
+              <div class="design-launch-cue">First action: choose a model below</div>
             </div>
             <button class="design-secondary-button" id="adu-reset-draft" type="button" onclick="resetAduDraft()">Reset Draft</button>
           </div>
@@ -5031,8 +5102,8 @@ footer {
         <div class="wizard-panel active" data-wizard-step="0">
           <div class="homeowner-question">
             <div class="homeowner-question-kicker">Plain question 1</div>
-            <div class="homeowner-question-text">Which ADU feels right for your backyard?</div>
-            <div class="homeowner-question-help">Pick a starting model. You can still adjust finishes, windows, outdoor space, and utility assumptions later.</div>
+            <div class="homeowner-question-text">Pick the ADU model that feels right for your backyard.</div>
+            <div class="homeowner-question-help">This first choice sets square footage, starting price, and the shape shown in the live visualization.</div>
           </div>
           <div class="design-infographic">
             <div class="design-infographic-item"><b>5</b><span>proven ABQ ADU starting models</span></div>
@@ -5102,17 +5173,23 @@ footer {
         <div class="wizard-panel" data-wizard-step="5">
           <div class="homeowner-question">
             <div class="homeowner-question-kicker">Plain question 6</div>
-            <div class="homeowner-question-text">Does this feel like the ADU you want?</div>
-            <div class="homeowner-question-help">Review your choices, estimated price, cost movers, and items ABQ ADU should verify during a site visit within 24 hours of your call.</div>
+            <div class="homeowner-question-text">Review your ADU shopping cart.</div>
+            <div class="homeowner-question-help">Confirm the model, planning estimate, $/sf, upgrades, site-review flags, and next step before adding contact information.</div>
           </div>
           <div class="review-grid">
             <div class="review-card"><b id="review-model">Netherwood House 2BR</b><span>Selected model and square footage.</span></div>
             <div class="review-card"><b id="review-price">$198k</b><span>Planning estimate before site verification.</span></div>
             <div class="review-card"><b id="review-psf">$360/sf</b><span>Price per square foot lens for the homeowner.</span></div>
             <div class="review-card"><b id="review-flags">2 review notes</b><span>Engineering, utility, or site items to verify.</span></div>
+            <div class="review-card"><b id="review-upgrades">0 upgrades</b><span>Added-cost choices selected.</span></div>
+            <div class="review-card"><b>Site visit</b><span>Next step after saving this concept.</span></div>
+          </div>
+          <div class="review-next-step">
+            <b>Next step</b>
+            <span id="review-next-step">Save the concept, then ABQ ADU confirms utilities, setbacks, sewer, electric, and final bid details during the site visit.</span>
           </div>
           <div class="change-log" style="margin-top:14px;">
-            <div class="change-log-title">Draft change log</div>
+            <div class="change-log-title">Draft change log - remove upgrades anytime</div>
             <div class="change-log-list" id="review-change-list"></div>
           </div>
         </div>
@@ -5166,12 +5243,12 @@ footer {
             <button id="view-exterior-btn" class="active" type="button" onclick="setPreviewView('exterior')">Exterior</button>
             <button id="view-interior-btn" type="button" onclick="setPreviewView('interior')">Interior</button>
           </div>
-          <div class="photo-preview-badge">Photorealistic Preview</div>
-          <div class="photo-preview-caption" id="photo-preview-caption">Use this render as the homeowner-facing visual anchor while the turntable below explores options.</div>
+          <div class="photo-preview-badge">Live Design Companion</div>
+          <div class="photo-preview-caption" id="photo-preview-caption">Use this view as the main visual companion while each choice updates the ADU direction.</div>
         </div>
         <div class="config-design-board">
           <div class="viewer-card">
-            <div class="board-label">Interactive 3D Concept Viewer</div>
+            <div class="board-label">Interactive 3D Concept Companion</div>
             <div class="adu-3d-stage" id="adu-3d-stage" aria-label="Drag to rotate ADU concept model">
               <div class="adu-model" id="adu-3d-model">
                 <div class="adu-floor"></div>
@@ -5429,13 +5506,13 @@ function setPreviewView(view) {
 
 function priceLabel(opt, group = '', selected = false) {
   if (group === 'model') return { text: `From ${moneyShort(opt.price)}`, kind: 'included', note: 'Starting planning estimate for this model.' };
-  if (selected && opt.price > 0) return { text: `Added ${moneyShort(opt.price)}`, kind: 'added', note: 'Added to your planning estimate. Tap again to remove.' };
+  if (selected && opt.price > 0) return { text: `Added ${moneyShort(opt.price)}`, kind: 'added', note: 'Added to your planning estimate. Tap again to remove this upgrade.' };
   if (selected && opt.price < 0) return { text: `Saves ${moneyShort(Math.abs(opt.price))}`, kind: 'removed', note: 'This lowers your planning estimate. Tap again to restore the default.' };
   if (selected && !opt.price) return { text: 'Selected', kind: 'included', note: 'Included in the base estimate.' };
   if (!opt.price) return { text: 'Included', kind: 'included', note: 'No added cost for this choice.' };
   if (opt.price < 0) return { text: `Saves ${moneyShort(Math.abs(opt.price))}`, kind: 'saves', note: 'This choice lowers the planning estimate.' };
   const needsReview = /engineer|engineering|opening|panel|meter|sewer|upgrade high|larger/i.test(`${opt.label} ${opt.sub}`);
-  return { text: `Adds ${moneyShort(opt.price)}`, kind: needsReview ? 'review' : 'adds', note: needsReview ? 'Adds cost and needs builder review.' : 'Adds cost to the planning estimate.' };
+  return { text: `Adds ${moneyShort(opt.price)}`, kind: needsReview ? 'review' : 'adds', note: needsReview ? 'Upgrade adds cost and needs builder review.' : 'Upgrade adds cost to the planning estimate.' };
 }
 
 function renderChoiceMedia(opt, group = '', selected = false) {
@@ -5568,8 +5645,16 @@ function renderChoiceGroup(group) {
     const selected = ADU_CONFIG[group] === opt.id;
     const isReversible = group !== 'model' && selected && opt.id !== getDefaultOption(group).id;
     const label = priceLabel(opt, group, selected);
+    const choiceClasses = [
+      'choice-card',
+      group === 'model' ? 'model-choice-card' : '',
+      selected ? 'selected' : '',
+      opt.price > 0 ? 'has-added-cost' : '',
+      opt.price < 0 ? 'has-savings' : '',
+      label.kind === 'review' ? 'needs-review' : '',
+    ].filter(Boolean).join(' ');
     return `
-    <button type="button" class="choice-card ${group === 'model' ? 'model-choice-card' : ''} ${selected ? 'selected' : ''}" data-choice-key="${group}" data-choice-id="${opt.id}" onclick="chooseAduOption('${group}', '${opt.id}')">
+    <button type="button" class="${choiceClasses}" data-choice-key="${group}" data-choice-id="${opt.id}" onclick="chooseAduOption('${group}', '${opt.id}')">
       ${renderChoiceMedia(opt, group, selected)}
       <div class="choice-body">
         <strong>${opt.label}</strong>
@@ -5620,7 +5705,7 @@ function removeAduChange(group) {
   ADU_CONFIG[group] = getDefaultOption(group).id;
   if (group === 'windows') ADU_CONFIG.windowLayout = ADU_CONFIG.windows;
   renderAduConfigurator();
-  updateAduDraftStatus('Cost item removed');
+  updateAduDraftStatus('Upgrade removed');
 }
 
 function renderAduChangeList(hostId, options = selectedAduOptions()) {
@@ -5632,7 +5717,7 @@ function renderAduChangeList(hostId, options = selectedAduOptions()) {
       <div class="change-log-item">
         <span>${option.label}</span>
         <strong class="change-log-price">${label.text}</strong>
-        ${option.price > 0 ? `<button class="change-log-remove" type="button" data-remove-change="${group}" aria-label="Remove ${option.label} from estimate">Remove cost</button>` : '<span class="change-log-empty">Savings kept</span>'}
+        ${option.price > 0 ? `<button class="change-log-remove" type="button" data-remove-change="${group}" aria-label="Remove ${option.label} from estimate">Remove this upgrade</button>` : '<span class="change-log-empty">Savings kept</span>'}
       </div>
     `).join('')
     : '<div class="change-log-item"><span>No added-cost changes yet. Choose options above and any cost changes will appear here.</span><strong class="change-log-price">Base estimate</strong></div>';
@@ -5802,7 +5887,11 @@ function renderAduConfigurator() {
   document.getElementById('review-psf').textContent = `${moneyWhole(estimate / model.sqft)}/sf`;
   const reviewFlags = getAduChangeItems({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue })
     .filter(item => item.label.kind === 'review').length;
+  const reviewUpgrades = getAduChangeItems({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue })
+    .filter(item => item.option.price > 0).length;
   document.getElementById('review-flags').textContent = `${reviewFlags} review note${reviewFlags === 1 ? '' : 's'}`;
+  const reviewUpgradesNode = document.getElementById('review-upgrades');
+  if (reviewUpgradesNode) reviewUpgradesNode.textContent = `${reviewUpgrades} upgrade${reviewUpgrades === 1 ? '' : 's'}`;
   renderAduChangeList('config-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   renderAduChangeList('review-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   updateAduProgress();
