@@ -1403,15 +1403,63 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .change-log-list {
   display: grid;
-  gap: 7px;
+  gap: 8px;
 }
 
 .change-log-item {
+  align-items: center;
+  background: rgba(28,25,23,.22);
+  border: 1px solid rgba(240,235,225,.1);
+  border-radius: 8px;
   color: rgba(240,235,225,.64);
   display: flex;
+  flex-wrap: wrap;
   font-size: 12px;
-  gap: 10px;
+  gap: 8px;
   justify-content: space-between;
+  min-height: 44px;
+  padding: 9px 10px;
+}
+
+.change-log-item > span {
+  flex: 1 1 170px;
+  min-width: 0;
+}
+
+.change-log-price {
+  color: var(--copper-l);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.change-log-remove {
+  align-items: center;
+  background: rgba(184,92,56,.18);
+  border: 1px solid rgba(184,92,56,.55);
+  border-radius: 999px;
+  color: #ffd8ca;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: .08em;
+  min-height: 36px;
+  padding: 8px 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.change-log-remove:hover {
+  background: rgba(184,92,56,.34);
+}
+
+.change-log-empty {
+  color: rgba(240,235,225,.62);
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 2px;
 }
 
 .review-grid {
@@ -1584,16 +1632,16 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .wizard-progress {
-  display: none;
-  grid-template-columns: repeat(4, 1fr);
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .design-step-strip {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 8px;
   margin-bottom: 18px;
 }
 
@@ -1601,10 +1649,20 @@ h2 em { font-style: normal; color: var(--terra); }
   background: rgba(255,255,255,.045);
   border: 1px solid rgba(196,149,74,.2);
   border-radius: 8px;
+  cursor: pointer;
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 12px;
-  padding: 14px;
+  gap: 9px;
+  min-height: 84px;
+  padding: 10px;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+
+.design-step-card:hover,
+.design-step-card.active {
+  background: rgba(196,149,74,.14);
+  border-color: rgba(196,149,74,.5);
+  transform: translateY(-1px);
 }
 
 .design-step-num {
@@ -1617,15 +1675,15 @@ h2 em { font-style: normal; color: var(--terra); }
   font-family: var(--font-display);
   font-size: 16px;
   font-weight: 900;
-  height: 34px;
+  height: 30px;
   justify-content: center;
-  width: 34px;
+  width: 30px;
 }
 
 .design-step-title {
   color: var(--stucco);
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
@@ -1633,21 +1691,31 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .design-step-copy {
   color: rgba(240,235,225,.56);
-  font-size: 12px;
-  line-height: 1.45;
-  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.35;
+  margin-top: 4px;
 }
 
 .wizard-step-pill {
+  background: rgba(255,255,255,.035);
   border: 1px solid rgba(120,170,230,.18);
   border-radius: 999px;
   color: rgba(240,235,225,.45);
+  cursor: pointer;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
-  padding: 7px 8px;
+  min-height: 44px;
+  padding: 8px 9px;
   text-align: center;
   text-transform: uppercase;
+  transition: background .18s, border-color .18s, color .18s, transform .18s;
+}
+
+.wizard-step-pill:hover {
+  border-color: rgba(196,149,74,.38);
+  color: rgba(240,235,225,.78);
+  transform: translateY(-1px);
 }
 
 .wizard-step-pill.active {
@@ -1712,7 +1780,7 @@ h2 em { font-style: normal; color: var(--terra); }
 .choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 9px;
 }
 
 .choice-card {
@@ -1761,7 +1829,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .choice-media {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 7.5;
   background:
     linear-gradient(135deg, rgba(196,149,74,.18), rgba(120,170,230,.1)),
     rgba(255,255,255,.04);
@@ -1780,7 +1848,7 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .choice-swatch {
   position: absolute;
-  inset: 14px;
+  inset: 10px;
   border-radius: 6px;
   border: 1px solid rgba(240,235,225,.18);
   box-shadow: inset 0 0 0 1px rgba(28,25,23,.18);
@@ -1802,7 +1870,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .choice-body {
-  padding: 14px;
+  padding: 11px 12px 12px;
 }
 
 .choice-category-label {
@@ -1840,7 +1908,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .model-choice-card .choice-media {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
 }
 
 .model-meta-grid {
@@ -2089,7 +2157,7 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .config-preview img {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 7.5;
   object-fit: cover;
   display: block;
 }
@@ -2157,9 +2225,9 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .config-design-board {
   display: grid;
-  grid-template-columns: 1.1fr .9fr;
-  gap: 12px;
-  padding: 14px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
+  gap: 8px;
+  padding: 10px;
   background:
     linear-gradient(135deg, rgba(240,235,225,.06), rgba(196,149,74,.08)),
     rgba(28,25,23,.5);
@@ -2172,7 +2240,7 @@ h2 em { font-style: normal; color: var(--terra); }
   background: rgba(255,255,255,.055);
   border: 1px solid rgba(240,235,225,.12);
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px;
 }
 
 .plan-diagram-card svg {
@@ -3551,7 +3619,7 @@ footer {
     right: auto;
     top: auto;
   }
-  .config-preview img { aspect-ratio: 4 / 3; }
+  .config-preview img { aspect-ratio: 16 / 8.5; }
   .config-design-board { grid-template-columns: 1fr; }
   .adu-3d-stage { height: 220px; }
   .adu-model { transform: scale(.86) rotateX(58deg) rotateZ(var(--rotate)); }
@@ -3639,6 +3707,7 @@ footer {
   .model-detail-specs { grid-template-columns: 1fr 1fr; }
   .model-detail-actions { display: grid; grid-template-columns: 1fr; }
   .config-preview { border-radius: 8px; }
+  .config-preview img { aspect-ratio: 16 / 8.5; }
   .viewer-card,
   .plan-diagram-card,
   .palette-card { padding: 10px; }
@@ -4833,18 +4902,53 @@ footer {
         </div>
 
         <div class="design-step-strip" aria-label="Homeowner design flow">
-          <div class="design-step-card">
+          <div class="design-step-card" data-step-jump="0">
             <div class="design-step-num">1</div>
             <div>
-              <div class="design-step-title">Select a Model</div>
-              <div class="design-step-copy">Choose the ADU or studio that fits your space, or click any model card above.</div>
+              <div class="design-step-title">Model</div>
+              <div class="design-step-copy">Which ADU feels right for your backyard?</div>
             </div>
           </div>
-          <div class="design-step-card">
+          <div class="design-step-card" data-step-jump="1">
             <div class="design-step-num">2</div>
             <div>
-              <div class="design-step-title">Personalize and Save Your Design</div>
-              <div class="design-step-copy">Customize options and save a detailed estimate.</div>
+              <div class="design-step-title">Exterior</div>
+              <div class="design-step-copy">Pick the outside look, colors, and roof.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="2">
+            <div class="design-step-num">3</div>
+            <div>
+              <div class="design-step-title">Doors + Lot</div>
+              <div class="design-step-copy">Choose windows, slider, orientation, and outdoor space.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="3">
+            <div class="design-step-num">4</div>
+            <div>
+              <div class="design-step-title">Interior</div>
+              <div class="design-step-copy">Set the feel inside for family, guests, or rental use.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="4">
+            <div class="design-step-num">5</div>
+            <div>
+              <div class="design-step-title">Utilities</div>
+              <div class="design-step-copy">Flag electric, sewer, and use-case checks early.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="5">
+            <div class="design-step-num">6</div>
+            <div>
+              <div class="design-step-title">Review</div>
+              <div class="design-step-copy">Remove cost add-ons and review the estimate.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="6">
+            <div class="design-step-num">7</div>
+            <div>
+              <div class="design-step-title">Save</div>
+              <div class="design-step-copy">Send the concept after the design feels right.</div>
             </div>
           </div>
         </div>
@@ -5443,7 +5547,15 @@ function getAduEstimate(options = selectedAduOptions()) {
 function getAduChangeItems(options = selectedAduOptions()) {
   return Object.entries(options)
     .filter(([group, option]) => group !== 'model' && option.price)
-    .map(([group, option]) => ({ group, option, label: priceLabel(option) }));
+    .map(([group, option]) => ({ group, option, label: priceLabel(option, group, true) }));
+}
+
+function removeAduChange(group) {
+  if (!ADU_OPTIONS[group]) return;
+  ADU_CONFIG[group] = getDefaultOption(group).id;
+  if (group === 'windows') ADU_CONFIG.windowLayout = ADU_CONFIG.windows;
+  renderAduConfigurator();
+  updateAduDraftStatus('Cost item removed');
 }
 
 function renderAduChangeList(hostId, options = selectedAduOptions()) {
@@ -5451,13 +5563,14 @@ function renderAduChangeList(hostId, options = selectedAduOptions()) {
   if (!host) return;
   const items = getAduChangeItems(options);
   host.innerHTML = items.length
-    ? items.map(({ option, label }) => `
+    ? items.map(({ group, option, label }) => `
       <div class="change-log-item">
         <span>${option.label}</span>
-        <strong>${label.text}</strong>
+        <strong class="change-log-price">${label.text}</strong>
+        ${option.price > 0 ? `<button class="change-log-remove" type="button" data-remove-change="${group}" aria-label="Remove ${option.label} from estimate">Remove cost</button>` : '<span class="change-log-empty">Savings kept</span>'}
       </div>
     `).join('')
-    : '<div class="change-log-item"><span>No added-cost changes yet.</span><strong>Base estimate</strong></div>';
+    : '<div class="change-log-item"><span>No added-cost changes yet. Choose options above and any cost changes will appear here.</span><strong class="change-log-price">Base estimate</strong></div>';
 }
 
 function updateAduProgress() {
@@ -5490,6 +5603,12 @@ function updateAduProgress() {
 function scrollAduModalToTop() {
   const modalBody = document.querySelector('.design-modal-body');
   if (modalBody) modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function jumpAduStep(step) {
+  ADU_CONFIG.step = Math.max(0, Math.min(ADU_TOTAL_STEPS - 1, step));
+  renderAduConfigurator();
+  scrollAduModalToTop();
 }
 
 function updateAduDraftStatus(text) {
@@ -5572,6 +5691,9 @@ function renderAduConfigurator() {
   });
   document.querySelectorAll('[data-step-pill]').forEach(pill => {
     pill.classList.toggle('active', Number(pill.dataset.stepPill) === ADU_CONFIG.step);
+  });
+  document.querySelectorAll('[data-step-jump]').forEach(card => {
+    card.classList.toggle('active', Number(card.dataset.stepJump) === ADU_CONFIG.step);
   });
   const backButton = document.getElementById('adu-wizard-back');
   const nextButton = document.getElementById('adu-wizard-next');
@@ -5744,7 +5866,7 @@ function handleDesignSubmit(e) {
 
 function handleAduDesignClick(e) {
   const target = e.target;
-  const action = target.closest('.design-launch-button, #adu-reset-draft, #adu-wizard-next, #adu-wizard-back, #adu-save-draft, .design-modal-close, .model-detail-primary, .model-detail-secondary, #view-exterior-btn, #view-interior-btn, #adu-spin-toggle, [data-window-layout], [data-choice-id], .model-design-btn');
+  const action = target.closest('.design-launch-button, #adu-reset-draft, #adu-wizard-next, #adu-wizard-back, #adu-save-draft, .design-modal-close, .model-detail-primary, .model-detail-secondary, #view-exterior-btn, #view-interior-btn, #adu-spin-toggle, [data-window-layout], [data-choice-id], [data-step-pill], [data-step-jump], [data-remove-change], .model-design-btn');
   if (!action) return;
 
   const run = (fn) => {
@@ -5765,6 +5887,9 @@ function handleAduDesignClick(e) {
   if (action.id === 'view-interior-btn') return run(() => setPreviewView('interior'));
   if (action.id === 'adu-spin-toggle') return run(toggleAduSpin);
   if (action.dataset.windowLayout) return run(() => setWindowLayout(action.dataset.windowLayout));
+  if (action.dataset.stepPill !== undefined) return run(() => jumpAduStep(Number(action.dataset.stepPill)));
+  if (action.dataset.stepJump !== undefined) return run(() => jumpAduStep(Number(action.dataset.stepJump)));
+  if (action.dataset.removeChange) return run(() => removeAduChange(action.dataset.removeChange));
   if (action.dataset.choiceKey && action.dataset.choiceId) return run(() => chooseAduOption(action.dataset.choiceKey, action.dataset.choiceId));
 
   const modelCard = action.closest('[data-design-model]');
@@ -5783,9 +5908,11 @@ Object.assign(window, {
   designSpecificModel,
   emailDesignSummary,
   handleDesignSubmit,
+  jumpAduStep,
   openAduDesignModal,
   openDesignResult,
   printDesignSummary,
+  removeAduChange,
   resetAduDraft,
   saveAduDraft,
   setAduRotation,
