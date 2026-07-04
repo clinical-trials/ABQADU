@@ -143,6 +143,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bid-flow-step.warn:after{background:var(--terra)}
 .bid-flow-step b{display:block;font-family:var(--fd);font-size:18px;line-height:1;color:var(--ink);text-transform:uppercase}
 .bid-flow-step span{display:block;color:var(--ink60);font-size:11px;line-height:1.35;margin-top:4px}
+.tool-sprint-strip{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:8px;grid-template-columns:repeat(4,minmax(0,1fr));margin:0 0 16px;padding:10px}
+.tool-sprint-item{align-items:center;background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;color:var(--ink);display:flex;gap:9px;min-height:50px;padding:8px 10px}
+.tool-sprint-item b{align-items:center;background:var(--blue);border-radius:999px;color:var(--copper-l);display:inline-flex;flex:0 0 auto;font-family:var(--fd);font-size:14px;height:30px;justify-content:center;width:30px}
+.tool-sprint-item span{color:var(--ink60);display:block;font-size:11px;font-weight:800;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}
+.materials-lane{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:8px;grid-template-columns:repeat(5,minmax(0,1fr));margin:0 0 14px;padding:10px}
+.materials-lane-card{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:10px}
+.materials-lane-card b{color:var(--copper);display:block;font-family:var(--fd);font-size:17px;line-height:1;text-transform:uppercase}
+.materials-lane-card span{color:var(--ink60);display:block;font-size:11px;line-height:1.35;margin-top:5px}
+.materials-priority-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.materials-priority-chips span{background:#F8F2E7;border:1px solid rgba(196,149,74,.35);border-radius:999px;color:#7A4E12;font-size:10px;font-weight:900;letter-spacing:.06em;padding:6px 8px;text-transform:uppercase}
 .bid-setup{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:16px}
 .bid-setup-grid{display:grid;grid-template-columns:1.2fr .85fr .65fr;gap:10px}
 .bid-assist-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
@@ -376,6 +386,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-app-shell{grid-template-columns:1fr}
   .bid-app-side{min-width:0}
   .bid-flow{grid-template-columns:repeat(2,1fr)}
+  .tool-sprint-strip,.materials-lane{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bid-setup{grid-template-columns:1fr}
   .bid-setup-grid{grid-template-columns:1fr}
   .quick-cogs-form{grid-template-columns:1fr 1fr}
@@ -394,6 +405,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 }
 @media (max-width:620px){
   .model-catalog,.bp-workflow,.bid-flow,.bid-assist-grid{grid-template-columns:1fr}
+  .tool-sprint-strip,.materials-lane{grid-template-columns:1fr}
   header.topbar{align-items:flex-start;flex-wrap:wrap;gap:10px;height:auto;padding:10px 14px}
   .logo{font-size:19px;width:100%}
   .tabs{height:auto;min-width:100%;overflow-x:auto;padding-bottom:4px}
@@ -566,6 +578,13 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <button class="btn copper" id="bid-quiz-action" onclick="runBidQuizAction()">Do this now</button>
       <button class="btn copper" onclick="goBidQuizStep(1)">Next question</button>
     </div>
+  </div>
+
+  <div class="tool-sprint-strip no-print" aria-label="Builder bid tool priority workflow">
+    <div class="tool-sprint-item"><b>1</b><span>Site visit facts</span></div>
+    <div class="tool-sprint-item"><b>2</b><span>Utility and sewer checks</span></div>
+    <div class="tool-sprint-item"><b>3</b><span>Fast COGS entry</span></div>
+    <div class="tool-sprint-item"><b>4</b><span>Invoice 1 is $10,000</span></div>
   </div>
 
   <div class="bid-command-grid no-print">
@@ -994,6 +1013,14 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     Source model list carried into Version 4.2 from the original site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
   </div>
 
+  <div class="materials-lane no-print" aria-label="Lowe's materials bidout priority workflow">
+    <div class="materials-lane-card"><b>1. Model</b><span>Pick the ADU plan and lock square footage.</span></div>
+    <div class="materials-lane-card"><b>2. Takeoff</b><span>Generate lumber, roof, wrap, drywall, mud, openings, and finish lines.</span></div>
+    <div class="materials-lane-card"><b>3. Pro Desk</b><span>Export the 12th Street Lowe's quote request.</span></div>
+    <div class="materials-lane-card"><b>4. Quote</b><span>Paste returned pricing and compare to budget.</span></div>
+    <div class="materials-lane-card"><b>5. COGS</b><span>Send material drops into the active bid.</span></div>
+  </div>
+
   <h3 style="font-size:18px;margin-bottom:8px">Blueprint-to-materials workflow</h3>
   <div class="bp-workflow">
     <div class="bp-workflow-card"><b><i>1</i>Choose model</b><span>Select the ADU plan or city-plan variant and lock the bid assumptions before site quantities move.</span></div>
@@ -1035,6 +1062,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <div><b>Delivery</b><span>Quote job-site delivery in drops so materials land when crews need them.</span></div>
       <div><b>Installer</b><span>Confirm whether an additional installer is needed if Ramie works out as an employee.</span></div>
       <div><b>Big Spends</b><span>Lumber, sheetrock, and mud must be explicit quote lines, not hidden in allowances.</span></div>
+    </div>
+    <div class="materials-priority-chips" aria-label="Required Lowe's material categories">
+      <span>Lumber</span><span>Sheetrock</span><span>Mud</span><span>Roofing</span><span>House wrap</span><span>Windows</span><span>Cabinets</span><span>Appliances</span><span>Fixtures</span><span>Lighting</span><span>Flooring</span>
     </div>
     <div id="cart-empty" class="muted" style="padding:14px;text-align:center">No cart for this project yet — pick a model above and click <b>Generate cart from model</b>.</div>
     <div id="cart-body" style="display:none">

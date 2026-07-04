@@ -1651,6 +1651,53 @@ h2 em { font-style: normal; color: var(--terra); }
   padding-bottom: 2px;
 }
 
+.design-focus-strip {
+  background:
+    linear-gradient(90deg, rgba(240,235,225,.08), rgba(196,149,74,.1)),
+    rgba(28,25,23,.22);
+  border: 1px solid rgba(196,149,74,.18);
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 10px;
+  padding: 7px;
+}
+
+.design-focus-item {
+  align-items: center;
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(240,235,225,.09);
+  border-radius: 7px;
+  color: rgba(240,235,225,.7);
+  display: flex;
+  gap: 8px;
+  min-height: 44px;
+  padding: 7px 8px;
+}
+
+.design-focus-item b {
+  align-items: center;
+  background: rgba(196,149,74,.18);
+  border-radius: 999px;
+  color: var(--copper-l);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-size: 12px;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.design-focus-item span {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 .design-step-card {
   background: rgba(255,255,255,.032);
   border: 1px solid rgba(196,149,74,.16);
@@ -3602,6 +3649,7 @@ footer {
     grid-template-columns: repeat(7, minmax(86px, 1fr));
     overflow-x: auto;
   }
+  .design-focus-strip { grid-template-columns: 1fr; }
   .design-step-card {
     min-height: 38px;
     padding: 5px 8px 5px 5px;
@@ -3703,6 +3751,7 @@ footer {
   .design-model-list > div[style*="padding"] > div { align-items: flex-start !important; gap: 12px; }
   .finish-preview-title { font-size: 21px; }
   .design-launch-title { font-size: 22px; }
+  .design-focus-strip { display: none; }
   .design-tool-chip-grid { grid-template-columns: 1fr; }
   .choice-card {
     display: block;
@@ -4961,6 +5010,12 @@ footer {
               <div class="design-step-copy">Send the concept after the design feels right.</div>
             </div>
           </div>
+        </div>
+
+        <div class="design-focus-strip" aria-label="Homeowner design tool priorities">
+          <div class="design-focus-item"><b>1</b><span>Pick a model first</span></div>
+          <div class="design-focus-item"><b>$</b><span>See cost changes live</span></div>
+          <div class="design-focus-item"><b>OK</b><span>Review before contact info</span></div>
         </div>
 
         <div class="wizard-progress" aria-label="ADU design steps">
