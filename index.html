@@ -1204,6 +1204,10 @@ h2 em { font-style: normal; color: var(--terra); }
   padding: 14px;
 }
 
+.design-modal-body .design-wizard.in-progress .design-launch-card {
+  display: none;
+}
+
 .design-modal-body .config-preview {
   align-self: start;
   position: sticky;
@@ -1334,6 +1338,23 @@ h2 em { font-style: normal; color: var(--terra); }
   color: var(--copper-l);
   padding: 10px 12px;
   text-align: center;
+}
+
+.wizard-price-status {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.18), rgba(120,170,230,.08)),
+    rgba(255,255,255,.06);
+  border: 1px solid rgba(196,149,74,.32);
+  border-radius: 999px;
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  padding: 10px 12px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .wizard-footer-actions {
@@ -1760,7 +1781,9 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .design-step-card:hover,
 .design-step-card.active {
-  background: rgba(196,149,74,.14);
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.22), rgba(120,170,230,.08)),
+    rgba(196,149,74,.14);
   border-color: rgba(196,149,74,.5);
   transform: translateY(-1px);
 }
@@ -1780,6 +1803,11 @@ h2 em { font-style: normal; color: var(--terra); }
   width: 26px;
 }
 
+.design-step-card.active .design-step-num {
+  background: var(--copper-l);
+  color: var(--blueprint);
+}
+
 .design-step-title {
   color: var(--stucco);
   font-family: var(--font-display);
@@ -1791,6 +1819,10 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .design-step-copy {
   display: none;
+}
+
+.design-step-card.active .design-step-title {
+  color: var(--copper-l);
 }
 
 .wizard-step-pill {
@@ -2259,6 +2291,10 @@ h2 em { font-style: normal; color: var(--terra); }
   margin-left: auto;
 }
 
+.wizard-footer-actions .wizard-next {
+  box-shadow: 0 12px 26px rgba(196,149,74,.2);
+}
+
 .wizard-next::after {
   content: ">";
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -2594,6 +2630,32 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .config-summary {
   padding: 12px;
+}
+
+.config-next-action {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.16), rgba(120,170,230,.07)),
+    rgba(255,255,255,.045);
+  border: 1px solid rgba(196,149,74,.28);
+  border-radius: 8px;
+  color: rgba(240,235,225,.7);
+  display: grid;
+  gap: 4px;
+  margin: 10px 0 12px;
+  padding: 10px;
+}
+
+.config-next-action b {
+  color: var(--copper-l);
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.config-next-action span {
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .config-summary-top {
@@ -3658,6 +3720,11 @@ footer {
     gap: 10px;
     grid-template-columns: 1fr;
   }
+  .wizard-bottom-row > div:first-child {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 1fr 1fr;
+  }
   .wizard-progress-meta {
     align-items: flex-start;
     display: grid;
@@ -3668,10 +3735,10 @@ footer {
   }
   .wizard-step-rail {
     gap: 4px;
-    grid-template-columns: repeat(7, minmax(84px, 1fr));
+    grid-template-columns: repeat(7, minmax(96px, 1fr));
   }
   .wizard-step-rail span {
-    height: 30px;
+    height: 34px;
   }
   .wizard-footer-actions {
     display: grid;
@@ -3716,13 +3783,13 @@ footer {
   .design-tool-chip-grid { grid-template-columns: repeat(2, 1fr); }
   .design-tool-chip { padding: 9px 8px; }
   .design-step-strip {
-    grid-template-columns: repeat(7, minmax(86px, 1fr));
+    grid-template-columns: repeat(7, minmax(98px, 1fr));
     overflow-x: auto;
   }
   .design-focus-strip { grid-template-columns: 1fr; }
   .design-step-card {
-    min-height: 38px;
-    padding: 5px 8px 5px 5px;
+    min-height: 42px;
+    padding: 6px 9px 6px 6px;
   }
   .wizard-progress { grid-template-columns: repeat(2, 1fr); }
   .wizard-step-pill { white-space: normal; line-height: 1.2; min-height: 38px; display: flex; align-items: center; justify-content: center; }
@@ -3768,6 +3835,7 @@ footer {
   .photo-preview-caption { display: none; }
   .config-summary-top { flex-direction: column; gap: 4px; }
   .config-price { font-size: 26px; }
+  .config-next-action { margin-top: 8px; }
   .config-line { align-items: flex-start; flex-direction: column; gap: 1px; }
   .config-line strong { line-height: 1.35; }
   .finance-section { padding: 56px 20px; }
@@ -3823,6 +3891,20 @@ footer {
   .design-launch-title { font-size: 22px; }
   .design-focus-strip { display: none; }
   .design-tool-chip-grid { grid-template-columns: 1fr; }
+  .design-modal-header { gap: 10px; }
+  .design-modal-subtitle { display: none; }
+  .design-step-strip { grid-template-columns: repeat(7, minmax(104px, 1fr)); }
+  .design-step-card { min-height: 44px; }
+  .wizard-bottom-row > div:first-child { grid-template-columns: 1fr; }
+  .wizard-price-status,
+  .wizard-step-status { min-height: 42px; }
+  .wizard-step-rail { grid-template-columns: repeat(7, minmax(106px, 1fr)); }
+  .wizard-step-rail span { height: 36px; }
+  .choice-grid,
+  .model-choice-grid,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
   .choice-card {
     display: block;
     min-height: 0;
@@ -3850,6 +3932,8 @@ footer {
   .wizard-actions { flex-direction: column; }
   .wizard-actions button { width: 100%; }
   .wizard-next { margin-left: 0; }
+  .wizard-footer-actions { grid-template-columns: 1fr; }
+  .wizard-footer-actions .wizard-next { grid-column: auto; }
   .config-line { flex-direction: column; gap: 2px; }
 }
 
@@ -5296,6 +5380,10 @@ footer {
             </div>
             <div class="config-price" id="config-price">$198k</div>
           </div>
+          <div class="config-next-action">
+            <b id="config-next-action-title">Next: choose a model</b>
+            <span id="config-next-action-copy">The model sets square footage, starting price, and the first version of the preview.</span>
+          </div>
           <div class="config-line"><span>Square footage</span><strong id="config-sqft">550 sq ft</strong></div>
           <div class="config-line"><span>Color story</span><strong id="config-color">Desert cream</strong></div>
           <div class="config-line"><span>Exterior</span><strong id="config-siding">Warm stucco + wood accent</strong></div>
@@ -5319,7 +5407,10 @@ footer {
         </div>
         <div class="design-modal-footer">
           <div class="wizard-bottom-row">
-            <div class="wizard-step-status" id="adu-step-status">Step 1 of 7</div>
+            <div>
+              <div class="wizard-step-status" id="adu-step-status">Step 1 of 7</div>
+              <div class="wizard-price-status" id="adu-footer-price">$198k planning estimate</div>
+            </div>
             <div class="wizard-progress-column">
               <div class="wizard-step-rail" id="adu-step-rail" aria-label="Design progress"></div>
               <div class="wizard-progress-track" aria-hidden="true"><span class="wizard-progress-fill" id="adu-progress-fill"></span></div>
@@ -5389,6 +5480,15 @@ const ADU_STEP_HELPERS = [
   'Final question: Where should we send your ADU concept?',
 ];
 const ADU_STEP_SHORT_LABELS = ['Model', 'Exterior', 'Doors', 'Interior', 'Utilities', 'Review', 'Contact'];
+const ADU_NEXT_ACTIONS = [
+  { title: 'Next: customize exterior', copy: 'Pick the outside finish, color story, and roof while the estimate updates.' },
+  { title: 'Next: doors, windows, and lot fit', copy: 'Check light, privacy, slider choices, orientation, and outdoor space.' },
+  { title: 'Next: interior choices', copy: 'Choose comfort, kitchen, bath, and finish packages for the way your family will use it.' },
+  { title: 'Next: site review flags', copy: 'Flag electric, sewer confirmation, rental use, and any builder-review items.' },
+  { title: 'Next: review your ADU cart', copy: 'Review price, $/sf, upgrades, and site-review notes before contact info.' },
+  { title: 'Next: save and contact ABQ ADU', copy: 'Send the design concept after the model, price, and review flags feel right.' },
+  { title: 'Ready: save your ADU concept', copy: 'Contact information comes last so ABQ ADU can follow up with the right design context.' },
+];
 const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
 let ADU_DRAFT_TIMER = null;
 
@@ -5725,14 +5825,17 @@ function renderAduChangeList(hostId, options = selectedAduOptions()) {
 
 function updateAduProgress() {
   const progress = ((ADU_CONFIG.step + 1) / ADU_TOTAL_STEPS) * 100;
+  const estimate = getAduEstimate();
   const fill = document.getElementById('adu-progress-fill');
   const status = document.getElementById('adu-step-status');
+  const footerPrice = document.getElementById('adu-footer-price');
   const rail = document.getElementById('adu-step-rail');
   const helper = document.getElementById('adu-step-helper');
   const backButton = document.getElementById('adu-wizard-back');
   const nextButton = document.getElementById('adu-wizard-next');
   if (fill) fill.style.width = `${progress}%`;
   if (status) status.textContent = `Step ${ADU_CONFIG.step + 1} of ${ADU_TOTAL_STEPS}`;
+  if (footerPrice) footerPrice.textContent = `${moneyShort(estimate)} planning estimate`;
   if (rail) {
     rail.innerHTML = Array.from({ length: ADU_TOTAL_STEPS }, (_, index) => {
       const classes = [
@@ -5746,7 +5849,11 @@ function updateAduProgress() {
   if (backButton) backButton.style.visibility = ADU_CONFIG.step === 0 ? 'hidden' : 'visible';
   if (nextButton) {
     nextButton.style.display = ADU_CONFIG.step === ADU_TOTAL_STEPS - 1 ? 'none' : 'inline-flex';
-    nextButton.textContent = ADU_CONFIG.step === 0 ? 'Customize Selected Model' : ADU_CONFIG.step === ADU_TOTAL_STEPS - 2 ? 'Contact' : 'Next';
+    nextButton.textContent = ADU_CONFIG.step === 0
+      ? 'Next: Exterior'
+      : ADU_CONFIG.step === ADU_TOTAL_STEPS - 2
+        ? 'Next: Contact'
+        : `Next: ${ADU_STEP_SHORT_LABELS[Math.min(ADU_CONFIG.step + 1, ADU_TOTAL_STEPS - 1)]}`;
   }
 }
 
@@ -5835,6 +5942,8 @@ function closeAduDesignModal() {
 }
 
 function renderAduConfigurator() {
+  const wizard = document.getElementById('homeowner-configurator');
+  if (wizard) wizard.classList.toggle('in-progress', ADU_CONFIG.step > 0);
   ['model', 'color', 'siding', 'roof', 'windows', 'orientation', 'outdoor', 'features', 'interior', 'kitchen', 'bath', 'utilities', 'revenue'].forEach(renderChoiceGroup);
   document.querySelectorAll('[data-wizard-step]').forEach(panel => {
     panel.classList.toggle('active', Number(panel.dataset.wizardStep) === ADU_CONFIG.step);
@@ -5872,6 +5981,11 @@ function renderAduConfigurator() {
   document.getElementById('config-palette-note').textContent = color.note;
   document.getElementById('config-model-name').textContent = model.label;
   document.getElementById('config-price').textContent = moneyShort(estimate);
+  const nextAction = ADU_NEXT_ACTIONS[ADU_CONFIG.step] || ADU_NEXT_ACTIONS[0];
+  const nextActionTitle = document.getElementById('config-next-action-title');
+  const nextActionCopy = document.getElementById('config-next-action-copy');
+  if (nextActionTitle) nextActionTitle.textContent = nextAction.title;
+  if (nextActionCopy) nextActionCopy.textContent = nextAction.copy;
   document.getElementById('config-sqft').textContent = `${model.sqft} sq ft`;
   document.getElementById('config-color').textContent = color.label;
   document.getElementById('config-siding').textContent = siding.label;
