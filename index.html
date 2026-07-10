@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ABQ ADU — Albuquerque's Tiny Home Builders</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="images/favicon-house.png">
+<link rel="apple-touch-icon" href="images/favicon-house.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
@@ -955,21 +956,20 @@ h2 em { font-style: normal; color: var(--terra); }
 .design-wizard {
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(120,170,230,.25);
-  border-radius: 10px;
-  padding: 28px;
+  border-radius: 8px;
+  padding: 18px;
   min-width: 0;
 }
 
 .design-launch-card {
   background:
-    radial-gradient(circle at 18% 12%, rgba(196,149,74,.22), transparent 34%),
-    linear-gradient(135deg, rgba(240,235,225,.08), rgba(120,170,230,.06)),
-    rgba(28,25,23,.56);
-  border: 1px solid rgba(196,149,74,.34);
-  border-radius: 10px;
-  margin-bottom: 18px;
+    linear-gradient(90deg, rgba(196,149,74,.12), rgba(120,170,230,.045)),
+    rgba(28,25,23,.28);
+  border: 1px solid rgba(196,149,74,.2);
+  border-radius: 8px;
+  margin-bottom: 10px;
   overflow: hidden;
-  padding: 18px;
+  padding: 10px 12px;
 }
 
 .design-launch-top {
@@ -984,14 +984,14 @@ h2 em { font-style: normal; color: var(--terra); }
   font-size: 10px;
   font-weight: 900;
   letter-spacing: .16em;
-  margin-bottom: 6px;
+  margin-bottom: 3px;
   text-transform: uppercase;
 }
 
 .design-launch-title {
   color: var(--stucco);
   font-family: var(--font-display);
-  font-size: clamp(26px, 3.2vw, 38px);
+  font-size: clamp(22px, 2.4vw, 28px);
   font-weight: 900;
   letter-spacing: .01em;
   line-height: .95;
@@ -1000,10 +1000,26 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .design-launch-copy {
   color: rgba(240,235,225,.6);
-  font-size: 13px;
-  line-height: 1.5;
-  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 6px;
   max-width: 520px;
+}
+
+.design-launch-cue {
+  align-items: center;
+  background: rgba(196,149,74,.16);
+  border: 1px solid rgba(196,149,74,.34);
+  border-radius: 999px;
+  color: var(--copper-l);
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  gap: 6px;
+  letter-spacing: .12em;
+  margin-top: 8px;
+  padding: 7px 10px;
+  text-transform: uppercase;
 }
 
 .design-launch-button {
@@ -1102,11 +1118,13 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .design-modal {
   align-items: center;
-  background: rgba(15,31,61,.86);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(196,149,74,.18), transparent 28%),
+    rgba(15,31,61,.82);
   display: none;
   inset: 0;
   justify-content: center;
-  padding: 20px;
+  padding: 12px;
   position: fixed;
   z-index: 220;
 }
@@ -1114,15 +1132,17 @@ h2 em { font-style: normal; color: var(--terra); }
 .design-modal.open { display: flex; }
 
 .design-modal-window {
-  background: var(--blueprint);
-  border: 1px solid rgba(196,149,74,.38);
-  border-radius: 14px;
-  box-shadow: 0 30px 90px rgba(0,0,0,.48);
+  background:
+    linear-gradient(135deg, rgba(240,235,225,.035), transparent 42%),
+    var(--blueprint);
+  border: 1px solid rgba(196,149,74,.3);
+  border-radius: 10px;
+  box-shadow: 0 22px 64px rgba(0,0,0,.42);
   color: var(--stucco);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  max-height: min(96svh, 980px);
-  max-width: 1380px;
+  max-height: min(96svh, 900px);
+  max-width: 1180px;
   overflow: hidden;
   width: 100%;
 }
@@ -1134,13 +1154,13 @@ h2 em { font-style: normal; color: var(--terra); }
   display: flex;
   gap: 14px;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 11px 14px;
 }
 
 .design-modal-title {
   color: var(--stucco);
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
@@ -1148,7 +1168,7 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .design-modal-subtitle {
   color: rgba(240,235,225,.52);
-  font-size: 12px;
+  font-size: 11px;
   margin-top: 3px;
 }
 
@@ -1161,26 +1181,31 @@ h2 em { font-style: normal; color: var(--terra); }
   cursor: pointer;
   display: inline-flex;
   font-size: 18px;
-  height: 40px;
+  height: 36px;
   justify-content: center;
-  width: 40px;
+  width: 36px;
 }
 
 .design-modal-body {
   min-height: 0;
   overflow-y: auto;
-  padding: 20px;
+  padding: 12px;
 }
 
 .design-modal-body .design-builder-grid {
-  grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
+  grid-template-columns: minmax(0, 1fr) minmax(318px, .68fr);
+  gap: 14px;
 }
 
 .design-modal-body .design-wizard {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 0;
-  padding: 22px;
+  padding: 14px;
+}
+
+.design-modal-body .design-wizard.in-progress .design-launch-card {
+  display: none;
 }
 
 .design-modal-body .config-preview {
@@ -1195,7 +1220,7 @@ h2 em { font-style: normal; color: var(--terra); }
     rgba(28,25,23,.92);
   border-top: 1px solid rgba(232,201,138,.4);
   box-shadow: 0 -18px 42px rgba(0,0,0,.26);
-  padding: 13px 18px 15px;
+  padding: 10px 14px 12px;
 }
 
 .wizard-bottom-row {
@@ -1315,6 +1340,23 @@ h2 em { font-style: normal; color: var(--terra); }
   text-align: center;
 }
 
+.wizard-price-status {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.18), rgba(120,170,230,.08)),
+    rgba(255,255,255,.06);
+  border: 1px solid rgba(196,149,74,.32);
+  border-radius: 999px;
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  padding: 10px 12px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .wizard-footer-actions {
   display: flex;
   gap: 8px;
@@ -1402,15 +1444,63 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .change-log-list {
   display: grid;
-  gap: 7px;
+  gap: 8px;
 }
 
 .change-log-item {
+  align-items: center;
+  background: rgba(28,25,23,.22);
+  border: 1px solid rgba(240,235,225,.1);
+  border-radius: 8px;
   color: rgba(240,235,225,.64);
   display: flex;
+  flex-wrap: wrap;
   font-size: 12px;
-  gap: 10px;
+  gap: 8px;
   justify-content: space-between;
+  min-height: 44px;
+  padding: 9px 10px;
+}
+
+.change-log-item > span {
+  flex: 1 1 170px;
+  min-width: 0;
+}
+
+.change-log-price {
+  color: var(--copper-l);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.change-log-remove {
+  align-items: center;
+  background: rgba(184,92,56,.18);
+  border: 1px solid rgba(184,92,56,.55);
+  border-radius: 999px;
+  color: #ffd8ca;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: .08em;
+  min-height: 36px;
+  padding: 8px 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.change-log-remove:hover {
+  background: rgba(184,92,56,.34);
+}
+
+.change-log-empty {
+  color: rgba(240,235,225,.62);
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 2px;
 }
 
 .review-grid {
@@ -1439,6 +1529,32 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .review-card span {
   color: rgba(240,235,225,.58);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.review-next-step {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.14), rgba(120,170,230,.06)),
+    rgba(255,255,255,.045);
+  border: 1px solid rgba(196,149,74,.28);
+  border-radius: 8px;
+  color: rgba(240,235,225,.68);
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 12px;
+}
+
+.review-next-step b {
+  color: var(--copper-l);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.review-next-step span {
   font-size: 12px;
   line-height: 1.45;
 }
@@ -1584,26 +1700,92 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .wizard-progress {
   display: none;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .design-step-strip {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(7, minmax(94px, 1fr));
+  gap: 5px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.design-focus-strip {
+  background:
+    linear-gradient(90deg, rgba(240,235,225,.08), rgba(196,149,74,.1)),
+    rgba(28,25,23,.22);
+  border: 1px solid rgba(196,149,74,.18);
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 10px;
+  padding: 7px;
+}
+
+.design-modal .design-focus-strip,
+.design-modal .design-infographic {
+  display: none;
+}
+
+.design-focus-item {
+  align-items: center;
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(240,235,225,.09);
+  border-radius: 7px;
+  color: rgba(240,235,225,.7);
+  display: flex;
+  gap: 8px;
+  min-height: 44px;
+  padding: 7px 8px;
+}
+
+.design-focus-item b {
+  align-items: center;
+  background: rgba(196,149,74,.18);
+  border-radius: 999px;
+  color: var(--copper-l);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-size: 12px;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.design-focus-item span {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .design-step-card {
-  background: rgba(255,255,255,.045);
-  border: 1px solid rgba(196,149,74,.2);
-  border-radius: 8px;
+  background: rgba(255,255,255,.032);
+  border: 1px solid rgba(196,149,74,.16);
+  border-radius: 999px;
+  cursor: pointer;
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 12px;
-  padding: 14px;
+  gap: 6px;
+  min-height: 42px;
+  padding: 6px 9px 6px 6px;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+
+.design-step-card:hover,
+.design-step-card.active {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.22), rgba(120,170,230,.08)),
+    rgba(196,149,74,.14);
+  border-color: rgba(196,149,74,.5);
+  transform: translateY(-1px);
 }
 
 .design-step-num {
@@ -1614,39 +1796,55 @@ h2 em { font-style: normal; color: var(--terra); }
   color: var(--copper-l);
   display: flex;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 900;
-  height: 34px;
+  height: 26px;
   justify-content: center;
-  width: 34px;
+  width: 26px;
+}
+
+.design-step-card.active .design-step-num {
+  background: var(--copper-l);
+  color: var(--blueprint);
 }
 
 .design-step-title {
   color: var(--stucco);
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 12px;
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
 }
 
 .design-step-copy {
-  color: rgba(240,235,225,.56);
-  font-size: 12px;
-  line-height: 1.45;
-  margin-top: 5px;
+  display: none;
+}
+
+.design-step-card.active .design-step-title {
+  color: var(--copper-l);
 }
 
 .wizard-step-pill {
+  background: rgba(255,255,255,.035);
   border: 1px solid rgba(120,170,230,.18);
   border-radius: 999px;
   color: rgba(240,235,225,.45);
+  cursor: pointer;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .08em;
-  padding: 7px 8px;
+  min-height: 44px;
+  padding: 8px 9px;
   text-align: center;
   text-transform: uppercase;
+  transition: background .18s, border-color .18s, color .18s, transform .18s;
+}
+
+.wizard-step-pill:hover {
+  border-color: rgba(196,149,74,.38);
+  color: rgba(240,235,225,.78);
+  transform: translateY(-1px);
 }
 
 .wizard-step-pill.active {
@@ -1659,12 +1857,13 @@ h2 em { font-style: normal; color: var(--terra); }
 .wizard-panel.active { display: block; }
 
 .homeowner-question {
-  background: rgba(196,149,74,.12);
-  border: 1px solid rgba(196,149,74,.3);
-  border-radius: 10px;
+  background:
+    linear-gradient(90deg, rgba(196,149,74,.14), rgba(196,149,74,.03));
+  border: 1px solid rgba(196,149,74,.22);
+  border-radius: 8px;
   color: var(--stucco);
-  margin-bottom: 16px;
-  padding: 14px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
 }
 
 .homeowner-question-kicker {
@@ -1672,13 +1871,13 @@ h2 em { font-style: normal; color: var(--terra); }
   font-size: 10px;
   font-weight: 900;
   letter-spacing: .14em;
-  margin-bottom: 6px;
+  margin-bottom: 3px;
   text-transform: uppercase;
 }
 
 .homeowner-question-text {
   font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 34px);
+  font-size: clamp(21px, 2.7vw, 28px);
   font-weight: 900;
   line-height: .98;
   text-transform: uppercase;
@@ -1686,9 +1885,9 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .homeowner-question-help {
   color: rgba(240,235,225,.62);
-  font-size: 13px;
-  line-height: 1.45;
-  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  margin-top: 5px;
 }
 
 .wizard-heading {
@@ -1710,14 +1909,14 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .choice-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
 }
 
 .choice-card {
-  background: rgba(255,255,255,.055);
-  border: 1px solid rgba(120,170,230,.2);
-  border-radius: 8px;
+  background: rgba(255,255,255,.038);
+  border: 1px solid rgba(120,170,230,.16);
+  border-radius: 7px;
   color: var(--stucco);
   cursor: pointer;
   min-height: 44px;
@@ -1733,12 +1932,35 @@ h2 em { font-style: normal; color: var(--terra); }
     linear-gradient(135deg, rgba(196,149,74,.24), rgba(120,170,230,.08)),
     rgba(196,149,74,.12);
   border-color: rgba(196,149,74,.64);
-  box-shadow: 0 0 0 2px rgba(196,149,74,.15), 0 16px 36px rgba(0,0,0,.18);
+  box-shadow: 0 0 0 1px rgba(196,149,74,.15), 0 10px 24px rgba(0,0,0,.14);
   transform: translateY(-1px);
 }
 
 .choice-card.selected strong {
   color: var(--copper-l);
+}
+
+.choice-card.has-added-cost:not(.selected) {
+  background:
+    linear-gradient(135deg, rgba(184,92,56,.13), rgba(255,255,255,.035)),
+    rgba(255,255,255,.035);
+  border-color: rgba(184,92,56,.34);
+}
+
+.choice-card.needs-review:not(.selected) {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.16), rgba(120,170,230,.055)),
+    rgba(255,255,255,.035);
+  border-color: rgba(196,149,74,.42);
+}
+
+.choice-card.has-savings:not(.selected) {
+  border-color: rgba(104,132,107,.35);
+}
+
+.choice-card.has-added-cost:not(.selected) .choice-cost-note,
+.choice-card.needs-review:not(.selected) .choice-cost-note {
+  color: #ffd8ca !important;
 }
 
 .choice-card.selected .choice-media::after {
@@ -1760,7 +1982,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .choice-media {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 6.3;
   background:
     linear-gradient(135deg, rgba(196,149,74,.18), rgba(120,170,230,.1)),
     rgba(255,255,255,.04);
@@ -1779,7 +2001,7 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .choice-swatch {
   position: absolute;
-  inset: 14px;
+  inset: 10px;
   border-radius: 6px;
   border: 1px solid rgba(240,235,225,.18);
   box-shadow: inset 0 0 0 1px rgba(28,25,23,.18);
@@ -1787,21 +2009,21 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .choice-price-pill {
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 7px;
+  top: 7px;
   border-radius: 999px;
   background: rgba(28,25,23,.78);
   border: 1px solid rgba(240,235,225,.18);
   color: var(--stucco);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: .08em;
-  padding: 6px 8px;
+  padding: 5px 7px;
   text-transform: uppercase;
 }
 
 .choice-body {
-  padding: 14px;
+  padding: 9px 10px 10px;
 }
 
 .choice-category-label {
@@ -1810,14 +2032,14 @@ h2 em { font-style: normal; color: var(--terra); }
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .12em;
-  margin: 16px 0 8px;
+  margin: 11px 0 6px;
   text-transform: uppercase;
 }
 
 .choice-card strong {
   display: block;
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 15px;
   letter-spacing: .02em;
   line-height: 1.05;
 }
@@ -1825,9 +2047,9 @@ h2 em { font-style: normal; color: var(--terra); }
 .choice-card span {
   color: rgba(240,235,225,.52);
   display: block;
-  font-size: 12px;
-  line-height: 1.4;
-  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.3;
+  margin-top: 4px;
 }
 
 .model-choice-grid {
@@ -1839,14 +2061,14 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .model-choice-card .choice-media {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
 }
 
 .model-meta-grid {
   display: grid;
-  gap: 8px;
+  gap: 5px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .model-meta-pill {
@@ -1854,10 +2076,10 @@ h2 em { font-style: normal; color: var(--terra); }
   border: 1px solid rgba(240,235,225,.12);
   border-radius: 8px;
   color: rgba(240,235,225,.74);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: .04em;
-  padding: 8px 9px;
+  padding: 6px 7px;
   text-transform: uppercase;
 }
 
@@ -1866,13 +2088,13 @@ h2 em { font-style: normal; color: var(--terra); }
     linear-gradient(135deg, rgba(196,149,74,.16), rgba(120,170,230,.07)),
     rgba(255,255,255,.045);
   border: 1px solid rgba(196,149,74,.34);
-  border-radius: 10px;
+  border-radius: 8px;
   display: grid;
-  gap: 16px;
-  grid-template-columns: minmax(180px, .78fr) minmax(0, 1fr);
-  margin-top: 16px;
+  gap: 10px;
+  grid-template-columns: minmax(140px, .58fr) minmax(0, 1fr);
+  margin-top: 10px;
   overflow: hidden;
-  padding: 14px;
+  padding: 10px;
 }
 
 .model-detail-art {
@@ -1884,7 +2106,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .model-detail-art img {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   display: block;
   height: 100%;
   object-fit: cover;
@@ -1917,7 +2139,7 @@ h2 em { font-style: normal; color: var(--terra); }
 .model-detail-title {
   color: var(--stucco);
   font-family: var(--font-display);
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: clamp(22px, 3vw, 32px);
   font-weight: 900;
   line-height: .94;
   margin-top: 6px;
@@ -1926,30 +2148,30 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .model-detail-copy {
   color: rgba(240,235,225,.64);
-  font-size: 13px;
-  line-height: 1.55;
-  margin-top: 9px;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 6px;
 }
 
 .model-detail-specs {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 14px;
+  margin-top: 9px;
 }
 
 .model-detail-spec {
   background: rgba(28,25,23,.35);
   border: 1px solid rgba(240,235,225,.12);
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px;
 }
 
 .model-detail-spec b {
   color: var(--copper-l);
   display: block;
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 15px;
   line-height: 1;
 }
 
@@ -1966,8 +2188,8 @@ h2 em { font-style: normal; color: var(--terra); }
 .model-detail-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 7px;
+  margin-top: 10px;
 }
 
 .model-detail-actions button {
@@ -1981,8 +2203,8 @@ h2 em { font-style: normal; color: var(--terra); }
   font-weight: 900;
   justify-content: center;
   letter-spacing: .08em;
-  min-height: 44px;
-  padding: 12px 16px;
+  min-height: 38px;
+  padding: 9px 12px;
   text-transform: uppercase;
 }
 
@@ -2069,6 +2291,10 @@ h2 em { font-style: normal; color: var(--terra); }
   margin-left: auto;
 }
 
+.wizard-footer-actions .wizard-next {
+  box-shadow: 0 12px 26px rgba(196,149,74,.2);
+}
+
 .wizard-next::after {
   content: ">";
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -2076,9 +2302,9 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .config-preview {
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(196,149,74,.28);
-  border-radius: 10px;
+  background: rgba(255,255,255,.038);
+  border: 1px solid rgba(196,149,74,.22);
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -2088,7 +2314,7 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .config-preview img {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 6.4;
   object-fit: cover;
   display: block;
 }
@@ -2097,13 +2323,13 @@ h2 em { font-style: normal; color: var(--terra); }
   background: rgba(28,25,23,.74);
   border: 1px solid rgba(240,235,225,.2);
   border-radius: 999px;
-  bottom: 16px;
+  bottom: 10px;
   color: var(--stucco);
   font-size: 10px;
   font-weight: 900;
-  left: 16px;
+  left: 10px;
   letter-spacing: .12em;
-  padding: 8px 11px;
+  padding: 6px 8px;
   position: absolute;
   text-transform: uppercase;
   backdrop-filter: blur(10px);
@@ -2117,8 +2343,8 @@ h2 em { font-style: normal; color: var(--terra); }
   gap: 4px;
   padding: 5px;
   position: absolute;
-  right: 14px;
-  top: 14px;
+  right: 10px;
+  top: 10px;
   z-index: 2;
   backdrop-filter: blur(10px);
 }
@@ -2132,7 +2358,7 @@ h2 em { font-style: normal; color: var(--terra); }
   font-size: 10px;
   font-weight: 900;
   letter-spacing: .1em;
-  padding: 8px 10px;
+  padding: 6px 8px;
   text-transform: uppercase;
 }
 
@@ -2145,10 +2371,10 @@ h2 em { font-style: normal; color: var(--terra); }
   background: linear-gradient(180deg, transparent, rgba(28,25,23,.72));
   bottom: 0;
   color: rgba(240,235,225,.72);
-  font-size: 12px;
+  font-size: 11px;
   left: 0;
   line-height: 1.45;
-  padding: 56px 16px 16px;
+  padding: 42px 10px 10px;
   position: absolute;
   right: 0;
   text-align: right;
@@ -2156,9 +2382,9 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .config-design-board {
   display: grid;
-  grid-template-columns: 1.1fr .9fr;
-  gap: 12px;
-  padding: 14px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+  gap: 6px;
+  padding: 8px;
   background:
     linear-gradient(135deg, rgba(240,235,225,.06), rgba(196,149,74,.08)),
     rgba(28,25,23,.5);
@@ -2171,7 +2397,7 @@ h2 em { font-style: normal; color: var(--terra); }
   background: rgba(255,255,255,.055);
   border: 1px solid rgba(240,235,225,.12);
   border-radius: 8px;
-  padding: 12px;
+  padding: 8px;
 }
 
 .plan-diagram-card svg {
@@ -2196,7 +2422,7 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .palette-strip {
   border-radius: 999px;
-  height: 26px;
+  height: 18px;
   border: 1px solid rgba(240,235,225,.16);
   box-shadow: inset 0 0 0 1px rgba(28,25,23,.2);
 }
@@ -2215,14 +2441,14 @@ h2 em { font-style: normal; color: var(--terra); }
   border-radius: 8px;
   grid-column: 1 / -1;
   overflow: hidden;
-  padding: 14px;
+  padding: 10px;
 }
 
 .adu-3d-stage {
   align-items: center;
   cursor: grab;
   display: flex;
-  height: 260px;
+  height: 190px;
   justify-content: center;
   overflow: hidden;
   perspective: 900px;
@@ -2343,8 +2569,8 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .viewer-controls {
   display: grid;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 7px;
+  margin-top: 8px;
 }
 
 .viewer-slider-row {
@@ -2366,7 +2592,7 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .viewer-toggle-grid {
   display: grid;
-  gap: 8px;
+  gap: 5px;
   grid-template-columns: repeat(3, 1fr);
 }
 
@@ -2376,10 +2602,10 @@ h2 em { font-style: normal; color: var(--terra); }
   border-radius: 999px;
   color: rgba(240,235,225,.72);
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: .08em;
-  padding: 9px 10px;
+  padding: 7px 8px;
   text-transform: uppercase;
 }
 
@@ -2403,7 +2629,33 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .config-summary {
-  padding: 20px;
+  padding: 12px;
+}
+
+.config-next-action {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.16), rgba(120,170,230,.07)),
+    rgba(255,255,255,.045);
+  border: 1px solid rgba(196,149,74,.28);
+  border-radius: 8px;
+  color: rgba(240,235,225,.7);
+  display: grid;
+  gap: 4px;
+  margin: 10px 0 12px;
+  padding: 10px;
+}
+
+.config-next-action b {
+  color: var(--copper-l);
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.config-next-action span {
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .config-summary-top {
@@ -2411,13 +2663,13 @@ h2 em { font-style: normal; color: var(--terra); }
   align-items: baseline;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .config-model-name {
   color: var(--stucco);
   font-family: var(--font-display);
-  font-size: 27px;
+  font-size: 22px;
   font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
@@ -2426,7 +2678,7 @@ h2 em { font-style: normal; color: var(--terra); }
 .config-price {
   color: var(--copper-l);
   font-family: var(--font-display);
-  font-size: 29px;
+  font-size: 26px;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -2438,7 +2690,7 @@ h2 em { font-style: normal; color: var(--terra); }
   font-size: 12px;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 0;
+  padding: 5px 0;
 }
 
 .config-line strong { color: var(--stucco); font-weight: 600; }
@@ -3468,6 +3720,11 @@ footer {
     gap: 10px;
     grid-template-columns: 1fr;
   }
+  .wizard-bottom-row > div:first-child {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 1fr 1fr;
+  }
   .wizard-progress-meta {
     align-items: flex-start;
     display: grid;
@@ -3478,10 +3735,10 @@ footer {
   }
   .wizard-step-rail {
     gap: 4px;
-    grid-template-columns: repeat(7, minmax(84px, 1fr));
+    grid-template-columns: repeat(7, minmax(96px, 1fr));
   }
   .wizard-step-rail span {
-    height: 30px;
+    height: 34px;
   }
   .wizard-footer-actions {
     display: grid;
@@ -3509,9 +3766,10 @@ footer {
     grid-template-columns: 1fr;
   }
   .design-result-title { font-size: 28px; }
-  .design-wizard { padding: 18px; border-radius: 8px; }
-  .design-launch-card { padding: 15px; }
+  .design-wizard { padding: 12px; border-radius: 8px; }
+  .design-launch-card { padding: 9px 10px; }
   .design-launch-top { align-items: stretch; flex-direction: column; }
+  .design-launch-copy { display: none; }
   .design-entry-actions {
     display: grid;
     grid-template-columns: 1fr;
@@ -3524,46 +3782,52 @@ footer {
   }
   .design-tool-chip-grid { grid-template-columns: repeat(2, 1fr); }
   .design-tool-chip { padding: 9px 8px; }
-  .design-step-strip { grid-template-columns: 1fr; }
-  .design-step-card { padding: 12px; }
+  .design-step-strip {
+    grid-template-columns: repeat(7, minmax(98px, 1fr));
+    overflow-x: auto;
+  }
+  .design-focus-strip { grid-template-columns: 1fr; }
+  .design-step-card {
+    min-height: 42px;
+    padding: 6px 9px 6px 6px;
+  }
   .wizard-progress { grid-template-columns: repeat(2, 1fr); }
   .wizard-step-pill { white-space: normal; line-height: 1.2; min-height: 38px; display: flex; align-items: center; justify-content: center; }
   .wizard-heading { font-size: 25px; }
   .design-infographic { grid-template-columns: 1fr; }
-  .choice-grid { grid-template-columns: 1fr; }
-  .model-choice-grid { grid-template-columns: 1fr; }
+  .choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .model-choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .model-detail-panel { grid-template-columns: 1fr; }
   .model-detail-art img { aspect-ratio: 16 / 9; }
   .model-detail-specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .choice-card {
-    display: grid;
-    grid-template-columns: 118px minmax(0, 1fr);
-    min-height: 118px;
+    display: block;
+    min-height: 0;
   }
-  .choice-media { aspect-ratio: auto; min-height: 118px; }
-  .choice-body { padding: 14px 14px 14px 12px; }
-  .choice-card strong { font-size: 16px; }
-  .choice-card span { font-size: 13px; }
+  .choice-media { aspect-ratio: 16 / 7.2; min-height: 0; }
+  .choice-body { padding: 9px 10px; }
+  .choice-card strong { font-size: 14px; }
+  .choice-card span { font-size: 11px; }
   .choice-price-pill {
     bottom: 8px;
     left: 8px;
     right: auto;
     top: auto;
   }
-  .config-preview img { aspect-ratio: 4 / 3; }
+  .config-preview img { aspect-ratio: 16 / 7.2; }
   .config-design-board { grid-template-columns: 1fr; }
-  .adu-3d-stage { height: 220px; }
+  .adu-3d-stage { height: 176px; }
   .adu-model { transform: scale(.86) rotateX(58deg) rotateZ(var(--rotate)); }
   .adu-model.spin { animation-name: aduTurntableMobile; }
   @keyframes aduTurntableMobile {
     from { transform: scale(.86) rotateX(58deg) rotateZ(0deg); }
     to { transform: scale(.86) rotateX(58deg) rotateZ(360deg); }
   }
-  .viewer-toggle-grid { grid-template-columns: 1fr; }
+  .viewer-toggle-grid { grid-template-columns: repeat(3, 1fr); }
   .viewer-slider-row { grid-template-columns: 1fr; }
   .viewer-toggle,
   .viewer-slider-row input {
-    min-height: 44px;
+    min-height: 38px;
   }
   .view-toggle { left: 12px; right: 12px; justify-content: center; top: 12px; }
   .view-toggle button { min-height: 40px; flex: 1; }
@@ -3571,7 +3835,8 @@ footer {
   .photo-preview-caption { display: none; }
   .config-summary-top { flex-direction: column; gap: 4px; }
   .config-price { font-size: 26px; }
-  .config-line { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .config-next-action { margin-top: 8px; }
+  .config-line { align-items: flex-start; flex-direction: column; gap: 1px; }
   .config-line strong { line-height: 1.35; }
   .finance-section { padding: 56px 20px; }
   .finance-grid { gap: 18px; }
@@ -3623,25 +3888,41 @@ footer {
   .design-model-list > div[style*="padding"] { padding: 16px !important; }
   .design-model-list > div[style*="padding"] > div { align-items: flex-start !important; gap: 12px; }
   .finish-preview-title { font-size: 21px; }
-  .design-launch-title { font-size: 27px; }
+  .design-launch-title { font-size: 22px; }
+  .design-focus-strip { display: none; }
   .design-tool-chip-grid { grid-template-columns: 1fr; }
+  .design-modal-header { gap: 10px; }
+  .design-modal-subtitle { display: none; }
+  .design-step-strip { grid-template-columns: repeat(7, minmax(104px, 1fr)); }
+  .design-step-card { min-height: 44px; }
+  .wizard-bottom-row > div:first-child { grid-template-columns: 1fr; }
+  .wizard-price-status,
+  .wizard-step-status { min-height: 42px; }
+  .wizard-step-rail { grid-template-columns: repeat(7, minmax(106px, 1fr)); }
+  .wizard-step-rail span { height: 36px; }
+  .choice-grid,
+  .model-choice-grid,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
   .choice-card {
     display: block;
     min-height: 0;
   }
   .model-choice-card { display: block; }
   .choice-media {
-    aspect-ratio: 16 / 8.5;
+    aspect-ratio: 16 / 7.2;
     min-height: 0;
   }
   .model-meta-grid { grid-template-columns: 1fr; }
   .model-detail-specs { grid-template-columns: 1fr 1fr; }
   .model-detail-actions { display: grid; grid-template-columns: 1fr; }
   .config-preview { border-radius: 8px; }
+  .config-preview img { aspect-ratio: 16 / 7.2; }
   .viewer-card,
   .plan-diagram-card,
   .palette-card { padding: 10px; }
-  .adu-3d-stage { height: 190px; }
+  .adu-3d-stage { height: 168px; }
   .adu-model { transform: scale(.72) rotateX(58deg) rotateZ(var(--rotate)); }
   .adu-model.spin { animation-name: aduTurntableTiny; }
   @keyframes aduTurntableTiny {
@@ -3651,6 +3932,8 @@ footer {
   .wizard-actions { flex-direction: column; }
   .wizard-actions button { width: 100%; }
   .wizard-next { margin-left: 0; }
+  .wizard-footer-actions { grid-template-columns: 1fr; }
+  .wizard-footer-actions .wizard-next { grid-column: auto; }
   .config-line { flex-direction: column; gap: 2px; }
 }
 
@@ -3935,7 +4218,7 @@ footer {
     </div>
     ABQ ADU
   </a>
-  <span class="version-pill">Version 4</span>
+  <span class="version-pill">Version 5</span>
   <ul class="nav-links">
     <li><a href="#models">Models</a></li>
     <li><a href="#process">Process</a></li>
@@ -3969,7 +4252,7 @@ footer {
 <!-- ── Hero ─────────────────────────────────────────────── -->
 <section class="hero" style="max-width:100%;padding-top:120px;">
   <div class="hero-content">
-    <div class="hero-version-pill">Version 4 Homeowner Design Experience</div>
+    <div class="hero-version-pill">Version 5 Homeowner Design Experience</div>
     <div class="hero-eyebrow">Albuquerque, New Mexico</div>
     <h1>We Build<br><em>ADUs</em><br>That Last.</h1>
     <p class="hero-desc">
@@ -4000,7 +4283,7 @@ footer {
 
   <!-- Real ADU exterior photo -->
   <div class="hero-photo">
-    <img src="images/adu-exterior.png" alt="Modern ABQ ADU at dusk — dark wood siding, sliding glass door, warm interior light">
+    <img src="images/v5-site-photos/real-adu-exterior.jpg" alt="Real Albuquerque ADU exterior with stucco finish and backyard landscaping">
     <div class="hero-photo-caption">Completed ABQ ADU — Albuquerque, NM</div>
   </div>
 </section>
@@ -4013,7 +4296,7 @@ footer {
         <div class="section-eyebrow">Our Portfolio</div>
         <h2>Five Proven<br><em>Designs</em></h2>
       </div>
-      <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Click a model to open the Version 4 design tool and customize that exact ADU.</p>
+      <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Click a model to open the Version 5 design tool and customize that exact ADU.</p>
     </div>
 
     <!-- Row 1: 3 cards -->
@@ -4037,7 +4320,7 @@ footer {
           <div class="model-price">from $168,000 <small>turnkey est.</small></div>
           <div class="model-actions">
             <button class="model-design-btn" type="button" onclick="designSpecificModel('hyder-hut')">Design This Model</button>
-            <div class="model-design-note">Opens Version 4 customization for the Netherwood House.</div>
+            <div class="model-design-note">Opens Version 5 customization for the Netherwood House.</div>
           </div>
         </div>
       </div>
@@ -4232,7 +4515,7 @@ footer {
     <div class="source-catalog">
       <div class="source-catalog-head">
         <div>
-          <div class="section-eyebrow">Version 4 Model Intelligence</div>
+          <div class="section-eyebrow">Version 5 Model Intelligence</div>
           <div class="source-catalog-title">Pulled Model<br><em>Catalog</em></div>
         </div>
         <p class="source-catalog-note">
@@ -4246,7 +4529,7 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Netherwood House</div>
             <div class="source-model-meta">440 sq ft · 1 bed / 1 bath · 12.5x35 · left/right hand option</div>
-            <span class="source-model-badge">Version 4 verified</span>
+            <span class="source-model-badge">Version 5 verified</span>
           </div>
         </div>
         <div class="source-model">
@@ -4254,15 +4537,15 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Netherwood House 2BR</div>
             <div class="source-model-meta">550 sq ft · 2 bed / 1 bath · 12.5x44 · family/rental layout</div>
-            <span class="source-model-badge">Version 4 verified</span>
+            <span class="source-model-badge">Version 5 verified</span>
           </div>
         </div>
         <div class="source-model">
           <img src="images/altura-sheet.png" alt="Altura 24x24 576 square foot floor plan">
           <div class="source-model-body">
             <div class="source-model-name">Altura / Altura 24x24</div>
-            <div class="source-model-meta">576 sq ft carried into Version 4 · ABQADU source notes 1 or 2 bed variation</div>
-            <span class="source-model-badge">Version 4 + ABQADU source</span>
+            <div class="source-model-meta">576 sq ft carried into Version 5 · ABQADU source notes 1 or 2 bed variation</div>
+            <span class="source-model-badge">Version 5 + ABQADU source</span>
           </div>
         </div>
         <div class="source-model">
@@ -4270,7 +4553,7 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Cromwell</div>
             <div class="source-model-meta">1,280 sq ft · expanded custom project above typical ADU planning size</div>
-            <span class="source-model-badge">Version 4 verified</span>
+            <span class="source-model-badge">Version 5 verified</span>
           </div>
         </div>
         <div class="source-model">
@@ -4317,11 +4600,11 @@ footer {
 <!-- ── Photo Gallery Strip ───────────────────────────────── -->
 <div class="gallery-strip">
   <div class="gallery-strip-inner">
-    <div class="gallery-item" onclick="openLightbox('images/adu-exterior.png')">
-      <img src="images/adu-exterior.png" alt="Modern ADU exterior at dusk">
+    <div class="gallery-item" onclick="openLightbox('images/v5-site-photos/real-adu-exterior.jpg')">
+      <img src="images/v5-site-photos/real-adu-exterior.jpg" alt="Real Albuquerque ADU exterior with stucco finish and backyard landscaping">
       <div class="gallery-item-label">
-        Exterior Finish
-        <div class="gallery-item-sub">Dark board-and-batten siding · LED roofline</div>
+        Real Exterior Finish
+        <div class="gallery-item-sub">Stucco shell · backyard fit · New Mexico site conditions</div>
       </div>
     </div>
     <div class="gallery-item" onclick="openLightbox('images/adu-interior.png')">
@@ -4331,11 +4614,11 @@ footer {
         <div class="gallery-item-sub">Murphy bed · custom cabinetry · concrete floors</div>
       </div>
     </div>
-    <div class="gallery-item" onclick="openLightbox('images/adu-construction.png')">
-      <img src="images/adu-construction.png" alt="Foundation and utility installation in progress">
+    <div class="gallery-item" onclick="openLightbox('images/v5-site-photos/real-adu-rough-in.jpg')">
+      <img src="images/v5-site-photos/real-adu-rough-in.jpg" alt="ADU framing and plumbing rough-in during construction">
       <div class="gallery-item-label">
         Built to Code
-        <div class="gallery-item-sub">Pier foundation · mechanical rough-in · inspected</div>
+        <div class="gallery-item-sub">Framing · plumbing rough-in · inspected work path</div>
       </div>
     </div>
   </div>
@@ -4557,7 +4840,7 @@ footer {
     <div class="process-grid">
       <div class="process-step has-photo">
         <div class="step-photo">
-          <img src="images/source-750-render.webp" alt="ABQ ADU model render used for early backyard site planning" loading="lazy">
+          <img src="images/v5-site-photos/site-measurement.jpg" alt="Builder measuring a real Albuquerque home wall during site assessment" loading="lazy">
           <span class="step-photo-label">Lot Review</span>
         </div>
         <div class="step-content">
@@ -4614,7 +4897,7 @@ footer {
       <!-- Step 4 with real construction photo -->
       <div class="process-step has-photo">
         <div class="step-photo">
-          <img src="images/adu-construction.png" alt="Foundation and utility rough-in on an ABQ ADU build" loading="lazy">
+          <img src="images/v5-site-photos/real-adu-window-rough-in.jpg" alt="ADU construction rough-in with large window and door opening" loading="lazy">
           <span class="step-photo-label">Build Phase</span>
         </div>
         <div class="step-content">
@@ -4647,7 +4930,7 @@ footer {
         <span style="display:block;width:24px;height:1px;background:var(--copper);"></span>
       </div>
       <h2>Every project runs<br><em style="color:var(--copper);">on the schedule.</em></h2>
-      <p>We run every ABQ ADU on a professional construction management platform — the same tools used by commercial general contractors, purpose-built for ADU timelines. As a customer, you see exactly where your project stands, every day.</p>
+      <p>We run every ABQ ADU on a professional construction management platform — the same tools used by commercial general contractors, purpose-built for ADU timelines.</p>
     </div>
 
     <!-- Feature cards -->
@@ -4821,17 +5104,6 @@ footer {
         </p>
         <div class="design-entry-actions">
           <button class="design-launch-button" type="button" onclick="startAduDesign()">Open Design Studio</button>
-          <button class="design-secondary-button" id="adu-restore-draft" type="button" onclick="openAduDesignModal(true)">Restore Draft</button>
-        </div>
-        <div class="design-tool-chip-grid" aria-label="Available design tools">
-          <div class="design-tool-chip">Step-by-step</div>
-          <div class="design-tool-chip">Bottom progress</div>
-          <div class="design-tool-chip">Save draft</div>
-          <div class="design-tool-chip">Change log</div>
-          <div class="design-tool-chip">Clear price pills</div>
-          <div class="design-tool-chip">Review flags</div>
-          <div class="design-tool-chip">Interior / exterior</div>
-          <div class="design-tool-chip">Send to builder</div>
         </div>
       </div>
       <div class="design-entry-preview">
@@ -4854,29 +5126,71 @@ footer {
         <div class="design-launch-card">
           <div class="design-launch-top">
             <div>
-              <div class="design-launch-kicker">Click by click</div>
-              <div class="design-launch-title">One question<br>at a time.</div>
-              <p class="design-launch-copy">Choose the picture that feels closest. Use Back and Next at the bottom. Each answer updates price, pictures, and builder-review notes.</p>
+              <div class="design-launch-kicker">Simple ADU shopping</div>
+              <div class="design-launch-title">Pick your<br>model first.</div>
+              <p class="design-launch-copy">Start with the backyard home shape. Then move one question at a time while the preview, price, $/sf, and site-review notes update live.</p>
+              <div class="design-launch-cue">First action: choose a model below</div>
             </div>
             <button class="design-secondary-button" id="adu-reset-draft" type="button" onclick="resetAduDraft()">Reset Draft</button>
           </div>
         </div>
 
         <div class="design-step-strip" aria-label="Homeowner design flow">
-          <div class="design-step-card">
+          <div class="design-step-card" data-step-jump="0">
             <div class="design-step-num">1</div>
             <div>
-              <div class="design-step-title">Select a Model</div>
-              <div class="design-step-copy">Choose the ADU or studio that fits your space, or click any model card above.</div>
+              <div class="design-step-title">Model</div>
+              <div class="design-step-copy">Which ADU feels right for your backyard?</div>
             </div>
           </div>
-          <div class="design-step-card">
+          <div class="design-step-card" data-step-jump="1">
             <div class="design-step-num">2</div>
             <div>
-              <div class="design-step-title">Personalize and Save Your Design</div>
-              <div class="design-step-copy">Customize options and save a detailed estimate.</div>
+              <div class="design-step-title">Exterior</div>
+              <div class="design-step-copy">Pick the outside look, colors, and roof.</div>
             </div>
           </div>
+          <div class="design-step-card" data-step-jump="2">
+            <div class="design-step-num">3</div>
+            <div>
+              <div class="design-step-title">Doors + Lot</div>
+              <div class="design-step-copy">Choose windows, slider, orientation, and outdoor space.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="3">
+            <div class="design-step-num">4</div>
+            <div>
+              <div class="design-step-title">Interior</div>
+              <div class="design-step-copy">Set the feel inside for family, guests, or rental use.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="4">
+            <div class="design-step-num">5</div>
+            <div>
+              <div class="design-step-title">Utilities</div>
+              <div class="design-step-copy">Flag electric, sewer, and use-case checks early.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="5">
+            <div class="design-step-num">6</div>
+            <div>
+              <div class="design-step-title">Review</div>
+              <div class="design-step-copy">Remove cost add-ons and review the estimate.</div>
+            </div>
+          </div>
+          <div class="design-step-card" data-step-jump="6">
+            <div class="design-step-num">7</div>
+            <div>
+              <div class="design-step-title">Save</div>
+              <div class="design-step-copy">Send the concept after the design feels right.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-focus-strip" aria-label="Homeowner design tool priorities">
+          <div class="design-focus-item"><b>1</b><span>Pick a model first</span></div>
+          <div class="design-focus-item"><b>$</b><span>See cost changes live</span></div>
+          <div class="design-focus-item"><b>OK</b><span>Review before contact info</span></div>
         </div>
 
         <div class="wizard-progress" aria-label="ADU design steps">
@@ -4892,8 +5206,8 @@ footer {
         <div class="wizard-panel active" data-wizard-step="0">
           <div class="homeowner-question">
             <div class="homeowner-question-kicker">Plain question 1</div>
-            <div class="homeowner-question-text">Which ADU feels right for your backyard?</div>
-            <div class="homeowner-question-help">Pick a starting model. You can still adjust finishes, windows, outdoor space, and utility assumptions later.</div>
+            <div class="homeowner-question-text">Pick the ADU model that feels right for your backyard.</div>
+            <div class="homeowner-question-help">This first choice sets square footage, starting price, and the shape shown in the live visualization.</div>
           </div>
           <div class="design-infographic">
             <div class="design-infographic-item"><b>5</b><span>proven ABQ ADU starting models</span></div>
@@ -4963,17 +5277,23 @@ footer {
         <div class="wizard-panel" data-wizard-step="5">
           <div class="homeowner-question">
             <div class="homeowner-question-kicker">Plain question 6</div>
-            <div class="homeowner-question-text">Does this feel like the ADU you want?</div>
-            <div class="homeowner-question-help">Review your choices, estimated price, cost movers, and items ABQ ADU should verify during a site visit within 24 hours of your call.</div>
+            <div class="homeowner-question-text">Review your ADU shopping cart.</div>
+            <div class="homeowner-question-help">Confirm the model, planning estimate, $/sf, upgrades, site-review flags, and next step before adding contact information.</div>
           </div>
           <div class="review-grid">
             <div class="review-card"><b id="review-model">Netherwood House 2BR</b><span>Selected model and square footage.</span></div>
             <div class="review-card"><b id="review-price">$198k</b><span>Planning estimate before site verification.</span></div>
             <div class="review-card"><b id="review-psf">$360/sf</b><span>Price per square foot lens for the homeowner.</span></div>
             <div class="review-card"><b id="review-flags">2 review notes</b><span>Engineering, utility, or site items to verify.</span></div>
+            <div class="review-card"><b id="review-upgrades">0 upgrades</b><span>Added-cost choices selected.</span></div>
+            <div class="review-card"><b>Site visit</b><span>Next step after saving this concept.</span></div>
+          </div>
+          <div class="review-next-step">
+            <b>Next step</b>
+            <span id="review-next-step">Save the concept, then ABQ ADU confirms utilities, setbacks, sewer, electric, and final bid details during the site visit.</span>
           </div>
           <div class="change-log" style="margin-top:14px;">
-            <div class="change-log-title">Draft change log</div>
+            <div class="change-log-title">Draft change log - remove upgrades anytime</div>
             <div class="change-log-list" id="review-change-list"></div>
           </div>
         </div>
@@ -5027,12 +5347,12 @@ footer {
             <button id="view-exterior-btn" class="active" type="button" onclick="setPreviewView('exterior')">Exterior</button>
             <button id="view-interior-btn" type="button" onclick="setPreviewView('interior')">Interior</button>
           </div>
-          <div class="photo-preview-badge">Photorealistic Preview</div>
-          <div class="photo-preview-caption" id="photo-preview-caption">Use this render as the homeowner-facing visual anchor while the turntable below explores options.</div>
+          <div class="photo-preview-badge">Live Design Companion</div>
+          <div class="photo-preview-caption" id="photo-preview-caption">Use this view as the main visual companion while each choice updates the ADU direction.</div>
         </div>
         <div class="config-design-board">
           <div class="viewer-card">
-            <div class="board-label">Interactive 3D Concept Viewer</div>
+            <div class="board-label">Interactive 3D Concept Companion</div>
             <div class="adu-3d-stage" id="adu-3d-stage" aria-label="Drag to rotate ADU concept model">
               <div class="adu-model" id="adu-3d-model">
                 <div class="adu-floor"></div>
@@ -5080,6 +5400,10 @@ footer {
             </div>
             <div class="config-price" id="config-price">$198k</div>
           </div>
+          <div class="config-next-action">
+            <b id="config-next-action-title">Next: choose a model</b>
+            <span id="config-next-action-copy">The model sets square footage, starting price, and the first version of the preview.</span>
+          </div>
           <div class="config-line"><span>Square footage</span><strong id="config-sqft">550 sq ft</strong></div>
           <div class="config-line"><span>Color story</span><strong id="config-color">Desert cream</strong></div>
           <div class="config-line"><span>Exterior</span><strong id="config-siding">Warm stucco + wood accent</strong></div>
@@ -5103,7 +5427,10 @@ footer {
         </div>
         <div class="design-modal-footer">
           <div class="wizard-bottom-row">
-            <div class="wizard-step-status" id="adu-step-status">Step 1 of 7</div>
+            <div>
+              <div class="wizard-step-status" id="adu-step-status">Step 1 of 7</div>
+              <div class="wizard-price-status" id="adu-footer-price">$198k planning estimate</div>
+            </div>
             <div class="wizard-progress-column">
               <div class="wizard-step-rail" id="adu-step-rail" aria-label="Design progress"></div>
               <div class="wizard-progress-track" aria-hidden="true"><span class="wizard-progress-fill" id="adu-progress-fill"></span></div>
@@ -5173,6 +5500,15 @@ const ADU_STEP_HELPERS = [
   'Final question: Where should we send your ADU concept?',
 ];
 const ADU_STEP_SHORT_LABELS = ['Model', 'Exterior', 'Doors', 'Interior', 'Utilities', 'Review', 'Contact'];
+const ADU_NEXT_ACTIONS = [
+  { title: 'Next: customize exterior', copy: 'Pick the outside finish, color story, and roof while the estimate updates.' },
+  { title: 'Next: doors, windows, and lot fit', copy: 'Check light, privacy, slider choices, orientation, and outdoor space.' },
+  { title: 'Next: interior choices', copy: 'Choose comfort, kitchen, bath, and finish packages for the way your family will use it.' },
+  { title: 'Next: site review flags', copy: 'Flag electric, sewer confirmation, rental use, and any builder-review items.' },
+  { title: 'Next: review your ADU cart', copy: 'Review price, $/sf, upgrades, and site-review notes before contact info.' },
+  { title: 'Next: save and contact ABQ ADU', copy: 'Send the design concept after the model, price, and review flags feel right.' },
+  { title: 'Ready: save your ADU concept', copy: 'Contact information comes last so ABQ ADU can follow up with the right design context.' },
+];
 const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
 let ADU_DRAFT_TIMER = null;
 
@@ -5181,7 +5517,7 @@ const ADU_OPTIONS = {
     { id: 'hyder-hut', label: 'Netherwood House', sub: '440 sf · 1BR/1BA · compact backyard home', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12.5 ft x 35 ft', use: 'Parent suite, guest house, or rental starter', detail: 'A compact, warm backyard home with enough room for a true bedroom, bath, kitchen, and small living area without overwhelming tighter Albuquerque lots.', image: 'images/hyder-hut-sheet.png' },
     { id: 'hyder-hut-2br', label: 'Netherwood House 2BR', sub: '550 sf · 2BR/1BA · family or rental ready', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', dimensions: '12.5 ft x 44 ft', use: 'Multigenerational family, adult child, or guests', detail: 'The family-friendly Netherwood layout adds a second bedroom while keeping the footprint efficient for homeowners who want flexibility now and rental value later.', image: 'images/hyder-hut-2br-exterior-finishes.webp' },
     { id: 'altura-24x24', label: 'Altura 24x24', sub: '576 sf · 1BR/1BA · square efficient plan', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', dimensions: '24 ft x 24 ft', use: 'Open living, accessible planning, and easy furniture layouts', detail: 'Altura is a simple square plan that feels calm and efficient, especially when the homeowner wants a balanced living room, kitchen, bedroom, and patio connection.', image: 'images/altura-box.png' },
-    { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, beds: '1BR', baths: '1BA', dimensions: 'L-shaped plan · site fit verified', use: 'Outdoor living, shaded entries, and privacy', detail: 'A New Mexico porch-forward option for homeowners who want the ADU to feel like a small casita with shade, outdoor meals, and a softer connection to the yard.', image: 'images/adu-exterior.png' },
+    { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, beds: '1BR', baths: '1BA', dimensions: 'L-shaped plan · site fit verified', use: 'Outdoor living, shaded entries, and privacy', detail: 'A New Mexico porch-forward option for homeowners who want the ADU to feel like a small casita with shade, outdoor meals, and a softer connection to the yard.', image: 'images/v5-site-photos/real-adu-exterior.jpg' },
     { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · larger custom review path above typical 750 sf homeowner max', price: 295000, sqft: 780, beds: '2BR', baths: '2BA', dimensions: 'Larger custom footprint', use: 'Bigger family needs and custom review', detail: 'A larger home-like option for families who need more space. Because 750 sf is the typical homeowner ADU planning max, this path should be reviewed carefully before final bid.', image: 'images/adu-interior.png' },
     { id: 'cromwell', label: 'Cromwell', sub: '1,280 sf · expanded custom project above typical ADU planning size', price: 385000, sqft: 1280, beds: '2BR', baths: '1.5BA', dimensions: 'Two-story custom plan', use: 'Large custom studio or detached home project', detail: 'A more ambitious custom project with a larger footprint and more design review. Best shown as an inspiration option before confirming ordinance fit.', image: 'images/source-cromwell-render.webp' },
   ],
@@ -5193,7 +5529,7 @@ const ADU_OPTIONS = {
   ],
   siding: [
     { id: 'warm', label: 'Warm stucco + wood', sub: 'Desert-modern finish shown in the preview', price: 0, image: 'images/hyder-hut-2br-exterior-finishes.webp', swatch: 'linear-gradient(135deg,#d7b47d,#8b5a35)' },
-    { id: 'stucco', label: 'Classic stucco', sub: 'Lower maintenance Southwest exterior', price: -3500, image: 'images/adu-exterior.png', swatch: 'linear-gradient(135deg,#d9c4a5,#aa8f6b)' },
+    { id: 'stucco', label: 'Classic stucco', sub: 'Lower maintenance Southwest exterior', price: -3500, image: 'images/v5-site-photos/real-adu-exterior.jpg', swatch: 'linear-gradient(135deg,#d9c4a5,#aa8f6b)' },
     { id: 'premium-wood', label: 'Premium wood accent', sub: 'More architectural warmth at entry and patio', price: 8500, image: 'images/source-altura-render.png' },
     { id: 'barn', label: 'Flex barn character', sub: 'A more expressive exterior for workshop/guest use', price: 12000, image: 'images/source-flex-barn-render.webp' },
   ],
@@ -5238,14 +5574,14 @@ const ADU_OPTIONS = {
     { id: 'tile-upgrade', label: 'Tile upgrade', sub: 'More polished finish for guests or short stays', price: 8400, image: 'images/adu-interior.png' },
   ],
   utilities: [
-    { id: 'panel-review', label: 'Electrical service review', sub: 'Confirm panel capacity and whether a separate meter is needed', price: 0, image: 'images/adu-construction.png' },
-    { id: 'panel-upgrade-low', label: 'Extra meter low range', sub: 'Planning placeholder for 220V / 50A minimum', price: 3500, image: 'images/adu-construction.png' },
-    { id: 'panel-upgrade-high', label: 'Extra meter high range', sub: 'Planning placeholder for more complex electrical work', price: 6500, image: 'images/adu-construction.png' },
-    { id: 'sewer-confirmation', label: 'Sewer confirmation study', sub: 'We confirm the ADU toilet and drainage will work properly', price: 0, image: 'images/adu-construction.png' },
+    { id: 'panel-review', label: 'Electrical service review', sub: 'Confirm panel capacity and whether a separate meter is needed', price: 0, image: 'images/v5-site-photos/real-adu-rough-in.jpg' },
+    { id: 'panel-upgrade-low', label: 'Extra meter low range', sub: 'Planning placeholder for 220V / 50A minimum', price: 3500, image: 'images/v5-site-photos/real-adu-rough-in.jpg' },
+    { id: 'panel-upgrade-high', label: 'Extra meter high range', sub: 'Planning placeholder for more complex electrical work', price: 6500, image: 'images/v5-site-photos/real-adu-rough-in.jpg' },
+    { id: 'sewer-confirmation', label: 'Sewer confirmation study', sub: 'We confirm the ADU toilet and drainage will work properly', price: 0, image: 'images/v5-site-photos/real-adu-rough-in.jpg' },
   ],
   revenue: [
     { id: 'family', label: 'Family-first use', sub: 'Designed for parents, adult children, or guests', price: 0, image: 'images/hyder-hut-2br-exterior-finishes.webp' },
-    { id: 'long-term', label: 'Long-term rental ready', sub: 'Durable finish and privacy package', price: 6500, image: 'images/adu-exterior.png' },
+    { id: 'long-term', label: 'Long-term rental ready', sub: 'Durable finish and privacy package', price: 6500, image: 'images/v5-site-photos/real-adu-exterior.jpg' },
     { id: 'event-rental', label: 'Event income ready', sub: 'Balloon Fiesta, Zozobra, Santa Fe stays', price: 10500, image: 'images/source-townhouse-render.webp' },
   ],
 };
@@ -5290,13 +5626,13 @@ function setPreviewView(view) {
 
 function priceLabel(opt, group = '', selected = false) {
   if (group === 'model') return { text: `From ${moneyShort(opt.price)}`, kind: 'included', note: 'Starting planning estimate for this model.' };
-  if (selected && opt.price > 0) return { text: `Added ${moneyShort(opt.price)}`, kind: 'added', note: 'Added to your planning estimate. Tap again to remove.' };
+  if (selected && opt.price > 0) return { text: `Added ${moneyShort(opt.price)}`, kind: 'added', note: 'Added to your planning estimate. Tap again to remove this upgrade.' };
   if (selected && opt.price < 0) return { text: `Saves ${moneyShort(Math.abs(opt.price))}`, kind: 'removed', note: 'This lowers your planning estimate. Tap again to restore the default.' };
   if (selected && !opt.price) return { text: 'Selected', kind: 'included', note: 'Included in the base estimate.' };
   if (!opt.price) return { text: 'Included', kind: 'included', note: 'No added cost for this choice.' };
   if (opt.price < 0) return { text: `Saves ${moneyShort(Math.abs(opt.price))}`, kind: 'saves', note: 'This choice lowers the planning estimate.' };
   const needsReview = /engineer|engineering|opening|panel|meter|sewer|upgrade high|larger/i.test(`${opt.label} ${opt.sub}`);
-  return { text: `Adds ${moneyShort(opt.price)}`, kind: needsReview ? 'review' : 'adds', note: needsReview ? 'Adds cost and needs builder review.' : 'Adds cost to the planning estimate.' };
+  return { text: `Adds ${moneyShort(opt.price)}`, kind: needsReview ? 'review' : 'adds', note: needsReview ? 'Upgrade adds cost and needs builder review.' : 'Upgrade adds cost to the planning estimate.' };
 }
 
 function renderChoiceMedia(opt, group = '', selected = false) {
@@ -5429,8 +5765,16 @@ function renderChoiceGroup(group) {
     const selected = ADU_CONFIG[group] === opt.id;
     const isReversible = group !== 'model' && selected && opt.id !== getDefaultOption(group).id;
     const label = priceLabel(opt, group, selected);
+    const choiceClasses = [
+      'choice-card',
+      group === 'model' ? 'model-choice-card' : '',
+      selected ? 'selected' : '',
+      opt.price > 0 ? 'has-added-cost' : '',
+      opt.price < 0 ? 'has-savings' : '',
+      label.kind === 'review' ? 'needs-review' : '',
+    ].filter(Boolean).join(' ');
     return `
-    <button type="button" class="choice-card ${group === 'model' ? 'model-choice-card' : ''} ${selected ? 'selected' : ''}" data-choice-key="${group}" data-choice-id="${opt.id}" onclick="chooseAduOption('${group}', '${opt.id}')">
+    <button type="button" class="${choiceClasses}" data-choice-key="${group}" data-choice-id="${opt.id}" onclick="chooseAduOption('${group}', '${opt.id}')">
       ${renderChoiceMedia(opt, group, selected)}
       <div class="choice-body">
         <strong>${opt.label}</strong>
@@ -5473,7 +5817,15 @@ function getAduEstimate(options = selectedAduOptions()) {
 function getAduChangeItems(options = selectedAduOptions()) {
   return Object.entries(options)
     .filter(([group, option]) => group !== 'model' && option.price)
-    .map(([group, option]) => ({ group, option, label: priceLabel(option) }));
+    .map(([group, option]) => ({ group, option, label: priceLabel(option, group, true) }));
+}
+
+function removeAduChange(group) {
+  if (!ADU_OPTIONS[group]) return;
+  ADU_CONFIG[group] = getDefaultOption(group).id;
+  if (group === 'windows') ADU_CONFIG.windowLayout = ADU_CONFIG.windows;
+  renderAduConfigurator();
+  updateAduDraftStatus('Upgrade removed');
 }
 
 function renderAduChangeList(hostId, options = selectedAduOptions()) {
@@ -5481,25 +5833,29 @@ function renderAduChangeList(hostId, options = selectedAduOptions()) {
   if (!host) return;
   const items = getAduChangeItems(options);
   host.innerHTML = items.length
-    ? items.map(({ option, label }) => `
+    ? items.map(({ group, option, label }) => `
       <div class="change-log-item">
         <span>${option.label}</span>
-        <strong>${label.text}</strong>
+        <strong class="change-log-price">${label.text}</strong>
+        ${option.price > 0 ? `<button class="change-log-remove" type="button" data-remove-change="${group}" aria-label="Remove ${option.label} from estimate">Remove this upgrade</button>` : '<span class="change-log-empty">Savings kept</span>'}
       </div>
     `).join('')
-    : '<div class="change-log-item"><span>No added-cost changes yet.</span><strong>Base estimate</strong></div>';
+    : '<div class="change-log-item"><span>No added-cost changes yet. Choose options above and any cost changes will appear here.</span><strong class="change-log-price">Base estimate</strong></div>';
 }
 
 function updateAduProgress() {
   const progress = ((ADU_CONFIG.step + 1) / ADU_TOTAL_STEPS) * 100;
+  const estimate = getAduEstimate();
   const fill = document.getElementById('adu-progress-fill');
   const status = document.getElementById('adu-step-status');
+  const footerPrice = document.getElementById('adu-footer-price');
   const rail = document.getElementById('adu-step-rail');
   const helper = document.getElementById('adu-step-helper');
   const backButton = document.getElementById('adu-wizard-back');
   const nextButton = document.getElementById('adu-wizard-next');
   if (fill) fill.style.width = `${progress}%`;
   if (status) status.textContent = `Step ${ADU_CONFIG.step + 1} of ${ADU_TOTAL_STEPS}`;
+  if (footerPrice) footerPrice.textContent = `${moneyShort(estimate)} planning estimate`;
   if (rail) {
     rail.innerHTML = Array.from({ length: ADU_TOTAL_STEPS }, (_, index) => {
       const classes = [
@@ -5513,13 +5869,23 @@ function updateAduProgress() {
   if (backButton) backButton.style.visibility = ADU_CONFIG.step === 0 ? 'hidden' : 'visible';
   if (nextButton) {
     nextButton.style.display = ADU_CONFIG.step === ADU_TOTAL_STEPS - 1 ? 'none' : 'inline-flex';
-    nextButton.textContent = ADU_CONFIG.step === 0 ? 'Customize Selected Model' : ADU_CONFIG.step === ADU_TOTAL_STEPS - 2 ? 'Contact' : 'Next';
+    nextButton.textContent = ADU_CONFIG.step === 0
+      ? 'Next: Exterior'
+      : ADU_CONFIG.step === ADU_TOTAL_STEPS - 2
+        ? 'Next: Contact'
+        : `Next: ${ADU_STEP_SHORT_LABELS[Math.min(ADU_CONFIG.step + 1, ADU_TOTAL_STEPS - 1)]}`;
   }
 }
 
 function scrollAduModalToTop() {
   const modalBody = document.querySelector('.design-modal-body');
   if (modalBody) modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function jumpAduStep(step) {
+  ADU_CONFIG.step = Math.max(0, Math.min(ADU_TOTAL_STEPS - 1, step));
+  renderAduConfigurator();
+  scrollAduModalToTop();
 }
 
 function updateAduDraftStatus(text) {
@@ -5596,12 +5962,17 @@ function closeAduDesignModal() {
 }
 
 function renderAduConfigurator() {
+  const wizard = document.getElementById('homeowner-configurator');
+  if (wizard) wizard.classList.toggle('in-progress', ADU_CONFIG.step > 0);
   ['model', 'color', 'siding', 'roof', 'windows', 'orientation', 'outdoor', 'features', 'interior', 'kitchen', 'bath', 'utilities', 'revenue'].forEach(renderChoiceGroup);
   document.querySelectorAll('[data-wizard-step]').forEach(panel => {
     panel.classList.toggle('active', Number(panel.dataset.wizardStep) === ADU_CONFIG.step);
   });
   document.querySelectorAll('[data-step-pill]').forEach(pill => {
     pill.classList.toggle('active', Number(pill.dataset.stepPill) === ADU_CONFIG.step);
+  });
+  document.querySelectorAll('[data-step-jump]').forEach(card => {
+    card.classList.toggle('active', Number(card.dataset.stepJump) === ADU_CONFIG.step);
   });
   const backButton = document.getElementById('adu-wizard-back');
   const nextButton = document.getElementById('adu-wizard-next');
@@ -5630,6 +6001,11 @@ function renderAduConfigurator() {
   document.getElementById('config-palette-note').textContent = color.note;
   document.getElementById('config-model-name').textContent = model.label;
   document.getElementById('config-price').textContent = moneyShort(estimate);
+  const nextAction = ADU_NEXT_ACTIONS[ADU_CONFIG.step] || ADU_NEXT_ACTIONS[0];
+  const nextActionTitle = document.getElementById('config-next-action-title');
+  const nextActionCopy = document.getElementById('config-next-action-copy');
+  if (nextActionTitle) nextActionTitle.textContent = nextAction.title;
+  if (nextActionCopy) nextActionCopy.textContent = nextAction.copy;
   document.getElementById('config-sqft').textContent = `${model.sqft} sq ft`;
   document.getElementById('config-color').textContent = color.label;
   document.getElementById('config-siding').textContent = siding.label;
@@ -5645,7 +6021,11 @@ function renderAduConfigurator() {
   document.getElementById('review-psf').textContent = `${moneyWhole(estimate / model.sqft)}/sf`;
   const reviewFlags = getAduChangeItems({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue })
     .filter(item => item.label.kind === 'review').length;
+  const reviewUpgrades = getAduChangeItems({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue })
+    .filter(item => item.option.price > 0).length;
   document.getElementById('review-flags').textContent = `${reviewFlags} review note${reviewFlags === 1 ? '' : 's'}`;
+  const reviewUpgradesNode = document.getElementById('review-upgrades');
+  if (reviewUpgradesNode) reviewUpgradesNode.textContent = `${reviewUpgrades} upgrade${reviewUpgrades === 1 ? '' : 's'}`;
   renderAduChangeList('config-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   renderAduChangeList('review-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   updateAduProgress();
@@ -5774,7 +6154,7 @@ function handleDesignSubmit(e) {
 
 function handleAduDesignClick(e) {
   const target = e.target;
-  const action = target.closest('.design-launch-button, #adu-restore-draft, #adu-reset-draft, #adu-wizard-next, #adu-wizard-back, #adu-save-draft, .design-modal-close, .model-detail-primary, .model-detail-secondary, #view-exterior-btn, #view-interior-btn, #adu-spin-toggle, [data-window-layout], [data-choice-id], .model-design-btn');
+  const action = target.closest('.design-launch-button, #adu-reset-draft, #adu-wizard-next, #adu-wizard-back, #adu-save-draft, .design-modal-close, .model-detail-primary, .model-detail-secondary, #view-exterior-btn, #view-interior-btn, #adu-spin-toggle, [data-window-layout], [data-choice-id], [data-step-pill], [data-step-jump], [data-remove-change], .model-design-btn');
   if (!action) return;
 
   const run = (fn) => {
@@ -5784,7 +6164,6 @@ function handleAduDesignClick(e) {
   };
 
   if (action.classList.contains('design-launch-button')) return run(startAduDesign);
-  if (action.id === 'adu-restore-draft') return run(() => openAduDesignModal(true));
   if (action.id === 'adu-reset-draft') return run(resetAduDraft);
   if (action.id === 'adu-wizard-next') return run(aduWizardNext);
   if (action.id === 'adu-wizard-back') return run(aduWizardBack);
@@ -5796,6 +6175,9 @@ function handleAduDesignClick(e) {
   if (action.id === 'view-interior-btn') return run(() => setPreviewView('interior'));
   if (action.id === 'adu-spin-toggle') return run(toggleAduSpin);
   if (action.dataset.windowLayout) return run(() => setWindowLayout(action.dataset.windowLayout));
+  if (action.dataset.stepPill !== undefined) return run(() => jumpAduStep(Number(action.dataset.stepPill)));
+  if (action.dataset.stepJump !== undefined) return run(() => jumpAduStep(Number(action.dataset.stepJump)));
+  if (action.dataset.removeChange) return run(() => removeAduChange(action.dataset.removeChange));
   if (action.dataset.choiceKey && action.dataset.choiceId) return run(() => chooseAduOption(action.dataset.choiceKey, action.dataset.choiceId));
 
   const modelCard = action.closest('[data-design-model]');
@@ -5814,9 +6196,11 @@ Object.assign(window, {
   designSpecificModel,
   emailDesignSummary,
   handleDesignSubmit,
+  jumpAduStep,
   openAduDesignModal,
   openDesignResult,
   printDesignSummary,
+  removeAduChange,
   resetAduDraft,
   saveAduDraft,
   setAduRotation,
@@ -5921,10 +6305,10 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <div class="section-eyebrow">Financing Partners</div>
         <h2>Make the ADU<br><em>Feel Possible.</em></h2>
         <p>
-          Many homeowners need lending options before they can say yes. Version 4 creates a clean path for banks, credit unions, and specialty lenders to sponsor placements, advertise ADU loans, and help homeowners compare financing before the site visit.
+          Many homeowners need lending options before they can say yes. We are working to create a clean path for banks, credit unions, and specialty lenders to support homeowner prequalification workflows, advertise ADU lending options, and help families compare financing before the site visit.
         </p>
         <p>
-          This also creates a real monetization channel for ABQ ADU: featured lender slots, referral tracking, and future prequalification workflows.
+          Lenders should contact ABQ ADU for homeowner prequalification workflows. We are always looking for good prices and good lenders to assist New Mexicans and their families.
         </p>
       </div>
 
@@ -5965,7 +6349,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <ul class="contractor-benefits">
           <li>
             <div class="benefit-dot"></div>
-            <span>Reach homeowners with <strong>signed contracts</strong> — not just curious browsers</span>
+            <span>Reach homeowners actively planning ADU projects</span>
           </li>
           <li>
             <div class="benefit-dot"></div>
@@ -5977,7 +6361,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
           </li>
           <li>
             <div class="benefit-dot"></div>
-            <span>Verified license and insurance display builds client trust instantly</span>
+            <span>Verified license and insurance display for homeowner review</span>
           </li>
           <li>
             <div class="benefit-dot"></div>
