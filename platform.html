@@ -171,6 +171,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .materials-lane-card span{color:var(--ink60);display:block;font-size:11px;line-height:1.35;margin-top:5px}
 .materials-priority-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
 .materials-priority-chips span{background:#F8F2E7;border:1px solid rgba(196,149,74,.35);border-radius:999px;color:#7A4E12;font-size:10px;font-weight:900;letter-spacing:.06em;padding:6px 8px;text-transform:uppercase}
+.builder-text-card{background:#EEF5F1;border:1px solid rgba(61,82,71,.28);border-radius:8px;color:#274338;display:grid;gap:8px;margin:12px 0 0;padding:12px}
+.builder-text-card b{font-family:var(--fd);font-size:18px;line-height:1;text-transform:uppercase}
+.builder-text-card span{font-size:12px;line-height:1.4}
+.builder-text-card .btn{justify-self:start}
 .bid-setup{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:16px}
 .bid-setup-grid{display:grid;grid-template-columns:1.2fr .85fr .65fr;gap:10px}
 .bid-assist-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
@@ -496,9 +500,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   #tab-bids td input,#tab-bids td select{background:#fff;border-color:var(--stucco-d);min-height:40px}
   .invoice-job-stats{grid-template-columns:1fr}
   .card{padding:14px;overflow-x:auto}
-  #tab-blueprint table{min-width:680px}
+  #tab-blueprint table{min-width:760px}
   .cart-pro-note{grid-template-columns:1fr}
   .cart-drops{grid-template-columns:1fr}
+  .materials-priority-chips span{font-size:9px}
+  .builder-text-card .btn{justify-self:stretch}
   .invoice-folder-toggle{align-items:flex-start}
   .invoice-folder-toggle b{font-size:18px}
 }
@@ -871,6 +877,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <button class="btn copper" onclick="printBidsAndInvoicing()">Print Bids &amp; Invoicing</button>
           <button class="btn ghost" onclick="exportBidCsv()">Export COGS CSV</button>
           <button class="btn blue" onclick="acceptBid()">Build invoices for current job →</button>
+          <button class="btn copper" onclick="textBuilderPacket()">Text Ian / builder packet</button>
           <button class="btn danger" onclick="confirmResetBid()">RESET active form</button>
         </div>
         <div class="bid-save-note" id="bid-save-status">Draft saves automatically on this device.</div>
@@ -1035,8 +1042,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ BLUEPRINT BIDOUT ════════ -->
 <section class="panel" id="tab-blueprint">
-  <div class="panel-head"><h2>Plans → Blueprint → Lowe's Bidout</h2><span class="facing-chip builder">Builder-facing · internal pricing</span><span class="muted">Version 4.2 · non-negotiable</span></div>
-  <p class="panel-sub">Turn a selected ABQ ADU model or uploaded plan set into a blueprint-aware material takeoff. The first Version 4.2 pass uses standard model assemblies; later passes can add plan-image review for uploaded PDFs.</p>
+  <div class="panel-head"><h2>Internal Builder Materials Takeoff</h2><span class="facing-chip builder">Builder platform only · internal pricing</span><span class="muted">Version 4.2 · Lowe's Pro Desk workflow</span></div>
+  <p class="panel-sub">This is not homeowner-facing. Select a model, choose a package, generate a materials list, export the 12th Street Lowe's Pro Desk CSV, track quote status, then send quoted Lowe's pricing back into the builder bid COGS.</p>
 
   <div class="blueprint-hero">
     <div class="bp-panel">
@@ -1070,11 +1077,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   </div>
 
   <div class="materials-lane no-print" aria-label="Lowe's materials bidout priority workflow">
-    <div class="materials-lane-card"><b>1. Model</b><span>Pick the ADU plan and lock square footage.</span></div>
-    <div class="materials-lane-card"><b>2. Takeoff</b><span>Generate lumber, roof, wrap, drywall, mud, openings, and finish lines.</span></div>
-    <div class="materials-lane-card"><b>3. Pro Desk</b><span>Export the 12th Street Lowe's quote request.</span></div>
-    <div class="materials-lane-card"><b>4. Quote</b><span>Paste returned pricing and compare to budget.</span></div>
-    <div class="materials-lane-card"><b>5. COGS</b><span>Send material drops into the active bid.</span></div>
+    <div class="materials-lane-card"><b>1. Select model</b><span>Pick the ADU plan and lock square footage.</span></div>
+    <div class="materials-lane-card"><b>2. Choose package</b><span>Select starter/pro package assumptions.</span></div>
+    <div class="materials-lane-card"><b>3. Generate list</b><span>Create lumber, sheetrock, mud, roof, wrap, openings, and finish lines.</span></div>
+    <div class="materials-lane-card"><b>4. Export CSV</b><span>Send the 12th Street Lowe's Pro Desk request.</span></div>
+    <div class="materials-lane-card"><b>5. Track quote</b><span>Submitted, quoted, ordered, delivered.</span></div>
   </div>
 
   <h3 style="font-size:18px;margin-bottom:8px">Blueprint-to-materials workflow</h3>
@@ -1113,6 +1120,17 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <span class="muted" style="margin-left:auto;font-size:11px">Materials only — labor stays in bid COGS</span>
     </div>
     <div class="muted" style="font-size:12px;margin-bottom:10px">Build the cart from the selected model, tune quantities and specs, export for the 12th Street Lowe's Pro Desk (24-hour quote turnaround, job-site delivery in three drops), then type quoted prices next to budget and push real material COGS into the bid.</div>
+    <div class="row no-print" style="gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:10px">
+      <div style="min-width:220px;flex:1">
+        <label class="fld">Materials package</label>
+        <select class="in" id="lowes-package">
+          <option value="starter">Starter takeoff · shell + essentials</option>
+          <option value="pro" selected>Pro-ready full ADU package</option>
+          <option value="finish-heavy">Finish-heavy package · appliances + interior emphasis</option>
+        </select>
+      </div>
+      <div class="muted" style="font-size:12px;max-width:520px">Choose the package, generate the materials list, then export the Pro Desk CSV for quote status tracking.</div>
+    </div>
     <div class="cart-pro-note">
       <div><b>Pro Desk</b><span>12th Street Lowe's Pro; ask for best builder pricing and 24-hour quote response.</span></div>
       <div><b>Delivery</b><span>Quote job-site delivery in drops so materials land when crews need them.</span></div>
@@ -1120,7 +1138,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <div><b>Big Spends</b><span>Lumber, sheetrock, and mud must be explicit quote lines, not hidden in allowances.</span></div>
     </div>
     <div class="materials-priority-chips" aria-label="Required Lowe's material categories">
-      <span>Lumber</span><span>Sheetrock</span><span>Mud</span><span>Roofing</span><span>House wrap</span><span>Windows</span><span>Cabinets</span><span>Appliances</span><span>Fixtures</span><span>Lighting</span><span>Flooring</span>
+      <span>Lumber</span><span>Sheetrock</span><span>Mud</span><span>Roofing</span><span>House wrap</span><span>Windows/doors</span><span>Cabinets</span><span>Appliances</span><span>Fixtures</span><span>Lighting</span><span>Flooring</span>
     </div>
     <div id="cart-empty" class="muted" style="padding:14px;text-align:center">No cart for this project yet — pick a model above and click <b>Generate cart from model</b>.</div>
     <div id="cart-body" style="display:none">
@@ -1147,7 +1165,13 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <select class="in" style="width:150px" id="cart-status" onchange="setCartStatus(this.value)">
         <option value="draft">draft</option><option value="submitted">submitted</option><option value="quoted">quoted</option><option value="ordered">ordered</option><option value="delivered">delivered</option>
       </select>
-      <button class="btn copper" onclick="sendCartToBid()">Send quoted COGS → bid</button>
+      <button class="btn copper" onclick="sendCartToBid()">Send to bid COGS</button>
+      <button class="btn blue" onclick="textBuilderPacket()">Text Ian / builder</button>
+    </div>
+    <div class="builder-text-card no-print">
+      <b>Builder text packet</b>
+      <span>Creates the homeowner bid/invoice packet and Lowe's supplies packet, then opens a text message summary for Ian or the builder. Save/print the PDFs, then attach them to the message.</span>
+      <button class="btn copper" onclick="textBuilderPacket()">Create + text bid packets</button>
     </div>
   </div>
 
@@ -1811,9 +1835,12 @@ function renderReviewCallout(t){
     : 'No review flags yet. Add utilities, openings over 3 ft, engineering, or site allowances when needed.';
 }
 
-function acceptBid(){
+function buildInvoicePacket(showAlert=true){
   syncBidFromInputs();
-  if(invoices.length&&!confirm('Replace the existing draw schedule? Your edits and payment records will be lost.'))return;
+  if(invoices.length){
+    if(!showAlert)return true;
+    if(!confirm('Replace the existing draw schedule? Your edits and payment records will be lost.'))return false;
+  }
   const t=bidTotals();
   const cityPermitDraw=Math.round(t.total*.5*100)/100;
   const progressDraw=Math.max(0,Math.round((t.total-PRECON_DEPOSIT-cityPermitDraw)*100)/100);
@@ -1828,7 +1855,11 @@ function acceptBid(){
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
   focusInvoicePacket(false);
-  alert(`Invoice packet created for this job. Invoice 1 is fixed at ${fmt(PRECON_DEPOSIT)}, invoice 2 is 50% of the bid, and invoice 3 is the remaining draw.`);
+  if(showAlert)alert(`Invoice packet created for this job. Invoice 1 is fixed at ${fmt(PRECON_DEPOSIT)}, invoice 2 is 50% of the bid, and invoice 3 is the remaining draw.`);
+  return true;
+}
+function acceptBid(){
+  buildInvoicePacket(true);
 }
 const INV_STATUS={draft:['#F3F4F6','#6B7280'],sent:['#DBEAFE','#1E40AF'],paid:['#D1FAE5','#065F46'],overdue:['#FEE2E2','#B91C1C']};
 function renderInvoices(){
@@ -2172,6 +2203,7 @@ function renderBidKpis(t){
 const ACTS=[
   {id:'A',name:'Site prep & excavation',dur:3,pct:100,crew:'Earthworks · Diego 505-555-0182',deps:[]},
   {id:'B',name:'Foundation & slab',dur:5,pct:100,crew:'Concrete · Marco 505-555-0143',deps:[{p:'A',type:'FS',lag:0}]},
+  {id:'LD',name:"Lowe's Pro job-site delivery drops",dur:3,pct:0,crew:"12th Street Lowe's Pro · Ian / Builder 505-555-0100",deps:[{p:'A',type:'FS',lag:0}]},
   {id:'C',name:'Framing',dur:8,pct:60,crew:'Framing · Tyler 505-555-0117',deps:[{p:'B',type:'FS',lag:0}]},
   {id:'D',name:'Roofing (metal)',dur:4,pct:0,crew:'Roofing · Sam 505-555-0166',deps:[{p:'C',type:'FS',lag:0}]},
   {id:'E',name:'Windows & ext. doors',dur:3,pct:0,crew:'Framing · Tyler 505-555-0117',deps:[{p:'C',type:'FS',lag:0}]},
@@ -2578,6 +2610,15 @@ function renderBlueprint(force=false){
 /* ── Lowe's Pro Cart — builder-facing, materials only, per project folder ── */
 const CART_STATUS_STYLE={draft:['#F3F4F6','#6B7280'],submitted:['#FEF3C7','#92400E'],quoted:['#DBEAFE','#1E40AF'],ordered:['#EDE9FE','#5B21B6'],delivered:['#D1FAE5','#065F46']};
 const CART_DROPS={1:'Drop 1 · Framing & shell (order first)',2:'Drop 2 · Dry-in',3:'Drop 3 · Finish & appliances'};
+const LOWES_PACKAGES={
+  starter:{label:'Starter takeoff · shell + essentials',multiplier:1,drop3Multiplier:.82},
+  pro:{label:'Pro-ready full ADU package',multiplier:1.08,drop3Multiplier:1},
+  'finish-heavy':{label:'Finish-heavy package · appliances + interior emphasis',multiplier:1.12,drop3Multiplier:1.18},
+};
+function selectedLowesPackage(){
+  const key=$('#lowes-package')?.value || 'pro';
+  return {key, ...(LOWES_PACKAGES[key] || LOWES_PACKAGES.pro)};
+}
 function suggestedDropDates(){
   const d=off=>{const x=new Date();x.setDate(x.getDate()+off);return x.toISOString().slice(0,10)};
   return {1:{date:d(14)},2:{date:d(35)},3:{date:d(60)}};
@@ -2597,10 +2638,11 @@ function setDropDate(drop,val){
   cart.drops[drop]={date:val};
   saveBid();renderLowesCart();
 }
-function lowesCartLines(model){
+function lowesCartLines(model, packageMeta=selectedLowesPackage()){
   const c=takeoffContext(model);
   const sheets=Math.ceil((c.wallSf+c.sf)/32);
-  const L=(drop,dept,item,spec,qty,unit,budget)=>({id:'cl_'+Math.random().toString(16).slice(2,9),drop,dept,item,spec,qty,unit,budget,quoted:null,sku:''});
+  const adjustedBudget=(drop,budget)=>Math.round((budget * packageMeta.multiplier * (drop===3 ? packageMeta.drop3Multiplier : 1))*100)/100;
+  const L=(drop,dept,item,spec,qty,unit,budget)=>({id:'cl_'+Math.random().toString(16).slice(2,9),drop,dept,item,spec:`${spec}${spec?' · ':''}${packageMeta.label}`,qty,unit,budget:adjustedBudget(drop,budget),quoted:null,sku:''});
   return [
     L(1,'Lumber','2x4 studs','KD SPF stud grade — lumber is the big spend, quote hard',c.exteriorWallLf*3,'ea',4.25),
     L(1,'Lumber','2x4 plates and blocking','Bottom/top plates, blocking, backing, nailers',Math.ceil(c.exteriorWallLf*2.2),'ea',5.25),
@@ -2633,7 +2675,8 @@ function lowesCartLines(model){
 function generateLowesCart(){
   const existing=activeProject.lowesCart;
   if(existing&&existing.lines.length&&!confirm("Replace this project's Lowe's cart? Edited quantities and quoted prices will be lost."))return;
-  activeProject.lowesCart={status:'draft',submittedAt:null,quotedAt:null,modelId:bpModel.id,modelName:bpModel.name,drops:suggestedDropDates(),lines:lowesCartLines(bpModel)};
+  const packageMeta=selectedLowesPackage();
+  activeProject.lowesCart={status:'draft',submittedAt:null,quotedAt:null,modelId:bpModel.id,modelName:bpModel.name,packageKey:packageMeta.key,packageName:packageMeta.label,drops:suggestedDropDates(),lines:lowesCartLines(bpModel, packageMeta)};
   saveBid();
   renderLowesCart();
 }
@@ -2670,6 +2713,8 @@ function renderLowesCart(){
       :'Quote overdue — follow up with the Pro Desk';
   }else clock.textContent='';
   if(!cart)return;
+  const packageSelect=$('#lowes-package');
+  if(packageSelect && cart.packageKey)packageSelect.value=cart.packageKey;
   $('#cart-drops').innerHTML=[1,2,3].map(d=>`<div class="cart-drop-box"><b>${CART_DROPS[d]}</b>
     <input type="date" value="${(cart.drops[d]&&cart.drops[d].date)||''}" onchange="setDropDate(${d},this.value)">
     <span>Target job-site delivery. Weather can push a drop — one rain day can add seven.</span></div>`).join('');
@@ -2732,7 +2777,8 @@ function exportLowesCartCsv(){
     ["ABQ ADU — Lowe's Pro quote request"],
     ['Preferred Pro Desk','12th Street Lowe\'s Pro','','Response target','24 hours'],
     ['Project',bid.title||'','','Client',bid.client||''],
-    ['Model',cart.modelName||'','','Requested','24-hour Pro Desk quote · job-site delivery in 3 drops'],
+    ['Model',cart.modelName||'','','Package',cart.packageName||selectedLowesPackage().label],
+    ['Requested','24-hour Pro Desk quote · job-site delivery in 3 drops','','Quote status',cart.status||'draft'],
     ['Delivery','Deliver to job site in drops','','Installer note','Confirm whether additional installer is needed if Ramie becomes employee'],
     ['Delivery targets','Drop 1: '+((cart.drops[1]&&cart.drops[1].date)||'TBD'),'Drop 2: '+((cart.drops[2]&&cart.drops[2].date)||'TBD'),'Drop 3: '+((cart.drops[3]&&cart.drops[3].date)||'TBD')],
     [],
@@ -2789,10 +2835,9 @@ function importQuotePaste(){
   saveBid();renderLowesCart();
   result.textContent=`Matched ${matched} of ${total} pasted rows${matched<total?' — unmatched lines left untouched, fill those by hand':''}.`;
 }
-function printLowesQuote(){
+function buildLowesQuoteDocument(){
   const cart=ensureCartShape(activeProject.lowesCart);
-  if(!cart||!cart.lines.length){alert('Generate a cart first.');return}
-  const el=$('#lowes-print-document');if(!el)return;
+  if(!cart||!cart.lines.length)return '';
   const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   let rows='',lastDrop=null;
   cart.lines.forEach(l=>{
@@ -2802,10 +2847,10 @@ function printLowesQuote(){
     }
     rows+=`<tr><td>${esc(l.sku||'')}</td><td>${esc(l.item)}</td><td style="color:#78716C">${esc(l.spec||'')}</td><td style="text-align:right">${l.qty}</td><td>${esc(l.unit)}</td><td style="border-bottom:1px solid #ccc"></td></tr>`;
   });
-  el.innerHTML=`
+  return `
     <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #C4954A;padding-bottom:12px;margin-bottom:14px">
       <div><div style="font-family:var(--fd);font-size:24px;font-weight:900">ABQ <span style="color:#C4954A">ADU</span></div>
-        <div style="font-size:12px;color:#78716C">Lowe's Pro quote request — materials only</div></div>
+        <div style="font-size:12px;color:#78716C">Lowe's Pro quote request — materials only · ${esc(cart.packageName||selectedLowesPackage().label)}</div></div>
       <div style="text-align:right;font-size:11px;color:#78716C">
         <div><b style="color:#1C1917;font-size:13px">${esc(bid.title||'ADU project')}</b></div>
         <div>${today} · response requested within 24 hours</div>
@@ -2819,6 +2864,67 @@ function printLowesQuote(){
       <span>Please quote best builder pricing per line and note substitutions or lead times.</span>
       <span>ABQ ADU — Albuquerque, NM</span>
     </div>`;
+}
+function renderLowesQuoteDocument(){
+  const el=$('#lowes-print-document');
+  if(el)el.innerHTML=buildLowesQuoteDocument();
+}
+function ensureLowesCartReady(){
+  let cart=ensureCartShape(activeProject.lowesCart);
+  if(!cart||!cart.lines.length){
+    generateLowesCart();
+    cart=ensureCartShape(activeProject.lowesCart);
+  }
+  return cart;
+}
+function smsUrlFor(phone, body){
+  const clean=String(phone||'').replace(/[^\d+]/g,'');
+  const sep=/iPhone|iPad|iPod/i.test(navigator.userAgent)?'&':'?';
+  return `sms:${clean}${sep}body=${encodeURIComponent(body)}`;
+}
+function textBuilderPacket(){
+  syncBidFromInputs();
+  if(!invoices.length&&!buildInvoicePacket(false))return;
+  const cart=ensureLowesCartReady();
+  if(!cart||!cart.lines.length){alert("Generate the Lowe's materials packet first.");return}
+  invoiceFolderOpen=true;
+  store.set('invoiceFolderOpen', invoiceFolderOpen);
+  renderBid();
+  renderBidPrintDocument();
+  renderLowesQuoteDocument();
+  const totals=bidTotals();
+  const cartCost=cartTotals();
+  const lowesCost=cartCost.quotedCount ? cartCost.quoted : cartCost.budget;
+  const phone=prompt('Ian / builder phone number for text draft:', '505-');
+  if(phone===null)return;
+  const first=invoices[0];
+  const body=`ABQ ADU builder packet ready
+Project: ${bid.title || 'ADU project'}
+Client: ${bid.client || 'Client name needed'}
+Address: ${bid.address || 'Address needed'}
+Model: ${bid.model || 'Model needed'}
+Bid total: ${fmt(totals.total)}
+Invoice 1: ${fmt(PRECON_DEPOSIT)} preconstruction contract, send ${first ? shortDate(first.sendDate) : 'ASAP'}
+Lowe's packet: ${cart.modelName || bid.model || 'model'} · ${cart.packageName || selectedLowesPackage().label}
+Lowe's estimate: ${fmt(lowesCost)} (${cartCost.quotedCount ? 'quoted lines included' : 'budget takeoff'})
+Quote status: ${cart.status || 'draft'}
+Delivery: 12th Street Lowe's Pro Desk job-site delivery in three drops
+
+Attach PDFs:
+1. Homeowner pre-construction bid / invoice packet
+2. Lowe's supplies quote request
+
+Next action: review, print/export PDFs, then send to homeowner / Lowe's Pro Desk as appropriate.`;
+  location.hash='bids';
+  showTab('bids');
+  showExportFallback('builder-text-packet.txt', body);
+  setBidSaveStatus('Builder text packet ready. Print/export the two packet previews, then attach them to the text draft.');
+  window.location.href=smsUrlFor(phone, body);
+}
+function printLowesQuote(){
+  const cart=ensureCartShape(activeProject.lowesCart);
+  if(!cart||!cart.lines.length){alert('Generate a cart first.');return}
+  renderLowesQuoteDocument();
   document.body.classList.add('print-lowes-quote');
   window.print();
 }
