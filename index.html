@@ -1193,8 +1193,8 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .design-modal-body .design-builder-grid {
-  grid-template-columns: minmax(0, 1fr) minmax(318px, .68fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, .92fr) minmax(330px, .64fr);
+  gap: 12px;
 }
 
 .design-modal-body .design-wizard {
@@ -1515,6 +1515,17 @@ h2 em { font-style: normal; color: var(--terra); }
   border: 1px solid rgba(240,235,225,.12);
   border-radius: 8px;
   padding: 12px;
+}
+
+.review-card.primary-review {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.18), rgba(255,255,255,.05)),
+    rgba(255,255,255,.06);
+  border-color: rgba(196,149,74,.46);
+}
+
+.review-card.primary-review b {
+  font-size: 22px;
 }
 
 .review-card b {
@@ -1909,7 +1920,7 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .choice-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px;
 }
 
@@ -1934,6 +1945,11 @@ h2 em { font-style: normal; color: var(--terra); }
   border-color: rgba(196,149,74,.64);
   box-shadow: 0 0 0 1px rgba(196,149,74,.15), 0 10px 24px rgba(0,0,0,.14);
   transform: translateY(-1px);
+}
+
+.choice-card.selected {
+  outline: 2px solid rgba(232,201,138,.45);
+  outline-offset: 2px;
 }
 
 .choice-card.selected strong {
@@ -1979,6 +1995,22 @@ h2 em { font-style: normal; color: var(--terra); }
   position: absolute;
   text-transform: uppercase;
   top: 10px;
+}
+
+.choice-card.selected .choice-body::before {
+  align-items: center;
+  background: rgba(232,201,138,.16);
+  border: 1px solid rgba(232,201,138,.36);
+  border-radius: 999px;
+  color: var(--copper-l);
+  content: "✓ Active choice";
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  margin-bottom: 7px;
+  padding: 5px 8px;
+  text-transform: uppercase;
 }
 
 .choice-media {
@@ -2053,7 +2085,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .model-choice-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .model-choice-card {
@@ -2306,6 +2338,7 @@ h2 em { font-style: normal; color: var(--terra); }
   border: 1px solid rgba(196,149,74,.22);
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 18px 44px rgba(0,0,0,.2);
 }
 
 .config-photo-shell {
@@ -2629,6 +2662,9 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .config-summary {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.08), transparent 46%),
+    rgba(15,31,61,.92);
   padding: 12px;
 }
 
@@ -3704,7 +3740,7 @@ footer {
   .design-modal-title { font-size: 19px; }
   .design-modal-subtitle { font-size: 11px; }
   .design-modal-body {
-    padding: 12px;
+    padding: 10px;
   }
   .design-modal-body .design-builder-grid {
     grid-template-columns: 1fr;
@@ -3734,8 +3770,8 @@ footer {
     white-space: normal;
   }
   .wizard-step-rail {
-    gap: 4px;
-    grid-template-columns: repeat(7, minmax(96px, 1fr));
+    gap: 5px;
+    grid-template-columns: repeat(7, minmax(104px, 1fr));
   }
   .wizard-step-rail span {
     height: 34px;
@@ -3795,8 +3831,8 @@ footer {
   .wizard-step-pill { white-space: normal; line-height: 1.2; min-height: 38px; display: flex; align-items: center; justify-content: center; }
   .wizard-heading { font-size: 25px; }
   .design-infographic { grid-template-columns: 1fr; }
-  .choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .model-choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .choice-grid,
+  .model-choice-grid { grid-template-columns: 1fr; }
   .model-detail-panel { grid-template-columns: 1fr; }
   .model-detail-art img { aspect-ratio: 16 / 9; }
   .model-detail-specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -3804,8 +3840,8 @@ footer {
     display: block;
     min-height: 0;
   }
-  .choice-media { aspect-ratio: 16 / 7.2; min-height: 0; }
-  .choice-body { padding: 9px 10px; }
+  .choice-media { aspect-ratio: 16 / 6.8; min-height: 0; }
+  .choice-body { padding: 10px 11px; }
   .choice-card strong { font-size: 14px; }
   .choice-card span { font-size: 11px; }
   .choice-price-pill {
@@ -3838,6 +3874,8 @@ footer {
   .config-next-action { margin-top: 8px; }
   .config-line { align-items: flex-start; flex-direction: column; gap: 1px; }
   .config-line strong { line-height: 1.35; }
+  .change-log-item { align-items: stretch; display: grid; grid-template-columns: 1fr; }
+  .change-log-remove { width: 100%; }
   .finance-section { padding: 56px 20px; }
   .finance-grid { gap: 18px; }
   .finance-intro p { font-size: 16px; line-height: 1.6; }
@@ -5281,12 +5319,12 @@ footer {
             <div class="homeowner-question-help">Confirm the model, planning estimate, $/sf, upgrades, site-review flags, and next step before adding contact information.</div>
           </div>
           <div class="review-grid">
-            <div class="review-card"><b id="review-model">Netherwood House 2BR</b><span>Selected model and square footage.</span></div>
-            <div class="review-card"><b id="review-price">$198k</b><span>Planning estimate before site verification.</span></div>
+            <div class="review-card primary-review"><b id="review-model">Netherwood House 2BR</b><span>Selected model and square footage.</span></div>
+            <div class="review-card primary-review"><b id="review-price">$198k</b><span>Planning estimate before site verification.</span></div>
             <div class="review-card"><b id="review-psf">$360/sf</b><span>Price per square foot lens for the homeowner.</span></div>
             <div class="review-card"><b id="review-flags">2 review notes</b><span>Engineering, utility, or site items to verify.</span></div>
             <div class="review-card"><b id="review-upgrades">0 upgrades</b><span>Added-cost choices selected.</span></div>
-            <div class="review-card"><b>Site visit</b><span>Next step after saving this concept.</span></div>
+            <div class="review-card"><b id="review-payment">$0/mo</b><span>Rough financing lens before lender review.</span></div>
           </div>
           <div class="review-next-step">
             <b>Next step</b>
@@ -5774,7 +5812,7 @@ function renderChoiceGroup(group) {
       label.kind === 'review' ? 'needs-review' : '',
     ].filter(Boolean).join(' ');
     return `
-    <button type="button" class="${choiceClasses}" data-choice-key="${group}" data-choice-id="${opt.id}" onclick="chooseAduOption('${group}', '${opt.id}')">
+    <button type="button" class="${choiceClasses}" data-choice-key="${group}" data-choice-id="${opt.id}" aria-pressed="${selected ? 'true' : 'false'}" onclick="chooseAduOption('${group}', '${opt.id}')">
       ${renderChoiceMedia(opt, group, selected)}
       <div class="choice-body">
         <strong>${opt.label}</strong>
@@ -6019,6 +6057,8 @@ function renderAduConfigurator() {
   document.getElementById('review-model').textContent = model.label;
   document.getElementById('review-price').textContent = moneyShort(estimate);
   document.getElementById('review-psf').textContent = `${moneyWhole(estimate / model.sqft)}/sf`;
+  const reviewPaymentNode = document.getElementById('review-payment');
+  if (reviewPaymentNode) reviewPaymentNode.textContent = `${moneyWhole(monthly)}/mo`;
   const reviewFlags = getAduChangeItems({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue })
     .filter(item => item.label.kind === 'review').length;
   const reviewUpgrades = getAduChangeItems({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue })
@@ -6026,6 +6066,10 @@ function renderAduConfigurator() {
   document.getElementById('review-flags').textContent = `${reviewFlags} review note${reviewFlags === 1 ? '' : 's'}`;
   const reviewUpgradesNode = document.getElementById('review-upgrades');
   if (reviewUpgradesNode) reviewUpgradesNode.textContent = `${reviewUpgrades} upgrade${reviewUpgrades === 1 ? '' : 's'}`;
+  const nextStepNode = document.getElementById('review-next-step');
+  if (nextStepNode) nextStepNode.textContent = reviewFlags
+    ? 'Save the concept, then ABQ ADU confirms utilities, setbacks, sewer, electric, and any engineering flags during the site visit.'
+    : 'Save the concept, then ABQ ADU can confirm site fit and prepare the cleaner pre-construction path.';
   renderAduChangeList('config-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   renderAduChangeList('review-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   updateAduProgress();

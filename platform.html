@@ -56,6 +56,9 @@ header.topbar{position:sticky;top:0;z-index:50;background:var(--ink);color:var(-
 .btn.ghost{background:#fff;border:1px solid var(--stucco-d);color:var(--ink)}
 .btn.sm{min-height:40px;padding:7px 10px;font-size:12px}
 .btn.danger{background:none;color:var(--terra);border:1px solid var(--terra)}
+.btn:focus-visible,.bid-app-action:focus-visible,.quick-cogs-bundle:focus-visible,.one-tap-cogs button:focus-visible,.readiness-option:focus-within{outline:3px solid rgba(196,149,74,.35);outline-offset:2px}
+.btn.copper,.bid-app-action.primary{box-shadow:0 9px 22px rgba(196,149,74,.22)}
+.btn:hover,.bid-app-action:hover,.quick-cogs-bundle:hover,.one-tap-cogs button:hover{transform:translateY(-1px)}
 label.fld{display:block;font-size:11px;color:var(--ink60);margin-bottom:4px;font-weight:500}
 .in{width:100%;min-height:42px;padding:8px 10px;border:1px solid var(--stucco-d);border-radius:5px;background:#fff}
 table{width:100%;border-collapse:collapse}
@@ -93,7 +96,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bid-app-action.primary{background:var(--copper);color:#fff}
 .bid-app-action.secondary{background:rgba(255,255,255,.1);border:1px solid rgba(240,235,225,.18);color:var(--stucco)}
 .bid-app-action.light{background:#fff;color:var(--blue)}
-.bid-app-action:hover{transform:translateY(-1px)}
+.bid-app-action.primary:nth-child(5){grid-column:1/-1;min-height:50px}
 .bid-wrap{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;min-width:0}
 .bid-wrap>div,.bid-setup>div,.project-folder-card{min-width:0}
 #tab-bids .card{max-width:100%;min-width:0;overflow-x:auto}
@@ -177,6 +180,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .builder-text-card b{font-family:var(--fd);font-size:18px;line-height:1;text-transform:uppercase}
 .builder-text-card span{font-size:12px;line-height:1.4}
 .builder-text-card .btn{justify-self:start}
+.phone-table-hint{background:#EEF5F1;border:1px solid rgba(61,82,71,.28);border-radius:8px;color:#274338;display:none;font-size:12px;font-weight:700;line-height:1.35;margin:8px 0 10px;padding:10px}
+.lowes-app-strip{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:8px;grid-template-columns:repeat(5,minmax(0,1fr));margin:0 0 14px;padding:10px}
+.lowes-app-step{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:5px;min-height:76px;padding:10px}
+.lowes-app-step b{color:var(--ink);display:block;font-family:var(--fd);font-size:17px;line-height:1;text-transform:uppercase}
+.lowes-app-step span{color:var(--ink60);font-size:11px;line-height:1.35}
+.lowes-app-step strong{align-self:start;background:#F8F2E7;border:1px solid rgba(196,149,74,.34);border-radius:999px;color:#7A4E12;font-size:9px;font-weight:900;letter-spacing:.08em;padding:4px 7px;text-transform:uppercase;width:max-content}
+.lowes-app-step.done{border-color:rgba(61,82,71,.38);box-shadow:inset 3px 0 0 var(--sage)}
+.lowes-app-step.active{border-color:rgba(196,149,74,.58);box-shadow:0 10px 24px rgba(196,149,74,.13),inset 3px 0 0 var(--copper)}
+.lowes-app-step.waiting{border-color:#FDE68A;box-shadow:inset 3px 0 0 #D97706}
 .bid-setup{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:16px}
 .bid-setup-grid{display:grid;grid-template-columns:1.2fr .85fr .65fr;gap:10px}
 .bid-assist-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
@@ -281,6 +293,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .readiness-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
 .readiness-option{align-items:center;background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;display:flex;font-size:12px;font-weight:700;gap:8px;min-height:40px;padding:8px 10px}
 .readiness-option input{accent-color:var(--copper)}
+.readiness-option:has(input:checked){background:#FFF7E6;border-color:rgba(196,149,74,.55);box-shadow:inset 3px 0 0 var(--copper);color:#7A4E12}
 .invoice-job-card{align-items:stretch;background:var(--blue);border:1px solid rgba(196,149,74,.38);border-radius:8px;color:var(--stucco);cursor:pointer;display:grid;grid-template-columns:170px 1fr;gap:0;margin-bottom:14px;overflow:hidden;transition:transform .16s,border-color .16s,box-shadow .16s}
 .invoice-job-card:hover{border-color:var(--copper);box-shadow:0 12px 28px rgba(15,31,61,.16);transform:translateY(-1px)}
 .invoice-job-card img{display:block;height:100%;min-height:150px;object-fit:cover;width:100%}
@@ -421,7 +434,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-workflow-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
   .one-tap-cogs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bid-flow{grid-template-columns:repeat(2,1fr)}
-  .tool-sprint-strip,.materials-lane{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tool-sprint-strip,.materials-lane,.lowes-app-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bid-setup{grid-template-columns:1fr}
   .bid-setup-grid{grid-template-columns:1fr}
   .quick-cogs-form{grid-template-columns:1fr 1fr}
@@ -452,7 +465,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-identity-grid,.bid-workflow-strip,.one-tap-cogs{grid-template-columns:1fr}
   .bid-workflow-step{min-height:58px}
   .bid-readiness-summary{width:100%}
-  .tool-sprint-strip,.materials-lane{grid-template-columns:1fr}
+  .tool-sprint-strip,.materials-lane,.lowes-app-strip{grid-template-columns:1fr}
   .panel{padding:14px}
   .panel-head{align-items:flex-start;flex-direction:column;gap:2px}
   .panel-head h2{font-size:24px;line-height:1}
@@ -467,6 +480,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-app-title{font-size:28px}
   .bid-app-meta{font-size:12px}
   .bid-app-actions{grid-template-columns:1fr}
+  .bid-app-action.primary:nth-child(5){grid-column:auto}
   .bid-app-action{min-height:48px}
   .quick-cogs-head{flex-direction:column}
   .quick-cogs-head .btn{width:100%}
@@ -478,6 +492,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .quick-cogs-form>div:nth-child(2),.quick-cogs-form .btn{grid-column:auto}
   .quick-cogs-form .in,.quick-cogs-form .btn,.quick-cogs-bundle{min-height:46px;width:100%}
   .quick-cogs-bundles{display:grid;grid-template-columns:1fr}
+  .phone-table-hint{display:block}
   .row{flex-direction:column;gap:10px}
   .row > div[style*="width"]{width:100%!important}
   .kpi-grid{grid-template-columns:1fr}
@@ -606,6 +621,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <button class="bid-app-action secondary" onclick="saveBidDraft()">Save Draft Locally</button>
         <button class="bid-app-action primary" onclick="acceptBid()">Build Invoices</button>
         <button class="bid-app-action secondary" onclick="printBidsAndInvoicing()">Print Bid Packet</button>
+        <button class="bid-app-action primary" onclick="textBuilderPacket()">Text Ian Packet</button>
+        <button class="bid-app-action secondary" onclick="exportBidCsv()">Export CSV</button>
       </div>
       <div class="print-export-actions">
         <button class="btn ghost sm" onclick="exportBidCsv()">Export COGS + invoices CSV</button>
@@ -817,6 +834,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <div class="quick-cogs-hint">Tip: fill description + cost, press Enter, then keep moving. Draft saves automatically.</div>
         </div>
         <table>
+          <caption class="phone-table-hint">Phone tip: use Fast COGS entry and one-tap bundles above first. The table below is for fine edits after the big costs are captured.</caption>
           <thead><tr><th>Category</th><th>Description</th><th style="width:110px">Type</th><th class="r" style="width:70px">Qty</th><th style="width:60px">Unit</th><th class="r" style="width:100px">COGS / unit</th><th class="r" style="width:100px">COGS total</th><th style="width:28px"></th></tr></thead>
           <tbody id="bid-items"></tbody>
         </table>
@@ -1108,6 +1126,14 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="materials-lane-card"><b>5. Track quote</b><span>Submitted, quoted, ordered, delivered.</span></div>
   </div>
 
+  <div class="lowes-app-strip no-print" id="lowes-app-strip" aria-label="Lowe's internal workflow status">
+    <div class="lowes-app-step done"><strong>Ready</strong><b>Model</b><span id="lowes-step-model">Select model</span></div>
+    <div class="lowes-app-step active"><strong>Now</strong><b>Package</b><span id="lowes-step-package">Choose package</span></div>
+    <div class="lowes-app-step"><strong>Next</strong><b>Cart</b><span id="lowes-step-cart">Generate materials</span></div>
+    <div class="lowes-app-step"><strong>Desk</strong><b>Quote</b><span id="lowes-step-quote">Export and track status</span></div>
+    <div class="lowes-app-step"><strong>COGS</strong><b>Bid</b><span>Send to bid + text builder</span></div>
+  </div>
+
   <h3 style="font-size:18px;margin-bottom:8px">Blueprint-to-materials workflow</h3>
   <div class="bp-workflow">
     <div class="bp-workflow-card"><b><i>1</i>Choose model</b><span>Select the ADU plan or city-plan variant and lock the bid assumptions before site quantities move.</span></div>
@@ -1149,7 +1175,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="row no-print" style="gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:10px">
       <div style="min-width:220px;flex:1">
         <label class="fld">Materials package</label>
-        <select class="in" id="lowes-package">
+        <select class="in" id="lowes-package" onchange="previewLowesPackage()">
           <option value="starter">Starter takeoff · shell + essentials</option>
           <option value="pro" selected>Pro-ready full ADU package</option>
           <option value="finish-heavy">Finish-heavy package · appliances + interior emphasis</option>
@@ -1170,6 +1196,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div id="cart-body" style="display:none">
       <div class="cart-kpis" id="cart-kpis"></div>
       <div class="cart-drops" id="cart-drops"></div>
+      <div class="phone-table-hint">Phone tip: use the buttons above to generate, export, print/PDF, send to bid COGS, or text Ian. The detailed materials table below is for fine-tuning quantities and quote prices.</div>
       <table>
         <thead><tr><th>Dept</th><th style="width:92px">Item #</th><th>Item</th><th>Spec</th><th class="r" style="width:64px">Qty</th><th style="width:52px">Unit</th><th class="r" style="width:90px">Budget unit</th><th class="r">Budget total</th><th class="r" style="width:90px">Quoted unit</th><th class="r">Quoted total</th><th style="width:26px"></th></tr></thead>
         <tbody id="cart-rows"></tbody>
@@ -2788,6 +2815,7 @@ function renderLowesCart(){
   const card=$('#lowes-cart-card');if(!card)return;
   const cart=ensureCartShape(activeProject.lowesCart);
   $('#cart-project-label').textContent=bid.title||'active project';
+  renderLowesWorkflow(cart);
   const sc=CART_STATUS_STYLE[cart?cart.status:'draft']||CART_STATUS_STYLE.draft;
   const pill=$('#cart-status-pill');
   pill.textContent=cart?cart.status:'no cart yet';
@@ -2840,6 +2868,38 @@ function renderLowesCart(){
     <div class="ck"><b>${fmt0(t.budget)}</b><span>Cart budget</span></div>
     <div class="ck"><b>${t.quotedCount?fmt0(t.quoted):'—'}</b><span>Quoted (${t.quotedCount}/${t.total} lines)</span></div>
     <div class="ck"><b class="${diff>0?'cart-var-over':'cart-var-under'}">${t.quotedCount?(diff>0?'+':'')+fmt0(diff):'—'}</b><span>Quoted vs budget</span></div>`;
+}
+function renderLowesWorkflow(cart){
+  const steps=[...document.querySelectorAll('#lowes-app-strip .lowes-app-step')];
+  if(!steps.length)return;
+  steps.forEach(step=>step.classList.remove('done','active','waiting'));
+  const packageMeta=cart?.packageName || selectedLowesPackage().label;
+  setText('lowes-step-model', bpModel ? `${bpModel.name} · ${bpModel.sqft || 'confirm'} sf` : 'Select model');
+  setText('lowes-step-package', packageMeta);
+  setText('lowes-step-cart', cart ? `${cart.lines.length} material lines ready` : 'Generate materials');
+  setText('lowes-step-quote', cart ? `${readinessLabel(cart.status || 'draft')} quote status` : 'Export and track status');
+  steps[0]?.classList.add('done');
+  steps[1]?.classList.add(cart ? 'done' : 'active');
+  if(cart)steps[2]?.classList.add('done');
+  if(cart){
+    if(['submitted'].includes(cart.status))steps[3]?.classList.add('waiting');
+    else if(['quoted','ordered','delivered'].includes(cart.status))steps[3]?.classList.add('done');
+    else steps[3]?.classList.add('active');
+    if(['quoted','ordered','delivered'].includes(cart.status))steps[4]?.classList.add('active');
+  }
+}
+function previewLowesPackage(){
+  const cart=ensureCartShape(activeProject.lowesCart);
+  renderLowesWorkflow(cart);
+  if(cart&&cart.lines.length){
+    const packageMeta=selectedLowesPackage();
+    setText('lowes-step-package', `${packageMeta.label} selected - regenerate cart to apply`);
+    const step=document.querySelectorAll('#lowes-app-strip .lowes-app-step')[1];
+    if(step){
+      step.classList.remove('done');
+      step.classList.add('waiting');
+    }
+  }
 }
 function editCartLine(i,k,v){
   const l=activeProject.lowesCart.lines[i];
