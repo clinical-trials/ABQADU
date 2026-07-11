@@ -1364,9 +1364,9 @@ const MODEL_IMAGES = {
   'Netherwood House':'images/hyder-hut-sheet.png',
   'Netherwood House 2BR':'images/hyder-hut-2br-exterior-finishes.webp',
   'Altura 24x24':'images/altura-box.png',
-  'Casita Portal':'images/v5-site-photos/real-adu-exterior.jpg',
+  'Casita Portal':'images/v5-site-photos/real-adu-lower-exterior.jpg',
   'Tierra Grande':'images/adu-interior.png',
-  Cromwell:'images/cromwell-sheet.png',
+  Cromwell:'images/source-cromwell-render.webp',
 };
 
 const LINE_KINDS = {
@@ -1984,7 +1984,7 @@ function renderInvoiceJobCard(){
   const packet=invoicePacketTotals();
   const first=invoices[0]?.amount || PRECON_DEPOSIT;
   const img=$('#invoice-job-image');
-  if(img) img.src=MODEL_IMAGES[bid.model] || 'images/v5-site-photos/real-adu-exterior.jpg';
+  if(img) img.src=MODEL_IMAGES[bid.model] || 'images/v5-site-photos/real-adu-lower-exterior.jpg';
   const bp=$('#invoice-blueprint-label');
   if(bp) bp.textContent=`${bid.model || 'Current ADU'} plan`;
   const title=$('#invoice-job-title');
@@ -2570,7 +2570,7 @@ const MODEL_CATALOG=[
   {id:'hyder-hut',name:'Netherwood House',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 5 verified',bed:1,bath:1,type:'builder-ready'},
   {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 5 verified',bed:2,bath:1,type:'builder-ready'},
   {id:'altura-24x24',name:'Altura 24x24',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 5 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'casita-portal',name:'Casita Portal',sqft:640,variation:'L-shaped · 2BR/1BA · covered portal',img:'images/v5-site-photos/real-adu-exterior.jpg',source:'Version 5 verified',bed:2,bath:1,type:'builder-ready'},
+  {id:'casita-portal',name:'Casita Portal',sqft:640,variation:'L-shaped · 2BR/1BA · covered portal',img:'images/v5-site-photos/real-adu-lower-exterior.jpg',source:'Version 5 verified',bed:2,bath:1,type:'builder-ready'},
   {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · custom review above typical 750 sf homeowner max',img:'images/adu-interior.png',source:'Version 5 verified',bed:2,bath:2,type:'custom-review'},
   {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · expanded custom project above typical ADU size',img:'images/source-cromwell-render.webp',source:'Version 5 verified',bed:2,bath:1.5,type:'expanded'},
   {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
