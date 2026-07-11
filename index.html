@@ -1299,6 +1299,137 @@ h2 em { font-style: normal; color: var(--terra); }
   padding: 7px 8px;
 }
 
+.adu-match-why {
+  display: grid;
+  gap: 6px;
+}
+
+.adu-match-why span {
+  align-items: center;
+  background: rgba(240,235,225,.07);
+  border: 1px solid rgba(240,235,225,.1);
+  border-radius: 8px;
+  color: rgba(240,235,225,.7);
+  display: flex;
+  font-size: 12px;
+  gap: 7px;
+  line-height: 1.35;
+  padding: 7px 8px;
+}
+
+.adu-match-why span::before {
+  background: var(--copper);
+  border-radius: 999px;
+  content: "";
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 7px;
+  width: 7px;
+}
+
+.adu-match-compare {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.adu-match-compare button {
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(240,235,225,.11);
+  border-radius: 8px;
+  color: rgba(240,235,225,.74);
+  cursor: pointer;
+  min-height: 44px;
+  padding: 8px;
+  text-align: left;
+}
+
+.adu-match-compare b {
+  color: var(--stucco);
+  display: block;
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.adu-match-compare span {
+  color: rgba(240,235,225,.56);
+  display: block;
+  font-size: 11px;
+  line-height: 1.35;
+  margin-top: 4px;
+}
+
+.adu-roi-card {
+  background: rgba(28,25,23,.28);
+  border: 1px solid rgba(232,201,138,.22);
+  border-radius: 10px;
+  display: grid;
+  gap: 10px;
+  padding: 11px;
+}
+
+.adu-roi-card h5 {
+  color: var(--copper-l);
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.adu-roi-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.adu-roi-field label {
+  color: rgba(240,235,225,.56);
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.adu-roi-field input {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(240,235,225,.15);
+  border-radius: 8px;
+  color: var(--stucco);
+  font: inherit;
+  min-height: 42px;
+  padding: 9px 10px;
+  width: 100%;
+}
+
+.adu-roi-output {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.adu-roi-output span {
+  background: rgba(240,235,225,.06);
+  border-radius: 8px;
+  color: rgba(240,235,225,.65);
+  font-size: 10px;
+  line-height: 1.25;
+  padding: 8px;
+  text-transform: uppercase;
+}
+
+.adu-roi-output b {
+  color: var(--stucco);
+  display: block;
+  font-size: 15px;
+  margin-top: 3px;
+  text-transform: none;
+}
+
 .design-entry-card {
   background:
     radial-gradient(circle at 16% 10%, rgba(196,149,74,.22), transparent 32%),
@@ -4139,7 +4270,10 @@ footer {
     display: grid;
   }
   .adu-match-options,
-  .adu-match-kpis {
+  .adu-match-kpis,
+  .adu-match-compare,
+  .adu-roi-grid,
+  .adu-roi-output {
     grid-template-columns: 1fr;
   }
   .design-tool-chip-grid { grid-template-columns: repeat(2, 1fr); }
@@ -5981,6 +6115,8 @@ const ADU_MATCHER_STATE = {
   lot: 'medium',
   budget: 2,
   occupants: 2,
+  rent: 0,
+  payment: 0,
 };
 
 const ADU_MATCHER_QUESTIONS = [
@@ -6051,9 +6187,48 @@ function getMatchedAduModel() {
     .sort((a, b) => b.score - a.score)[0];
 }
 
+function getMatchedAduModels() {
+  return [...ADU_OPTIONS.model]
+    .map(model => ({ model, score: scoreAduModel(model) }))
+    .sort((a, b) => b.score - a.score);
+}
+
+function getDefaultRent(model) {
+  if (model.id === 'cromwell') return 2500;
+  if (String(model.beds).includes('2')) return 1850;
+  if (model.sqft >= 700) return 1750;
+  return 1450;
+}
+
+function getDefaultPayment(model) {
+  return Math.round((model.price * 0.0074) / 25) * 25;
+}
+
+function getAduMatchReasons(model) {
+  const purposeMap = {
+    family: 'Good fit for family, adult child, aging parent, or multigenerational use.',
+    rental: 'Prioritizes a layout that can support rental income and privacy.',
+    office: 'Keeps the footprint efficient for work, studio, or hobby use.',
+    guest: 'Works well as a comfortable guest house without overbuilding.',
+  };
+  const reasons = [purposeMap[ADU_MATCHER_STATE.purpose] || 'Matches your stated use case.'];
+  if (ADU_MATCHER_STATE.lot === 'small') reasons.push('Respects a smaller yard by favoring compact ADU footprints.');
+  if (ADU_MATCHER_STATE.lot === 'large') reasons.push('Uses the larger lot more confidently while still flagging site review.');
+  if (model.sqft <= 750) reasons.push('Stays at or below the typical 750 sf homeowner ADU planning max.');
+  if (model.sqft > 750) reasons.push('Routes to a larger custom review path because it is above the typical ADU size.');
+  return reasons.slice(0, 3);
+}
+
 function chooseAduMatcherValue(questionId, value) {
   const normalized = ['budget', 'occupants'].includes(questionId) ? Number(value) : value;
   ADU_MATCHER_STATE[questionId] = normalized;
+  ADU_MATCHER_STATE.rent = 0;
+  ADU_MATCHER_STATE.payment = 0;
+  renderAduMatcher();
+}
+
+function updateAduRoiInput(field, value) {
+  ADU_MATCHER_STATE[field] = Math.max(0, Number(value) || 0);
   renderAduMatcher();
 }
 
@@ -6073,8 +6248,16 @@ function renderAduMatcher() {
       </div>
     </div>
   `).join('');
-  const match = getMatchedAduModel();
+  const matches = getMatchedAduModels();
+  const match = matches[0];
   if (!match) return;
+  const rent = ADU_MATCHER_STATE.rent || getDefaultRent(match.model);
+  const payment = ADU_MATCHER_STATE.payment || getDefaultPayment(match.model);
+  const expenses = Math.round(rent * .22);
+  const cashFlow = rent - payment - expenses;
+  const annualCashFlow = cashFlow * 12;
+  const payback = annualCashFlow > 0 ? `${Math.ceil(match.model.price / annualCashFlow)} yrs` : 'Lender review';
+  const alternatives = matches.slice(0, 3);
   resultHost.innerHTML = `
     <div class="adu-match-result-top">
       <div>
@@ -6087,6 +6270,35 @@ function renderAduMatcher() {
       <span>${match.model.sqft} sf</span>
       <span>${match.model.beds} / ${match.model.baths}</span>
       <span>${moneyShort(match.model.price)} start</span>
+    </div>
+    <div class="adu-match-why">
+      ${getAduMatchReasons(match.model).map(reason => `<span>${reason}</span>`).join('')}
+    </div>
+    <div class="adu-match-compare" aria-label="Top model comparisons">
+      ${alternatives.map(item => `
+        <button type="button" onclick="designSpecificModel('${item.model.id}')">
+          <b>${item.model.label}</b>
+          <span>${item.score}% fit · ${item.model.sqft} sf · ${moneyShort(item.model.price)} start</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="adu-roi-card">
+      <h5>Rental income lens</h5>
+      <div class="adu-roi-grid">
+        <div class="adu-roi-field">
+          <label>Estimated monthly rent</label>
+          <input type="number" min="0" step="50" value="${rent}" oninput="updateAduRoiInput('rent', this.value)">
+        </div>
+        <div class="adu-roi-field">
+          <label>Estimated monthly loan</label>
+          <input type="number" min="0" step="50" value="${payment}" oninput="updateAduRoiInput('payment', this.value)">
+        </div>
+      </div>
+      <div class="adu-roi-output">
+        <span>Expenses<b>${moneyWhole(expenses)}/mo</b></span>
+        <span>Cash flow<b>${moneyWhole(cashFlow)}/mo</b></span>
+        <span>Payback<b>${payback}</b></span>
+      </div>
     </div>
   `;
 }
@@ -6743,6 +6955,7 @@ Object.assign(window, {
   customizeSelectedModel,
   customizeMatchedAdu,
   chooseAduMatcherValue,
+  updateAduRoiInput,
   designSpecificModel,
   emailDesignSummary,
   handleDesignSubmit,
