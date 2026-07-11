@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ABQ ADU — Albuquerque's Tiny Home Builders</title>
-<link rel="icon" type="image/png" href="images/favicon-house.png?v=5-red-chile">
-<link rel="apple-touch-icon" href="images/favicon-house.png?v=5-red-chile">
+<link rel="icon" type="image/png" href="images/favicon-house.png?v=6-adobe-house">
+<link rel="apple-touch-icon" href="images/favicon-house.png?v=6-adobe-house">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
@@ -277,9 +277,12 @@ h1 em {
 }
 
 .credential-link {
+  align-items: center;
   color: var(--copper-l);
+  display: inline-flex;
   font-size: 11px;
   font-weight: 800;
+  min-height: 44px;
   letter-spacing: .12em;
   text-decoration: none;
   text-transform: uppercase;
@@ -1154,6 +1157,146 @@ h2 em { font-style: normal; color: var(--terra); }
   display: grid;
   gap: 22px;
   grid-template-columns: minmax(0, .92fr) minmax(320px, 1.08fr);
+}
+
+.adu-matchmaker {
+  background: rgba(15,31,61,.46);
+  border: 1px solid rgba(232,201,138,.22);
+  border-radius: 10px;
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 12px;
+}
+
+.adu-matchmaker-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.adu-matchmaker-head b {
+  color: var(--stucco);
+  display: block;
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: .04em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.adu-matchmaker-head span {
+  color: rgba(240,235,225,.58);
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+.adu-match-question {
+  border-top: 1px solid rgba(240,235,225,.1);
+  padding-top: 11px;
+}
+
+.adu-match-question strong {
+  color: rgba(240,235,225,.82);
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.adu-match-options {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.adu-match-option {
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 8px;
+  color: rgba(240,235,225,.76);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  min-height: 44px;
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.adu-match-option.active {
+  background: rgba(196,149,74,.22);
+  border-color: rgba(232,201,138,.62);
+  color: var(--stucco);
+  box-shadow: inset 3px 0 0 var(--copper);
+}
+
+.adu-match-result {
+  background:
+    linear-gradient(135deg, rgba(196,149,74,.22), rgba(61,82,71,.16)),
+    rgba(255,255,255,.05);
+  border: 1px solid rgba(232,201,138,.32);
+  border-radius: 10px;
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 13px;
+}
+
+.adu-match-result-top {
+  align-items: start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.adu-match-result h4 {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.adu-match-score {
+  background: var(--copper);
+  border-radius: 999px;
+  color: var(--blueprint);
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  padding: 7px 9px;
+  text-transform: uppercase;
+}
+
+.adu-match-result p {
+  color: rgba(240,235,225,.66);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.adu-match-kpis {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.adu-match-kpis span {
+  background: rgba(28,25,23,.3);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 8px;
+  color: rgba(240,235,225,.78);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 7px 8px;
 }
 
 .design-entry-card {
@@ -3770,8 +3913,7 @@ footer {
   }
   .credential-link {
     grid-column: 1 / -1;
-    min-height: 40px;
-    padding-top: 6px;
+    min-height: 44px;
   }
   .hero-stats {
     display: grid;
@@ -3991,6 +4133,14 @@ footer {
     flex: 1 1 auto;
     min-height: 48px;
     width: 100%;
+  }
+  .adu-matchmaker-head,
+  .adu-match-result-top {
+    display: grid;
+  }
+  .adu-match-options,
+  .adu-match-kpis {
+    grid-template-columns: 1fr;
   }
   .design-tool-chip-grid { grid-template-columns: repeat(2, 1fr); }
   .design-tool-chip { padding: 9px 8px; }
@@ -4442,7 +4592,7 @@ footer {
     </div>
     ABQ ADU
   </a>
-  <span class="version-pill">Version 5</span>
+  <span class="version-pill">Version 6</span>
   <ul class="nav-links">
     <li><a href="#models">Models</a></li>
     <li><a href="#process">Process</a></li>
@@ -4476,7 +4626,7 @@ footer {
 <!-- ── Hero ─────────────────────────────────────────────── -->
 <section class="hero" style="max-width:100%;padding-top:120px;">
   <div class="hero-content">
-    <div class="hero-version-pill">Version 5 Homeowner Design Experience</div>
+    <div class="hero-version-pill">Version 6 Homeowner Design Experience</div>
     <div class="hero-eyebrow">Albuquerque, New Mexico</div>
     <h1>We Build<br><em>ADUs</em><br>That Last.</h1>
     <p class="hero-desc">
@@ -4489,11 +4639,11 @@ footer {
       <a href="#models" class="btn-primary">Explore Our Models</a>
       <a href="#quote" class="btn-outline">Get a Free Quote</a>
     </div>
-    <div class="credential-ribbon" aria-label="ADU Specialist designation credential">
+    <div class="credential-ribbon" aria-label="ADU Specialist directory listing">
       <div class="credential-seal"><img src="images/adu-specialist-logo.png" alt="ADU Specialist logo"></div>
       <div>
-        <div class="credential-title">ADU Specialist Directory</div>
-        <div class="credential-copy">Steven Miller is listed as an Architect / Designer / Builder in the ADU Specialist directory.</div>
+        <div class="credential-title">Listed ADU Specialist</div>
+        <div class="credential-copy">Steven Miller appears in the ADU Specialist directory as an Architect / Designer / Builder.</div>
       </div>
       <a class="credential-link" href="https://www.aduspecialist.org/directory" target="_blank" rel="noopener">View Directory</a>
     </div>
@@ -4502,7 +4652,7 @@ footer {
         <b>Prefer the phone?</b>
         <span>If you would rather speak with a real person, call us. We pick up when we can and return calls quickly to schedule free site visits.</span>
       </div>
-      <a class="hero-phone-button" href="tel:15055550100">Call GC</a>
+      <a class="hero-phone-button" href="tel:15059777659">Call GC</a>
     </div>
     <div class="hero-stats">
       <div>
@@ -4535,7 +4685,7 @@ footer {
         <div class="section-eyebrow">Our Portfolio</div>
         <h2>Seven Proven<br><em>Designs</em></h2>
       </div>
-      <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Click a model to open the Version 5 design tool and customize that exact ADU.</p>
+      <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Click a model to open the Version 6 design tool and customize that exact ADU.</p>
     </div>
 
     <!-- Row 1: 3 cards -->
@@ -4559,7 +4709,7 @@ footer {
           <div class="model-price">from $168,000 <small>turnkey est.</small></div>
           <div class="model-actions">
             <button class="model-design-btn" type="button" onclick="designSpecificModel('hyder-hut')">Design This Model</button>
-            <div class="model-design-note">Opens Version 5 customization for the Netherwood House.</div>
+            <div class="model-design-note">Opens Version 6 customization for the Netherwood House.</div>
           </div>
         </div>
       </div>
@@ -4733,7 +4883,7 @@ footer {
     <div class="source-catalog">
       <div class="source-catalog-head">
         <div>
-          <div class="section-eyebrow">Version 5 Model Intelligence</div>
+          <div class="section-eyebrow">Version 6 Model Intelligence</div>
           <div class="source-catalog-title">Pulled Model<br><em>Catalog</em></div>
         </div>
         <p class="source-catalog-note">
@@ -4747,7 +4897,7 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Netherwood House</div>
             <div class="source-model-meta">440 sq ft · 1 bed / 1 bath · 12.5x35 · left/right hand option</div>
-            <span class="source-model-badge">Version 5 verified</span>
+            <span class="source-model-badge">Version 6 verified</span>
           </div>
         </div>
         <div class="source-model">
@@ -4755,15 +4905,15 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Netherwood House 2BR</div>
             <div class="source-model-meta">550 sq ft · 2 bed / 1 bath · 12.5x44 · family/rental layout</div>
-            <span class="source-model-badge">Version 5 verified</span>
+            <span class="source-model-badge">Version 6 verified</span>
           </div>
         </div>
         <div class="source-model">
           <img src="images/altura-sheet.png" alt="Altura 24x24 576 square foot floor plan">
           <div class="source-model-body">
             <div class="source-model-name">Altura</div>
-            <div class="source-model-meta">576 sq ft carried into Version 5 · ABQADU source notes 1 or 2 bed variation</div>
-            <span class="source-model-badge">Version 5 + ABQADU source</span>
+            <div class="source-model-meta">576 sq ft carried into Version 6 · ABQADU source notes 1 or 2 bed variation</div>
+            <span class="source-model-badge">Version 6 + ABQADU source</span>
           </div>
         </div>
         <div class="source-model">
@@ -4771,7 +4921,7 @@ footer {
           <div class="source-model-body">
             <div class="source-model-name">Cromwell</div>
             <div class="source-model-meta">1,280 sq ft · expanded custom project above typical ADU planning size</div>
-            <span class="source-model-badge">Version 5 verified</span>
+            <span class="source-model-badge">Version 6 verified</span>
           </div>
         </div>
         <div class="source-model">
@@ -5320,8 +5470,19 @@ footer {
         <p>
           No contractor jargon. We ask plain homeowner questions, show picture choices, and help families find the ADU that fits their yard, budget, and future plans.
         </p>
+        <div class="adu-matchmaker" id="adu-matchmaker" aria-label="ADU model recommendation quiz">
+          <div class="adu-matchmaker-head">
+            <div>
+              <b>Find your starting model</b>
+              <span>Answer four quick questions. Then customize the recommended ADU in Step 2.</span>
+            </div>
+          </div>
+          <div id="adu-matchmaker-questions"></div>
+          <div class="adu-match-result" id="adu-matchmaker-result"></div>
+        </div>
         <div class="design-entry-actions">
-          <button class="design-launch-button" type="button" onclick="startAduDesign()">Open Design Studio</button>
+          <button class="design-launch-button" type="button" onclick="customizeMatchedAdu()">Customize Recommended Model</button>
+          <button class="design-secondary-button" type="button" onclick="startAduDesign()">Browse All Models</button>
         </div>
       </div>
       <div class="design-entry-preview">
@@ -5814,6 +5975,131 @@ const ADU_OPTIONS = {
     { id: 'event-rental', label: 'Event income ready', sub: 'Balloon Fiesta, Zozobra, Santa Fe stays', price: 10500, image: 'images/source-townhouse-render.webp' },
   ],
 };
+
+const ADU_MATCHER_STATE = {
+  purpose: 'family',
+  lot: 'medium',
+  budget: 2,
+  occupants: 2,
+};
+
+const ADU_MATCHER_QUESTIONS = [
+  {
+    id: 'purpose',
+    label: 'What is the main reason for the ADU?',
+    options: [
+      { value: 'family', label: 'Family / aging parent' },
+      { value: 'rental', label: 'Rental income' },
+      { value: 'office', label: 'Office / hobby space' },
+      { value: 'guest', label: 'Guest house' },
+    ],
+  },
+  {
+    id: 'lot',
+    label: 'How much usable backyard space do you have?',
+    options: [
+      { value: 'small', label: 'Cozy lot' },
+      { value: 'medium', label: 'Average ABQ lot' },
+      { value: 'large', label: 'Room to spare' },
+    ],
+  },
+  {
+    id: 'budget',
+    label: 'What investment range feels most comfortable?',
+    options: [
+      { value: 1, label: 'Efficient' },
+      { value: 2, label: 'Sweet spot' },
+      { value: 3, label: 'Go bigger' },
+    ],
+  },
+  {
+    id: 'occupants',
+    label: 'How many people will use it regularly?',
+    options: [
+      { value: 1, label: 'One' },
+      { value: 2, label: 'Two' },
+      { value: 3, label: 'Three or more' },
+    ],
+  },
+];
+
+const ADU_MATCHER_PROFILES = {
+  'hyder-hut': { bestFor: ['guest', 'office', 'rental'], lots: ['small', 'medium', 'large'], budget: 1, people: 1 },
+  'hyder-hut-2br': { bestFor: ['family', 'rental', 'guest'], lots: ['medium', 'large'], budget: 2, people: 3 },
+  'altura-24x24': { bestFor: ['family', 'office', 'guest'], lots: ['medium', 'large'], budget: 2, people: 2 },
+  'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], budget: 3, people: 3 },
+  'casita-portal': { bestFor: ['rental', 'guest', 'office'], lots: ['small', 'medium', 'large'], budget: 1, people: 1 },
+  'tierra-grande': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, people: 3 },
+  'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, people: 3 },
+};
+
+function scoreAduModel(model) {
+  const profile = ADU_MATCHER_PROFILES[model.id] || { bestFor: [], lots: [], budget: 2, people: 2 };
+  let score = 0;
+  if (profile.bestFor.includes(ADU_MATCHER_STATE.purpose)) score += 40;
+  if (profile.lots.includes(ADU_MATCHER_STATE.lot)) score += 25;
+  score += Math.max(0, 20 - Math.abs(profile.budget - Number(ADU_MATCHER_STATE.budget)) * 10);
+  score += Math.max(0, 15 - Math.abs(profile.people - Number(ADU_MATCHER_STATE.occupants)) * 7);
+  if (model.id === 'cromwell' && ADU_MATCHER_STATE.lot !== 'large') score -= 25;
+  if (model.sqft > 750 && ADU_MATCHER_STATE.purpose !== 'family') score -= 12;
+  return Math.max(0, Math.min(100, score));
+}
+
+function getMatchedAduModel() {
+  return [...ADU_OPTIONS.model]
+    .map(model => ({ model, score: scoreAduModel(model) }))
+    .sort((a, b) => b.score - a.score)[0];
+}
+
+function chooseAduMatcherValue(questionId, value) {
+  const normalized = ['budget', 'occupants'].includes(questionId) ? Number(value) : value;
+  ADU_MATCHER_STATE[questionId] = normalized;
+  renderAduMatcher();
+}
+
+function renderAduMatcher() {
+  const questionsHost = document.getElementById('adu-matchmaker-questions');
+  const resultHost = document.getElementById('adu-matchmaker-result');
+  if (!questionsHost || !resultHost) return;
+  questionsHost.innerHTML = ADU_MATCHER_QUESTIONS.map(question => `
+    <div class="adu-match-question">
+      <strong>${question.label}</strong>
+      <div class="adu-match-options">
+        ${question.options.map(option => `
+          <button class="adu-match-option ${ADU_MATCHER_STATE[question.id] === option.value ? 'active' : ''}" type="button" onclick="chooseAduMatcherValue('${question.id}', '${option.value}')">
+            ${option.label}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  const match = getMatchedAduModel();
+  if (!match) return;
+  resultHost.innerHTML = `
+    <div class="adu-match-result-top">
+      <div>
+        <h4>${match.model.label}</h4>
+        <p>${match.model.detail}</p>
+      </div>
+      <span class="adu-match-score">${match.score}% fit</span>
+    </div>
+    <div class="adu-match-kpis">
+      <span>${match.model.sqft} sf</span>
+      <span>${match.model.beds} / ${match.model.baths}</span>
+      <span>${moneyShort(match.model.price)} start</span>
+    </div>
+  `;
+}
+
+function customizeMatchedAdu() {
+  const match = getMatchedAduModel();
+  if (!match) return startAduDesign();
+  ADU_CONFIG.model = match.model.id;
+  ADU_CONFIG.previewView = 'exterior';
+  ADU_CONFIG.step = 1;
+  renderAduConfigurator();
+  openAduDesignModal();
+}
 
 function moneyShort(n) {
   return '$' + Math.round(n / 1000).toLocaleString() + 'k';
@@ -6455,6 +6741,8 @@ Object.assign(window, {
   closeAduDesignModal,
   closeDesignResult,
   customizeSelectedModel,
+  customizeMatchedAdu,
+  chooseAduMatcherValue,
   designSpecificModel,
   emailDesignSummary,
   handleDesignSubmit,
@@ -6473,6 +6761,7 @@ Object.assign(window, {
   viewModelList,
 });
 
+renderAduMatcher();
 renderAduConfigurator();
 
 const aduStage = document.getElementById('adu-3d-stage');
@@ -6745,7 +7034,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <p>Tell us about your property and your goals. We'll respond within one business day with a preliminary assessment and cost range — no obligation.</p>
         <p style="background:#F8F2E7;border:1px solid rgba(196,149,74,.32);border-radius:8px;color:#57534E;font-size:14px;line-height:1.5;margin:0 0 18px;padding:12px;">
           <b style="color:#1C1917;">Prefer the phone?</b> If you'd rather speak on the phone, give us a call. We're actual people who will pick up the phone or return your call to schedule a free site visit with the general contractor.
-          <a href="tel:15055550100" style="color:#B85C38;font-weight:900;text-decoration:none;">Call the GC</a>
+          <a href="tel:15059777659" style="color:#B85C38;font-weight:900;text-decoration:none;">Call the GC</a>
         </p>
         <div class="form-row">
           <div class="form-field">

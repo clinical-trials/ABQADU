@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABQ ADU — Platform (Version 5)</title>
-<link rel="icon" type="image/png" href="images/favicon-house.png?v=5-red-chile">
-<link rel="apple-touch-icon" href="images/favicon-house.png?v=5-red-chile">
+<title>ABQ ADU — Platform (Version 6)</title>
+<link rel="icon" type="image/png" href="images/favicon-house.png?v=6-adobe-house">
+<link rel="apple-touch-icon" href="images/favicon-house.png?v=6-adobe-house">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
@@ -589,7 +589,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <button class="tab" data-tab="blueprint">Blueprint Bidout</button>
     <button class="tab" data-tab="ai">Project Helper</button>
   </nav>
-  <span class="v-badge">Version 5</span>
+  <span class="v-badge">Version 6</span>
   <a class="home-link" href="index.html">← Site</a>
 </header>
 
@@ -600,7 +600,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ BIDS & INVOICING ════════ -->
 <section class="panel active" id="tab-bids">
-  <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Version 5 · revenue-facing · prints a homeowner-safe summary</span></div>
+  <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Version 6 · revenue-facing · prints a homeowner-safe summary</span></div>
   <p class="panel-sub">Move from customer call to site visit within 24 hours, then build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then edit draws and track payments as the build progresses.</p>
 
   <div class="bid-app-shell no-print">
@@ -895,7 +895,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Build invoices for current job</b>. Invoice 1 will be exactly <b>$10,000</b>.</div>
           <button class="btn ghost sm" id="add-draw-btn" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper);display:none" onclick="addInv()">+ Add draw</button>
           <div id="draw-recon" class="muted" style="margin-top:10px;font-size:12px;display:none"></div>
-          <div class="invoice-plan">Version 5 plan: connect homeowner phone number, contractor approval, and SMS delivery so invoice summaries can be texted automatically with payment links and weather/schedule context.</div>
+          <div class="invoice-plan">Version 6 plan: connect homeowner phone number, contractor approval, and SMS delivery so invoice summaries can be texted automatically with payment links and weather/schedule context.</div>
         </div>
       </div>
     </div>
@@ -1085,7 +1085,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ BLUEPRINT BIDOUT ════════ -->
 <section class="panel" id="tab-blueprint">
-  <div class="panel-head"><h2>Internal Builder Materials Takeoff</h2><span class="facing-chip builder">Builder platform only · internal pricing</span><span class="muted">Version 5 · Lowe's Pro Desk workflow</span></div>
+  <div class="panel-head"><h2>Internal Builder Materials Takeoff</h2><span class="facing-chip builder">Builder platform only · internal pricing</span><span class="muted">Version 6 · Lowe's Pro Desk workflow</span></div>
   <p class="panel-sub">This is not homeowner-facing. Select a model, choose a package, generate a materials list, export the 12th Street Lowe's Pro Desk CSV, track quote status, then send quoted Lowe's pricing back into the builder bid COGS.</p>
 
   <div class="blueprint-hero">
@@ -1099,7 +1099,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       </div>
       <div class="drop-zone">
         <div style="font-family:var(--fd);font-size:16px;color:var(--copper);font-weight:700">Future upload lane</div>
-        <div style="font-size:12px;color:rgba(240,235,225,.65)">Upload city-approved plans, a PDF blueprint, or a designer sheet. Version 5 starts with manual review and standard assemblies; Version 5 can add an agent to draft the takeoff and flag engineering burden.</div>
+        <div style="font-size:12px;color:rgba(240,235,225,.65)">Upload city-approved plans, a PDF blueprint, or a designer sheet. Version 6 starts with manual review and standard assemblies; Version 6 can add an agent to draft the takeoff and flag engineering burden.</div>
       </div>
     </div>
     <div class="card">
@@ -1116,7 +1116,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   </div>
 
   <div class="source-note">
-    Source model list carried into Version 5 from the original site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
+    Source model list carried into Version 6 from the original site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
   </div>
 
   <div class="materials-lane no-print" aria-label="Lowe's materials bidout priority workflow">
@@ -2236,7 +2236,7 @@ ${first.num}: send ${shortDate(first.sendDate)} - ${first.desc} - ${fmt(first.am
 Preconstruction contract note:
 This first invoice is the $10,000 preconstruction deposit. The deposit starts proper bidding, ordinance checks, site planning, design coordination, subcontractor bid pulls, and permitting preparation for the homeowner project.
 
-Version 5 plan: after contractor approval, send this same individual invoice summary by SMS with payment links, weather context, and schedule impact notes.`);
+Version 6 plan: after contractor approval, send this same individual invoice summary by SMS with payment links, weather context, and schedule impact notes.`);
   window.location.href=`mailto:${INVOICE_PACKET_TO}?subject=${subject}&body=${body}`;
 }
 function delInv(i){
@@ -2273,7 +2273,7 @@ function renderBidKpis(t){
 const ACTS=[
   {id:'A',name:'Site prep & excavation',dur:3,pct:100,crew:'Earthworks · Diego 505-555-0182',deps:[]},
   {id:'B',name:'Foundation & slab',dur:5,pct:100,crew:'Concrete · Marco 505-555-0143',deps:[{p:'A',type:'FS',lag:0}]},
-  {id:'LD',name:"Lowe's Pro job-site delivery drops",dur:3,pct:0,crew:"12th Street Lowe's Pro · Ian / Builder 505-555-0100",deps:[{p:'A',type:'FS',lag:0}]},
+  {id:'LD',name:"Lowe's Pro job-site delivery drops",dur:3,pct:0,crew:"12th Street Lowe's Pro · Ian / Builder 505-977-7659",deps:[{p:'A',type:'FS',lag:0}]},
   {id:'C',name:'Framing',dur:8,pct:60,crew:'Framing · Tyler 505-555-0117',deps:[{p:'B',type:'FS',lag:0}]},
   {id:'D',name:'Roofing (metal)',dur:4,pct:0,crew:'Roofing · Sam 505-555-0166',deps:[{p:'C',type:'FS',lag:0}]},
   {id:'E',name:'Windows & ext. doors',dur:3,pct:0,crew:'Framing · Tyler 505-555-0117',deps:[{p:'C',type:'FS',lag:0}]},
@@ -2570,13 +2570,13 @@ function renderDesignDrafts(){
 
 /* ═══════════════ VERSION 4 — MODEL CATALOG + LOWE'S BIDOUT ═══════════════ */
 const MODEL_CATALOG=[
-  {id:'hyder-hut',name:'Netherwood House',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 5 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 5 verified',bed:2,bath:1,type:'builder-ready'},
-  {id:'altura-24x24',name:'Altura',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 5 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'series-750',name:'750 Series',sqft:750,variation:'20x37.5 · 2BR or Lux 1BR · typical homeowner max',img:'images/750-series-sheet.jpg',source:'Version 5 verified',bed:'1-2',bath:1,type:'builder-ready'},
-  {id:'casita-portal',name:'Bryn Mawr',sqft:440,variation:'12x35 · 1BR/1BA · site-plan ready ADU',img:'images/bryn-mawr-site-plan.png',source:'Version 5 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · custom review above typical 750 sf homeowner max',img:'images/adu-interior.png',source:'Version 5 verified',bed:2,bath:2,type:'custom-review'},
-  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · single-family home · expanded custom project',img:'images/cromwell-sheet.png',source:'Version 5 verified',bed:2,bath:1.5,type:'expanded'},
+  {id:'hyder-hut',name:'Netherwood House',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
+  {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 6 verified',bed:2,bath:1,type:'builder-ready'},
+  {id:'altura-24x24',name:'Altura',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
+  {id:'series-750',name:'750 Series',sqft:750,variation:'20x37.5 · 2BR or Lux 1BR · typical homeowner max',img:'images/750-series-sheet.jpg',source:'Version 6 verified',bed:'1-2',bath:1,type:'builder-ready'},
+  {id:'casita-portal',name:'Bryn Mawr',sqft:440,variation:'12x35 · 1BR/1BA · site-plan ready ADU',img:'images/bryn-mawr-site-plan.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
+  {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · custom review above typical 750 sf homeowner max',img:'images/adu-interior.png',source:'Version 6 verified',bed:2,bath:2,type:'custom-review'},
+  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · single-family home · expanded custom project',img:'images/cromwell-sheet.png',source:'Version 6 verified',bed:2,bath:1.5,type:'expanded'},
   {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
   {id:'burton',name:'Burton',sqft:null,variation:'ABQADU source model · square footage confirm',img:'images/source-burton-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
   {id:'townhouse',name:'Townhouse',sqft:null,variation:'ABQADU source model · tighter urban footprint',img:'images/source-townhouse-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
