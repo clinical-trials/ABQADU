@@ -224,6 +224,65 @@ h1 em {
   align-items: center;
 }
 
+.credential-ribbon {
+  align-items: center;
+  background: rgba(240,235,225,.08);
+  border: 1px solid rgba(196,149,74,.34);
+  border-radius: 6px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.18);
+  color: rgba(240,235,225,.78);
+  display: grid;
+  gap: 14px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  margin-top: 24px;
+  max-width: 540px;
+  padding: 14px 16px;
+}
+
+.credential-seal {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(196,149,74,.24), rgba(196,149,74,.08));
+  border: 1px solid rgba(196,149,74,.48);
+  border-radius: 999px;
+  color: var(--copper-l);
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+  height: 46px;
+  justify-content: center;
+  letter-spacing: .04em;
+  width: 46px;
+}
+
+.credential-title {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.credential-copy {
+  color: rgba(240,235,225,.58);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 3px;
+}
+
+.credential-link {
+  color: var(--copper-l);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.credential-link:hover { color: var(--stucco); }
+
 .btn-primary {
   background: var(--terra);
   color: var(--white);
@@ -3597,6 +3656,17 @@ footer {
   .hero-actions { flex-direction: column; align-items: stretch; }
   .hero-actions .btn-primary,
   .hero-actions .btn-outline { min-height: 48px; padding: 14px 20px; text-align: center; width: 100%; }
+  .credential-ribbon {
+    align-items: flex-start;
+    gap: 10px;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 14px;
+  }
+  .credential-link {
+    grid-column: 1 / -1;
+    min-height: 40px;
+    padding-top: 6px;
+  }
   .hero-stats {
     display: grid;
     gap: 14px;
@@ -4302,6 +4372,14 @@ footer {
     <div class="hero-actions">
       <a href="#models" class="btn-primary">Explore Our Models</a>
       <a href="#quote" class="btn-outline">Get a Free Quote</a>
+    </div>
+    <div class="credential-ribbon" aria-label="ADU Specialist designation credential">
+      <div class="credential-seal">ADU</div>
+      <div>
+        <div class="credential-title">ADU Specialist Designation</div>
+        <div class="credential-copy">Newly credentialed ADU professionals trained in eligibility, local rules, development process, costs, and homeowner ROI.</div>
+      </div>
+      <a class="credential-link" href="https://www.aduspecialist.org/" target="_blank" rel="noopener">Verify Credential</a>
     </div>
     <div class="hero-stats">
       <div>
@@ -6645,8 +6723,8 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
   <div class="footer-inner">
     <div class="footer-brand">
       <div class="footer-logo-text">ABQ ADU</div>
-      <p>Albuquerque's trusted accessory dwelling unit builder. Licensed, bonded, and backed by a network of local 1099 trade specialists.</p>
-      <p style="margin-top:12px;font-size:12px;">NM General Contractor License #NM-GC-XXXXX<br>Bernalillo County · Rio Rancho · Corrales · Edgewood</p>
+      <p>Albuquerque's trusted accessory dwelling unit builder. Licensed, bonded, newly ADU Specialist designated, and backed by a network of local 1099 trade specialists.</p>
+      <p style="margin-top:12px;font-size:12px;">NM General Contractor License #NM-GC-XXXXX<br>ADU Specialist Designation · <a href="https://www.aduspecialist.org/" target="_blank" rel="noopener" style="color:var(--copper-l);text-decoration:none;">Credential source</a><br>Bernalillo County · Rio Rancho · Corrales · Edgewood</p>
     </div>
     <div class="footer-col">
       <h4>Models</h4>
