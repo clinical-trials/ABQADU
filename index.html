@@ -445,8 +445,8 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .models-row-2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  max-width: calc((100% - 20px * 2) * 2/3 + 20px);
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 100%;
   margin: 20px auto 0;
   gap: 20px;
 }
@@ -3603,7 +3603,7 @@ footer {
   .lender-cards { grid-template-columns: 1fr; }
   .process-grid { grid-template-columns: repeat(2, 1fr); }
   .models-grid { grid-template-columns: repeat(2, 1fr); }
-  .models-row-2 { max-width: 100%; }
+  .models-row-2 { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
   .source-model-grid { grid-template-columns: repeat(2, 1fr); }
   .source-catalog-head { align-items: flex-start; flex-direction: column; }
   .qualifier-layout { grid-template-columns: 1fr; }
@@ -4364,7 +4364,7 @@ footer {
     <div class="hero-eyebrow">Albuquerque, New Mexico</div>
     <h1>We Build<br><em>ADUs</em><br>That Last.</h1>
     <p class="hero-desc">
-      Five proven models. Local licensed contractors.
+      Seven proven models. Local licensed contractors.
       From design to final inspection — we manage every phase
       of your accessory dwelling unit, from a compact studio
       to a full two-bedroom guesthouse.
@@ -4383,7 +4383,7 @@ footer {
     </div>
     <div class="hero-stats">
       <div>
-        <div class="stat-num">5<span>+</span></div>
+        <div class="stat-num">7</div>
         <div class="stat-label">Proven Designs</div>
       </div>
       <div>
@@ -4410,7 +4410,7 @@ footer {
     <div class="models-header">
       <div>
         <div class="section-eyebrow">Our Portfolio</div>
-        <h2>Five Proven<br><em>Designs</em></h2>
+        <h2>Seven Proven<br><em>Designs</em></h2>
       </div>
       <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Click a model to open the Version 5 design tool and customize that exact ADU.</p>
     </div>
@@ -4495,8 +4495,31 @@ footer {
       </div>
     </div>
 
-    <!-- Row 2: 2 cards centered -->
+    <!-- Row 2: 4 cards -->
     <div class="models-row-2">
+
+      <!-- 750 Series -->
+      <div class="model-card" data-design-model="series-750" role="button" tabindex="0" aria-label="Design the 750 Series model">
+        <div class="model-floor-plan">
+          <img src="images/750-series-sheet.jpg" alt="750 Series floor plan and elevations — 750sf 2 bedroom or luxury 1 bedroom ADU" onclick="openLightbox(this.src)">
+          <a class="sheet-btn" onclick="openLightbox('images/750-series-sheet.jpg'); return false;">View Full Sheet</a>
+        </div>
+        <div class="model-info">
+          <div class="model-name">750 Series</div>
+          <div class="model-specs">750 sq ft · 2 Bed or Lux 1 Bed · 20×37.5</div>
+          <div class="model-desc">The practical homeowner maximum ADU: two queen bedrooms or a larger luxury one-bedroom plan, with a full kitchen, laundry, living room, bath, back patio, and modern shed-roof elevations.</div>
+          <div class="model-tags">
+            <span class="tag">750 sq ft</span>
+            <span class="tag">2BR or Lux 1BR</span>
+            <span class="tag green">Typical max</span>
+          </div>
+          <div class="model-price">from $268,000 <small>turnkey est.</small></div>
+          <div class="model-actions">
+            <button class="model-design-btn" type="button" onclick="designSpecificModel('series-750')">Design This Model</button>
+            <div class="model-design-note">Open the 750 Series in the design tool and customize finishes, utility checks, and site fit.</div>
+          </div>
+        </div>
+      </div>
 
       <!-- Casita Portal -->
       <div class="model-card" data-design-model="casita-portal" role="button" tabindex="0" aria-label="Design the Casita Portal model">
@@ -4689,11 +4712,11 @@ footer {
           </div>
         </div>
         <div class="source-model">
-          <img src="images/source-750-render.webp" alt="The 750 source model rendering">
+          <img src="images/750-series-sheet.jpg" alt="750 Series floor plan and elevations">
           <div class="source-model-body">
-            <div class="source-model-name">The 750</div>
-            <div class="source-model-meta">750 sq ft · typical homeowner max ADU · flat, pitched, and 3D concrete print variants</div>
-            <span class="source-model-badge">typical max</span>
+            <div class="source-model-name">750 Series</div>
+            <div class="source-model-meta">750 sq ft · 2BR or luxury 1BR · 20x37.5 · typical homeowner max planning size</div>
+            <span class="source-model-badge">new model</span>
           </div>
         </div>
         <div class="source-model">
@@ -5207,7 +5230,7 @@ footer {
         Design Your ADU<br><span style="color:var(--copper);">Before You Build</span>
       </h2>
       <p style="font-size:17px;color:rgba(240,235,225,.65);max-width:580px;margin:0 auto;">
-        Choose from our 5 proven ADU models, customize the floor plan, and get an instant cost estimate — all before we ever break ground.
+        Choose from our 7 proven ADU models, customize the floor plan, and get an instant cost estimate — all before we ever break ground.
       </p>
     </div>
 
@@ -5326,7 +5349,7 @@ footer {
             <div class="homeowner-question-help">This first choice sets square footage, starting price, and the shape shown in the live visualization.</div>
           </div>
           <div class="design-infographic">
-            <div class="design-infographic-item"><b>5</b><span>proven ABQ ADU starting models</span></div>
+            <div class="design-infographic-item"><b>7</b><span>proven ABQ ADU starting models</span></div>
             <div class="design-infographic-item"><b>90</b><span>day build goal after signed contract</span></div>
             <div class="design-infographic-item"><b>$ / sf</b><span>live pricing lens for every choice</span></div>
           </div>
@@ -5633,6 +5656,7 @@ const ADU_OPTIONS = {
     { id: 'hyder-hut', label: 'Netherwood House', sub: '440 sf · 1BR/1BA · compact backyard home', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12.5 ft x 35 ft', use: 'Parent suite, guest house, or rental starter', detail: 'A compact, warm backyard home with enough room for a true bedroom, bath, kitchen, and small living area without overwhelming tighter Albuquerque lots.', image: 'images/hyder-hut-sheet.png' },
     { id: 'hyder-hut-2br', label: 'Netherwood House 2BR', sub: '550 sf · 2BR/1BA · family or rental ready', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', dimensions: '12.5 ft x 44 ft', use: 'Multigenerational family, adult child, or guests', detail: 'The family-friendly Netherwood layout adds a second bedroom while keeping the footprint efficient for homeowners who want flexibility now and rental value later.', image: 'images/hyder-hut-2br-exterior-finishes.webp' },
     { id: 'altura-24x24', label: 'Altura 24x24', sub: '576 sf · 1BR/1BA · square efficient plan', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', dimensions: '24 ft x 24 ft', use: 'Open living, accessible planning, and easy furniture layouts', detail: 'Altura is a simple square plan that feels calm and efficient, especially when the homeowner wants a balanced living room, kitchen, bedroom, and patio connection.', image: 'images/altura-box.png' },
+    { id: 'series-750', label: '750 Series', sub: '750 sf · 2BR or luxury 1BR · typical max ADU', price: 268000, sqft: 750, beds: '2BR or Lux 1BR', baths: '1BA', dimensions: '20 ft x 37.5 ft', use: 'Multigenerational living, rental income, or larger guest suite', detail: 'The 750 Series is the practical maximum-size ADU path for many homeowners: two queen bedrooms or a larger luxury one-bedroom layout, with kitchen, bath, laundry, living room, and patio planning in one clear model.', image: 'images/750-series-sheet.jpg' },
     { id: 'casita-portal', label: 'Casita Portal', sub: '640 sf · covered portal for New Mexico living', price: 228000, sqft: 640, beds: '1BR', baths: '1BA', dimensions: 'L-shaped plan · site fit verified', use: 'Outdoor living, shaded entries, and privacy', detail: 'A New Mexico porch-forward option for homeowners who want the ADU to feel like a small casita with shade, outdoor meals, and a softer connection to the yard.', image: 'images/v5-site-photos/real-adu-lower-exterior.jpg' },
     { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · larger custom review path above typical 750 sf homeowner max', price: 295000, sqft: 780, beds: '2BR', baths: '2BA', dimensions: 'Larger custom footprint', use: 'Bigger family needs and custom review', detail: 'A larger home-like option for families who need more space. Because 750 sf is the typical homeowner ADU planning max, this path should be reviewed carefully before final bid.', image: 'images/adu-interior.png' },
     { id: 'cromwell', label: 'Cromwell', sub: '1,280 sf · expanded custom project above typical ADU planning size', price: 385000, sqft: 1280, beds: '2BR', baths: '1.5BA', dimensions: 'Two-story custom plan', use: 'Large custom studio or detached home project', detail: 'A more ambitious custom project with a larger footprint and more design review. Best shown as an inspiration option before confirming ordinance fit.', image: 'images/source-cromwell-render.webp' },
@@ -6637,6 +6661,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
               <option>Netherwood House (1BR, 440 sq ft)</option>
               <option>Netherwood House 2BR (550 sq ft)</option>
               <option>Altura 24×24 (576 sq ft)</option>
+              <option>750 Series (750 sq ft — 2BR or luxury 1BR)</option>
               <option>Casita Portal (640 sq ft)</option>
               <option>Tierra Grande (780 sq ft — custom review above typical 750 sq ft max)</option>
               <option>Cromwell (2BR, 1,280 sq ft — expanded custom project)</option>
@@ -6732,6 +6757,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <li><a href="#">Netherwood House</a></li>
         <li><a href="#">Netherwood House 2BR</a></li>
         <li><a href="#">Altura 24×24</a></li>
+        <li><a href="#">750 Series</a></li>
         <li><a href="#">Casita Portal</a></li>
         <li><a href="#">Tierra Grande</a></li>
         <li><a href="#">Cromwell</a></li>
