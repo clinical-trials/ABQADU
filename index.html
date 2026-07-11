@@ -1194,9 +1194,41 @@ h2 em { font-style: normal; color: var(--terra); }
   margin-top: 4px;
 }
 
+.adu-match-progress {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr auto;
+}
+
+.adu-match-progress-bar {
+  background: rgba(240,235,225,.12);
+  border-radius: 999px;
+  height: 7px;
+  overflow: hidden;
+}
+
+.adu-match-progress-fill {
+  background: linear-gradient(90deg, var(--copper), var(--copper-l));
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width .22s ease;
+}
+
+.adu-match-progress span {
+  color: rgba(240,235,225,.58);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
 .adu-match-question {
-  border-top: 1px solid rgba(240,235,225,.1);
-  padding-top: 11px;
+  background: rgba(240,235,225,.045);
+  border: 1px solid rgba(240,235,225,.1);
+  border-radius: 10px;
+  padding: 12px;
 }
 
 .adu-match-question strong {
@@ -1207,6 +1239,13 @@ h2 em { font-style: normal; color: var(--terra); }
   letter-spacing: .08em;
   margin-bottom: 8px;
   text-transform: uppercase;
+}
+
+.adu-match-question p {
+  color: rgba(240,235,225,.56);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: -2px 0 10px;
 }
 
 .adu-match-options {
@@ -1229,11 +1268,49 @@ h2 em { font-style: normal; color: var(--terra); }
   text-align: left;
 }
 
+.adu-match-option:hover {
+  border-color: rgba(232,201,138,.42);
+  color: var(--stucco);
+}
+
 .adu-match-option.active {
   background: rgba(196,149,74,.22);
   border-color: rgba(232,201,138,.62);
   color: var(--stucco);
   box-shadow: inset 3px 0 0 var(--copper);
+}
+
+.adu-match-nav {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.adu-match-nav button {
+  align-items: center;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: .08em;
+  min-height: 42px;
+  padding: 10px 12px;
+  text-transform: uppercase;
+}
+
+.adu-match-nav .ghost {
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(240,235,225,.15);
+  color: rgba(240,235,225,.72);
+}
+
+.adu-match-nav .primary {
+  background: var(--copper);
+  border: 1px solid var(--copper);
+  color: var(--blueprint);
 }
 
 .adu-match-result {
@@ -1246,6 +1323,14 @@ h2 em { font-style: normal; color: var(--terra); }
   gap: 10px;
   margin-top: 4px;
   padding: 13px;
+}
+
+.adu-match-result-label {
+  color: var(--copper-l);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
 }
 
 .adu-match-result-top {
@@ -1361,6 +1446,47 @@ h2 em { font-style: normal; color: var(--terra); }
   margin-top: 4px;
 }
 
+.adu-match-handoff {
+  background: rgba(240,235,225,.075);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 10px;
+  display: grid;
+  gap: 9px;
+  padding: 11px;
+}
+
+.adu-match-handoff b {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.adu-match-handoff span {
+  color: rgba(240,235,225,.62);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.adu-match-handoff button {
+  align-items: center;
+  background: var(--copper);
+  border: 0;
+  border-radius: 999px;
+  color: var(--blueprint);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: .08em;
+  min-height: 42px;
+  padding: 10px 12px;
+  text-transform: uppercase;
+}
+
 .adu-roi-card {
   background: rgba(28,25,23,.28);
   border: 1px solid rgba(232,201,138,.22);
@@ -1428,6 +1554,62 @@ h2 em { font-style: normal; color: var(--terra); }
   font-size: 15px;
   margin-top: 3px;
   text-transform: none;
+}
+
+.adu-match-next {
+  background: rgba(240,235,225,.055);
+  border: 1px solid rgba(240,235,225,.1);
+  border-radius: 10px;
+  display: grid;
+  gap: 8px;
+  padding: 11px;
+}
+
+.adu-match-next h5 {
+  color: var(--copper-l);
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.adu-match-next-grid {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.adu-match-next-step {
+  background: rgba(28,25,23,.24);
+  border: 1px solid rgba(240,235,225,.09);
+  border-radius: 8px;
+  min-height: 84px;
+  padding: 8px;
+}
+
+.adu-match-next-step b {
+  color: var(--stucco);
+  display: block;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.adu-match-next-step span {
+  color: rgba(240,235,225,.55);
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  margin: 5px 0;
+  text-transform: uppercase;
+}
+
+.adu-match-next-step p {
+  color: rgba(240,235,225,.58);
+  font-size: 11px;
+  line-height: 1.35;
+  margin: 0;
 }
 
 .design-entry-card {
@@ -4273,7 +4455,8 @@ footer {
   .adu-match-kpis,
   .adu-match-compare,
   .adu-roi-grid,
-  .adu-roi-output {
+  .adu-roi-output,
+  .adu-match-next-grid {
     grid-template-columns: 1fr;
   }
   .design-tool-chip-grid { grid-template-columns: repeat(2, 1fr); }
@@ -5620,7 +5803,7 @@ footer {
         </div>
       </div>
       <div class="design-entry-preview">
-        <img src="images/hyder-hut-2br-exterior-finishes.webp" alt="Netherwood House exterior finishes preview for the guided homeowner ADU design studio" loading="lazy">
+        <img id="adu-matchmaker-preview" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Netherwood House exterior finishes preview for the guided homeowner ADU design studio" loading="lazy">
       </div>
     </div>
 
@@ -6038,8 +6221,8 @@ let ADU_DRAFT_TIMER = null;
 const ADU_OPTIONS = {
   model: [
     { id: 'hyder-hut', label: 'Netherwood House', sub: '440 sf · 1BR/1BA · ADU', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12.5 ft x 35 ft', use: 'Parent suite, guest house, or rental starter', detail: 'A compact, warm backyard home with enough room for a true bedroom, bath, kitchen, and small living area without overwhelming tighter Albuquerque lots.', image: 'images/hyder-hut-sheet.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
-    { id: 'hyder-hut-2br', label: 'Netherwood House 2BR', sub: '550 sf · 2BR/1BA · ADU', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', dimensions: '12.5 ft x 44 ft', use: 'Multigenerational family, adult child, or guests', detail: 'The family-friendly Netherwood layout adds a second bedroom while keeping the footprint efficient for homeowners who want flexibility now and rental value later.', image: 'images/hyder-hut-2br-exterior-finishes.webp', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
-    { id: 'altura-24x24', label: 'Altura', sub: '576 sf · 1BR/1BA · ADU', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', dimensions: '24 ft x 24 ft', use: 'Open living, accessible planning, and easy furniture layouts', detail: 'Altura is a single-bedroom ADU with a simple square plan that feels calm and efficient. Use this 576 sf path when the homeowner wants balanced living room, kitchen, bedroom, and patio connections.', image: 'images/altura-box.png', interiorImage: 'images/v5-site-photos/altura-interior-kitchen.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
+    { id: 'hyder-hut-2br', label: 'Netherwood House 2BR', sub: '550 sf · 2BR/1BA · ADU', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', dimensions: '12.5 ft x 44 ft', use: 'Multigenerational family, adult child, or guests', detail: 'The family-friendly Netherwood layout adds a second bedroom while keeping the footprint efficient for homeowners who want flexibility now and rental value later.', image: 'images/hyder-hut-2br-sheet.png', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
+    { id: 'altura-24x24', label: 'Altura', sub: '576 sf · 1BR/1BA · ADU', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', dimensions: '24 ft x 24 ft', use: 'Open living, accessible planning, and easy furniture layouts', detail: 'Altura is a single-bedroom ADU with a simple square plan that feels calm and efficient. Use this 576 sf path when the homeowner wants balanced living room, kitchen, bedroom, and patio connections.', image: 'images/altura-sheet.png', interiorImage: 'images/v5-site-photos/altura-interior-kitchen.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'series-750', label: '750 Series', sub: '750 sf · 2BR or luxury 1BR · typical max ADU', price: 268000, sqft: 750, beds: '2BR or Lux 1BR', baths: '1BA', dimensions: '20 ft x 37.5 ft', use: 'Multigenerational living, rental income, or larger guest suite', detail: 'The 750 Series is the practical maximum-size ADU path for many homeowners: two queen bedrooms or a larger luxury one-bedroom layout, with kitchen, bath, laundry, living room, and patio planning in one clear model.', image: 'images/750-series-sheet.jpg', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'casita-portal', label: 'Bryn Mawr', sub: '440 sf · 1BR/1BA · ADU site-plan concept', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12 ft x 35 ft', use: 'Compact ADU with strong site-fit planning', detail: 'Bryn Mawr is a compact 440 sf ADU concept that shows the homeowner how the building, yard, parking, privacy fence, electrical trench, and sewer path work together on the lot.', image: 'images/bryn-mawr-site-plan.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · larger custom review path above typical 750 sf homeowner max', price: 295000, sqft: 780, beds: '2BR', baths: '2BA', dimensions: 'Larger custom footprint', use: 'Bigger family needs and custom review', detail: 'A larger home-like option for families who need more space. Because 750 sf is the typical homeowner ADU planning max, this path should be reviewed carefully before final bid.', image: 'images/adu-interior.png' },
@@ -6168,6 +6351,13 @@ const ADU_MATCHER_PROFILES = {
   'tierra-grande': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, people: 3 },
   'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, people: 3 },
 };
+
+const ADU_MATCHER_NEXT_STEPS = [
+  { title: 'Free site assessment', time: 'This week', copy: 'We walk the lot, check setbacks, utilities, electric, sewer, and placement.' },
+  { title: 'Design session', time: 'Step 2', copy: 'Customize the recommended model: exterior, interior, doors, windows, and included package.' },
+  { title: 'Permit path', time: 'After review', copy: 'We prepare the site plan and permitting path once the model and site constraints are clear.' },
+  { title: 'Build handoff', time: 'Contract ready', copy: 'Builder receives the clean homeowner summary, bid context, and next critical-path tasks.' },
+];
 
 function scoreAduModel(model) {
   const profile = ADU_MATCHER_PROFILES[model.id] || { bestFor: [], lots: [], budget: 2, people: 2 };
@@ -6298,6 +6488,18 @@ function renderAduMatcher() {
         <span>Expenses<b>${moneyWhole(expenses)}/mo</b></span>
         <span>Cash flow<b>${moneyWhole(cashFlow)}/mo</b></span>
         <span>Payback<b>${payback}</b></span>
+      </div>
+    </div>
+    <div class="adu-match-next">
+      <h5>What happens next</h5>
+      <div class="adu-match-next-grid">
+        ${ADU_MATCHER_NEXT_STEPS.map(step => `
+          <div class="adu-match-next-step">
+            <b>${step.title}</b>
+            <span>${step.time}</span>
+            <p>${step.copy}</p>
+          </div>
+        `).join('')}
       </div>
     </div>
   `;
