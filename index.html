@@ -1160,13 +1160,14 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .adu-matchmaker {
-  background: rgba(15,31,61,.46);
-  border: 1px solid rgba(232,201,138,.22);
-  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(5,12,31,.9), rgba(15,31,61,.64));
+  border: 1px solid rgba(99,166,255,.22);
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.28);
   display: grid;
-  gap: 12px;
+  gap: 14px;
   margin-top: 18px;
-  padding: 12px;
+  padding: 16px;
 }
 
 .adu-matchmaker-head {
@@ -1180,7 +1181,7 @@ h2 em { font-style: normal; color: var(--terra); }
   color: var(--stucco);
   display: block;
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 22px;
   letter-spacing: .04em;
   line-height: 1;
   text-transform: uppercase;
@@ -1225,20 +1226,22 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .adu-match-question {
-  background: rgba(240,235,225,.045);
-  border: 1px solid rgba(240,235,225,.1);
-  border-radius: 10px;
-  padding: 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 4px 0 0;
 }
 
 .adu-match-question strong {
-  color: rgba(240,235,225,.82);
+  color: var(--stucco);
   display: block;
-  font-size: 12px;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 4vw, 30px);
   font-weight: 900;
-  letter-spacing: .08em;
-  margin-bottom: 8px;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1.05;
+  margin-bottom: 12px;
+  text-transform: none;
 }
 
 .adu-match-question-label {
@@ -1249,14 +1252,14 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .adu-match-question-label span {
-  border: 1px solid rgba(232,201,138,.22);
+  border: 1px solid rgba(42,220,242,.24);
   border-radius: 999px;
-  color: rgba(232,201,138,.86);
+  color: rgba(42,220,242,.9);
   flex: 0 0 auto;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: .08em;
-  padding: 4px 7px;
+  padding: 5px 8px;
   text-transform: uppercase;
 }
 
@@ -1269,47 +1272,60 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .adu-match-options {
   display: grid;
-  gap: 7px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  grid-template-columns: 1fr;
 }
 
 .adu-match-option {
   background: rgba(255,255,255,.055);
-  border: 1px solid rgba(240,235,225,.12);
-  border-radius: 8px;
-  color: rgba(240,235,225,.76);
+  border: 1px solid rgba(145,166,203,.18);
+  border-radius: 14px;
+  color: var(--stucco);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 800;
   line-height: 1.2;
-  min-height: 44px;
-  padding: 9px 10px;
+  min-height: 86px;
+  padding: 18px 48px 18px 20px;
+  position: relative;
   text-align: left;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
 }
 
 .adu-match-option:hover {
-  border-color: rgba(232,201,138,.42);
+  border-color: rgba(42,220,242,.46);
   color: var(--stucco);
+  transform: translateY(-1px);
 }
 
 .adu-match-option.active {
-  background: rgba(196,149,74,.22);
-  border-color: rgba(232,201,138,.62);
+  background: rgba(12, 41, 62, .82);
+  border-color: rgba(42,220,242,.95);
   color: var(--stucco);
-  box-shadow: inset 3px 0 0 var(--copper);
+  box-shadow: 0 0 0 1px rgba(42,220,242,.26), inset 0 0 0 1px rgba(42,220,242,.24);
+}
+
+.adu-match-option.active::after {
+  color: #2adcf2;
+  content: "✓";
+  font-size: 25px;
+  font-weight: 900;
+  position: absolute;
+  right: 20px;
+  top: 18px;
 }
 
 .adu-match-option small {
-  color: rgba(240,235,225,.54);
+  color: rgba(184,197,220,.74);
   display: block;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 650;
   line-height: 1.28;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .adu-match-option.active small {
-  color: rgba(240,235,225,.78);
+  color: rgba(225,236,249,.82);
 }
 
 .adu-match-nav {
@@ -1333,6 +1349,11 @@ h2 em { font-style: normal; color: var(--terra); }
   text-transform: uppercase;
 }
 
+.adu-match-nav button:disabled {
+  cursor: default;
+  opacity: .38;
+}
+
 .adu-match-nav .ghost {
   background: rgba(255,255,255,.055);
   border: 1px solid rgba(240,235,225,.15);
@@ -1347,14 +1368,14 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .adu-match-result {
   background:
-    linear-gradient(135deg, rgba(196,149,74,.22), rgba(61,82,71,.16)),
+    linear-gradient(135deg, rgba(42,220,242,.16), rgba(196,149,74,.16)),
     rgba(255,255,255,.05);
-  border: 1px solid rgba(232,201,138,.32);
-  border-radius: 10px;
+  border: 1px solid rgba(42,220,242,.24);
+  border-radius: 12px;
   display: grid;
   gap: 10px;
   margin-top: 4px;
-  padding: 13px;
+  padding: 14px;
 }
 
 .adu-match-result-label {
@@ -1467,6 +1488,83 @@ h2 em { font-style: normal; color: var(--terra); }
   letter-spacing: .1em;
   margin-bottom: 3px;
   text-transform: uppercase;
+}
+
+.adu-match-signal-grid {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.adu-match-signal {
+  background: rgba(28,25,23,.26);
+  border: 1px solid rgba(240,235,225,.11);
+  border-radius: 8px;
+  color: rgba(240,235,225,.68);
+  font-size: 11px;
+  line-height: 1.35;
+  padding: 8px;
+}
+
+.adu-match-signal b {
+  color: var(--stucco);
+  display: block;
+  font-size: 10px;
+  letter-spacing: .09em;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+
+.adu-match-signal.good {
+  border-color: rgba(232,201,138,.3);
+}
+
+.adu-match-signal.warn {
+  border-color: rgba(184,92,56,.42);
+}
+
+.adu-match-guidance {
+  background: rgba(240,235,225,.06);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 10px;
+  display: grid;
+  gap: 8px;
+  padding: 11px;
+}
+
+.adu-match-guidance b {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.adu-match-guidance ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.adu-match-guidance li {
+  color: rgba(240,235,225,.68);
+  font-size: 12px;
+  line-height: 1.42;
+  padding-left: 14px;
+  position: relative;
+}
+
+.adu-match-guidance li::before {
+  background: var(--copper);
+  border-radius: 999px;
+  content: "";
+  height: 5px;
+  left: 0;
+  position: absolute;
+  top: .48em;
+  width: 5px;
 }
 
 .adu-match-compare {
@@ -4540,6 +4638,7 @@ footer {
   .adu-match-options,
   .adu-match-kpis,
   .adu-match-captured,
+  .adu-match-signal-grid,
   .adu-match-compare,
   .adu-roi-grid,
   .adu-roi-output,
@@ -6389,6 +6488,7 @@ const ADU_OPTIONS = {
 };
 
 const ADU_MATCHER_STATE = {
+  step: 0,
   purpose: 'family',
   lot: 'medium',
   beds: '1br',
@@ -6397,6 +6497,15 @@ const ADU_MATCHER_STATE = {
   timeline: 'six-months',
   rent: 0,
   payment: 0,
+};
+
+const ADU_MATCHER_STEP_COPY = {
+  purpose: 'This shapes everything else.',
+  lot: "A rough sense is fine - we'll verify later.",
+  beds: "Think about who'll actually sleep there.",
+  budget: 'Placeholder ranges - actual pricing varies by site.',
+  priority: 'Pick your top priority.',
+  timeline: 'No pressure - this just helps us plan.',
 };
 
 const ADU_MATCHER_QUESTIONS = [
@@ -6466,13 +6575,39 @@ const ADU_MATCHER_QUESTIONS = [
 ];
 
 const ADU_MATCHER_PROFILES = {
-  'hyder-hut': { bestFor: ['guest', 'office', 'rental'], lots: ['small', 'medium', 'large'], budget: 1, beds: ['studio', '1br'] },
-  'hyder-hut-2br': { bestFor: ['family', 'rental', 'guest'], lots: ['medium', 'large'], budget: 2, beds: ['2br'] },
-  'altura-24x24': { bestFor: ['family', 'office', 'guest'], lots: ['medium', 'large'], budget: 2, beds: ['1br'] },
-  'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], budget: 3, beds: ['1br', '2br'] },
-  'casita-portal': { bestFor: ['rental', 'guest', 'office'], lots: ['small', 'medium', 'large'], budget: 1, beds: ['studio', '1br'] },
-  'tierra-grande': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, beds: ['2br'] },
-  'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, beds: ['2br'] },
+  'hyder-hut': { bestFor: ['guest', 'office', 'rental'], lots: ['small', 'medium', 'large'], beds: ['studio', '1br'], strengths: ['Compact 440 sf footprint', 'True 1BR privacy', 'Efficient rental or guest path'], cautions: ['Studio request maps to compact 1BR because no pure studio model is currently listed.'] },
+  'hyder-hut-2br': { bestFor: ['family', 'rental', 'guest'], lots: ['medium', 'large'], beds: ['2br'], strengths: ['Two bedrooms under 600 sf', 'Strong multigenerational flexibility', 'Good rental bedroom count'], cautions: ['Tight yards need careful placement and setback review.'] },
+  'altura-24x24': { bestFor: ['family', 'office', 'guest'], lots: ['medium', 'large'], beds: ['1br'], strengths: ['Balanced square plan', 'Feels open for one bedroom living', 'Good accessible-layout starting point'], cautions: ['Needs a decent yard because the 24 x 24 footprint is broader.'] },
+  'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], beds: ['1br', '2br'], strengths: ['Typical max-size ADU path', 'Can work as 2BR or luxury 1BR', 'Best when the homeowner wants room to grow'], cautions: ['At 750 sf, site placement and utility review matter more.'] },
+  'casita-portal': { bestFor: ['rental', 'guest', 'office'], lots: ['small', 'medium', 'large'], beds: ['studio', '1br'], strengths: ['Compact 440 sf site-plan concept', 'Strong lot-fit story', 'Efficient first ADU conversation'], cautions: ['Best treated as a site-planning concept before final bid.'] },
+  'tierra-grande': { bestFor: ['family', 'rental'], lots: ['large'], beds: ['2br'], strengths: ['Larger two-bedroom custom path', 'More room for family use', 'Works when the yard is generous'], cautions: ['Above the typical 750 sf homeowner ADU max; custom review is required.'] },
+  'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], beds: ['2br'], strengths: ['Full single-family home scale', 'Two bedrooms plus 1.5 baths', 'Good for larger family needs'], cautions: ['This is not a standard ADU path; it needs larger-project review.'] },
+};
+
+const ADU_BUDGET_LIMITS = {
+  1: 175000,
+  2: 225000,
+  3: Infinity,
+};
+
+const ADU_LOT_LIMITS = {
+  small: 600,
+  medium: 900,
+  large: Infinity,
+};
+
+const ADU_PRIORITY_GUIDANCE = {
+  light: ['Consider the standard window package first, then price larger openings carefully.', 'If you add openings larger than 3 ft in either direction, builder review may flag added engineering burden.'],
+  outdoor: ['Use orientation and outdoor-space steps to protect privacy from the main house.', 'A covered portal or private courtyard can improve daily use, but should be checked against setbacks.'],
+  finishes: ['Start with the included kitchen, bath, HVAC, and laundry package, then upgrade only the surfaces that matter most.', 'Premium counters, flooring, tile, and cabinets should be priced as named allowances for a cleaner bid.'],
+  energy: ['Keep the mini-split and smart thermostat path visible in the concept.', 'Ask the builder to review solar-ready placement, insulation assumptions, and panel capacity during the site visit.'],
+};
+
+const ADU_TIMELINE_GUIDANCE = {
+  asap: 'Best next step: call ABQ ADU and schedule the free site visit now.',
+  'six-months': 'Best next step: site visit, utility review, and model fit check while the project is actively being planned.',
+  'twelve-months': 'Best next step: save this recommendation, compare model fit, and start budget/financing planning.',
+  exploring: 'Best next step: use the recommendation as a starting point and keep browsing before requesting a bid.',
 };
 
 const ADU_MATCHER_NEXT_STEPS = [
@@ -6482,27 +6617,62 @@ const ADU_MATCHER_NEXT_STEPS = [
   { title: 'Build handoff', time: 'Contract ready', copy: 'Builder receives the clean homeowner summary, bid context, and next critical-path tasks.' },
 ];
 
-function scoreAduModel(model) {
-  const profile = ADU_MATCHER_PROFILES[model.id] || { bestFor: [], lots: [], budget: 2, beds: [] };
-  let score = 0;
-  if (profile.bestFor.includes(ADU_MATCHER_STATE.purpose)) score += 40;
-  if (profile.lots.includes(ADU_MATCHER_STATE.lot)) score += 25;
-  score += Math.max(0, 20 - Math.abs(profile.budget - Number(ADU_MATCHER_STATE.budget)) * 10);
-  if (profile.beds.includes(ADU_MATCHER_STATE.beds)) score += 15;
+function getBudgetSignal(model) {
+  const limit = ADU_BUDGET_LIMITS[ADU_MATCHER_STATE.budget] || Infinity;
+  if (limit === Infinity) return { score: 20, label: 'Budget fit', copy: 'Fits the larger-budget path.', state: 'good' };
+  const delta = limit - model.price;
+  if (delta >= 0) return { score: 20, label: 'Budget fit', copy: `Starts within ${getAduMatcherOption('budget')?.label || 'budget'}.`, state: 'good' };
+  if (delta >= -35000) return { score: 10, label: 'Budget stretch', copy: `Starts ${moneyShort(Math.abs(delta))} above the selected range.`, state: 'warn' };
+  return { score: 0, label: 'Budget stretch', copy: `Likely above the selected budget range before site costs.`, state: 'warn' };
+}
+
+function getLotSignal(model) {
+  const limit = ADU_LOT_LIMITS[ADU_MATCHER_STATE.lot] || Infinity;
+  if (limit === Infinity || model.sqft <= limit) return { score: 25, label: 'Lot fit', copy: `${model.sqft} sf fits the selected yard range for early planning.`, state: 'good' };
+  if (model.sqft <= limit + 150) return { score: 12, label: 'Lot review', copy: 'May fit, but placement, setbacks, and access need an early site check.', state: 'warn' };
+  return { score: 0, label: 'Lot review', copy: 'Likely too large for the selected yard range without custom review.', state: 'warn' };
+}
+
+function getBedSignal(model, profile) {
+  if (profile.beds.includes(ADU_MATCHER_STATE.beds)) return { score: 15, label: 'Bedroom fit', copy: `Matches the ${getAduMatcherOption('beds')?.label || 'bedroom'} preference.`, state: 'good' };
+  if (ADU_MATCHER_STATE.beds === 'studio' && profile.beds.includes('1br')) return { score: 8, label: 'Bedroom fit', copy: 'Closest available path is a compact 1BR rather than a pure studio.', state: 'warn' };
+  return { score: 0, label: 'Bedroom fit', copy: 'Bedroom count does not match the selected preference.', state: 'warn' };
+}
+
+function getPurposeSignal(profile) {
+  if (profile.bestFor.includes(ADU_MATCHER_STATE.purpose)) return { score: 40, label: 'Use fit', copy: `Strong match for ${getAduMatcherOption('purpose')?.label || 'the selected use'}.`, state: 'good' };
+  return { score: 12, label: 'Use stretch', copy: 'Can still work, but another model may align better with the stated use.', state: 'warn' };
+}
+
+function analyzeAduModel(model) {
+  const profile = ADU_MATCHER_PROFILES[model.id] || { bestFor: [], lots: [], beds: [], strengths: [], cautions: [] };
+  const signals = [
+    getPurposeSignal(profile),
+    getLotSignal(model),
+    getBudgetSignal(model),
+    getBedSignal(model, profile),
+  ];
+  let score = signals.reduce((sum, signal) => sum + signal.score, 0);
   if (model.id === 'cromwell' && ADU_MATCHER_STATE.lot !== 'large') score -= 25;
   if (model.sqft > 750 && ADU_MATCHER_STATE.purpose !== 'family') score -= 12;
-  return Math.max(0, Math.min(100, score));
+  if (model.sqft > 750 && ADU_MATCHER_STATE.budget < 3) score -= 10;
+  score = Math.max(0, Math.min(100, score));
+  return { model, profile, signals, score };
+}
+
+function scoreAduModel(model) {
+  return analyzeAduModel(model).score;
 }
 
 function getMatchedAduModel() {
   return [...ADU_OPTIONS.model]
-    .map(model => ({ model, score: scoreAduModel(model) }))
+    .map(model => analyzeAduModel(model))
     .sort((a, b) => b.score - a.score)[0];
 }
 
 function getMatchedAduModels() {
   return [...ADU_OPTIONS.model]
-    .map(model => ({ model, score: scoreAduModel(model) }))
+    .map(model => analyzeAduModel(model))
     .sort((a, b) => b.score - a.score);
 }
 
@@ -6518,6 +6688,7 @@ function getDefaultPayment(model) {
 }
 
 function getAduMatchReasons(model) {
+  const profile = ADU_MATCHER_PROFILES[model.id] || { strengths: [], cautions: [] };
   const purposeMap = {
     family: 'Good fit for family, adult child, aging parent, or multigenerational use.',
     rental: 'Prioritizes a layout that can support rental income and privacy.',
@@ -6537,11 +6708,29 @@ function getAduMatchReasons(model) {
   const reasons = [purposeMap[ADU_MATCHER_STATE.purpose] || 'Matches your stated use case.'];
   if (ADU_MATCHER_STATE.lot === 'small') reasons.push('Respects a smaller yard by favoring compact ADU footprints.');
   if (ADU_MATCHER_STATE.lot === 'large') reasons.push('Uses the larger lot more confidently while still flagging site review.');
+  reasons.push(...(profile.strengths || []).slice(0, 2));
   reasons.push(bedMap[ADU_MATCHER_STATE.beds] || 'Matches your bedroom preference.');
   reasons.push(budgetMap[ADU_MATCHER_STATE.budget] || 'Matches your budget range.');
   if (model.sqft <= 750) reasons.push('Stays at or below the typical 750 sf homeowner ADU planning max.');
   if (model.sqft > 750) reasons.push('Routes to a larger custom review path because it is above the typical ADU size.');
   return reasons.slice(0, 4);
+}
+
+function getAduMatchGuidance(match) {
+  const profile = match.profile || {};
+  const guidance = [
+    ...(ADU_PRIORITY_GUIDANCE[ADU_MATCHER_STATE.priority] || []),
+    ADU_TIMELINE_GUIDANCE[ADU_MATCHER_STATE.timeline],
+  ].filter(Boolean);
+  const caution = (profile.cautions || []).find(item => {
+    if (/studio/i.test(item) && ADU_MATCHER_STATE.beds !== 'studio') return false;
+    if (/tight yards/i.test(item) && ADU_MATCHER_STATE.lot !== 'small') return false;
+    return Boolean(item);
+  });
+  if (caution) guidance.unshift(caution);
+  if (ADU_MATCHER_STATE.purpose === 'rental') guidance.push('Keep privacy, separate entry, and durable finishes visible in the next customization step.');
+  if (ADU_MATCHER_STATE.purpose === 'family') guidance.push('Use the next step to flag accessibility, aging-parent comfort, and family storage needs.');
+  return guidance.slice(0, 4);
 }
 
 function getAduMatcherOption(questionId) {
@@ -6573,6 +6762,13 @@ function chooseAduMatcherValue(questionId, value) {
   ADU_MATCHER_STATE.rent = 0;
   ADU_MATCHER_STATE.payment = 0;
   renderAduMatcher();
+  window.clearTimeout(window.ABQ_ADU_MATCHER_ADVANCE);
+  window.ABQ_ADU_MATCHER_ADVANCE = window.setTimeout(() => {
+    if (ADU_MATCHER_STATE.step < ADU_MATCHER_QUESTIONS.length) {
+      ADU_MATCHER_STATE.step += 1;
+      renderAduMatcher();
+    }
+  }, 180);
 }
 
 function updateAduRoiInput(field, value) {
@@ -6584,22 +6780,39 @@ function renderAduMatcher() {
   const questionsHost = document.getElementById('adu-matchmaker-questions');
   const resultHost = document.getElementById('adu-matchmaker-result');
   if (!questionsHost || !resultHost) return;
-  questionsHost.innerHTML = ADU_MATCHER_QUESTIONS.map((question, index) => `
-    <div class="adu-match-question">
+  const activeIndex = Math.min(ADU_MATCHER_STATE.step, ADU_MATCHER_QUESTIONS.length);
+  const activeQuestion = ADU_MATCHER_QUESTIONS[activeIndex];
+  const progress = Math.round(((activeIndex + 1) / (ADU_MATCHER_QUESTIONS.length + 1)) * 100);
+  questionsHost.innerHTML = activeQuestion ? `
+    <div class="adu-match-progress">
+      <div class="adu-match-progress-bar"><span class="adu-match-progress-fill" style="width:${progress}%;"></span></div>
+      <span>Step ${activeIndex + 1} of ${ADU_MATCHER_QUESTIONS.length + 1}</span>
+    </div>
+    <div class="adu-match-question" aria-live="polite">
       <div class="adu-match-question-label">
-        <strong>${index + 1}. ${question.label}</strong>
-        <span>${question.scoring ? 'Used for match' : 'Saved note'}</span>
+        <strong>${activeQuestion.label}</strong>
+        <span>${activeQuestion.scoring ? 'Used for match' : 'Saved note'}</span>
       </div>
+      <p>${ADU_MATCHER_STEP_COPY[activeQuestion.id] || ''}</p>
       <div class="adu-match-options">
-        ${question.options.map(option => `
-          <button class="adu-match-option ${ADU_MATCHER_STATE[question.id] === option.value ? 'active' : ''}" type="button" onclick="chooseAduMatcherValue('${question.id}', '${option.value}')">
+        ${activeQuestion.options.map(option => `
+          <button class="adu-match-option ${ADU_MATCHER_STATE[activeQuestion.id] === option.value ? 'active' : ''}" type="button" onclick="chooseAduMatcherValue('${activeQuestion.id}', '${option.value}')">
             ${option.label}
             ${option.desc ? `<small>${option.desc}</small>` : ''}
           </button>
         `).join('')}
       </div>
+      <div class="adu-match-nav">
+        <button class="ghost" type="button" onclick="setAduMatcherStep(${Math.max(0, activeIndex - 1)})" ${activeIndex === 0 ? 'disabled' : ''}>Back</button>
+        <button class="primary" type="button" onclick="setAduMatcherStep(${activeIndex + 1})">${activeIndex === ADU_MATCHER_QUESTIONS.length - 1 ? 'See Recommendation' : 'Next'}</button>
+      </div>
     </div>
-  `).join('');
+  ` : `
+    <div class="adu-match-progress">
+      <div class="adu-match-progress-bar"><span class="adu-match-progress-fill" style="width:100%;"></span></div>
+      <span>Step ${ADU_MATCHER_QUESTIONS.length + 1} of ${ADU_MATCHER_QUESTIONS.length + 1}</span>
+    </div>
+  `;
   const matches = getMatchedAduModels();
   const match = matches[0];
   if (!match) return;
@@ -6616,9 +6829,12 @@ function renderAduMatcher() {
   const payback = annualCashFlow > 0 ? `${Math.ceil(match.model.price / annualCashFlow)} yrs` : 'Lender review';
   const alternatives = matches.slice(0, 3);
   const matcherSnapshot = getAduMatcherSnapshot();
+  const guidance = getAduMatchGuidance(match);
+  resultHost.style.display = activeQuestion ? 'none' : 'grid';
   resultHost.innerHTML = `
     <div class="adu-match-result-top">
       <div>
+        <div class="adu-match-result-label">Recommended starting model</div>
         <h4>${match.model.label}</h4>
         <p>${match.model.detail}</p>
       </div>
@@ -6629,6 +6845,13 @@ function renderAduMatcher() {
       <span>${match.model.beds} / ${match.model.baths}</span>
       <span>${moneyShort(match.model.price)} start</span>
     </div>
+    <div class="adu-match-signal-grid" aria-label="Recommendation fit signals">
+      ${match.signals.map(signal => `
+        <span class="adu-match-signal ${signal.state}">
+          <b>${signal.label}</b>${signal.copy}
+        </span>
+      `).join('')}
+    </div>
     <div class="adu-match-why">
       ${getAduMatchReasons(match.model).map(reason => `<span>${reason}</span>`).join('')}
     </div>
@@ -6636,11 +6859,17 @@ function renderAduMatcher() {
       <span><b>Preference saved</b>${matcherSnapshot.priority}</span>
       <span><b>Timeline saved</b>${matcherSnapshot.timeline}</span>
     </div>
+    <div class="adu-match-guidance">
+      <b>Next design guidance</b>
+      <ul>
+        ${guidance.map(item => `<li>${item}</li>`).join('')}
+      </ul>
+    </div>
     <div class="adu-match-compare" aria-label="Top model comparisons">
       ${alternatives.map(item => `
         <button type="button" onclick="designSpecificModel('${item.model.id}')">
           <b>${item.model.label}</b>
-          <span>${item.score}% fit · ${item.model.sqft} sf · ${moneyShort(item.model.price)} start</span>
+          <span>${item.score}% fit · ${item.model.sqft} sf · ${moneyShort(item.model.price)} start · ${item.signals.filter(signal => signal.state === 'good').length}/4 strong signals</span>
         </button>
       `).join('')}
     </div>
@@ -6675,6 +6904,12 @@ function renderAduMatcher() {
       </div>
     </div>
   `;
+}
+
+function setAduMatcherStep(step) {
+  window.clearTimeout(window.ABQ_ADU_MATCHER_ADVANCE);
+  ADU_MATCHER_STATE.step = Math.max(0, Math.min(ADU_MATCHER_QUESTIONS.length, Number(step) || 0));
+  renderAduMatcher();
 }
 
 function customizeMatchedAdu() {
@@ -7215,13 +7450,14 @@ function buildDesignSummary() {
   const form = document.getElementById('design-contact-form');
   const data = form ? new FormData(form) : new FormData();
   const matcher = getAduMatcherSnapshot();
+  const recommendation = analyzeAduModel(model);
   return {
     name: data.get('name') || 'Homeowner',
     email: data.get('email') || '',
     phone: data.get('phone') || '',
     bestTime: data.get('bestTime') || '',
     address: data.get('address') || '',
-    model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue, estimate, matcher,
+    model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue, estimate, matcher, recommendation,
   };
 }
 
@@ -7238,6 +7474,12 @@ function renderDesignResult(summary) {
       <div class="design-result-box"><b>${summary.utilities.label}</b><span>Utility review</span></div>
       <div class="design-result-box"><b>${summary.matcher?.purpose || 'Purpose saved'}</b><span>Why the homeowner wants the ADU</span></div>
       <div class="design-result-box"><b>${summary.matcher?.timeline || 'Timeline saved'}</b><span>Sales follow-up timing</span></div>
+      <div class="design-result-box"><b>${summary.recommendation?.score || 'Fit'}%</b><span>Recommendation confidence</span></div>
+    </div>
+    <div class="design-result-grid" style="margin-top:10px;">
+      ${(summary.recommendation?.signals || []).map(signal => `
+        <div class="design-result-box"><b>${signal.label}</b><span>${signal.copy}</span></div>
+      `).join('')}
     </div>
     <p style="color:rgba(28,25,23,.72);line-height:1.55;">
       Contact: <b>${summary.name}</b>${summary.email ? ` · ${summary.email}` : ''}${summary.phone ? ` · ${summary.phone}` : ''}${summary.bestTime ? ` · best time: ${summary.bestTime}` : ''}<br>
@@ -7247,7 +7489,8 @@ function renderDesignResult(summary) {
       This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24 hours of the customer call. Site utilities, extra meter needs, sewer confirmation study, setbacks, permitting, and engineering review can affect final price and schedule.
     </p>
   `;
-  const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Match answers: ${summary.matcher?.purpose || ''}; ${summary.matcher?.lot || ''}; ${summary.matcher?.beds || ''}; ${summary.matcher?.budget || ''}. Preference: ${summary.matcher?.priority || ''}. Timeline: ${summary.matcher?.timeline || ''}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}${summary.address ? ', property ' + summary.address : ''}.`;
+  const signalText = (summary.recommendation?.signals || []).map(signal => `${signal.label}: ${signal.copy}`).join('; ');
+  const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Recommendation ${summary.recommendation?.score || 'review'}% fit. Signals: ${signalText}. Match answers: ${summary.matcher?.purpose || ''}; ${summary.matcher?.lot || ''}; ${summary.matcher?.beds || ''}; ${summary.matcher?.budget || ''}. Preference: ${summary.matcher?.priority || ''}. Timeline: ${summary.matcher?.timeline || ''}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}${summary.address ? ', property ' + summary.address : ''}.`;
   const encoded = encodeURIComponent(text);
   const builderLink = document.getElementById('design-builder-link');
   if (builderLink) builderLink.href = `platform.html#design?concept=${encoded}`;
@@ -7314,6 +7557,11 @@ function buildDesignPayload(summary) {
       revenue: summary.revenue.label,
     },
     matcher: summary.matcher || getAduMatcherSnapshot(),
+    recommendation: summary.recommendation ? {
+      score: summary.recommendation.score,
+      signals: summary.recommendation.signals,
+      guidance: getAduMatchGuidance(summary.recommendation),
+    } : null,
     text: summary.text || '',
   };
 }
@@ -7421,6 +7669,7 @@ Object.assign(window, {
   customizeSelectedModel,
   customizeMatchedAdu,
   chooseAduMatcherValue,
+  setAduMatcherStep,
   updateAduRoiInput,
   designSpecificModel,
   emailDesignSummary,
