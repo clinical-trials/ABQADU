@@ -2285,7 +2285,7 @@ h2 em { font-style: normal; color: var(--terra); }
 .design-result-actions {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   margin-top: 16px;
 }
 
@@ -2308,8 +2308,37 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .design-result-actions .print { background: var(--blueprint); color: var(--stucco); }
+.design-result-actions .text { background: #2f6f4e; color: var(--stucco); }
 .design-result-actions .email { background: var(--copper); color: var(--blueprint); }
 .design-result-actions .builder { background: rgba(28,25,23,.09); color: var(--charcoal); }
+.design-result-actions .builder-text { background: var(--terra); color: #fff; }
+
+.design-send-status {
+  align-items: center;
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin-top: 14px;
+  padding: 12px 14px;
+}
+.design-send-status[data-state="sending"] { background: rgba(28,25,23,.06); color: var(--charcoal); }
+.design-send-status[data-state="sent"] { background: rgba(47,111,78,.12); color: #2f6f4e; }
+.design-send-status[data-state="manual"] { background: rgba(196,149,74,.16); color: #7a4e12; }
+.design-send-status[data-state="error"] { background: rgba(184,60,45,.12); color: #b83c2d; flex-wrap: wrap; }
+.design-send-status .retry {
+  background: #b83c2d; border: 0; border-radius: 6px; color: #fff; cursor: pointer;
+  font-family: var(--font-display); font-size: 13px; font-weight: 800; letter-spacing: .04em;
+  padding: 8px 14px; text-transform: uppercase;
+}
+.design-send-status .spinner {
+  width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid rgba(28,25,23,.25); border-top-color: var(--charcoal);
+  animation: aduSendSpin 0.7s linear infinite;
+}
+@keyframes aduSendSpin { to { transform: rotate(360deg); } }
 
 .design-tool-chip-grid {
   display: grid;
@@ -4651,6 +4680,7 @@ footer {
     padding: 24px;
   }
   body.design-summary-print .design-result-close,
+  body.design-summary-print .design-send-status,
   body.design-summary-print .design-result-actions { display: none !important; }
 }
 
@@ -6167,9 +6197,12 @@ footer {
       <button class="design-result-close" type="button" onclick="closeDesignResult()" aria-label="Close design summary">×</button>
     </div>
     <div id="design-result-body"></div>
+    <div class="design-send-status" id="design-send-status" data-state="idle" hidden></div>
     <div class="design-result-actions">
       <button class="print" type="button" onclick="printDesignSummary()">Print / Save PDF</button>
+      <button class="text" type="button" onclick="textDesignSummary()">Text Me a Copy</button>
       <button class="email" type="button" onclick="emailDesignSummary()">Email Summary</button>
+      <button class="builder-text" type="button" onclick="textBuilderDesignSummary()">Text Builder Copy</button>
       <a class="builder" id="design-builder-link" href="platform.html#design" target="_blank" rel="noopener">Builder Review</a>
     </div>
   </div>
@@ -6217,6 +6250,10 @@ const ADU_NEXT_ACTIONS = [
 ];
 const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
 let ADU_DRAFT_TIMER = null;
+
+// Optional builder/backend intake endpoint. Set window.ABQ_DESIGN_ENDPOINT before this script when a public proxy is deployed.
+const ABQ_DESIGN_ENDPOINT = window.ABQ_DESIGN_ENDPOINT || '';
+const ABQ_BUILDER_SMS = '15059777659';
 
 const ADU_OPTIONS = {
   model: [
@@ -7047,6 +7084,7 @@ function buildDesignSummary() {
     email: data.get('email') || '',
     phone: data.get('phone') || '',
     bestTime: data.get('bestTime') || '',
+    address: data.get('address') || '',
     model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue, estimate,
   };
 }
@@ -7069,7 +7107,7 @@ function renderDesignResult(summary) {
       This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24 hours of the customer call. Site utilities, extra meter needs, sewer confirmation study, setbacks, permitting, and engineering review can affect final price and schedule.
     </p>
   `;
-  const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}.`;
+  const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}${summary.address ? ', property ' + summary.address : ''}.`;
   const encoded = encodeURIComponent(text);
   const builderLink = document.getElementById('design-builder-link');
   if (builderLink) builderLink.href = `platform.html#design?concept=${encoded}`;
@@ -7105,6 +7143,90 @@ function emailDesignSummary() {
 
 window.addEventListener('afterprint', () => document.body.classList.remove('design-summary-print'));
 
+function buildDesignPayload(summary) {
+  return {
+    source: 'homeowner-tool',
+    contact: {
+      name: summary.name,
+      email: summary.email,
+      phone: summary.phone,
+      bestTime: summary.bestTime,
+      address: summary.address || '',
+    },
+    summary: {
+      model: summary.model.label,
+      modelId: summary.model.id,
+      sqft: summary.model.sqft,
+      estimate: summary.estimate,
+      estimateLabel: moneyShort(summary.estimate),
+      psf: `${moneyWhole(summary.estimate / summary.model.sqft)}/sf`,
+      color: summary.color.label,
+      siding: summary.siding.label,
+      roof: summary.roof.label,
+      windows: summary.windows.label,
+      orientation: summary.orientation.label,
+      outdoor: summary.outdoor.label,
+      features: summary.features.label,
+      interior: summary.interior.label,
+      kitchen: summary.kitchen.label,
+      bath: summary.bath.label,
+      utilities: summary.utilities.label,
+      revenue: summary.revenue.label,
+    },
+    text: summary.text || '',
+  };
+}
+
+function setDesignSendStatus(state) {
+  const el = document.getElementById('design-send-status');
+  if (!el) return;
+  el.hidden = false;
+  el.dataset.state = state;
+  if (state === 'sending') {
+    el.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Sending your design to ABQ ADU…</span>';
+  } else if (state === 'sent') {
+    el.innerHTML = '<span>✓ Sent to ABQ ADU — we have your design and will reach out within one business day.</span>';
+  } else if (state === 'manual') {
+    el.innerHTML = '<span>Builder backend is not connected on this static preview yet. Use “Text Builder Copy,” print, or email so the design reaches Ian and ABQ ADU.</span>';
+  } else if (state === 'error') {
+    el.innerHTML = '<span>We could not reach ABQ ADU right now. Your copy is saved below — please print, text, or email it so nothing is lost.</span><button class="retry" type="button" onclick="sendDesignToBuilder()">Retry send</button>';
+  }
+}
+
+async function sendDesignToBuilder() {
+  const summary = window.ABQ_ADU_LAST_DESIGN_SUMMARY;
+  if (!summary) return;
+  if (!ABQ_DESIGN_ENDPOINT) {
+    setDesignSendStatus('manual');
+    return;
+  }
+  setDesignSendStatus('sending');
+  try {
+    const res = await fetch(ABQ_DESIGN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildDesignPayload(summary)),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    await res.json().catch(() => ({}));
+    setDesignSendStatus('sent');
+  } catch (err) {
+    setDesignSendStatus('error');
+  }
+}
+
+function textDesignSummary() {
+  const summary = window.ABQ_ADU_LAST_DESIGN_SUMMARY || buildDesignSummary();
+  const body = encodeURIComponent(`${summary.text}\n\nABQ ADU · abqadu.com`);
+  window.location.href = `sms:?&body=${body}`;
+}
+
+function textBuilderDesignSummary() {
+  const summary = window.ABQ_ADU_LAST_DESIGN_SUMMARY || buildDesignSummary();
+  const body = encodeURIComponent(`Homeowner ADU design for builder review:\n${summary.text}\n\nSuggested next action: call homeowner, confirm site visit, utilities, sewer confirmation, and model fit.\nABQ ADU Version 6`);
+  window.location.href = `sms:${ABQ_BUILDER_SMS}?&body=${body}`;
+}
+
 function handleDesignSubmit(e) {
   e.preventDefault();
   const summary = buildDesignSummary();
@@ -7112,6 +7234,7 @@ function handleDesignSubmit(e) {
   renderDesignResult(summary);
   closeAduDesignModal();
   openDesignResult();
+  sendDesignToBuilder();
 }
 
 function handleAduDesignClick(e) {
@@ -7160,6 +7283,9 @@ Object.assign(window, {
   updateAduRoiInput,
   designSpecificModel,
   emailDesignSummary,
+  sendDesignToBuilder,
+  textBuilderDesignSummary,
+  textDesignSummary,
   handleDesignSubmit,
   jumpAduStep,
   openAduDesignModal,
