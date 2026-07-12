@@ -1241,6 +1241,25 @@ h2 em { font-style: normal; color: var(--terra); }
   text-transform: uppercase;
 }
 
+.adu-match-question-label {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.adu-match-question-label span {
+  border: 1px solid rgba(232,201,138,.22);
+  border-radius: 999px;
+  color: rgba(232,201,138,.86);
+  flex: 0 0 auto;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  padding: 4px 7px;
+  text-transform: uppercase;
+}
+
 .adu-match-question p {
   color: rgba(240,235,225,.56);
   font-size: 12px;
@@ -1278,6 +1297,19 @@ h2 em { font-style: normal; color: var(--terra); }
   border-color: rgba(232,201,138,.62);
   color: var(--stucco);
   box-shadow: inset 3px 0 0 var(--copper);
+}
+
+.adu-match-option small {
+  color: rgba(240,235,225,.54);
+  display: block;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.28;
+  margin-top: 4px;
+}
+
+.adu-match-option.active small {
+  color: rgba(240,235,225,.78);
 }
 
 .adu-match-nav {
@@ -1410,6 +1442,31 @@ h2 em { font-style: normal; color: var(--terra); }
   flex: 0 0 auto;
   height: 7px;
   width: 7px;
+}
+
+.adu-match-captured {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.adu-match-captured span {
+  background: rgba(31, 84, 91, .2);
+  border: 1px solid rgba(232,201,138,.18);
+  border-radius: 8px;
+  color: rgba(240,235,225,.72);
+  font-size: 11px;
+  line-height: 1.35;
+  padding: 8px;
+}
+
+.adu-match-captured b {
+  color: var(--stucco);
+  display: block;
+  font-size: 10px;
+  letter-spacing: .1em;
+  margin-bottom: 3px;
+  text-transform: uppercase;
 }
 
 .adu-match-compare {
@@ -4482,6 +4539,7 @@ footer {
   }
   .adu-match-options,
   .adu-match-kpis,
+  .adu-match-captured,
   .adu-match-compare,
   .adu-roi-grid,
   .adu-roi-output,
@@ -5821,7 +5879,7 @@ footer {
           <div class="adu-matchmaker-head">
             <div>
               <b>Find your starting model</b>
-              <span>Answer four quick questions. Then customize the recommended ADU in Step 2.</span>
+              <span>Answer six quick questions. The first four pick a model; the last two are saved for your design handoff.</span>
             </div>
           </div>
           <div id="adu-matchmaker-questions"></div>
@@ -6333,8 +6391,10 @@ const ADU_OPTIONS = {
 const ADU_MATCHER_STATE = {
   purpose: 'family',
   lot: 'medium',
+  beds: '1br',
   budget: 2,
-  occupants: 2,
+  priority: 'light',
+  timeline: 'six-months',
   rent: 0,
   payment: 0,
 };
@@ -6342,51 +6402,77 @@ const ADU_MATCHER_STATE = {
 const ADU_MATCHER_QUESTIONS = [
   {
     id: 'purpose',
-    label: 'What is the main reason for the ADU?',
+    label: "What's your ADU for?",
+    scoring: true,
     options: [
-      { value: 'family', label: 'Family / aging parent' },
-      { value: 'rental', label: 'Rental income' },
-      { value: 'office', label: 'Office / hobby space' },
-      { value: 'guest', label: 'Guest house' },
+      { value: 'rental', label: 'Rental income', desc: 'Long or short-term tenants' },
+      { value: 'family', label: 'Family housing', desc: 'Parents, adult kids, multigen living' },
+      { value: 'office', label: 'Home office / studio', desc: 'Work, create, escape' },
+      { value: 'guest', label: 'Guest house', desc: 'Visitors in comfort' },
     ],
   },
   {
     id: 'lot',
-    label: 'How much usable backyard space do you have?',
+    label: 'How much backyard can you spare?',
+    scoring: true,
     options: [
-      { value: 'small', label: 'Cozy lot' },
-      { value: 'medium', label: 'Average ABQ lot' },
-      { value: 'large', label: 'Room to spare' },
+      { value: 'small', label: 'Tight fit', desc: 'Under ~600 sq ft available' },
+      { value: 'medium', label: 'Decent yard', desc: '~600-900 sq ft available' },
+      { value: 'large', label: 'Plenty of room', desc: '900+ sq ft available' },
+    ],
+  },
+  {
+    id: 'beds',
+    label: 'How many bedrooms?',
+    scoring: true,
+    options: [
+      { value: 'studio', label: 'Studio', desc: 'Open plan, maximum efficiency' },
+      { value: '1br', label: '1 bedroom', desc: 'Privacy without the sprawl' },
+      { value: '2br', label: '2 bedrooms', desc: 'Full household capacity' },
     ],
   },
   {
     id: 'budget',
-    label: 'What investment range feels most comfortable?',
+    label: "What's your all-in budget?",
+    scoring: true,
     options: [
-      { value: 1, label: 'Efficient' },
-      { value: 2, label: 'Sweet spot' },
-      { value: 3, label: 'Go bigger' },
+      { value: 1, label: 'Up to $175K', desc: 'Efficient and essential' },
+      { value: 2, label: '$175K - $225K', desc: 'The comfortable middle' },
+      { value: 3, label: '$225K+', desc: 'Go big' },
     ],
   },
   {
-    id: 'occupants',
-    label: 'How many people will use it regularly?',
+    id: 'priority',
+    label: 'What matters most to you?',
+    scoring: false,
     options: [
-      { value: 1, label: 'One' },
-      { value: 2, label: 'Two' },
-      { value: 3, label: 'Three or more' },
+      { value: 'light', label: 'Natural light', desc: 'Big windows, bright spaces' },
+      { value: 'outdoor', label: 'Indoor-outdoor flow', desc: 'Decks, sliders, garden views' },
+      { value: 'finishes', label: 'Premium finishes', desc: 'The details you touch daily' },
+      { value: 'energy', label: 'Energy efficiency', desc: 'Solar-ready, low bills' },
+    ],
+  },
+  {
+    id: 'timeline',
+    label: 'When do you want to break ground?',
+    scoring: false,
+    options: [
+      { value: 'asap', label: 'ASAP', desc: 'Ready when you are' },
+      { value: 'six-months', label: 'Within 6 months', desc: 'Actively planning' },
+      { value: 'twelve-months', label: '6-12 months', desc: 'Doing my homework' },
+      { value: 'exploring', label: 'Just exploring', desc: 'Curious for now' },
     ],
   },
 ];
 
 const ADU_MATCHER_PROFILES = {
-  'hyder-hut': { bestFor: ['guest', 'office', 'rental'], lots: ['small', 'medium', 'large'], budget: 1, people: 1 },
-  'hyder-hut-2br': { bestFor: ['family', 'rental', 'guest'], lots: ['medium', 'large'], budget: 2, people: 3 },
-  'altura-24x24': { bestFor: ['family', 'office', 'guest'], lots: ['medium', 'large'], budget: 2, people: 2 },
-  'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], budget: 3, people: 3 },
-  'casita-portal': { bestFor: ['rental', 'guest', 'office'], lots: ['small', 'medium', 'large'], budget: 1, people: 1 },
-  'tierra-grande': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, people: 3 },
-  'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, people: 3 },
+  'hyder-hut': { bestFor: ['guest', 'office', 'rental'], lots: ['small', 'medium', 'large'], budget: 1, beds: ['studio', '1br'] },
+  'hyder-hut-2br': { bestFor: ['family', 'rental', 'guest'], lots: ['medium', 'large'], budget: 2, beds: ['2br'] },
+  'altura-24x24': { bestFor: ['family', 'office', 'guest'], lots: ['medium', 'large'], budget: 2, beds: ['1br'] },
+  'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], budget: 3, beds: ['1br', '2br'] },
+  'casita-portal': { bestFor: ['rental', 'guest', 'office'], lots: ['small', 'medium', 'large'], budget: 1, beds: ['studio', '1br'] },
+  'tierra-grande': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, beds: ['2br'] },
+  'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], budget: 3, beds: ['2br'] },
 };
 
 const ADU_MATCHER_NEXT_STEPS = [
@@ -6397,12 +6483,12 @@ const ADU_MATCHER_NEXT_STEPS = [
 ];
 
 function scoreAduModel(model) {
-  const profile = ADU_MATCHER_PROFILES[model.id] || { bestFor: [], lots: [], budget: 2, people: 2 };
+  const profile = ADU_MATCHER_PROFILES[model.id] || { bestFor: [], lots: [], budget: 2, beds: [] };
   let score = 0;
   if (profile.bestFor.includes(ADU_MATCHER_STATE.purpose)) score += 40;
   if (profile.lots.includes(ADU_MATCHER_STATE.lot)) score += 25;
   score += Math.max(0, 20 - Math.abs(profile.budget - Number(ADU_MATCHER_STATE.budget)) * 10);
-  score += Math.max(0, 15 - Math.abs(profile.people - Number(ADU_MATCHER_STATE.occupants)) * 7);
+  if (profile.beds.includes(ADU_MATCHER_STATE.beds)) score += 15;
   if (model.id === 'cromwell' && ADU_MATCHER_STATE.lot !== 'large') score -= 25;
   if (model.sqft > 750 && ADU_MATCHER_STATE.purpose !== 'family') score -= 12;
   return Math.max(0, Math.min(100, score));
@@ -6438,16 +6524,51 @@ function getAduMatchReasons(model) {
     office: 'Keeps the footprint efficient for work, studio, or hobby use.',
     guest: 'Works well as a comfortable guest house without overbuilding.',
   };
+  const bedMap = {
+    studio: 'Your bedroom choice favors the smallest, simplest ADU paths.',
+    '1br': 'Your bedroom choice favors a true private bedroom without overbuilding.',
+    '2br': 'Your bedroom choice favors larger ADUs with full household capacity.',
+  };
+  const budgetMap = {
+    1: 'Budget preference favors efficient models around the essential build path.',
+    2: 'Budget preference favors the comfortable middle of the ADU lineup.',
+    3: 'Budget preference allows larger models and more design flexibility.',
+  };
   const reasons = [purposeMap[ADU_MATCHER_STATE.purpose] || 'Matches your stated use case.'];
   if (ADU_MATCHER_STATE.lot === 'small') reasons.push('Respects a smaller yard by favoring compact ADU footprints.');
   if (ADU_MATCHER_STATE.lot === 'large') reasons.push('Uses the larger lot more confidently while still flagging site review.');
+  reasons.push(bedMap[ADU_MATCHER_STATE.beds] || 'Matches your bedroom preference.');
+  reasons.push(budgetMap[ADU_MATCHER_STATE.budget] || 'Matches your budget range.');
   if (model.sqft <= 750) reasons.push('Stays at or below the typical 750 sf homeowner ADU planning max.');
   if (model.sqft > 750) reasons.push('Routes to a larger custom review path because it is above the typical ADU size.');
-  return reasons.slice(0, 3);
+  return reasons.slice(0, 4);
+}
+
+function getAduMatcherOption(questionId) {
+  const question = ADU_MATCHER_QUESTIONS.find(item => item.id === questionId);
+  if (!question) return null;
+  return question.options.find(option => option.value === ADU_MATCHER_STATE[questionId]) || null;
+}
+
+function getAduMatcherLabel(questionId) {
+  const option = getAduMatcherOption(questionId);
+  if (!option) return '';
+  return option.desc ? `${option.label} - ${option.desc}` : option.label;
+}
+
+function getAduMatcherSnapshot() {
+  return {
+    purpose: getAduMatcherLabel('purpose'),
+    lot: getAduMatcherLabel('lot'),
+    beds: getAduMatcherLabel('beds'),
+    budget: getAduMatcherLabel('budget'),
+    priority: getAduMatcherLabel('priority'),
+    timeline: getAduMatcherLabel('timeline'),
+  };
 }
 
 function chooseAduMatcherValue(questionId, value) {
-  const normalized = ['budget', 'occupants'].includes(questionId) ? Number(value) : value;
+  const normalized = ['budget'].includes(questionId) ? Number(value) : value;
   ADU_MATCHER_STATE[questionId] = normalized;
   ADU_MATCHER_STATE.rent = 0;
   ADU_MATCHER_STATE.payment = 0;
@@ -6463,13 +6584,17 @@ function renderAduMatcher() {
   const questionsHost = document.getElementById('adu-matchmaker-questions');
   const resultHost = document.getElementById('adu-matchmaker-result');
   if (!questionsHost || !resultHost) return;
-  questionsHost.innerHTML = ADU_MATCHER_QUESTIONS.map(question => `
+  questionsHost.innerHTML = ADU_MATCHER_QUESTIONS.map((question, index) => `
     <div class="adu-match-question">
-      <strong>${question.label}</strong>
+      <div class="adu-match-question-label">
+        <strong>${index + 1}. ${question.label}</strong>
+        <span>${question.scoring ? 'Used for match' : 'Saved note'}</span>
+      </div>
       <div class="adu-match-options">
         ${question.options.map(option => `
           <button class="adu-match-option ${ADU_MATCHER_STATE[question.id] === option.value ? 'active' : ''}" type="button" onclick="chooseAduMatcherValue('${question.id}', '${option.value}')">
             ${option.label}
+            ${option.desc ? `<small>${option.desc}</small>` : ''}
           </button>
         `).join('')}
       </div>
@@ -6478,6 +6603,11 @@ function renderAduMatcher() {
   const matches = getMatchedAduModels();
   const match = matches[0];
   if (!match) return;
+  const preview = document.getElementById('adu-matchmaker-preview');
+  if (preview) {
+    preview.src = match.model.image || preview.src;
+    preview.alt = `${match.model.label} preview for the guided homeowner ADU match`;
+  }
   const rent = ADU_MATCHER_STATE.rent || getDefaultRent(match.model);
   const payment = ADU_MATCHER_STATE.payment || getDefaultPayment(match.model);
   const expenses = Math.round(rent * .22);
@@ -6485,6 +6615,7 @@ function renderAduMatcher() {
   const annualCashFlow = cashFlow * 12;
   const payback = annualCashFlow > 0 ? `${Math.ceil(match.model.price / annualCashFlow)} yrs` : 'Lender review';
   const alternatives = matches.slice(0, 3);
+  const matcherSnapshot = getAduMatcherSnapshot();
   resultHost.innerHTML = `
     <div class="adu-match-result-top">
       <div>
@@ -6500,6 +6631,10 @@ function renderAduMatcher() {
     </div>
     <div class="adu-match-why">
       ${getAduMatchReasons(match.model).map(reason => `<span>${reason}</span>`).join('')}
+    </div>
+    <div class="adu-match-captured" aria-label="Saved preference signals">
+      <span><b>Preference saved</b>${matcherSnapshot.priority}</span>
+      <span><b>Timeline saved</b>${matcherSnapshot.timeline}</span>
     </div>
     <div class="adu-match-compare" aria-label="Top model comparisons">
       ${alternatives.map(item => `
@@ -7079,13 +7214,14 @@ function buildDesignSummary() {
   const estimate = getAduEstimate({ model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   const form = document.getElementById('design-contact-form');
   const data = form ? new FormData(form) : new FormData();
+  const matcher = getAduMatcherSnapshot();
   return {
     name: data.get('name') || 'Homeowner',
     email: data.get('email') || '',
     phone: data.get('phone') || '',
     bestTime: data.get('bestTime') || '',
     address: data.get('address') || '',
-    model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue, estimate,
+    model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue, estimate, matcher,
   };
 }
 
@@ -7100,14 +7236,18 @@ function renderDesignResult(summary) {
       <div class="design-result-box"><b>${summary.windows.label}</b><span>Door and window package</span></div>
       <div class="design-result-box"><b>${summary.interior.label}</b><span>Interior finish</span></div>
       <div class="design-result-box"><b>${summary.utilities.label}</b><span>Utility review</span></div>
+      <div class="design-result-box"><b>${summary.matcher?.purpose || 'Purpose saved'}</b><span>Why the homeowner wants the ADU</span></div>
+      <div class="design-result-box"><b>${summary.matcher?.timeline || 'Timeline saved'}</b><span>Sales follow-up timing</span></div>
     </div>
     <p style="color:rgba(28,25,23,.72);line-height:1.55;">
       Contact: <b>${summary.name}</b>${summary.email ? ` · ${summary.email}` : ''}${summary.phone ? ` · ${summary.phone}` : ''}${summary.bestTime ? ` · best time: ${summary.bestTime}` : ''}<br>
+      Match answers: ${summary.matcher?.purpose || 'Purpose not captured'} · ${summary.matcher?.lot || 'Lot not captured'} · ${summary.matcher?.beds || 'Beds not captured'} · ${summary.matcher?.budget || 'Budget not captured'}<br>
+      Saved preference: ${summary.matcher?.priority || 'Preference not captured'} · ${summary.matcher?.timeline || 'Timeline not captured'}<br>
       ABQ ADU · Albuquerque, New Mexico · abqadu.com<br>
       This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24 hours of the customer call. Site utilities, extra meter needs, sewer confirmation study, setbacks, permitting, and engineering review can affect final price and schedule.
     </p>
   `;
-  const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}${summary.address ? ', property ' + summary.address : ''}.`;
+  const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Match answers: ${summary.matcher?.purpose || ''}; ${summary.matcher?.lot || ''}; ${summary.matcher?.beds || ''}; ${summary.matcher?.budget || ''}. Preference: ${summary.matcher?.priority || ''}. Timeline: ${summary.matcher?.timeline || ''}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}${summary.address ? ', property ' + summary.address : ''}.`;
   const encoded = encodeURIComponent(text);
   const builderLink = document.getElementById('design-builder-link');
   if (builderLink) builderLink.href = `platform.html#design?concept=${encoded}`;
@@ -7173,6 +7313,7 @@ function buildDesignPayload(summary) {
       utilities: summary.utilities.label,
       revenue: summary.revenue.label,
     },
+    matcher: summary.matcher || getAduMatcherSnapshot(),
     text: summary.text || '',
   };
 }
