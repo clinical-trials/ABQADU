@@ -1153,10 +1153,37 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .design-entry-stage {
-  align-items: stretch;
+  align-items: start;
   display: grid;
   gap: 22px;
-  grid-template-columns: minmax(0, .92fr) minmax(320px, 1.08fr);
+  grid-template-columns: minmax(0, 1.12fr) minmax(300px, .88fr);
+}
+
+.adu-match-brand {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.adu-match-icon {
+  align-items: center;
+  background: linear-gradient(135deg, #2adcf2, #6964ff);
+  border-radius: 14px;
+  color: #fff;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 24px;
+  height: 52px;
+  justify-content: center;
+  width: 52px;
+}
+
+.adu-match-step-note {
+  color: rgba(184,197,220,.72);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
 .adu-matchmaker {
@@ -1171,7 +1198,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .adu-matchmaker-head {
-  align-items: flex-start;
+  align-items: center;
   display: flex;
   gap: 12px;
   justify-content: space-between;
@@ -1188,11 +1215,11 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .adu-matchmaker-head span {
-  color: rgba(240,235,225,.58);
+  color: rgba(184,197,220,.68);
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .adu-match-progress {
@@ -5955,31 +5982,35 @@ footer {
 <section id="design" style="max-width:100%;padding:96px var(--gutter);background:var(--blueprint);">
   <div class="section-inner" style="max-width:var(--max);margin:0 auto;">
 
-    <div style="text-align:center;margin-bottom:56px;">
-      <div style="display:inline-block;background:rgba(196,149,74,.15);border:1px solid rgba(196,149,74,.4);color:var(--copper);font-family:var(--font-display);font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:6px 16px;border-radius:4px;margin-bottom:20px;">
-        Client Design Studio
+    <div style="text-align:center;margin-bottom:46px;">
+      <div style="display:inline-block;background:rgba(42,220,242,.12);border:1px solid rgba(42,220,242,.38);color:#2adcf2;font-family:var(--font-display);font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:6px 16px;border-radius:999px;margin-bottom:20px;">
+        Homeowner Match Tool
       </div>
       <h2 style="font-family:var(--font-display);font-size:clamp(36px,5vw,56px);font-weight:900;color:var(--stucco);letter-spacing:.01em;line-height:1.05;margin-bottom:20px;">
-        Design Your ADU<br><span style="color:var(--copper);">Before You Build</span>
+        ADU Match Wizard<br><span style="color:#2adcf2;">Pick the Right Model First</span>
       </h2>
       <p style="font-size:17px;color:rgba(240,235,225,.65);max-width:580px;margin:0 auto;">
-        Choose from our 7 proven ADU models, customize the floor plan, and get an instant cost estimate — all before we ever break ground.
+        Answer one plain-language question at a time. We recommend the best starting model from your yard, budget, bedroom needs, and use case before customization begins.
       </p>
     </div>
 
     <div class="design-entry-stage">
       <div class="design-entry-card">
-        <div class="design-launch-kicker">Guided ADU shopping experience</div>
-        <h3>Answer simple questions. See the ADU take shape.</h3>
+        <div class="design-launch-kicker">Step-by-step decision tool</div>
+        <h3>Match first.<br>Customize second.</h3>
         <p>
-          No contractor jargon. We ask plain homeowner questions, show picture choices, and help families find the ADU that fits their yard, budget, and future plans.
+          This is the homeowner decision path. Budget, backyard space, bedrooms, and intended use drive the recommendation; finishes, light, timeline, and comfort guide the next customization step.
         </p>
         <div class="adu-matchmaker" id="adu-matchmaker" aria-label="ADU model recommendation quiz">
           <div class="adu-matchmaker-head">
-            <div>
-              <b>Find your starting model</b>
-              <span>Answer six quick questions. The first four pick a model; the last two are saved for your design handoff.</span>
+            <div class="adu-match-brand">
+              <span class="adu-match-icon" aria-hidden="true">⌂</span>
+              <div>
+                <b>ADU Match Wizard</b>
+                <span>One question per screen. Step 7 explains the recommended model and why it fits.</span>
+              </div>
             </div>
+            <div class="adu-match-step-note">Version 6</div>
           </div>
           <div id="adu-matchmaker-questions"></div>
           <div class="adu-match-result" id="adu-matchmaker-result"></div>
@@ -5991,6 +6022,9 @@ footer {
       </div>
       <div class="design-entry-preview">
         <img id="adu-matchmaker-preview" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Netherwood House exterior finishes preview for the guided homeowner ADU design studio" loading="lazy">
+        <div style="padding:14px 16px;border-top:1px solid rgba(42,220,242,.18);background:rgba(5,12,31,.86);color:rgba(240,235,225,.74);font-size:13px;line-height:1.45;">
+          Live model preview updates after the recommendation. Custom colors, doors, windows, and finish upgrades come after the homeowner picks the right starting model.
+        </div>
       </div>
     </div>
 
