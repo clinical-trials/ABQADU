@@ -4795,6 +4795,44 @@ footer {
   .adu-match-result-top {
     display: grid;
   }
+  .adu-match-result {
+    gap: 12px;
+    padding: 12px;
+  }
+  .adu-match-score {
+    justify-self: start;
+    width: max-content;
+  }
+  .adu-match-model-sheet {
+    border-radius: 10px;
+    margin-left: -2px;
+    margin-right: -2px;
+    padding: 8px;
+  }
+  .adu-match-model-sheet img {
+    aspect-ratio: 4 / 3;
+    max-height: 58svh;
+  }
+  .adu-match-sheet-label {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.25;
+  }
+  .adu-match-report-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .adu-match-report-actions button,
+  .adu-match-report-actions a {
+    min-height: 48px;
+    width: 100%;
+  }
+  .adu-match-rec-title {
+    align-items: flex-start;
+    display: grid;
+    gap: 4px;
+  }
   .adu-match-options,
   .adu-match-kpis,
   .adu-match-captured,
@@ -4920,6 +4958,53 @@ footer {
   .design-tool-chip-grid { grid-template-columns: 1fr; }
   .design-modal-header { gap: 10px; }
   .design-modal-subtitle { display: none; }
+  .adu-matchmaker {
+    border-radius: 10px;
+    margin-left: -6px;
+    margin-right: -6px;
+    padding: 10px;
+  }
+  .adu-match-brand {
+    min-width: 0;
+  }
+  .adu-match-brand b {
+    font-size: 15px;
+    line-height: 1.1;
+  }
+  .adu-match-step-note {
+    font-size: 10px;
+    justify-self: start;
+  }
+  .adu-match-progress {
+    gap: 6px;
+  }
+  .adu-match-progress span {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .adu-match-question {
+    gap: 12px;
+    padding: 10px 0 0;
+  }
+  .adu-match-question-label strong {
+    font-size: 24px;
+    line-height: 1.05;
+  }
+  .adu-match-option {
+    min-height: 62px;
+    padding: 13px 40px 13px 13px;
+  }
+  .adu-match-option small {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .adu-match-nav {
+    grid-template-columns: 1fr;
+  }
+  .adu-match-nav button {
+    min-height: 48px;
+    width: 100%;
+  }
   .design-step-strip { grid-template-columns: repeat(7, minmax(104px, 1fr)); }
   .design-step-card { min-height: 44px; }
   .wizard-bottom-row > div:first-child { grid-template-columns: 1fr; }
@@ -6569,7 +6654,7 @@ footer {
       <button class="text" type="button" onclick="textDesignSummary()">Text Me a Copy</button>
       <button class="email" type="button" onclick="emailDesignSummary()">Email Summary</button>
       <button class="builder-text" type="button" onclick="textBuilderDesignSummary()">Text Builder Copy</button>
-      <a class="builder" id="design-builder-link" href="platform.html#design" target="_blank" rel="noopener">Builder Review</a>
+      <a class="builder" id="design-builder-link" href="platform.html#bids" target="_blank" rel="noopener">Builder Review</a>
     </div>
   </div>
 </div>
@@ -7669,7 +7754,7 @@ function renderDesignResult(summary) {
   const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Recommendation ${summary.recommendation?.score || 'review'}% fit. Signals: ${signalText}. Match answers: ${summary.matcher?.purpose || ''}; ${summary.matcher?.lot || ''}; ${summary.matcher?.beds || ''}; ${summary.matcher?.budget || ''}. Preference: ${summary.matcher?.priority || ''}. Timeline: ${summary.matcher?.timeline || ''}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}${summary.address ? ', property ' + summary.address : ''}.`;
   const encoded = encodeURIComponent(text);
   const builderLink = document.getElementById('design-builder-link');
-  if (builderLink) builderLink.href = `platform.html#design?concept=${encoded}`;
+  if (builderLink) builderLink.href = `platform.html#bids?concept=${encoded}`;
   window.ABQ_ADU_LAST_DESIGN_SUMMARY = { ...summary, text };
 }
 
