@@ -7173,9 +7173,155 @@ function buildAduMatchEmailHref(model, alternatives, matcherSnapshot) {
   return `mailto:?subject=${subject}&body=${body}`;
 }
 
+function reportEscape(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char]));
+}
+
+function buildHomeownerReportShell(title, bodyHtml) {
+  const baseHref = new URL('.', window.location.href).href;
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="${reportEscape(baseHref)}">
+  <title>${reportEscape(title)}</title>
+  <style>
+    :root{color-scheme:light;--ink:#1C1917;--muted:#6B625A;--blue:#0F1F3D;--copper:#C4954A;--paper:#FBF7EF;--line:#D8C8AD}
+    *{box-sizing:border-box}
+    body{background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif;margin:0;padding:28px}
+    .report{margin:0 auto;max-width:8.2in}
+    .report-head{align-items:flex-start;border-bottom:3px solid var(--blue);display:flex;gap:18px;justify-content:space-between;margin-bottom:18px;padding-bottom:14px}
+    .brand{font-size:28px;font-weight:900;letter-spacing:.05em;line-height:1;text-transform:uppercase}
+    .brand span{color:var(--copper)}
+    .meta{color:var(--muted);font-size:12px;line-height:1.45;text-align:right}
+    h1{color:var(--blue);font-size:26px;line-height:1.05;margin:0 0 8px}
+    h2{color:var(--blue);font-size:16px;margin:18px 0 8px;text-transform:uppercase}
+    p{font-size:13px;line-height:1.5;margin:0 0 10px}
+    .hero{background:var(--paper);border:1px solid var(--line);border-radius:12px;margin:12px 0 16px;padding:14px}
+    .hero-grid{display:grid;gap:14px;grid-template-columns:1fr 1.1fr}
+    .hero img{background:#f7f0e2;border-radius:10px;display:block;max-height:4.8in;object-fit:contain;width:100%}
+    .kpis{display:grid;gap:8px;grid-template-columns:repeat(3,1fr);margin:12px 0}
+    .kpi{border:1px solid var(--line);border-radius:9px;padding:10px}
+    .kpi b{color:var(--blue);display:block;font-size:18px;line-height:1.1}
+    .kpi span{color:var(--muted);display:block;font-size:10px;font-weight:800;letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
+    .cards{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+    .card{border:1px solid var(--line);border-radius:9px;padding:10px}
+    .card b{color:var(--blue);display:block;font-size:14px;margin-bottom:3px}
+    .card span,.card p{color:var(--muted);font-size:12px;line-height:1.45}
+    ul{margin:8px 0 0;padding-left:18px}
+    li{font-size:12px;line-height:1.45;margin:3px 0}
+    .note{background:#FFF8EA;border-left:4px solid var(--copper);border-radius:8px;color:#4B3B2A;font-size:12px;line-height:1.5;margin-top:14px;padding:10px}
+    .actions{display:flex;gap:8px;margin:18px 0 0}
+    .actions button{background:var(--blue);border:0;border-radius:999px;color:#fff;cursor:pointer;font-weight:900;min-height:42px;padding:10px 16px}
+    @media(max-width:720px){body{padding:16px}.report-head,.hero-grid{display:block}.meta{text-align:left;margin-top:10px}.kpis,.cards{grid-template-columns:1fr}.hero img{max-height:none}}
+    @media print{body{padding:0}.report{max-width:none}.actions{display:none}.hero,.card,.kpi{break-inside:avoid}a{color:inherit;text-decoration:none}}
+  </style>
+</head>
+<body>
+  <main class="report">
+    <div class="report-head">
+      <div class="brand">ABQ <span>ADU</span></div>
+      <div class="meta">Albuquerque, New Mexico<br>505-977-7659<br>abqadu.com</div>
+    </div>
+    ${bodyHtml}
+    <div class="actions"><button type="button" onclick="window.print()">Print / Save PDF</button></div>
+  </main>
+  <script>
+    function readyToPrint(){
+      setTimeout(function(){ window.focus(); window.print(); }, 350);
+    }
+    var imgs = Array.prototype.slice.call(document.images || []);
+    if (!imgs.length) readyToPrint();
+    else Promise.all(imgs.map(function(img){
+      if (img.complete) return Promise.resolve();
+      return new Promise(function(resolve){ img.onload = resolve; img.onerror = resolve; });
+    })).then(readyToPrint);
+  <\/script>
+</body>
+</html>`;
+}
+
+function openHomeownerPrintReport(title, bodyHtml) {
+  const printWindow = window.open('', '_blank');
+  if (!printWindow || !printWindow.document) return false;
+  printWindow.document.open();
+  printWindow.document.write(buildHomeownerReportShell(title, bodyHtml));
+  printWindow.document.close();
+  return true;
+}
+
+function buildAduMatchReportHtml() {
+  const matches = getMatchedAduModels();
+  const match = matches[0];
+  if (!match) return '';
+  const alternatives = matches.slice(0, 2);
+  const matcherSnapshot = getAduMatcherSnapshot();
+  const reasons = getAduMatchReasons(match.model);
+  const guidance = getAduMatchGuidance(match);
+  return `
+    <h1>Your ABQ ADU Recommendation</h1>
+    <p>This quick homeowner report summarizes the best starting model from the ADU match wizard. It is a planning recommendation, not a final construction bid.</p>
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <h2>Recommended Starting Model</h2>
+          <div class="kpis">
+            <div class="kpi"><b>${reportEscape(match.model.label)}</b><span>Model</span></div>
+            <div class="kpi"><b>${reportEscape(match.model.sqft)} sf</b><span>Size</span></div>
+            <div class="kpi"><b>${reportEscape(moneyShort(match.model.price))}</b><span>Starting estimate</span></div>
+          </div>
+          <p><b>${reportEscape(match.model.beds)} / ${reportEscape(match.model.baths)}</b> · ${reportEscape(match.model.use)}</p>
+          <p>${reportEscape(match.model.detail)}</p>
+        </div>
+        <img src="${reportEscape(match.model.image)}" alt="${reportEscape(match.model.label)} design sheet">
+      </div>
+    </section>
+    <section>
+      <h2>Why This May Fit</h2>
+      <ul>${reasons.map(reason => `<li>${reportEscape(reason)}</li>`).join('')}</ul>
+    </section>
+    <section>
+      <h2>Top Options</h2>
+      <div class="cards">
+        ${alternatives.map((item, index) => `
+          <div class="card">
+            <b>${index === 0 ? 'Best fit: ' : 'Also consider: '}${reportEscape(item.model.label)}</b>
+            <span>${reportEscape(item.model.sqft)} sf · ${reportEscape(item.model.beds)} / ${reportEscape(item.model.baths)} · starts around ${reportEscape(moneyShort(item.model.price))}</span>
+            <p>${reportEscape(item.model.use)}</p>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+    <section>
+      <h2>Homeowner Answers</h2>
+      <div class="cards">
+        <div class="card"><b>Purpose</b><span>${reportEscape(matcherSnapshot.purpose)}</span></div>
+        <div class="card"><b>Backyard fit</b><span>${reportEscape(matcherSnapshot.lot)}</span></div>
+        <div class="card"><b>Bedrooms</b><span>${reportEscape(matcherSnapshot.beds)}</span></div>
+        <div class="card"><b>Budget</b><span>${reportEscape(matcherSnapshot.budget)}</span></div>
+        <div class="card"><b>Priority</b><span>${reportEscape(matcherSnapshot.priority)}</span></div>
+        <div class="card"><b>Timeline</b><span>${reportEscape(matcherSnapshot.timeline)}</span></div>
+      </div>
+    </section>
+    <section>
+      <h2>Next Step</h2>
+      <ul>${guidance.map(item => `<li>${reportEscape(item)}</li>`).join('')}</ul>
+      <div class="note">Call ABQ ADU at 505-977-7659 to schedule a free site visit. The builder will verify setbacks, utilities, electric, sewer confirmation, and final model fit on the actual property.</div>
+    </section>`;
+}
+
 function printAduMatchReport() {
+  const html = buildAduMatchReportHtml();
+  if (html && openHomeownerPrintReport('ABQ ADU Recommendation Report', html)) return;
   document.body.classList.add('adu-match-report-print');
-  window.print();
+  window.setTimeout(() => window.print(), 50);
 }
 
 function setAduMatcherStep(step) {
@@ -7784,9 +7930,84 @@ function closeDesignResult() {
   document.body.classList.remove('design-summary-print');
 }
 
+function buildDesignSummaryReportHtml(summary) {
+  const signals = summary.recommendation?.signals || [];
+  const selectedOptions = [
+    ['Model', `${summary.model.label} · ${summary.model.sqft} sf · ${summary.model.beds} / ${summary.model.baths}`],
+    ['Exterior finish', summary.siding.label],
+    ['Color story', summary.color.label],
+    ['Roof', summary.roof.label],
+    ['Doors and windows', summary.windows.label],
+    ['Orientation', summary.orientation.label],
+    ['Outdoor space', summary.outdoor.label],
+    ['Interior', summary.interior.label],
+    ['Kitchen', summary.kitchen.label],
+    ['Bath', summary.bath.label],
+    ['Utilities', summary.utilities.label],
+    ['Use case', summary.revenue.label],
+  ];
+  return `
+    <h1>Your ABQ ADU Design Summary</h1>
+    <p>This quick homeowner report captures the model and design choices selected in the ABQ ADU tool. It is a planning summary, not a final construction bid.</p>
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <h2>Selected ADU Concept</h2>
+          <div class="kpis">
+            <div class="kpi"><b>${reportEscape(summary.model.label)}</b><span>Model</span></div>
+            <div class="kpi"><b>${reportEscape(summary.model.sqft)} sf</b><span>Size</span></div>
+            <div class="kpi"><b>${reportEscape(moneyShort(summary.estimate))}</b><span>Planning estimate</span></div>
+          </div>
+          <p>${reportEscape(summary.model.detail)}</p>
+        </div>
+        <img src="${reportEscape(summary.model.image)}" alt="${reportEscape(summary.model.label)} design sheet">
+      </div>
+    </section>
+    <section>
+      <h2>Selected Choices</h2>
+      <div class="cards">
+        ${selectedOptions.map(([label, value]) => `
+          <div class="card"><b>${reportEscape(label)}</b><span>${reportEscape(value)}</span></div>
+        `).join('')}
+      </div>
+    </section>
+    <section>
+      <h2>Homeowner Match Context</h2>
+      <div class="cards">
+        <div class="card"><b>Purpose</b><span>${reportEscape(summary.matcher?.purpose || 'Not captured')}</span></div>
+        <div class="card"><b>Backyard fit</b><span>${reportEscape(summary.matcher?.lot || 'Not captured')}</span></div>
+        <div class="card"><b>Bedrooms</b><span>${reportEscape(summary.matcher?.beds || 'Not captured')}</span></div>
+        <div class="card"><b>Budget</b><span>${reportEscape(summary.matcher?.budget || 'Not captured')}</span></div>
+        <div class="card"><b>Priority</b><span>${reportEscape(summary.matcher?.priority || 'Not captured')}</span></div>
+        <div class="card"><b>Timeline</b><span>${reportEscape(summary.matcher?.timeline || 'Not captured')}</span></div>
+      </div>
+    </section>
+    ${signals.length ? `
+      <section>
+        <h2>Recommendation Signals</h2>
+        <div class="cards">
+          ${signals.map(signal => `<div class="card"><b>${reportEscape(signal.label)}</b><span>${reportEscape(signal.copy)}</span></div>`).join('')}
+        </div>
+      </section>
+    ` : ''}
+    <section>
+      <h2>Contact</h2>
+      <div class="cards">
+        <div class="card"><b>Name</b><span>${reportEscape(summary.name || 'Homeowner')}</span></div>
+        <div class="card"><b>Email</b><span>${reportEscape(summary.email || 'Not provided')}</span></div>
+        <div class="card"><b>Phone</b><span>${reportEscape(summary.phone || 'Not provided')}</span></div>
+        <div class="card"><b>Best time</b><span>${reportEscape(summary.bestTime || 'Not provided')}</span></div>
+        <div class="card"><b>Property</b><span>${reportEscape(summary.address || 'Not provided')}</span></div>
+      </div>
+      <div class="note">ABQ ADU targets a site visit within 24 hours of the customer call. Final price and schedule depend on setbacks, utility review, electrical capacity or extra meter needs, sewer confirmation, permitting, and any engineering review.</div>
+    </section>`;
+}
+
 function printDesignSummary() {
+  const summary = window.ABQ_ADU_LAST_DESIGN_SUMMARY || buildDesignSummary();
+  if (openHomeownerPrintReport('ABQ ADU Design Summary', buildDesignSummaryReportHtml(summary))) return;
   document.body.classList.add('design-summary-print');
-  window.print();
+  window.setTimeout(() => window.print(), 50);
 }
 
 function emailDesignSummary() {
