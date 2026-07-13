@@ -585,7 +585,6 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <button class="tab active" data-tab="bids">Bids &amp; Invoicing</button>
     <button class="tab" data-tab="schedule">Schedule &amp; Critical Path</button>
     <button class="tab" data-tab="controls">Project Controls</button>
-    <button class="tab" data-tab="design">Design Studio</button>
     <button class="tab" data-tab="blueprint">Blueprint Bidout</button>
     <button class="tab" data-tab="ai">Project Helper</button>
   </nav>
@@ -1031,55 +1030,6 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         </table>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ════════ DESIGN STUDIO ════════ -->
-<section class="panel" id="tab-design">
-  <div class="panel-head"><h2>Design Studio</h2><span class="facing-chip homeowner">Homeowner-facing</span><span class="muted">Phase 3 · client-facing</span></div>
-  <p class="panel-sub">Design your ADU in three steps — with no surprises about what changes the price.</p>
-
-  <div class="bid-flow no-print" style="margin-bottom:12px">
-    <div class="bid-flow-step"><b>1. Pick a starting point</b><span>Choose a model — that sets your starting price.</span></div>
-    <div class="bid-flow-step"><b>2. Make it yours</b><span>Every room button shows what it adds before you click. The price picture updates with each change.</span></div>
-    <div class="bid-flow-step"><b>3. Save &amp; request pricing</b><span>Save design drafts, compare them, and request a firm quote — confirmed within 24 hours.</span></div>
-  </div>
-
-  <div class="gantt-toolbar no-print">
-    <span class="muted" style="font-size:12px">Template:</span>
-    <select class="in" id="tpl-select" style="width:auto" onchange="loadTemplate(this.value)">
-      <option value="blank">Blank canvas</option>
-      <option value="hyder-hut">Netherwood House — 440 sf</option>
-      <option value="hyder-hut-2br">Netherwood House 2BR — 550 sf</option>
-      <option value="altura">Altura — 576 sf</option>
-      <option value="series-750">750 Series — 750 sf</option>
-      <option value="casita" selected>Bryn Mawr — 440 sf</option>
-      <option value="tierra">Tierra Grande — 780 sf custom review</option>
-    </select>
-    <span style="margin-left:auto" class="dchip" id="d-total">0 sf</span>
-  </div>
-
-  <div class="design-wrap">
-    <div class="palette" id="palette"><div class="ph">Rooms</div></div>
-    <div id="design-canvas-host"></div>
-    <div class="dprops">
-      <div class="ph">Your Price Picture</div>
-      <div id="d-ledger"></div>
-      <details style="margin-top:8px"><summary style="cursor:pointer;font-size:11px;color:#8090a8">Full cost detail</summary><div id="d-bom"></div></details>
-      <div class="ph" style="margin-top:10px">ABQ Zoning Check</div>
-      <div id="d-zoning" style="font-size:11px;display:flex;flex-direction:column;gap:4px"></div>
-    </div>
-  </div>
-  <p class="muted" style="font-size:12px;margin-top:8px">Click a room type, then click the canvas to place it. Drag to move (snaps to grid). Click a placed room and use <b>Remove selected room</b> (or the Delete key).</p>
-
-  <div class="card no-print" style="margin-top:14px">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <h3 style="font-size:16px">My Saved Designs</h3>
-      <span class="muted" style="font-size:12px">Drafts save on this device — pick up right where you left off.</span>
-      <button class="btn copper sm" style="margin-left:auto" onclick="saveDesignDraft()">Save current design</button>
-      <button class="btn ghost sm" onclick="removeSelected()">Remove selected room</button>
-    </div>
-    <div id="design-drafts" style="margin-top:10px"></div>
   </div>
 </section>
 
