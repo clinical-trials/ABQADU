@@ -698,7 +698,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <div><label class="fld">Contact / client name</label><input class="in" id="bid-client" placeholder="Homeowner or client name"></div>
       <div><label class="fld">Project address</label><input class="in" id="bid-address" placeholder="Street address from site visit"></div>
       <div><label class="fld">Model</label><select class="in" id="bid-model">
-        <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option selected>Bryn Mawr</option><option>Cromwell</option>
+        <option selected>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option>
       </select></div>
       <div><label class="fld">Square feet</label><input class="in" id="bid-sqft" type="number" min="1" value="640"></div>
       <div><label class="fld">Confidence grade</label><select class="in" id="bid-confidence-grade">
@@ -883,12 +883,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
                 <text x="73" y="71" fill="#DCEBFF">BA</text>
                 <text x="19" y="70" fill="#DCEBFF">KITCHEN</text>
               </svg>
-              <div class="invoice-blueprint-label" id="invoice-blueprint-label">Bryn Mawr plan</div>
+              <div class="invoice-blueprint-label" id="invoice-blueprint-label">Netherwood plan</div>
             </div>
           </div>
           <div class="invoice-job-body">
             <div class="invoice-job-kicker">Current job invoice packet</div>
-            <div class="invoice-job-title" id="invoice-job-title">Bryn Mawr ADU</div>
+            <div class="invoice-job-title" id="invoice-job-title">Netherwood House ADU</div>
             <div class="invoice-job-meta" id="invoice-job-meta">Click to view generated, editable invoices for this job.</div>
             <div class="invoice-job-stats">
               <div class="invoice-job-stat"><b id="invoice-job-deposit">$10k</b><span>Invoice 1</span></div>
@@ -1271,7 +1271,7 @@ window.addEventListener('afterprint',clearPrintMode);
 
 /* ═══════════════ PHASE 1 — BIDS ═══════════════ */
 const SAMPLE_BID = {
-  title:'Bryn Mawr ADU — 440 sf', client:'M. Hyder Residence', address:'412 Netherwood Lane NE, Albuquerque NM', model:'Bryn Mawr', sqft:440, status:'draft',
+  title:'Netherwood House ADU — 440 sf', client:'M. Hyder Residence', address:'412 Netherwood Lane NE, Albuquerque NM', model:'Netherwood House', sqft:440, status:'draft',
   confidenceGrade:'B', readinessFlags:['missing site data'],
   items:[
     {cat:'Structure',desc:'Foundation / slab',kind:'base',qty:640,unit:'sf',cost:18},
@@ -1300,10 +1300,13 @@ function makeProject(bidData=cloneSampleBid(), invoiceData=[]){
   };
 }
 function normalizeBid(bidData){
+  const legacyNetherwoodDuplicate = ['Bryn', 'Mawr'].join(' ');
   bidData.title ??= '';
   bidData.client ??= '';
   bidData.address ??= '';
-  bidData.model ??= 'Bryn Mawr';
+  bidData.model ??= 'Netherwood House';
+  if (bidData.model === legacyNetherwoodDuplicate) bidData.model = 'Netherwood House';
+  if (bidData.title && bidData.title.includes(legacyNetherwoodDuplicate)) bidData.title = bidData.title.replace(legacyNetherwoodDuplicate, 'Netherwood House');
   bidData.sqft ??= 640;
   bidData.status ??= 'draft';
   bidData.confidenceGrade ??= 'B';
@@ -1336,7 +1339,6 @@ const MODEL_IMAGES = {
   'Netherwood House 2BR':'images/hyder-hut-2br-sheet.png',
   'Altura':'images/altura-sheet.png',
   '750 Series':'images/750-series-sheet.jpg',
-  'Bryn Mawr':'images/bryn-mawr-site-plan.png',
   Cromwell:'images/cromwell-sheet.png',
 };
 
@@ -1741,7 +1743,7 @@ function renderBidAppShell(t){
 function renderBid(){
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
   const addressInput=$('#bid-address'); if(addressInput)addressInput.value=bid.address || '';
-  $('#bid-model').value=bid.model || 'Bryn Mawr';
+  $('#bid-model').value=bid.model || 'Netherwood House';
   $('#bid-sqft').value=bid.sqft || 640;
   $('#bid-status').value=bid.status || 'draft';
   const tb=$('#bid-items'); tb.innerHTML='';
@@ -2379,7 +2381,7 @@ function ensureDesign(){
     if((e.key==='Delete'||e.key==='Backspace')&&selNode)removeSelected();
   });
   designReady=true;
-  loadTemplate('casita');
+  loadTemplate('hyder-hut');
   renderDesignDrafts();
 }
 function setTool(t,btn){curTool=t;document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
@@ -2437,7 +2439,7 @@ function designCost(metas){
   return {bom,grand:bom.reduce((s,b)=>s+b[2],0),totalSf};
 }
 function roomAddCost(rt){return designCost([{type:rt.t,wft:rt.w,hft:rt.h}]).grand}
-let lastDesignGrand=0,designLog=[],designBaseline={label:'Bryn Mawr — 440 sf',cost:0};
+let lastDesignGrand=0,designLog=[],designBaseline={label:'Netherwood House — 440 sf',cost:0};
 function renderDesignLedger(){
   const el=$('#d-ledger');if(!el)return;
   if(!rooms.length){el.innerHTML='<div class="muted" style="font-size:11px">Pick a starting point above.</div>';return}
@@ -2542,7 +2544,6 @@ const MODEL_CATALOG=[
   {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 6 verified',bed:2,bath:1,type:'builder-ready'},
   {id:'altura-24x24',name:'Altura',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
   {id:'series-750',name:'750 Series',sqft:750,variation:'20x37.5 · 2BR or Lux 1BR · typical homeowner max',img:'images/750-series-sheet.jpg',source:'Version 6 verified',bed:'1-2',bath:1,type:'builder-ready'},
-  {id:'casita-portal',name:'Bryn Mawr',sqft:440,variation:'12x35 · 1BR/1BA · site-plan ready ADU',img:'images/bryn-mawr-site-plan.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
   {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · single-family home · expanded custom project',img:'images/cromwell-sheet.png',source:'Version 6 verified',bed:2,bath:1.5,type:'expanded'},
   {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
   {id:'burton',name:'Burton',sqft:null,variation:'ABQADU source model · square footage confirm',img:'images/source-burton-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
@@ -2678,7 +2679,7 @@ function setDropDate(drop,val){
   cart.drops[drop]={date:val};
   saveBid();renderLowesCart();
 }
-const MODEL_TEMPLATE_KEYS={'hyder-hut':'hyder-hut','hyder-hut-2br':'hyder-hut-2br','altura-24x24':'altura','series-750':'series-750','casita-portal':'casita'};
+const MODEL_TEMPLATE_KEYS={'hyder-hut':'hyder-hut','hyder-hut-2br':'hyder-hut-2br','altura-24x24':'altura','series-750':'series-750'};
 function blueprintPlanSvg(model){
   const key=MODEL_TEMPLATE_KEYS[model.id];
   const tpl=key&&TEMPLATES[key];
@@ -3055,7 +3056,7 @@ window.addEventListener('afterprint',()=>document.body.classList.remove('print-l
 
 /* ═══════════════ HELPER PREVIEWS ═══════════════ */
 const HELPERS=[
-  {t:'Design Brief',ph:'Phase 3',svc:'designBrief.js',out:`This 440 sf Bryn Mawr ADU makes excellent use of a compact footprint. The living, kitchen, dining, bedroom, and bath are easy for homeowners to understand, while the site plan shows trees, parking, privacy fence, utility trenching, and sewer path early.
+  {t:'Design Brief',ph:'Phase 3',svc:'designBrief.js',out:`This 440 sf Netherwood House ADU makes excellent use of a compact footprint. The living, kitchen, dining, bedroom, and bath are easy for homeowners to understand, while the site plan view shows trees, parking, privacy fence, utility trenching, and sewer path early.
 
 The signature move here is clarity: the homeowner can see where the ADU fits on the lot before getting lost in construction details. Consider privacy screening, utility routes, and a simple shaded entry that keeps the small footprint feeling intentional.
 
@@ -3093,7 +3094,7 @@ Recommendation: Front-load the MEP inspection booking and confirm the insulation
 2. Monsoon weather on roofing/dry-in — P4 × I3 = 12 (High). Mitigation: weather buffer, tarping plan.
 3. Cabinet lead time — P3 × I3 = 9 (Medium). Mitigation: order at drywall start, not finish.
 4. Concrete cure in summer heat — P2 × I3 = 6 (Medium). Mitigation: evening pours, curing blankets.`},
-  {t:'Weekly Briefing',ph:'Phase 2',svc:'weeklyBriefing.js',out:`WEEKLY BRIEFING — Bryn Mawr ADU
+  {t:'Weekly Briefing',ph:'Phase 2',svc:'weeklyBriefing.js',out:`WEEKLY BRIEFING — Netherwood House ADU
 
 Status: On schedule. Project is 14% complete overall; site prep and foundation are done, framing is underway at 60%.
 
@@ -3114,7 +3115,7 @@ function aiShow(i,btn){const o=$('#ai-'+i);o.classList.toggle('show');btn.textCo
 
 /* ═══════════════ PROJECT CONTROLS ═══════════════ */
 const PROJECTS=[
-  {name:'Bryn Mawr',client:'Hyder Residence',pct:14,health:'ok',value:182000,finish:'Sep 18, 2026'},
+  {name:'Netherwood House',client:'Hyder Residence',pct:14,health:'ok',value:182000,finish:'Sep 18, 2026'},
   {name:'750 Series',client:'Sanchez',pct:42,health:'risk',value:241000,finish:'Aug 30, 2026'},
   {name:'Altura',client:'Begay',pct:78,health:'ok',value:168000,finish:'Jul 22, 2026'},
   {name:'Netherwood House',client:'Romero',pct:30,health:'late',value:128000,finish:'Sep 02, 2026'},
@@ -3127,12 +3128,12 @@ const RISKS=[
   {t:'Concrete cure in summer heat',cat:'cost',p:2,i:3},
 ];
 const FIELD=[
-  {task:'Framing — east wall',proj:'Bryn Mawr',crew:'Tyler',status:'progress',crit:true},
+  {task:'Framing — east wall',proj:'Netherwood House',crew:'Tyler',status:'progress',crit:true},
   {task:'Slab pour',proj:'750 Series',crew:'Marco',status:'progress'},
-  {task:'MEP rough-in',proj:'Bryn Mawr',crew:'Priya',status:'scheduled',crit:true},
+  {task:'MEP rough-in',proj:'Netherwood House',crew:'Priya',status:'scheduled',crit:true},
   {task:'Window install',proj:'Altura',crew:'Tyler',status:'scheduled'},
   {task:'Drywall',proj:'Netherwood House',crew:'Ana',status:'blocked',note:'awaiting insulation inspection'},
-  {task:'Roofing',proj:'Bryn Mawr',crew:'Sam',status:'blocked',note:'weather hold',crit:true},
+  {task:'Roofing',proj:'Netherwood House',crew:'Sam',status:'blocked',note:'weather hold',crit:true},
   {task:'Excavation',proj:'750 Series',crew:'Diego',status:'done'},
   {task:'Foundation',proj:'Altura',crew:'Marco',status:'done'},
 ];

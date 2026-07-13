@@ -5621,7 +5621,7 @@ footer {
       </div>
     </div>
 
-    <!-- Row 2: 3 cards -->
+    <!-- Row 2: 2 cards -->
     <div class="models-row-2">
 
       <!-- 750 Series -->
@@ -5643,29 +5643,6 @@ footer {
           <div class="model-actions">
             <button class="model-design-btn" type="button" onclick="designSpecificModel('series-750')">Design This Model</button>
             <div class="model-design-note">Open the 750 Series in the design tool and customize finishes, utility checks, and site fit.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bryn Mawr -->
-      <div class="model-card" data-design-model="casita-portal" role="button" tabindex="0" aria-label="Design the Bryn Mawr model">
-        <div class="model-floor-plan">
-          <img src="images/bryn-mawr-site-plan.png" alt="Bryn Mawr 440 square foot ADU site plan and exterior concept" onclick="openLightbox(this.src)">
-          <a class="sheet-btn" onclick="openLightbox('images/bryn-mawr-site-plan.png'); return false;">View Site Plan</a>
-        </div>
-        <div class="model-info">
-          <div class="model-name">Bryn Mawr</div>
-          <div class="model-specs">1 Bed · 1 Bath · 440 sq ft · 12×35</div>
-          <div class="model-desc">A compact 440 sf ADU with site-plan thinking built in: parking, trees, privacy fence, electrical trench, sewer line, and yard access are shown together so homeowners can understand placement early.</div>
-          <div class="model-tags">
-            <span class="tag">440 sq ft</span>
-            <span class="tag">Site plan</span>
-            <span class="tag green">ADU-ready</span>
-          </div>
-          <div class="model-price">from $168,000 <small>turnkey est.</small></div>
-          <div class="model-actions">
-            <button class="model-design-btn" type="button" onclick="designSpecificModel('casita-portal')">Design This Model</button>
-            <div class="model-design-note">Open the Bryn Mawr model in the design tool.</div>
           </div>
         </div>
       </div>
@@ -6721,11 +6698,10 @@ const ABQ_BUILDER_SMS = '15059777659';
 
 const ADU_OPTIONS = {
   model: [
-    { id: 'hyder-hut', label: 'Netherwood House', sub: '440 sf · 1BR/1BA · ADU', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12.5 ft x 35 ft', use: 'Parent suite, guest house, or rental starter', detail: 'A compact, warm backyard home with enough room for a true bedroom, bath, kitchen, and small living area without overwhelming tighter Albuquerque lots.', image: 'images/hyder-hut-sheet.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
+    { id: 'hyder-hut', label: 'Netherwood House', sub: '440 sf · 1BR/1BA · ADU', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12.5 ft x 35 ft', use: 'Parent suite, guest house, or rental starter', detail: 'A compact, warm backyard home with enough room for a true bedroom, bath, kitchen, and small living area without overwhelming tighter Albuquerque lots. The site-plan visualization helps show parking, trees, privacy, utilities, sewer path, and yard access as part of the same Netherwood concept.', image: 'images/hyder-hut-sheet.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'hyder-hut-2br', label: 'Netherwood House 2BR', sub: '550 sf · 2BR/1BA · ADU', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', dimensions: '12.5 ft x 44 ft', use: 'Multigenerational family, adult child, or guests', detail: 'The family-friendly Netherwood layout adds a second bedroom while keeping the footprint efficient for homeowners who want flexibility now and rental value later.', image: 'images/hyder-hut-2br-sheet.png', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'altura-24x24', label: 'Altura', sub: '576 sf · 1BR/1BA · ADU', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', dimensions: '24 ft x 24 ft', use: 'Open living, accessible planning, and easy furniture layouts', detail: 'Altura is a single-bedroom ADU with a simple square plan that feels calm and efficient. Use this 576 sf path when the homeowner wants balanced living room, kitchen, bedroom, and patio connections.', image: 'images/altura-sheet.png', interiorImage: 'images/v5-site-photos/altura-interior-kitchen.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'series-750', label: '750 Series', sub: '750 sf · 2BR or luxury 1BR · typical max ADU', price: 268000, sqft: 750, beds: '2BR or Lux 1BR', baths: '1BA', dimensions: '20 ft x 37.5 ft', use: 'Multigenerational living, rental income, or larger guest suite', detail: 'The 750 Series is the practical maximum-size ADU path for many homeowners: two queen bedrooms or a larger luxury one-bedroom layout, with kitchen, bath, laundry, living room, and patio planning in one clear model.', image: 'images/750-series-sheet.jpg', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
-    { id: 'casita-portal', label: 'Bryn Mawr', sub: '440 sf · 1BR/1BA · ADU site-plan concept', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12 ft x 35 ft', use: 'Compact ADU with strong site-fit planning', detail: 'Bryn Mawr is a compact 440 sf ADU concept that shows the homeowner how the building, yard, parking, privacy fence, electrical trench, and sewer path work together on the lot.', image: 'images/bryn-mawr-site-plan.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'cromwell', label: 'Cromwell', sub: '1,280 sf · 2BR/1.5BA · single-family home', price: 385000, sqft: 1280, beds: '2BR', baths: '1.5BA', dimensions: 'Two-story custom plan', use: 'Expanded single-family home, large family suite, or custom project', detail: 'The Cromwell is a 1,280 sf single-family home concept with two bedrooms, 1.5 bathrooms, a powder room, storage loft, larger island, and more design review than a standard ADU.', image: 'images/cromwell-sheet.png', includedHeads: 4, includedDining: 'Dining island/bar to fit 5 or more with storage under', hasPowder: true, hasStorageLoft: true },
   ],
   color: [
@@ -6885,7 +6861,6 @@ const ADU_MATCHER_PROFILES = {
   'hyder-hut-2br': { bestFor: ['family', 'rental', 'guest'], lots: ['medium', 'large'], beds: ['2br'], strengths: ['Two bedrooms under 600 sf', 'Strong multigenerational flexibility', 'Good rental bedroom count'], cautions: ['Tight yards need careful placement and setback review.'] },
   'altura-24x24': { bestFor: ['family', 'office', 'guest'], lots: ['medium', 'large'], beds: ['1br'], strengths: ['Balanced square plan', 'Feels open for one bedroom living', 'Good accessible-layout starting point'], cautions: ['Needs a decent yard because the 24 x 24 footprint is broader.'] },
   'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], beds: ['1br', '2br'], strengths: ['Typical max-size ADU path', 'Can work as 2BR or luxury 1BR', 'Best when the homeowner wants room to grow'], cautions: ['At 750 sf, site placement and utility review matter more.'] },
-  'casita-portal': { bestFor: ['rental', 'guest', 'office'], lots: ['small', 'medium', 'large'], beds: ['studio', '1br'], strengths: ['Compact 440 sf site-plan concept', 'Strong lot-fit story', 'Efficient first ADU conversation'], cautions: ['Best treated as a site-planning concept before final bid.'] },
   'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], beds: ['2br'], strengths: ['Full single-family home scale', 'Two bedrooms plus 1.5 baths', 'Good for larger family needs'], cautions: ['This is not a standard ADU path; it needs larger-project review.'] },
 };
 
@@ -8499,7 +8474,6 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
               <option>Netherwood House 2BR (550 sq ft)</option>
               <option>Altura (576 sq ft)</option>
               <option>750 Series (750 sq ft — 2BR or luxury 1BR)</option>
-              <option>Bryn Mawr (440 sq ft)</option>
               <option>Cromwell (2BR, 1,280 sq ft — expanded custom project)</option>
             </select>
           </div>
@@ -8594,7 +8568,6 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <li><a href="#">Netherwood House 2BR</a></li>
         <li><a href="#">Altura</a></li>
         <li><a href="#">750 Series</a></li>
-        <li><a href="#">Bryn Mawr</a></li>
         <li><a href="#">Cromwell</a></li>
       </ul>
     </div>
