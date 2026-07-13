@@ -1,7 +1,21 @@
 const Anthropic = require('@anthropic-ai/sdk');
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// Lazy client so the server boots without ANTHROPIC_API_KEY (the SDK throws on an
+// empty key). Without a key, these functions return a friendly disabled message
+// rather than throwing (an unhandled throw would hang the request).
+let _client = null;
+function getClient() {
+  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  return _client;
+}
+function aiEnabled() {
+  return Boolean(process.env.ANTHROPIC_API_KEY);
+}
+const AI_DISABLED_MSG =
+  'AI features are not configured on this server. Add ANTHROPIC_API_KEY to the server .env and restart to enable this.';
 
 async function generateDelayForecast(project, activities) {
+  if (!aiEnabled()) return AI_DISABLED_MSG;
   const critical = activities.filter(a => a.is_critical);
   const behind = activities.filter(a =>
     a.is_critical && a.planned_finish && new Date(a.planned_finish) < new Date() && !a.actual_finish
@@ -26,7 +40,7 @@ Write a concise 2-3 paragraph executive summary of the schedule status. Include:
 
 Write in plain English for a homeowner or executive audience. Be direct and specific.`;
 
-  const msg = await client.messages.create({
+  const msg = await getClient().messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 400,
     messages: [{ role: 'user', content: prompt }],
@@ -35,6 +49,7 @@ Write in plain English for a homeowner or executive audience. Be direct and spec
 }
 
 async function analyzeRisks(project, risks) {
+  if (!aiEnabled()) return AI_DISABLED_MSG;
   if (!risks.length) return 'No risks currently logged for this project.';
 
   const top = risks.slice(0, 5);
@@ -50,7 +65,7 @@ Provide a brief risk summary (2 paragraphs):
 
 Be direct and actionable. Write for a general contractor audience.`;
 
-  const msg = await client.messages.create({
+  const msg = await getClient().messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 350,
     messages: [{ role: 'user', content: prompt }],
@@ -59,6 +74,7 @@ Be direct and actionable. Write for a general contractor audience.`;
 }
 
 async function generateWeeklyBriefing(project, activities, fieldTasks) {
+  if (!aiEnabled()) return AI_DISABLED_MSG;
   const thisWeekTasks = fieldTasks.filter(t => {
     const d = new Date(t.task_date);
     const now = new Date();
@@ -79,7 +95,7 @@ Write a short weekly briefing (3-4 sentences) suitable for sending to the homeow
 
 Keep it friendly, specific, and jargon-free.`;
 
-  const msg = await client.messages.create({
+  const msg = await getClient().messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 250,
     messages: [{ role: 'user', content: prompt }],
