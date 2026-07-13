@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - version6aduwizard
-      - version6
-      - Version6aduwizard
   workflow_dispatch:
 
 permissions:
@@ -15,7 +13,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
