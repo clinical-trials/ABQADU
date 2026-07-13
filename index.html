@@ -577,6 +577,52 @@ h2 em { font-style: normal; color: var(--terra); }
 
 .model-info { padding: 20px 22px 22px; }
 
+.model-secondary-visual {
+  margin: 12px 0 2px;
+}
+
+.model-secondary-visual button {
+  width: 100%;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--stucco-d);
+  background: rgba(245, 240, 230, .78);
+  color: var(--ink);
+  border-radius: 7px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.model-secondary-visual button:hover,
+.model-secondary-visual button:focus-visible {
+  border-color: var(--copper);
+  box-shadow: 0 10px 28px rgba(88, 64, 42, .12);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.model-secondary-visual img {
+  width: 76px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 5px;
+  display: block;
+}
+
+.model-secondary-visual span {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--copper);
+}
+
 .model-actions {
   display: grid;
   gap: 9px;
@@ -5507,6 +5553,12 @@ footer {
             <span class="tag">Covered deck</span>
             <span class="tag green">ADU-ready</span>
           </div>
+          <div class="model-secondary-visual">
+            <button type="button" onclick="openLightbox('images/netherwood-site-plan-secondary.png'); return false;" aria-label="View Netherwood House site plan visualization">
+              <img src="images/netherwood-site-plan-secondary.png" alt="Netherwood House site plan visualization">
+              <span>View site plan visualization</span>
+            </button>
+          </div>
           <div class="model-price">from $168,000 <small>turnkey est.</small></div>
           <div class="model-actions">
             <button class="model-design-btn" type="button" onclick="designSpecificModel('hyder-hut')">Design This Model</button>
@@ -5569,7 +5621,7 @@ footer {
       </div>
     </div>
 
-    <!-- Row 2: 4 cards -->
+    <!-- Row 2: 3 cards -->
     <div class="models-row-2">
 
       <!-- 750 Series -->
@@ -5614,45 +5666,6 @@ footer {
           <div class="model-actions">
             <button class="model-design-btn" type="button" onclick="designSpecificModel('casita-portal')">Design This Model</button>
             <div class="model-design-note">Open the Bryn Mawr model in the design tool.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tierra Grande -->
-      <div class="model-card" data-design-model="tierra-grande" role="button" tabindex="0" aria-label="Design the Tierra Grande model">
-        <div class="model-floor-plan" style="padding:20px;">
-          <svg viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="10" y="10" width="200" height="140" stroke="#C4954A" stroke-width="2"/>
-            <line x1="10" y1="80" x2="210" y2="80" stroke="#C4954A" stroke-width="1.5"/>
-            <line x1="120" y1="80" x2="120" y2="150" stroke="#C4954A" stroke-width="1.5"/>
-            <line x1="120" y1="10" x2="120" y2="80" stroke="#C4954A" stroke-width="1.5"/>
-            <rect x="127" y="88" width="24" height="36" rx="2" stroke="#C4954A" stroke-width="1"/>
-            <ellipse cx="139" cy="106" rx="8" ry="13" stroke="#C4954A" stroke-width=".8"/>
-            <rect x="130" y="15" width="20" height="28" rx="2" stroke="#C4954A" stroke-width="1"/>
-            <rect x="18" y="90" width="60" height="16" stroke="#C4954A" stroke-width="1"/>
-            <line x1="30" y1="10" x2="80" y2="10" stroke="#C4954A" stroke-width="3"/>
-            <line x1="140" y1="10" x2="190" y2="10" stroke="#C4954A" stroke-width="3"/>
-            <line x1="10" y1="20" x2="10" y2="65" stroke="#C4954A" stroke-width="3"/>
-            <line x1="210" y1="90" x2="210" y2="140" stroke="#C4954A" stroke-width="3"/>
-            <text x="62" y="50" fill="#57534E" font-size="7.5" font-family="monospace" text-anchor="middle">BED 1</text>
-            <text x="167" y="50" fill="#57534E" font-size="7.5" font-family="monospace" text-anchor="middle">BED 2</text>
-            <text x="62" y="120" fill="#57534E" font-size="7.5" font-family="monospace" text-anchor="middle">LIVING / KITCHEN</text>
-            <text x="170" y="125" fill="#57534E" font-size="7.5" font-family="monospace" text-anchor="middle">FLEX / OFFICE</text>
-          </svg>
-        </div>
-        <div class="model-info">
-          <div class="model-name">Tierra Grande</div>
-          <div class="model-specs">2 Bed · 2 Bath · 780 sq ft · Above typical 750 sq ft max</div>
-          <div class="model-desc">A larger custom-review model. Two ensuite bedrooms with a flex office or bonus room and a full kitchen. Designed for long-term rental or multi-generational living when the site can support a larger scope.</div>
-          <div class="model-tags">
-            <span class="tag">2BR / 2BA</span>
-            <span class="tag">Flex room</span>
-            <span class="tag green">Custom review</span>
-          </div>
-          <div class="model-price">from $295,000 <small>turnkey est.</small></div>
-          <div class="model-actions">
-            <button class="model-design-btn" type="button" onclick="designSpecificModel('tierra-grande')">Design This Model</button>
-            <div class="model-design-note">Customize only after confirming the site can support a larger-than-typical ADU.</div>
           </div>
         </div>
       </div>
@@ -6713,7 +6726,6 @@ const ADU_OPTIONS = {
     { id: 'altura-24x24', label: 'Altura', sub: '576 sf · 1BR/1BA · ADU', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', dimensions: '24 ft x 24 ft', use: 'Open living, accessible planning, and easy furniture layouts', detail: 'Altura is a single-bedroom ADU with a simple square plan that feels calm and efficient. Use this 576 sf path when the homeowner wants balanced living room, kitchen, bedroom, and patio connections.', image: 'images/altura-sheet.png', interiorImage: 'images/v5-site-photos/altura-interior-kitchen.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'series-750', label: '750 Series', sub: '750 sf · 2BR or luxury 1BR · typical max ADU', price: 268000, sqft: 750, beds: '2BR or Lux 1BR', baths: '1BA', dimensions: '20 ft x 37.5 ft', use: 'Multigenerational living, rental income, or larger guest suite', detail: 'The 750 Series is the practical maximum-size ADU path for many homeowners: two queen bedrooms or a larger luxury one-bedroom layout, with kitchen, bath, laundry, living room, and patio planning in one clear model.', image: 'images/750-series-sheet.jpg', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'casita-portal', label: 'Bryn Mawr', sub: '440 sf · 1BR/1BA · ADU site-plan concept', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12 ft x 35 ft', use: 'Compact ADU with strong site-fit planning', detail: 'Bryn Mawr is a compact 440 sf ADU concept that shows the homeowner how the building, yard, parking, privacy fence, electrical trench, and sewer path work together on the lot.', image: 'images/bryn-mawr-site-plan.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
-    { id: 'tierra-grande', label: 'Tierra Grande', sub: '780 sf · larger custom review path above typical 750 sf homeowner max', price: 295000, sqft: 780, beds: '2BR', baths: '2BA', dimensions: 'Larger custom footprint', use: 'Bigger family needs and custom review', detail: 'A larger home-like option for families who need more space. Because 750 sf is the typical homeowner ADU planning max, this path should be reviewed carefully before final bid.', image: 'images/adu-interior.png' },
     { id: 'cromwell', label: 'Cromwell', sub: '1,280 sf · 2BR/1.5BA · single-family home', price: 385000, sqft: 1280, beds: '2BR', baths: '1.5BA', dimensions: 'Two-story custom plan', use: 'Expanded single-family home, large family suite, or custom project', detail: 'The Cromwell is a 1,280 sf single-family home concept with two bedrooms, 1.5 bathrooms, a powder room, storage loft, larger island, and more design review than a standard ADU.', image: 'images/cromwell-sheet.png', includedHeads: 4, includedDining: 'Dining island/bar to fit 5 or more with storage under', hasPowder: true, hasStorageLoft: true },
   ],
   color: [
@@ -6874,7 +6886,6 @@ const ADU_MATCHER_PROFILES = {
   'altura-24x24': { bestFor: ['family', 'office', 'guest'], lots: ['medium', 'large'], beds: ['1br'], strengths: ['Balanced square plan', 'Feels open for one bedroom living', 'Good accessible-layout starting point'], cautions: ['Needs a decent yard because the 24 x 24 footprint is broader.'] },
   'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], beds: ['1br', '2br'], strengths: ['Typical max-size ADU path', 'Can work as 2BR or luxury 1BR', 'Best when the homeowner wants room to grow'], cautions: ['At 750 sf, site placement and utility review matter more.'] },
   'casita-portal': { bestFor: ['rental', 'guest', 'office'], lots: ['small', 'medium', 'large'], beds: ['studio', '1br'], strengths: ['Compact 440 sf site-plan concept', 'Strong lot-fit story', 'Efficient first ADU conversation'], cautions: ['Best treated as a site-planning concept before final bid.'] },
-  'tierra-grande': { bestFor: ['family', 'rental'], lots: ['large'], beds: ['2br'], strengths: ['Larger two-bedroom custom path', 'More room for family use', 'Works when the yard is generous'], cautions: ['Above the typical 750 sf homeowner ADU max; custom review is required.'] },
   'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], beds: ['2br'], strengths: ['Full single-family home scale', 'Two bedrooms plus 1.5 baths', 'Good for larger family needs'], cautions: ['This is not a standard ADU path; it needs larger-project review.'] },
 };
 
@@ -8268,7 +8279,6 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
               <option>Altura (576 sq ft)</option>
               <option>750 Series (750 sq ft — 2BR or luxury 1BR)</option>
               <option>Bryn Mawr (440 sq ft)</option>
-              <option>Tierra Grande (780 sq ft — custom review above typical 750 sq ft max)</option>
               <option>Cromwell (2BR, 1,280 sq ft — expanded custom project)</option>
             </select>
           </div>
@@ -8316,7 +8326,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
       <div class="testimonial-card">
         <div class="stars">★★★★★</div>
         <div class="testimonial-quote">"</div>
-        <div class="testimonial-text">The text message scheduling was a game changer. I always knew which crew was on site and when. My Tierra Grande is now renting for $1,600/month — paid for itself faster than expected.</div>
+        <div class="testimonial-text">The text message scheduling was a game changer. I always knew which crew was on site and when. Our Netherwood House is now renting for $1,600/month — paid for itself faster than expected.</div>
         <div class="testimonial-author">
           <div class="author-avatar">PL</div>
           <div>
@@ -8364,7 +8374,6 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <li><a href="#">Altura</a></li>
         <li><a href="#">750 Series</a></li>
         <li><a href="#">Bryn Mawr</a></li>
-        <li><a href="#">Tierra Grande</a></li>
         <li><a href="#">Cromwell</a></li>
       </ul>
     </div>

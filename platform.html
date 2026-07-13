@@ -698,7 +698,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <div><label class="fld">Contact / client name</label><input class="in" id="bid-client" placeholder="Homeowner or client name"></div>
       <div><label class="fld">Project address</label><input class="in" id="bid-address" placeholder="Street address from site visit"></div>
       <div><label class="fld">Model</label><select class="in" id="bid-model">
-        <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option selected>Bryn Mawr</option><option>Tierra Grande</option><option>Cromwell</option>
+        <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option selected>Bryn Mawr</option><option>Cromwell</option>
       </select></div>
       <div><label class="fld">Square feet</label><input class="in" id="bid-sqft" type="number" min="1" value="640"></div>
       <div><label class="fld">Confidence grade</label><select class="in" id="bid-confidence-grade">
@@ -1337,7 +1337,6 @@ const MODEL_IMAGES = {
   'Altura':'images/altura-sheet.png',
   '750 Series':'images/750-series-sheet.jpg',
   'Bryn Mawr':'images/bryn-mawr-site-plan.png',
-  'Tierra Grande':'images/adu-interior.png',
   Cromwell:'images/cromwell-sheet.png',
 };
 
@@ -2349,7 +2348,6 @@ const TEMPLATES={
   altura:[['living','Living','#E8C8C8',12,12,14,12],['kitchen','Kitchen','#E8DCC8',192,12,10,12],['bedroom','Bedroom','#C8D8E8',12,168,14,11],['bathroom','Bath','#D8E8C8',192,168,8,8]],
   'series-750':[['kitchen','Kitchen','#E8DCC8',12,12,14,10],['living','Living','#E8C8C8',168,12,13,14],['bedroom','Bedroom 1','#C8D8E8',12,192,10,10],['bedroom','Bedroom 2','#C8D8E8',132,192,10,10],['bathroom','Bath','#D8E8C8',12,324,10,8],['utility','Laundry','#C8E8E8',132,324,7,6],['porch','Back Patio','#D0E0D0',228,324,9,8]],
   casita:[['living','Living','#E8C8C8',12,12,16,12],['kitchen','Kitchen','#E8DCC8',12,168,12,10],['dining','Dining','#D8C8E8',168,168,10,10],['bedroom','Bedroom 1','#C8D8E8',12,300,12,11],['bedroom','Bedroom 2','#C8D8E8',168,300,10,11],['bathroom','Bath','#D8E8C8',216,12,8,8],['porch','Portal Porch','#D0E0D0',12,444,21,6]],
-  tierra:[['living','Living','#E8C8C8',12,12,18,13],['kitchen','Kitchen','#E8DCC8',12,180,12,11],['dining','Dining','#D8C8E8',168,180,10,11],['bedroom','Primary BR','#C8D8E8',12,324,14,12],['bathroom','Primary Bath','#D8E8C8',192,324,8,8],['bedroom','Bedroom 2','#C8D8E8',12,480,12,10],['bathroom','Bath 2','#D8E8C8',168,480,8,7]],
 };
 let stage,layer,rooms=[],curTool='select',selNode=null,designReady=false;
 function ensureDesign(){
@@ -2545,7 +2543,6 @@ const MODEL_CATALOG=[
   {id:'altura-24x24',name:'Altura',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
   {id:'series-750',name:'750 Series',sqft:750,variation:'20x37.5 · 2BR or Lux 1BR · typical homeowner max',img:'images/750-series-sheet.jpg',source:'Version 6 verified',bed:'1-2',bath:1,type:'builder-ready'},
   {id:'casita-portal',name:'Bryn Mawr',sqft:440,variation:'12x35 · 1BR/1BA · site-plan ready ADU',img:'images/bryn-mawr-site-plan.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'tierra-grande',name:'Tierra Grande',sqft:780,variation:'2BR/2BA · custom review above typical 750 sf homeowner max',img:'images/adu-interior.png',source:'Version 6 verified',bed:2,bath:2,type:'custom-review'},
   {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · single-family home · expanded custom project',img:'images/cromwell-sheet.png',source:'Version 6 verified',bed:2,bath:1.5,type:'expanded'},
   {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
   {id:'burton',name:'Burton',sqft:null,variation:'ABQADU source model · square footage confirm',img:'images/source-burton-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
@@ -2681,7 +2678,7 @@ function setDropDate(drop,val){
   cart.drops[drop]={date:val};
   saveBid();renderLowesCart();
 }
-const MODEL_TEMPLATE_KEYS={'hyder-hut':'hyder-hut','hyder-hut-2br':'hyder-hut-2br','altura-24x24':'altura','series-750':'series-750','casita-portal':'casita','tierra-grande':'tierra'};
+const MODEL_TEMPLATE_KEYS={'hyder-hut':'hyder-hut','hyder-hut-2br':'hyder-hut-2br','altura-24x24':'altura','series-750':'series-750','casita-portal':'casita'};
 function blueprintPlanSvg(model){
   const key=MODEL_TEMPLATE_KEYS[model.id];
   const tpl=key&&TEMPLATES[key];
@@ -3118,7 +3115,7 @@ function aiShow(i,btn){const o=$('#ai-'+i);o.classList.toggle('show');btn.textCo
 /* ═══════════════ PROJECT CONTROLS ═══════════════ */
 const PROJECTS=[
   {name:'Bryn Mawr',client:'Hyder Residence',pct:14,health:'ok',value:182000,finish:'Sep 18, 2026'},
-  {name:'Tierra Grande',client:'Sanchez',pct:42,health:'risk',value:241000,finish:'Aug 30, 2026'},
+  {name:'750 Series',client:'Sanchez',pct:42,health:'risk',value:241000,finish:'Aug 30, 2026'},
   {name:'Altura',client:'Begay',pct:78,health:'ok',value:168000,finish:'Jul 22, 2026'},
   {name:'Netherwood House',client:'Romero',pct:30,health:'late',value:128000,finish:'Sep 02, 2026'},
 ];
@@ -3131,12 +3128,12 @@ const RISKS=[
 ];
 const FIELD=[
   {task:'Framing — east wall',proj:'Bryn Mawr',crew:'Tyler',status:'progress',crit:true},
-  {task:'Slab pour',proj:'Tierra Grande',crew:'Marco',status:'progress'},
+  {task:'Slab pour',proj:'750 Series',crew:'Marco',status:'progress'},
   {task:'MEP rough-in',proj:'Bryn Mawr',crew:'Priya',status:'scheduled',crit:true},
   {task:'Window install',proj:'Altura',crew:'Tyler',status:'scheduled'},
   {task:'Drywall',proj:'Netherwood House',crew:'Ana',status:'blocked',note:'awaiting insulation inspection'},
   {task:'Roofing',proj:'Bryn Mawr',crew:'Sam',status:'blocked',note:'weather hold',crit:true},
-  {task:'Excavation',proj:'Tierra Grande',crew:'Diego',status:'done'},
+  {task:'Excavation',proj:'750 Series',crew:'Diego',status:'done'},
   {task:'Foundation',proj:'Altura',crew:'Marco',status:'done'},
 ];
 const RES=[
