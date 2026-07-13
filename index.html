@@ -1155,8 +1155,9 @@ h2 em { font-style: normal; color: var(--terra); }
 .design-entry-stage {
   align-items: start;
   display: grid;
-  gap: 22px;
-  grid-template-columns: minmax(0, 1.12fr) minmax(300px, .88fr);
+  gap: 18px;
+  grid-template-columns: minmax(0, 820px);
+  justify-content: center;
 }
 
 .adu-match-brand {
@@ -1279,15 +1280,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .adu-match-question-label span {
-  border: 1px solid rgba(42,220,242,.24);
-  border-radius: 999px;
-  color: rgba(42,220,242,.9);
-  flex: 0 0 auto;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .08em;
-  padding: 5px 8px;
-  text-transform: uppercase;
+  display: none;
 }
 
 .adu-match-question p {
@@ -1430,15 +1423,82 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .adu-match-score {
-  background: var(--copper);
+  background: rgba(42,220,242,.16);
+  border: 1px solid rgba(42,220,242,.26);
   border-radius: 999px;
-  color: var(--blueprint);
+  color: #2adcf2;
   flex: 0 0 auto;
   font-size: 11px;
   font-weight: 900;
   letter-spacing: .08em;
   padding: 7px 9px;
   text-transform: uppercase;
+}
+
+.adu-match-recommendations {
+  display: grid;
+  gap: 10px;
+}
+
+.adu-match-recommendation {
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(145,166,203,.18);
+  border-radius: 14px;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.adu-match-recommendation.primary {
+  background: rgba(12,41,62,.72);
+  border-color: rgba(42,220,242,.56);
+}
+
+.adu-match-rec-label {
+  color: #2adcf2;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.adu-match-rec-title {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  justify-content: space-between;
+}
+
+.adu-match-rec-title b {
+  color: var(--stucco);
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 32px);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.adu-match-rec-title span {
+  color: rgba(240,235,225,.66);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.adu-match-rec-copy {
+  color: rgba(240,235,225,.72);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.adu-match-simple-next {
+  background: rgba(240,235,225,.06);
+  border: 1px solid rgba(240,235,225,.12);
+  border-radius: 12px;
+  color: rgba(240,235,225,.72);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px 14px;
 }
 
 .adu-match-result p {
@@ -5990,16 +6050,16 @@ footer {
         ADU Match Wizard<br><span style="color:#2adcf2;">Pick the Right Model First</span>
       </h2>
       <p style="font-size:17px;color:rgba(240,235,225,.65);max-width:580px;margin:0 auto;">
-        Answer one plain-language question at a time. We recommend the best starting model from your yard, budget, bedroom needs, and use case before customization begins.
+        Answer one plain-language question at a time. We will suggest the one or two ADU designs most likely to fit your yard, budget, bedroom needs, and family goals.
       </p>
     </div>
 
     <div class="design-entry-stage">
       <div class="design-entry-card">
         <div class="design-launch-kicker">Step-by-step decision tool</div>
-        <h3>Match first.<br>Customize second.</h3>
+        <h3>Find the ADU<br>that fits.</h3>
         <p>
-          This is the homeowner decision path. Budget, backyard space, bedrooms, and intended use drive the recommendation; finishes, light, timeline, and comfort guide the next customization step.
+          Keep it simple: what is it for, how much yard can you spare, how many bedrooms do you need, and what budget feels realistic?
         </p>
         <div class="adu-matchmaker" id="adu-matchmaker" aria-label="ADU model recommendation quiz">
           <div class="adu-matchmaker-head">
@@ -6007,23 +6067,13 @@ footer {
               <span class="adu-match-icon" aria-hidden="true">⌂</span>
               <div>
                 <b>ADU Match Wizard</b>
-                <span>One question per screen. Step 7 explains the recommended model and why it fits.</span>
+                <span>One question per screen. The last step shows the best one or two models to review with ABQ ADU.</span>
               </div>
             </div>
             <div class="adu-match-step-note">Version 6</div>
           </div>
           <div id="adu-matchmaker-questions"></div>
           <div class="adu-match-result" id="adu-matchmaker-result"></div>
-        </div>
-        <div class="design-entry-actions">
-          <button class="design-launch-button" type="button" onclick="customizeMatchedAdu()">Customize Recommended Model</button>
-          <button class="design-secondary-button" type="button" onclick="startAduDesign()">Browse All Models</button>
-        </div>
-      </div>
-      <div class="design-entry-preview">
-        <img id="adu-matchmaker-preview" src="images/hyder-hut-2br-exterior-finishes.webp" alt="Netherwood House exterior finishes preview for the guided homeowner ADU design studio" loading="lazy">
-        <div style="padding:14px 16px;border-top:1px solid rgba(42,220,242,.18);background:rgba(5,12,31,.86);color:rgba(240,235,225,.74);font-size:13px;line-height:1.45;">
-          Live model preview updates after the recommendation. Custom colors, doors, windows, and finish upgrades come after the homeowner picks the right starting model.
         </div>
       </div>
     </div>
@@ -6724,29 +6774,29 @@ function getDefaultPayment(model) {
 function getAduMatchReasons(model) {
   const profile = ADU_MATCHER_PROFILES[model.id] || { strengths: [], cautions: [] };
   const purposeMap = {
-    family: 'Good fit for family, adult child, aging parent, or multigenerational use.',
-    rental: 'Prioritizes a layout that can support rental income and privacy.',
-    office: 'Keeps the footprint efficient for work, studio, or hobby use.',
-    guest: 'Works well as a comfortable guest house without overbuilding.',
+    family: 'A practical starting point for family, adult child, aging parent, or multigenerational use.',
+    rental: 'A practical starting point when rental income and privacy matter.',
+    office: 'A practical starting point for work, studio, hobby, or flex use.',
+    guest: 'A practical starting point for visitors without overbuilding the backyard.',
   };
   const bedMap = {
-    studio: 'Your bedroom choice favors the smallest, simplest ADU paths.',
-    '1br': 'Your bedroom choice favors a true private bedroom without overbuilding.',
-    '2br': 'Your bedroom choice favors larger ADUs with full household capacity.',
+    studio: 'Keeps the layout compact and efficient.',
+    '1br': 'Gives you a real private bedroom without too much extra footprint.',
+    '2br': 'Adds the flexibility needed for a fuller household.',
   };
   const budgetMap = {
-    1: 'Budget preference favors efficient models around the essential build path.',
-    2: 'Budget preference favors the comfortable middle of the ADU lineup.',
-    3: 'Budget preference allows larger models and more design flexibility.',
+    1: 'Keeps the conversation near the efficient end of the model list.',
+    2: 'Keeps the conversation near the comfortable middle of the model list.',
+    3: 'Leaves room for a larger design conversation.',
   };
   const reasons = [purposeMap[ADU_MATCHER_STATE.purpose] || 'Matches your stated use case.'];
-  if (ADU_MATCHER_STATE.lot === 'small') reasons.push('Respects a smaller yard by favoring compact ADU footprints.');
-  if (ADU_MATCHER_STATE.lot === 'large') reasons.push('Uses the larger lot more confidently while still flagging site review.');
+  if (ADU_MATCHER_STATE.lot === 'small') reasons.push('Respects a smaller yard by keeping the footprint compact.');
+  if (ADU_MATCHER_STATE.lot === 'large') reasons.push('Makes better use of a yard with more room.');
   reasons.push(...(profile.strengths || []).slice(0, 2));
   reasons.push(bedMap[ADU_MATCHER_STATE.beds] || 'Matches your bedroom preference.');
   reasons.push(budgetMap[ADU_MATCHER_STATE.budget] || 'Matches your budget range.');
-  if (model.sqft <= 750) reasons.push('Stays at or below the typical 750 sf homeowner ADU planning max.');
-  if (model.sqft > 750) reasons.push('Routes to a larger custom review path because it is above the typical ADU size.');
+  if (model.sqft <= 750) reasons.push('Stays in the typical ADU planning range.');
+  if (model.sqft > 750) reasons.push('Belongs in a larger custom review conversation.');
   return reasons.slice(0, 4);
 }
 
@@ -6825,7 +6875,6 @@ function renderAduMatcher() {
     <div class="adu-match-question" aria-live="polite">
       <div class="adu-match-question-label">
         <strong>${activeQuestion.label}</strong>
-        <span>${activeQuestion.scoring ? 'Used for match' : 'Saved note'}</span>
       </div>
       <p>${ADU_MATCHER_STEP_COPY[activeQuestion.id] || ''}</p>
       <div class="adu-match-options">
@@ -6850,93 +6899,38 @@ function renderAduMatcher() {
   const matches = getMatchedAduModels();
   const match = matches[0];
   if (!match) return;
-  const preview = document.getElementById('adu-matchmaker-preview');
-  if (preview) {
-    preview.src = match.model.image || preview.src;
-    preview.alt = `${match.model.label} preview for the guided homeowner ADU match`;
-  }
-  const rent = ADU_MATCHER_STATE.rent || getDefaultRent(match.model);
-  const payment = ADU_MATCHER_STATE.payment || getDefaultPayment(match.model);
-  const expenses = Math.round(rent * .22);
-  const cashFlow = rent - payment - expenses;
-  const annualCashFlow = cashFlow * 12;
-  const payback = annualCashFlow > 0 ? `${Math.ceil(match.model.price / annualCashFlow)} yrs` : 'Lender review';
-  const alternatives = matches.slice(0, 3);
+  const alternatives = matches.slice(0, 2);
   const matcherSnapshot = getAduMatcherSnapshot();
-  const guidance = getAduMatchGuidance(match);
   resultHost.style.display = activeQuestion ? 'none' : 'grid';
   resultHost.innerHTML = `
     <div class="adu-match-result-top">
       <div>
-        <div class="adu-match-result-label">Recommended starting model</div>
-        <h4>${match.model.label}</h4>
-        <p>${match.model.detail}</p>
+        <div class="adu-match-result-label">Your best-fit ADU options</div>
+        <h4>Start Here</h4>
+        <p>These are the top one or two models to review with ABQ ADU based on what you told us.</p>
       </div>
-      <span class="adu-match-score">${match.score}% fit</span>
+      <span class="adu-match-score">Ready to review</span>
     </div>
-    <div class="adu-match-kpis">
-      <span>${match.model.sqft} sf</span>
-      <span>${match.model.beds} / ${match.model.baths}</span>
-      <span>${moneyShort(match.model.price)} start</span>
-    </div>
-    <div class="adu-match-signal-grid" aria-label="Recommendation fit signals">
-      ${match.signals.map(signal => `
-        <span class="adu-match-signal ${signal.state}">
-          <b>${signal.label}</b>${signal.copy}
-        </span>
+    <div class="adu-match-recommendations" aria-label="Top ADU model recommendations">
+      ${alternatives.map((item, index) => `
+        <div class="adu-match-recommendation ${index === 0 ? 'primary' : ''}">
+          <div class="adu-match-rec-label">${index === 0 ? 'Best fit' : 'Also consider'}</div>
+          <div class="adu-match-rec-title">
+            <b>${item.model.label}</b>
+            <span>${item.model.sqft} sf · ${item.model.beds} / ${item.model.baths} · starts around ${moneyShort(item.model.price)}</span>
+          </div>
+          <p class="adu-match-rec-copy">${item.model.use}. ${item.model.detail}</p>
+        </div>
       `).join('')}
     </div>
     <div class="adu-match-why">
       ${getAduMatchReasons(match.model).map(reason => `<span>${reason}</span>`).join('')}
     </div>
     <div class="adu-match-captured" aria-label="Saved preference signals">
-      <span><b>Preference saved</b>${matcherSnapshot.priority}</span>
-      <span><b>Timeline saved</b>${matcherSnapshot.timeline}</span>
+      <span><b>What matters</b>${matcherSnapshot.priority}</span>
+      <span><b>Timing</b>${matcherSnapshot.timeline}</span>
     </div>
-    <div class="adu-match-guidance">
-      <b>Next design guidance</b>
-      <ul>
-        ${guidance.map(item => `<li>${item}</li>`).join('')}
-      </ul>
-    </div>
-    <div class="adu-match-compare" aria-label="Top model comparisons">
-      ${alternatives.map(item => `
-        <button type="button" onclick="designSpecificModel('${item.model.id}')">
-          <b>${item.model.label}</b>
-          <span>${item.score}% fit · ${item.model.sqft} sf · ${moneyShort(item.model.price)} start · ${item.signals.filter(signal => signal.state === 'good').length}/4 strong signals</span>
-        </button>
-      `).join('')}
-    </div>
-    <div class="adu-roi-card">
-      <h5>Rental income lens</h5>
-      <div class="adu-roi-grid">
-        <div class="adu-roi-field">
-          <label>Estimated monthly rent</label>
-          <input type="number" min="0" step="50" value="${rent}" oninput="updateAduRoiInput('rent', this.value)">
-        </div>
-        <div class="adu-roi-field">
-          <label>Estimated monthly loan</label>
-          <input type="number" min="0" step="50" value="${payment}" oninput="updateAduRoiInput('payment', this.value)">
-        </div>
-      </div>
-      <div class="adu-roi-output">
-        <span>Expenses<b>${moneyWhole(expenses)}/mo</b></span>
-        <span>Cash flow<b>${moneyWhole(cashFlow)}/mo</b></span>
-        <span>Payback<b>${payback}</b></span>
-      </div>
-    </div>
-    <div class="adu-match-next">
-      <h5>What happens next</h5>
-      <div class="adu-match-next-grid">
-        ${ADU_MATCHER_NEXT_STEPS.map(step => `
-          <div class="adu-match-next-step">
-            <b>${step.title}</b>
-            <span>${step.time}</span>
-            <p>${step.copy}</p>
-          </div>
-        `).join('')}
-      </div>
-    </div>
+    <div class="adu-match-simple-next">Next step: use these recommendations as a starting point for a free ABQ ADU site visit. The builder can confirm utilities, sewer, setbacks, and final model fit on the actual property.</div>
   `;
 }
 
