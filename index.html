@@ -1491,6 +1491,79 @@ h2 em { font-style: normal; color: var(--terra); }
   margin: 0;
 }
 
+.adu-match-model-sheet {
+  background: rgba(240,235,225,.96);
+  border: 1px solid rgba(196,149,74,.34);
+  border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(0,0,0,.22);
+  display: grid;
+  gap: 10px;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.adu-match-sheet-label {
+  align-items: center;
+  color: var(--blueprint);
+  display: flex;
+  font-size: 10px;
+  font-weight: 900;
+  justify-content: space-between;
+  letter-spacing: .12em;
+  padding: 2px 4px 0;
+  text-transform: uppercase;
+}
+
+.adu-match-sheet-label span {
+  color: rgba(15,31,61,.62);
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.adu-match-model-sheet img {
+  aspect-ratio: 16 / 10;
+  background: #f7f0e2;
+  border-radius: 10px;
+  cursor: zoom-in;
+  display: block;
+  object-fit: contain;
+  width: 100%;
+}
+
+.adu-match-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.adu-match-report-actions button,
+.adu-match-report-actions a {
+  align-items: center;
+  border: 1px solid rgba(240,235,225,.2);
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  text-decoration: none;
+}
+
+.adu-match-report-actions .print {
+  background: var(--copper);
+  border-color: var(--copper);
+  color: var(--blueprint);
+}
+
+.adu-match-report-actions .email {
+  background: rgba(240,235,225,.08);
+  color: var(--stucco);
+}
+
 .adu-match-simple-next {
   background: rgba(240,235,225,.06);
   border: 1px solid rgba(240,235,225,.12);
@@ -4906,6 +4979,58 @@ footer {
 }
 
 @media print {
+  body.adu-match-report-print > *:not(#design) { display: none !important; }
+  body.adu-match-report-print #design {
+    background: #fff !important;
+    color: #1C1917 !important;
+    padding: 0 !important;
+  }
+  body.adu-match-report-print #design > *:not(.design-experience) { display: none !important; }
+  body.adu-match-report-print .design-experience > *:not(.design-entry-stage) { display: none !important; }
+  body.adu-match-report-print .design-entry-stage {
+    display: block !important;
+    max-width: none !important;
+  }
+  body.adu-match-report-print .design-entry-card {
+    background: #fff !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #1C1917 !important;
+    padding: 20px !important;
+  }
+  body.adu-match-report-print .design-entry-kicker,
+  body.adu-match-report-print .design-entry-card > h3,
+  body.adu-match-report-print .design-entry-card > p,
+  body.adu-match-report-print #adu-matchmaker-questions,
+  body.adu-match-report-print .adu-matchmaker-head,
+  body.adu-match-report-print .adu-match-report-actions,
+  body.adu-match-report-print .adu-match-simple-next { display: none !important; }
+  body.adu-match-report-print .adu-match-result {
+    background: #fff !important;
+    border: 0 !important;
+    color: #1C1917 !important;
+    display: grid !important;
+    padding: 0 !important;
+  }
+  body.adu-match-report-print .adu-match-result-label,
+  body.adu-match-report-print .adu-match-rec-label { color: #8B5A35 !important; }
+  body.adu-match-report-print .adu-match-result h4,
+  body.adu-match-report-print .adu-match-rec-title b { color: #0F1F3D !important; }
+  body.adu-match-report-print .adu-match-result p,
+  body.adu-match-report-print .adu-match-rec-copy,
+  body.adu-match-report-print .adu-match-captured,
+  body.adu-match-report-print .adu-match-why span { color: #1C1917 !important; }
+  body.adu-match-report-print .adu-match-score,
+  body.adu-match-report-print .adu-match-recommendation,
+  body.adu-match-report-print .adu-match-model-sheet {
+    background: #fff !important;
+    border-color: #D8C8AD !important;
+    box-shadow: none !important;
+  }
+  body.adu-match-report-print .adu-match-model-sheet img {
+    max-height: 7.4in;
+    object-fit: contain;
+  }
   body.design-summary-print > *:not(.design-result-modal) { display: none !important; }
   body.design-summary-print .design-result-modal {
     align-items: stretch;
@@ -6911,6 +7036,13 @@ function renderAduMatcher() {
       </div>
       <span class="adu-match-score">Ready to review</span>
     </div>
+    <div class="adu-match-model-sheet" aria-label="Recommended starting model sheet">
+      <div class="adu-match-sheet-label">
+        <b>Recommended starting model</b>
+        <span>${match.model.label} · ${match.model.sqft} sf</span>
+      </div>
+      <img src="${match.model.image}" alt="${match.model.label} full design sheet" onclick="openLightbox('${match.model.image}')">
+    </div>
     <div class="adu-match-recommendations" aria-label="Top ADU model recommendations">
       ${alternatives.map((item, index) => `
         <div class="adu-match-recommendation ${index === 0 ? 'primary' : ''}">
@@ -6931,7 +7063,23 @@ function renderAduMatcher() {
       <span><b>Timing</b>${matcherSnapshot.timeline}</span>
     </div>
     <div class="adu-match-simple-next">Next step: use these recommendations as a starting point for a free ABQ ADU site visit. The builder can confirm utilities, sewer, setbacks, and final model fit on the actual property.</div>
+    <div class="adu-match-report-actions">
+      <button class="print" type="button" onclick="printAduMatchReport()">Print / Save Recommendation PDF</button>
+      <a class="email" href="${buildAduMatchEmailHref(match.model, alternatives, matcherSnapshot)}">Email Recommendation</a>
+    </div>
   `;
+}
+
+function buildAduMatchEmailHref(model, alternatives, matcherSnapshot) {
+  const also = alternatives.slice(1).map(item => item.model.label).join(', ') || 'none';
+  const subject = encodeURIComponent(`ABQ ADU recommendation - ${model.label}`);
+  const body = encodeURIComponent(`ABQ ADU recommendation\n\nRecommended starting model: ${model.label}\nSize: ${model.sqft} sf\nBedrooms/Baths: ${model.beds} / ${model.baths}\nStarting estimate: ${moneyShort(model.price)}\n\nWhy this may fit:\n${getAduMatchReasons(model).map(reason => '- ' + reason).join('\n')}\n\nAlso consider: ${also}\n\nWhat matters: ${matcherSnapshot.priority}\nTiming: ${matcherSnapshot.timeline}\n\nNext step: schedule a free ABQ ADU site visit so the builder can confirm utilities, sewer, setbacks, and final model fit on the property.\n\nABQ ADU\n505-977-7659\nhttps://www.abqadu.com`);
+  return `mailto:?subject=${subject}&body=${body}`;
+}
+
+function printAduMatchReport() {
+  document.body.classList.add('adu-match-report-print');
+  window.print();
 }
 
 function setAduMatcherStep(step) {
@@ -7552,7 +7700,10 @@ function emailDesignSummary() {
   window.location.href = `mailto:${summary.email || ''}?subject=${subject}&body=${body}`;
 }
 
-window.addEventListener('afterprint', () => document.body.classList.remove('design-summary-print'));
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('design-summary-print');
+  document.body.classList.remove('adu-match-report-print');
+});
 
 function buildDesignPayload(summary) {
   return {
@@ -7708,6 +7859,7 @@ Object.assign(window, {
   jumpAduStep,
   openAduDesignModal,
   openDesignResult,
+  printAduMatchReport,
   printDesignSummary,
   removeAduChange,
   resetAduDraft,
