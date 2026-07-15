@@ -226,31 +226,47 @@ h1 em {
 
 .credential-ribbon {
   align-items: center;
-  background: rgba(240,235,225,.08);
-  border: 1px solid rgba(196,149,74,.34);
-  border-radius: 6px;
-  box-shadow: 0 16px 48px rgba(0,0,0,.18);
-  color: rgba(240,235,225,.78);
+  background:
+    linear-gradient(135deg, rgba(151,109,91,.96), rgba(114,78,63,.92)),
+    rgba(240,235,225,.08);
+  border: 1px solid rgba(232,201,138,.42);
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.28);
+  color: rgba(240,235,225,.88);
   display: grid;
-  gap: 14px;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  margin-top: 24px;
-  max-width: 540px;
-  padding: 14px 16px;
+  gap: 22px;
+  grid-template-columns: 176px minmax(0, 1fr);
+  margin-top: 28px;
+  max-width: 740px;
+  overflow: hidden;
+  padding: 18px 20px;
+  position: relative;
+}
+
+.credential-ribbon::after {
+  background: radial-gradient(circle at center, rgba(232,201,138,.22), transparent 64%);
+  content: "";
+  height: 180px;
+  pointer-events: none;
+  position: absolute;
+  right: -70px;
+  top: -70px;
+  width: 180px;
 }
 
 .credential-seal {
   align-items: center;
-  background: rgba(255,255,255,.96);
-  border: 1px solid rgba(240,235,225,.72);
-  border-radius: 5px;
-  box-shadow: 0 8px 18px rgba(0,0,0,.18);
+  background: #fff;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 28px 12px 28px 12px;
+  box-shadow: 0 18px 36px rgba(0,0,0,.24);
   display: inline-flex;
-  height: 54px;
+  height: 118px;
   justify-content: center;
   overflow: hidden;
-  padding: 5px 7px;
-  width: 92px;
+  padding: 12px 14px;
+  transform: rotate(-1.5deg);
+  width: 176px;
 }
 
 .credential-seal img {
@@ -261,32 +277,41 @@ h1 em {
 }
 
 .credential-title {
-  color: var(--stucco);
+  color: var(--copper-l);
   font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  font-size: clamp(18px, 2.2vw, 28px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.credential-title a {
+  color: inherit;
+  font-weight: 900;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 8px;
 }
 
 .credential-copy {
-  color: rgba(240,235,225,.58);
-  font-size: 12px;
-  line-height: 1.5;
-  margin-top: 3px;
+  color: rgba(232,201,138,.94);
+  font-size: clamp(15px, 1.7vw, 21px);
+  line-height: 1.48;
+  margin-top: 14px;
 }
 
 .credential-link {
   align-items: center;
   color: var(--copper-l);
   display: inline-flex;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: inherit;
+  font-weight: 700;
   min-height: 44px;
-  letter-spacing: .12em;
-  text-decoration: none;
-  text-transform: uppercase;
-  white-space: nowrap;
+  letter-spacing: 0;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
 }
 
 .credential-link:hover { color: var(--stucco); }
@@ -4610,12 +4635,26 @@ footer {
   .hero-actions .btn-outline { min-height: 48px; padding: 14px 20px; text-align: center; width: 100%; }
   .credential-ribbon {
     align-items: flex-start;
-    gap: 10px;
-    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    grid-template-columns: 116px minmax(0, 1fr);
+    margin-top: 22px;
     padding: 14px;
   }
+  .credential-seal {
+    border-radius: 20px 9px 20px 9px;
+    height: 82px;
+    padding: 8px;
+    width: 116px;
+  }
+  .credential-title {
+    font-size: 17px;
+  }
+  .credential-copy {
+    font-size: 13px;
+    margin-top: 8px;
+  }
   .credential-link {
-    grid-column: 1 / -1;
+    display: inline;
     min-height: 44px;
   }
   .hero-stats {
@@ -5489,10 +5528,9 @@ footer {
     <div class="credential-ribbon" aria-label="ADU Specialist directory listing">
       <div class="credential-seal"><img src="images/adu-specialist-logo.png" alt="ADU Specialist logo"></div>
       <div>
-        <div class="credential-title">Listed ADU Specialist</div>
-        <div class="credential-copy">Our team is in the ADU Specialist directory as an Architect / Designer / Builder. We are the only one in the state of New Mexico with this designation.</div>
+        <div class="credential-title">We are an accredited <a href="https://www.aduspecialist.org/directory" target="_blank" rel="noopener">ADU specialist</a>.</div>
+        <div class="credential-copy">Our team is listed in the ADU Specialist directory as an Architect / Designer / Builder, and we are the only one in New Mexico with this designation. <a class="credential-link" href="https://www.aduspecialist.org/directory" target="_blank" rel="noopener">Click here to see the directory</a>.</div>
       </div>
-      <a class="credential-link" href="https://www.aduspecialist.org/directory" target="_blank" rel="noopener">View Directory</a>
     </div>
     <div class="hero-phone-card">
       <div>
