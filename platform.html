@@ -1131,7 +1131,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <h3 style="font-size:17px;margin-bottom:6px">Lowe's Package Checklist</h3>
       <p class="muted" style="font-size:12px;margin-bottom:8px">Use this as the handoff for the store bid desk or supplier pricing.</p>
       <div id="lowes-checklist"></div>
-      <button class="btn copper" style="width:100%;margin-top:12px" onclick="printPanel('tab-blueprint')">Print Bidout Packet</button>
+      <button class="btn copper" style="width:100%;margin-top:12px" onclick="printBlueprintBidout()">Print Bidout Packet</button>
     </div>
   </div>
 
@@ -2146,6 +2146,102 @@ function renderBidPrintDocument(){
   const el=$('#bid-print-document');
   if(el)el.innerHTML=buildBidPrintDocument();
 }
+function buildBuilderPrintShell(title, subtitle, bodyHtml){
+  const baseHref=new URL('.', window.location.href).href;
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="${esc(baseHref)}">
+  <title>${esc(title)}</title>
+  <style>
+    :root{color-scheme:light;--ink:#1C1917;--muted:#6B625A;--blue:#0F1F3D;--copper:#C4954A;--paper:#FBF7EF;--line:#D8C8AD;--terra:#9B3D2E}
+    *{box-sizing:border-box}
+    body{background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px}
+    .report{margin:0 auto;max-width:8.25in}
+    .mobile-note{background:#FEF6E7;border:1px solid #E8C98A;border-radius:10px;color:#5B4218;font-size:12px;line-height:1.45;margin:0 0 14px;padding:10px}
+    .report-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+    .report-actions button{background:var(--blue);border:0;border-radius:999px;color:#fff;cursor:pointer;font-weight:900;min-height:44px;padding:10px 16px}
+    .report-actions button.secondary{background:var(--copper);color:var(--blue)}
+    .print-doc-header{align-items:flex-end;border-bottom:3px solid var(--blue);display:flex;gap:18px;justify-content:space-between;margin-bottom:16px;padding-bottom:12px}
+    .print-doc-brand{font-size:28px;font-weight:900;letter-spacing:.05em;line-height:1;text-transform:uppercase}
+    .print-doc-brand span{color:var(--copper)}
+    .print-doc-meta{color:var(--muted);font-size:12px;line-height:1.45;text-align:right}
+    .print-doc-title{color:var(--blue);font-size:24px;font-weight:900;line-height:1.05;margin:0 0 8px;text-transform:uppercase}
+    .muted{color:var(--muted)}
+    .r{text-align:right}
+    .print-doc-grid{display:grid;gap:8px;grid-template-columns:repeat(4,1fr);margin:12px 0 16px}
+    .print-doc-kpi{border:1px solid var(--line);border-radius:8px;padding:9px}
+    .print-doc-kpi b{color:var(--blue);display:block;font-size:18px;line-height:1.1}
+    .print-doc-kpi span{color:var(--muted);display:block;font-size:9px;font-weight:800;letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
+    .print-doc-section{break-inside:avoid;margin-top:14px}
+    .print-doc-section h3{border-bottom:1px solid var(--line);color:var(--blue);font-size:16px;margin:0 0 6px;padding-bottom:4px;text-transform:uppercase}
+    .print-doc-table{border-collapse:collapse;font-size:11px;width:100%}
+    .print-doc-table th,.print-doc-table td{border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:top}
+    .print-doc-table th{background:#F4EFE7;font-size:9px;text-transform:uppercase}
+    svg{max-width:100%;height:auto}
+    @media(max-width:720px){
+      body{padding:14px}
+      .report{max-width:none}
+      .print-doc-header{align-items:flex-start;display:block}
+      .print-doc-meta{text-align:left;margin-top:8px}
+      .print-doc-grid{grid-template-columns:1fr 1fr}
+      .print-doc-table{font-size:10px}
+    }
+    @media print{
+      body{padding:0}
+      .report{max-width:none}
+      .mobile-note,.report-actions{display:none!important}
+      .print-doc-section,.print-doc-kpi{break-inside:avoid}
+      a{color:inherit;text-decoration:none}
+    }
+  </style>
+</head>
+<body>
+  <main class="report">
+    <div class="mobile-note">Mobile print tip: use the Print / Save PDF button below. On iPhone or Android, you can also use the browser share menu to print or save this clean report as a PDF.</div>
+    <div class="report-actions">
+      <button type="button" onclick="window.print()">Print / Save PDF</button>
+      <button class="secondary" type="button" onclick="history.length > 1 ? history.back() : window.close()">Back to tool</button>
+    </div>
+    <div class="print-doc-header">
+      <div>
+        <div class="print-doc-brand">ABQ <span>ADU</span></div>
+        <div class="muted">${esc(subtitle||'Builder packet')}</div>
+      </div>
+      <div class="print-doc-meta">Albuquerque, New Mexico<br>Builder: 505-977-7659<br>${esc(new Date().toLocaleDateString())}</div>
+    </div>
+    ${bodyHtml}
+  </main>
+  <script>
+    function readyToPrint(){
+      setTimeout(function(){ try{ window.focus(); window.print(); }catch(e){} }, 450);
+    }
+    var imgs=Array.prototype.slice.call(document.images||[]);
+    if(!imgs.length)readyToPrint();
+    else Promise.all(imgs.map(function(img){
+      if(img.complete)return Promise.resolve();
+      return new Promise(function(resolve){ img.onload=resolve; img.onerror=resolve; });
+    })).then(readyToPrint);
+  <\/script>
+</body>
+</html>`;
+}
+function openBuilderPrintDocument(title, subtitle, bodyHtml, fallbackPanelId='', fallbackClass=''){
+  const doc=buildBuilderPrintShell(title, subtitle, bodyHtml);
+  const win=window.open('', '_blank');
+  if(win&&win.document){
+    win.document.open();
+    win.document.write(doc);
+    win.document.close();
+    return true;
+  }
+  showExportFallback(`${safeFileName(title)}.html`, doc);
+  setBidSaveStatus('Browser blocked the print window. HTML packet is ready below; copy/save it or allow popups, then print again.');
+  if(fallbackPanelId)printPanel(fallbackPanelId,fallbackClass);
+  return false;
+}
 function editInv(i,k,v){
   const inv=invoices[i];
   if(k==='amount'){
@@ -2179,7 +2275,7 @@ function printInvoicePacket(){
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
   renderBidPrintDocument();
-  printPanel('tab-bids','print-bid-summary');
+  openBuilderPrintDocument(`${bid.title || 'ABQ ADU'} invoice packet`, 'Professional invoice packet', buildBidPrintDocument(), 'tab-bids', 'print-bid-summary');
 }
 function printBidsAndInvoicing(){
   syncBidFromInputs();
@@ -2187,7 +2283,7 @@ function printBidsAndInvoicing(){
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
   renderBidPrintDocument();
-  printPanel('tab-bids','print-bid-summary');
+  openBuilderPrintDocument(`${bid.title || 'ABQ ADU'} bid packet`, 'Bid, COGS, and invoicing packet', buildBidPrintDocument(), 'tab-bids', 'print-bid-summary');
 }
 function emailInvoicePacket(){
   if(!invoices.length){acceptBid();return}
@@ -2993,6 +3089,47 @@ function renderLowesQuoteDocument(){
   const el=$('#lowes-print-document');
   if(el)el.innerHTML=buildLowesQuoteDocument();
 }
+function buildBlueprintBidoutDocument(){
+  renderBlueprint(true);
+  const lines=takeoffFor(bpModel);
+  const cogs=lines.reduce((s,l)=>s+l.budget,0)+(bpModel.sqft?5000:6500);
+  const sf=bpModel.sqft||650;
+  const plan=blueprintPlanSvg(bpModel);
+  return `
+    <div class="print-doc-title">${esc(bpModel.name)} Blueprint Bidout Packet</div>
+    <div class="muted">${esc(bpModel.variation || '')} · ${esc(bpModel.sqft || 'Confirm')} sf · internal builder materials planning</div>
+    <div class="print-doc-grid">
+      <div class="print-doc-kpi"><b>${esc(bpModel.sqft || 'Confirm')}</b><span>Square feet</span></div>
+      <div class="print-doc-kpi"><b>${money0(cogs)}</b><span>COGS estimate</span></div>
+      <div class="print-doc-kpi"><b>${money0(cogs/sf)}</b><span>COGS / sq ft</span></div>
+      <div class="print-doc-kpi"><b>12th St</b><span>Lowe's Pro Desk</span></div>
+    </div>
+    ${plan?`<div class="print-doc-section"><h3>Plan Preview</h3><div style="max-width:360px;margin:0 auto">${plan}</div></div>`:''}
+    <div class="print-doc-section">
+      <h3>Material Takeoff</h3>
+      <table class="print-doc-table">
+        <thead><tr><th>Assembly</th><th>Material / bid line</th><th class="r">Qty</th><th>Unit</th><th class="r">Budget</th><th>Review</th></tr></thead>
+        <tbody>${lines.map(l=>`<tr><td>${esc(l.cat)}</td><td>${esc(l.item)}</td><td class="r">${Number(l.qty).toLocaleString()}</td><td>${esc(l.unit)}</td><td class="r">${money0(l.budget)}</td><td>${esc(l.review)}</td></tr>`).join('')}
+        <tr><td><b>Allowance</b></td><td>Extra electric meter / panel range</td><td class="r">1</td><td>allow</td><td class="r"><b>$3,500-$6,500</b></td><td>choose exact bid allowance</td></tr></tbody>
+      </table>
+    </div>
+    <div class="print-doc-section">
+      <h3>Builder Review Flags</h3>
+      <ul>${BLUEPRINT_REVIEW_FLAGS.map(flag=>`<li>${esc(flag)}</li>`).join('')}</ul>
+    </div>
+    <div class="print-doc-section">
+      <h3>Lowe's Pro Desk Workflow</h3>
+      <ol>
+        <li>Confirm model, square footage, orientation, owner changes, and custom review status.</li>
+        <li>Send quantities, alternates, exclusions, site allowances, delivery notes, and installer notes to the 12th Street Pro Desk.</li>
+        <li>Prioritize lumber, sheetrock, mud, house wrap, roofing nails, and the job-site fastener package.</li>
+        <li>Import quoted pricing back into COGS before final builder pricing.</li>
+      </ol>
+    </div>`;
+}
+function printBlueprintBidout(){
+  openBuilderPrintDocument(`${bpModel.name} blueprint bidout`, 'Blueprint-to-materials packet', buildBlueprintBidoutDocument(), 'tab-blueprint', '');
+}
 function ensureLowesCartReady(){
   let cart=ensureCartShape(activeProject.lowesCart);
   if(!cart||!cart.lines.length){
@@ -3049,7 +3186,7 @@ function printLowesQuote(){
   const cart=ensureCartShape(activeProject.lowesCart);
   if(!cart||!cart.lines.length){alert('Generate a cart first.');return}
   renderLowesQuoteDocument();
-  printPanel('tab-blueprint','print-lowes-quote');
+  openBuilderPrintDocument(`${cart.modelName || bid.model || 'ABQ ADU'} Lowe's quote request`, "Lowe's Pro quote request", buildLowesQuoteDocument(), 'tab-blueprint', 'print-lowes-quote');
 }
 
 /* ═══════════════ HELPER PREVIEWS ═══════════════ */

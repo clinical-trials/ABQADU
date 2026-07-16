@@ -7267,20 +7267,23 @@ function buildHomeownerReportShell(title, bodyHtml) {
     ul{margin:8px 0 0;padding-left:18px}
     li{font-size:12px;line-height:1.45;margin:3px 0}
     .note{background:#FFF8EA;border-left:4px solid var(--copper);border-radius:8px;color:#4B3B2A;font-size:12px;line-height:1.5;margin-top:14px;padding:10px}
+    .mobile-note{background:#FFF8EA;border:1px solid var(--line);border-radius:10px;color:#4B3B2A;font-size:12px;line-height:1.45;margin:0 0 14px;padding:10px}
     .actions{display:flex;gap:8px;margin:18px 0 0}
     .actions button{background:var(--blue);border:0;border-radius:999px;color:#fff;cursor:pointer;font-weight:900;min-height:42px;padding:10px 16px}
+    .actions button.secondary{background:var(--copper);color:var(--blue)}
     @media(max-width:720px){body{padding:16px}.report-head,.hero-grid{display:block}.meta{text-align:left;margin-top:10px}.kpis,.cards{grid-template-columns:1fr}.hero img{max-height:none}}
-    @media print{body{padding:0}.report{max-width:none}.actions{display:none}.hero,.card,.kpi{break-inside:avoid}a{color:inherit;text-decoration:none}}
+    @media print{body{padding:0}.report{max-width:none}.actions,.mobile-note{display:none}.hero,.card,.kpi{break-inside:avoid}a{color:inherit;text-decoration:none}}
   </style>
 </head>
 <body>
   <main class="report">
+    <div class="mobile-note">Mobile print tip: use Print / Save PDF below. On iPhone or Android, the browser share menu can also save this report as a PDF.</div>
     <div class="report-head">
       <div class="brand">ABQ <span>ADU</span></div>
       <div class="meta">Albuquerque, New Mexico<br>505-977-7659<br>abqadu.com</div>
     </div>
     ${bodyHtml}
-    <div class="actions"><button type="button" onclick="window.print()">Print / Save PDF</button></div>
+    <div class="actions"><button type="button" onclick="window.print()">Print / Save PDF</button><button class="secondary" type="button" onclick="history.length > 1 ? history.back() : window.close()">Back to site</button></div>
   </main>
   <script>
     function readyToPrint(){
@@ -7298,10 +7301,16 @@ function buildHomeownerReportShell(title, bodyHtml) {
 }
 
 function openHomeownerPrintReport(title, bodyHtml) {
+  const doc = buildHomeownerReportShell(title, bodyHtml);
   const printWindow = window.open('', '_blank');
-  if (!printWindow || !printWindow.document) return false;
+  if (!printWindow || !printWindow.document) {
+    document.open();
+    document.write(doc);
+    document.close();
+    return true;
+  }
   printWindow.document.open();
-  printWindow.document.write(buildHomeownerReportShell(title, bodyHtml));
+  printWindow.document.write(doc);
   printWindow.document.close();
   return true;
 }
