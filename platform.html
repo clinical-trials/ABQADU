@@ -1257,14 +1257,16 @@ window.addEventListener('hashchange',()=>showTab(currentTabFromHash()));
 function clearPrintPanels(){
   document.querySelectorAll('.panel.print-me').forEach(panel=>panel.classList.remove('print-me'));
 }
-function printPanel(panelId){
+function printPanel(panelId, bodyClass=''){
   clearPrintPanels();
+  if(bodyClass)document.body.classList.add(bodyClass);
   const panel=$('#'+panelId);
   if(panel)panel.classList.add('print-me');
   window.print();
 }
 function clearPrintMode(){
   document.body.classList.remove('print-bid-summary');
+  document.body.classList.remove('print-lowes-quote');
   clearPrintPanels();
 }
 window.addEventListener('afterprint',clearPrintMode);
@@ -2177,8 +2179,7 @@ function printInvoicePacket(){
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
   renderBidPrintDocument();
-  document.body.classList.add('print-bid-summary');
-  printPanel('tab-bids');
+  printPanel('tab-bids','print-bid-summary');
 }
 function printBidsAndInvoicing(){
   syncBidFromInputs();
@@ -2186,8 +2187,7 @@ function printBidsAndInvoicing(){
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
   renderBidPrintDocument();
-  document.body.classList.add('print-bid-summary');
-  printPanel('tab-bids');
+  printPanel('tab-bids','print-bid-summary');
 }
 function emailInvoicePacket(){
   if(!invoices.length){acceptBid();return}
@@ -3049,10 +3049,8 @@ function printLowesQuote(){
   const cart=ensureCartShape(activeProject.lowesCart);
   if(!cart||!cart.lines.length){alert('Generate a cart first.');return}
   renderLowesQuoteDocument();
-  document.body.classList.add('print-lowes-quote');
-  window.print();
+  printPanel('tab-blueprint','print-lowes-quote');
 }
-window.addEventListener('afterprint',()=>document.body.classList.remove('print-lowes-quote'));
 
 /* ═══════════════ HELPER PREVIEWS ═══════════════ */
 const HELPERS=[
