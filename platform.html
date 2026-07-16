@@ -3423,7 +3423,7 @@ const LOWES_PACKAGES={
   'finish-heavy':{label:'Finish-heavy package · appliances + interior emphasis',multiplier:1.12,drop3Multiplier:1.18},
 };
 const SUPPLIER_QUOTES=[
-  {id:'rakx',name:'RAKX Hardware',contact:'Jonathan',phone:'5055550188',scope:'Windows / hardware package',qty:8,product:'Alpine Series windows',price:2100,delivery:'Confirm Albuquerque job-site drop',quality:'Window specialty / hardware detail',availability:'Verify current stock and lead time',score:91,best:true},
+  {id:'raks',name:'RAKS Hardware',contact:'Jonathan Baca',role:'Outside Sales',phone:'5056594186',direct:'5058663259',main:'5058651100',email:'jonathanb@raksmail.com',address:'108 Carson Drive, Los Lunas, NM 87031',scope:'Windows / hardware package',qty:8,product:'Alpine Series windows',price:2100,delivery:'Confirm Albuquerque job-site drop',quality:'Window specialty / hardware detail',availability:'Verify current stock and lead time',score:91,best:true},
   {id:'lowes',name:"Lowe's Pro Desk",contact:'Amber',phone:'5055550112',scope:'Windows, doors, appliances, lumber',qty:8,product:'Alpine Series or approved equal',price:2250,delivery:'12th Street Lowe’s delivery in drops',quality:'Good availability; confirm substitutions',availability:'24-hour Pro Desk quote target',score:87},
   {id:'rio-grande',name:'Rio Grande Building Company',contact:'Bernalillo desk',phone:'5055550174',scope:'Lumber, windows, building package',qty:8,product:'Alpine Series or comparable',price:2380,delivery:'Bernalillo supplier delivery quote',quality:'Regional supplier; compare lead times',availability:'Call for stock and delivery window',score:83},
 ];
@@ -3491,11 +3491,18 @@ function renderSupplierCompare(){
   const grid=$('#supplier-compare-grid');if(!grid)return;
   grid.innerHTML=SUPPLIER_QUOTES.map(s=>`<div class="supplier-card ${s.best?'best':''}">
     <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
-      <div><h4>${esc(s.name)}</h4><span class="supplier-role">${esc(s.contact)} · ${esc(s.scope)}</span></div>
+      <div><h4>${esc(s.name)}</h4><span class="supplier-role">${esc(s.contact)}${s.role ? ' · '+esc(s.role) : ''} · ${esc(s.scope)}</span></div>
       ${s.best?'<span class="supplier-badge">Best current</span>':''}
     </div>
     <div class="supplier-price">${fmt0(s.price)} <span>/ ${s.qty} ${esc(s.product)}</span></div>
     <div class="muted" style="font-size:12px">Compare against the shop drawing schedule before final bid: delivery, price, quality, and availability all matter.</div>
+    ${s.address||s.email||s.direct||s.main ? `<div class="muted" style="font-size:11px;margin-top:8px;line-height:1.45">
+      ${s.address?`<div>${esc(s.address)}</div>`:''}
+      ${s.main?`<div>Main: ${esc(formatPhone(s.main))}</div>`:''}
+      ${s.direct?`<div>Direct: ${esc(formatPhone(s.direct))}</div>`:''}
+      ${s.phone?`<div>Mobile: ${esc(formatPhone(s.phone))}</div>`:''}
+      ${s.email?`<div>${esc(s.email)}</div>`:''}
+    </div>`:''}
     <div class="supplier-score-grid">
       <div class="supplier-score"><b>${esc(s.delivery)}</b><span>Delivery</span></div>
       <div class="supplier-score"><b>${esc(s.availability)}</b><span>Availability</span></div>
@@ -3516,6 +3523,8 @@ function textSupplierQuote(id){
   const body=`ABQ ADU supplier quote request
 Project: ${bid.title||'ADU / workshop project'}
 Model: ${bpModel.name||bid.model||'Plan attached'}
+Supplier: ${s.name}${s.contact ? ' / '+s.contact : ''}${s.role ? ' ('+s.role+')' : ''}
+Contact: ${s.phone ? 'mobile '+formatPhone(s.phone) : ''}${s.direct ? ', direct '+formatPhone(s.direct) : ''}${s.email ? ', '+s.email : ''}
 Scope: ${s.scope}
 Package: ${s.qty} ${s.product}
 Need comparison on: delivery, price, quality, availability.
@@ -3863,6 +3872,11 @@ function smsUrlFor(phone, body){
   const clean=String(phone||'').replace(/[^\d+]/g,'');
   const sep=/iPhone|iPad|iPod/i.test(navigator.userAgent)?'&':'?';
   return `sms:${clean}${sep}body=${encodeURIComponent(body)}`;
+}
+function formatPhone(phone){
+  const digits=String(phone||'').replace(/\D/g,'');
+  if(digits.length===10)return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  return phone || '';
 }
 function textBuilderPacket(){
   syncBidFromInputs();
