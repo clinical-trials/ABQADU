@@ -195,6 +195,22 @@ contains('actionLabel:\'Add COGS line\'');
 contains('Bid calculator quiz');
 contains('class="invoice-blueprint"');
 contains('id="invoice-blueprint-label"');
+contains('GB-2 / GB98 Builder Knowledge Base');
+contains('GB-2 exam knowledge');
+contains('Current license context: GB98');
+contains('rough opening (RO)');
+contains('king studs');
+contains('jack studs');
+contains('cripple studs');
+contains('header');
+contains('sill plate');
+contains('sill foam');
+contains('fireblock');
+contains('transom window');
+contains('clerestory window');
+contains('Some components are interchangeable or substitutable');
+contains('Window/opening framing: verify RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, and fireblock before ordering.');
+contains('confirm RO, transom/clerestory needs, header, jack/king/cripple studs, sill foam, and fireblock');
 
 function siteContains(snippet) {
   assert(

@@ -472,6 +472,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .ai-badge{align-self:flex-start;background:rgba(196,149,74,.13);border:1px solid rgba(196,149,74,.4);color:var(--copper);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
 .ai-out{background:#0a1828;color:#c8d6e6;border-radius:6px;padding:12px;font-size:12px;line-height:1.6;white-space:pre-wrap;max-height:230px;overflow-y:auto;display:none}
 .ai-out.show{display:block}
+.builder-knowledge{background:#fff;border:1px solid var(--stucco-d);border-left:5px solid var(--copper);border-radius:8px;margin:16px 0;padding:16px}
+.builder-knowledge h3{font-size:18px;margin-bottom:6px;text-transform:uppercase}
+.builder-knowledge-grid{display:grid;gap:10px;grid-template-columns:repeat(3,1fr);margin-top:12px}
+.builder-knowledge-card{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;padding:12px}
+.builder-knowledge-card b{display:block;font-family:var(--fd);font-size:18px;margin-bottom:5px;text-transform:uppercase}
+.builder-knowledge-card span{color:var(--ink60);display:block;font-size:12px;line-height:1.45}
 .note{background:#FEF6E7;border:1px solid var(--copper-l);border-radius:6px;padding:10px 14px;font-size:12px;color:#7a5a1a;margin-bottom:18px}
 
 /* Project controls */
@@ -506,7 +512,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .res-unit .cap{font-size:10px;color:var(--ink30);margin-top:4px}
 @media (max-width:900px){
   .kanban{grid-template-columns:repeat(2,1fr)}
-  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid{grid-template-columns:1fr}
+  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid{grid-template-columns:1fr}
   .bid-app-shell{grid-template-columns:1fr}
   .bid-app-side{min-width:0}
   .estimate-hero,.estimate-grid{grid-template-columns:1fr}
@@ -1469,8 +1475,17 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 <!-- ════════ PROJECT HELPER ════════ -->
 <section class="panel" id="tab-ai">
   <div class="panel-head"><h2>Project Helper</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Cross-phase · design + schedule support</span></div>
-  <p class="panel-sub">Six helper previews designed into the platform — three for design, three for scheduling. Click any helper to preview the kind of output it produces.</p>
+  <p class="panel-sub">Builder knowledge, bid review notes, and helper previews designed into the platform. Click any helper to preview the kind of output it produces.</p>
   <div class="note">⚠ <b>Preview mode.</b> These show representative sample output. Live briefings require a backend with secure project data, schedule history, weather context, and contractor approval before anything is sent to a homeowner.</div>
+  <div class="builder-knowledge">
+    <h3>GB-2 / GB98 Builder Knowledge Base</h3>
+    <div class="muted" style="font-size:12px">Internal reference for license planning, GB-2 exam preparation, shop-drawing review, and field language. ABQ ADU currently carries GB98; builders also need to understand GB-2 residential construction concepts.</div>
+    <div class="builder-knowledge-grid">
+      <div class="builder-knowledge-card"><b>License Path</b><span>Current license context: GB98. Builder training path: GB-2 exam knowledge for residential building, code language, framing assemblies, and job-site responsibility.</span></div>
+      <div class="builder-knowledge-card"><b>Window / Opening Parts</b><span>Every window or door opening needs a rough opening (RO) and a framing vocabulary: king studs, jack studs, cripple studs, header, sill plate, sill foam, and fireblock where required.</span></div>
+      <div class="builder-knowledge-card"><b>Opening Types</b><span>Track special openings separately: transom window, clerestory window, large sliders, full glass panels, and any opening over the engineering threshold. Some components are interchangeable or substitutable; substitutions must preserve code, structure, weather sealing, and inspection approval.</span></div>
+    </div>
+  </div>
   <div class="ai-grid" id="ai-grid"></div>
 </section>
 
@@ -3345,6 +3360,7 @@ const BLUEPRINT_REVIEW_FLAGS = [
   'Extra electric meter / panel: carry $3,500-$6,500 review allowance.',
   'Sewer confirmation study: verify route, tie-in, slope, and pump/equipment risk before final bid.',
   'Openings over 3 ft: engineering review before ordering windows, doors, or headers.',
+  'Window/opening framing: verify RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, and fireblock before ordering.',
   'Typical homeowner ADU max: 750 sf; larger models route to custom review.',
 ];
 
@@ -3567,7 +3583,7 @@ function lowesCartLines(model, packageMeta=selectedLowesPackage()){
     L(1,'Hardware','Framing nails','21° 3-1/4 in — 3 boxes per job site',3,'box',115),
     L(1,'Hardware','Roofing nails','1-1/4 in coil',2,'box',98),
     L(1,'Hardware','Fastener & consumables kit','Nails/fasteners/consumables target roughly $1,000 per job site',1,'kit',460),
-    L(2,'Windows & Doors','Windows','New construction, low-E — openings over 3 ft need engineering first',c.windowCount,'ea',420),
+    L(2,'Windows & Doors','Windows','New construction, low-E — confirm RO, transom/clerestory needs, header, jack/king/cripple studs, sill foam, and fireblock; openings over 3 ft need engineering first',c.windowCount,'ea',420),
     L(2,'Windows & Doors','Exterior doors','Prehung, weather-rated',2,'ea',480),
     L(2,'Windows & Doors','Interior doors','Prehung',Math.max(1,c.doorCount-2),'ea',220),
     L(2,'Building Materials','Sheetrock / drywall 4x8 — 1/2 in','Walls + ceiling; confirm moisture board at bath',sheets,'sheet',16),
