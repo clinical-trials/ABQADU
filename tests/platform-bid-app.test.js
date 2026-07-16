@@ -205,12 +205,13 @@ contains('cripple studs');
 contains('header');
 contains('sill plate');
 contains('sill foam');
+contains('zip sill tape when threshold wood is removed');
 contains('fireblock');
 contains('transom window');
 contains('clerestory window');
 contains('Some components are interchangeable or substitutable');
-contains('Window/opening framing: verify RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, and fireblock before ordering.');
-contains('confirm RO, transom/clerestory needs, header, jack/king/cripple studs, sill foam, and fireblock');
+contains('Window/opening framing: verify RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape when threshold wood is removed, and fireblock before ordering.');
+contains('confirm RO, transom/clerestory needs, header, jack/king/cripple studs, sill foam, zip sill tape when threshold wood is removed, and fireblock');
 
 function siteContains(snippet) {
   assert(
