@@ -347,6 +347,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .estimate-status-pill{background:rgba(255,255,255,.08);border:1px solid rgba(240,235,225,.16);border-radius:999px;color:rgba(240,235,225,.78);font-size:10px;font-weight:900;letter-spacing:.08em;padding:6px 9px;text-transform:uppercase}
 .estimate-status-pill.hot{background:rgba(196,149,74,.18);border-color:rgba(196,149,74,.55);color:var(--copper-l)}
 .estimate-status-pill.ok{background:rgba(209,250,229,.12);border-color:rgba(61,82,71,.55);color:#D1FAE5}
+.estimate-workflow{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:8px;grid-template-columns:repeat(4,minmax(0,1fr));padding:10px}
+.estimate-workflow-step{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;min-height:66px;padding:10px;position:relative}
+.estimate-workflow-step:after{background:var(--ink30);border-radius:999px;content:"";height:9px;position:absolute;right:9px;top:9px;width:9px}
+.estimate-workflow-step.done{border-color:rgba(61,82,71,.38);box-shadow:inset 3px 0 0 var(--sage)}
+.estimate-workflow-step.done:after{background:var(--sage)}
+.estimate-workflow-step.active{border-color:rgba(196,149,74,.58);box-shadow:0 10px 24px rgba(196,149,74,.13),inset 3px 0 0 var(--copper)}
+.estimate-workflow-step.active:after{background:var(--copper)}
+.estimate-workflow-step b{display:block;font-family:var(--fd);font-size:18px;line-height:1;text-transform:uppercase}
+.estimate-workflow-step span{color:var(--ink60);display:block;font-size:11px;line-height:1.3;margin-top:5px}
 .estimate-grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) 330px;align-items:start}
 .estimate-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:15px}
 .estimate-card h3{font-size:18px;line-height:1;margin-bottom:4px;text-transform:uppercase}
@@ -354,6 +363,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .estimate-form-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .estimate-form-grid .wide{grid-column:1/-1}
 .estimate-library{display:grid;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+.estimate-bundles{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.estimate-bundles .btn{min-height:42px}
 .estimate-catalog-btn{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;color:var(--ink);min-height:68px;padding:10px;text-align:left}
 .estimate-catalog-btn:hover{border-color:var(--copper);box-shadow:0 8px 18px rgba(28,25,23,.08)}
 .estimate-catalog-btn b{display:block;font-size:12px;line-height:1.15}
@@ -477,6 +488,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-app-side{min-width:0}
   .estimate-hero,.estimate-grid{grid-template-columns:1fr}
   .estimate-side{position:static}
+  .estimate-workflow{grid-template-columns:repeat(2,minmax(0,1fr))}
   .estimate-library{grid-template-columns:repeat(2,minmax(0,1fr))}
   .estimate-line-card{grid-template-columns:repeat(2,minmax(0,1fr))}
   .estimate-line-card .line-actions{grid-column:1/-1}
@@ -533,7 +545,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-app-meta{font-size:12px}
   .estimate-title{font-size:28px}
   .estimate-hero{border-radius:8px;padding:14px}
-  .estimate-form-grid,.estimate-form-grid.two,.estimate-library,.estimate-line-card,.estimate-future-grid{grid-template-columns:1fr}
+  .estimate-form-grid,.estimate-form-grid.two,.estimate-workflow,.estimate-library,.estimate-line-card,.estimate-future-grid{grid-template-columns:1fr}
   .estimate-catalog-btn{min-height:58px}
   .estimate-line-card{padding:10px}
   .estimate-total-card{position:static}
@@ -702,6 +714,13 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       </div>
     </div>
 
+    <div class="estimate-workflow no-print" id="estimate-workflow" aria-label="Version 7 estimate workflow">
+      <div class="estimate-workflow-step active" data-estimate-step="client"><b>Client</b><span>Name, phone, email, and job-site address.</span></div>
+      <div class="estimate-workflow-step" data-estimate-step="scope"><b>Scope</b><span>Model, square feet, and one-tap line items.</span></div>
+      <div class="estimate-workflow-step" data-estimate-step="review"><b>Review</b><span>Terms, notes, utilities, tax, and total.</span></div>
+      <div class="estimate-workflow-step" data-estimate-step="send"><b>Print / Send</b><span>PDF packet, invoice conversion, or text Ian.</span></div>
+    </div>
+
     <div class="estimate-grid">
       <div class="estimate-main">
         <div class="estimate-card">
@@ -726,6 +745,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <div class="estimate-card">
           <h3>One-Tap Line Item Library</h3>
           <div class="muted" style="font-size:12px">Reusable catalog items help the contractor build a professional estimate quickly from mobile.</div>
+          <div class="estimate-bundles" aria-label="Fast estimate packages">
+            <button class="btn copper sm" onclick="addEstimateBundle('starter')">+ ADU starter estimate</button>
+            <button class="btn ghost sm" onclick="addEstimateBundle('utilities')">+ Utility review package</button>
+            <button class="btn ghost sm" onclick="addEstimateBundle('finishes')">+ Finish package</button>
+            <button class="btn danger sm" onclick="confirmClearEstimateLines()">Clear lines</button>
+          </div>
           <div class="estimate-library" id="estimate-library"></div>
         </div>
 
@@ -1492,6 +1517,11 @@ const ESTIMATE_CATALOG_LABELS = {
   flooring:['Flooring','Material + install'],
   engineering:['Engineering','Openings/custom changes'],
 };
+const ESTIMATE_BUNDLES = {
+  starter:['precon','sitePlan','permitFast','lowesAppliance','plumbingFixtures','hvacMini','cabinetsCounters','flooring'],
+  utilities:['panelLow','panelHigh','sewerStudy','engineering'],
+  finishes:['lowesAppliance','plumbingFixtures','cabinetsCounters','flooring'],
+};
 function defaultEstimateState(){
   const today=new Date();
   const expiry=new Date(today); expiry.setDate(expiry.getDate()+14);
@@ -1568,6 +1598,20 @@ function estimateActivity(type,detail){
   estimateState.activity=estimateState.activity.slice(0,14);
   store.set('estimateV7', estimateState);
 }
+function renderEstimateWorkflow(t){
+  const hasClient=Boolean(estimateState.client && estimateState.phone && estimateState.address);
+  const hasScope=Boolean(estimateState.model && (+estimateState.sqft||0)>0 && estimateState.lines.length);
+  const hasReview=Boolean((estimateState.terms || estimateState.notes) && t.total>0);
+  const hasSend=['sent','viewed','approved'].includes(estimateState.status) || estimateState.docType==='invoice' || estimateState.activity.some(a=>['Printed','Text prepared'].includes(a.type));
+  const states={client:hasClient,scope:hasScope,review:hasReview,send:hasSend};
+  const order=['client','scope','review','send'];
+  const next=order.find(key=>!states[key]) || 'send';
+  document.querySelectorAll('[data-estimate-step]').forEach(step=>{
+    const key=step.dataset.estimateStep;
+    step.classList.toggle('done', Boolean(states[key]));
+    step.classList.toggle('active', key===next && !states[key]);
+  });
+}
 function renderEstimateTool(){
   if(!$('#tab-estimates'))return;
   normalizeEstimateState();
@@ -1602,6 +1646,7 @@ function renderEstimateTool(){
   setText('estimate-handling-out', fmt(t.handling));
   setText('estimate-insurance-out', fmt(t.insurance));
   setText('estimate-total', fmt(t.total));
+  renderEstimateWorkflow(t);
   const library=$('#estimate-library');
   if(library)library.innerHTML=Object.entries(ESTIMATE_CATALOG).map(([key,line])=>{
     const label=ESTIMATE_CATALOG_LABELS[key] || [line.description, fmt(line.unitPrice)];
@@ -1635,10 +1680,34 @@ function addEstimateCatalogItem(key){
   estimateActivity('Line added', line.description);
   renderEstimateTool();
 }
+function addEstimateBundle(key){
+  syncEstimateFromInputs();
+  const bundle=ESTIMATE_BUNDLES[key] || [];
+  const added=[];
+  bundle.forEach(catalogKey=>{
+    const line=ESTIMATE_CATALOG[catalogKey];
+    if(line){
+      estimateState.lines.push({...line});
+      added.push(line.description);
+    }
+  });
+  estimateActivity('Bundle added', `${key} package added with ${added.length} line item${added.length===1?'':'s'}.`);
+  renderEstimateTool();
+}
 function addEstimateLine(line={}){
   syncEstimateFromInputs();
   estimateState.lines.push({section:'Custom',part:'',description:'New custom line item',qty:1,unitPrice:0,taxable:false,...line});
   estimateActivity('Line added','Blank editable line item added.');
+  renderEstimateTool();
+}
+function confirmClearEstimateLines(){
+  const first=confirm('Clear all estimate line items?');
+  if(!first)return;
+  const second=confirm('Second check: this removes the current estimate lines from this device draft.');
+  if(!second)return;
+  syncEstimateFromInputs();
+  estimateState.lines=[];
+  estimateActivity('Lines cleared','All estimate line items were cleared after two confirmations.');
   renderEstimateTool();
 }
 function editEstimateLine(i,key,value){
