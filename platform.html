@@ -444,6 +444,23 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .bp-review-flags{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 16px}
 .bp-flag{background:#FEF6E7;border:1px solid rgba(196,149,74,.32);border-radius:8px;color:#6f4b16;font-size:12px;line-height:1.35;padding:10px 12px}
 .bp-flag b{display:block;color:var(--terra);font-size:11px;letter-spacing:.08em;margin-bottom:3px;text-transform:uppercase}
+.supplier-compare{background:#fff;border:1px solid var(--stucco-d);border-radius:10px;margin:16px 0;padding:16px}
+.supplier-compare-head{align-items:flex-start;display:flex;gap:12px;justify-content:space-between;margin-bottom:12px}
+.supplier-compare-head h3{font-size:18px;margin:0;text-transform:uppercase}
+.supplier-compare-head p{color:var(--ink60);font-size:12px;line-height:1.45;margin:5px 0 0;max-width:650px}
+.supplier-grid{display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
+.supplier-card{border:1px solid var(--stucco-d);border-radius:9px;padding:12px;position:relative}
+.supplier-card.best{border-color:var(--sage);box-shadow:0 0 0 3px rgba(84,116,96,.12)}
+.supplier-card h4{font-family:var(--fd);font-size:20px;line-height:1;margin:0;text-transform:uppercase}
+.supplier-card .supplier-role{color:var(--ink60);display:block;font-size:11px;font-weight:800;letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
+.supplier-card .supplier-price{font-family:var(--fd);font-size:34px;font-weight:900;line-height:1;margin:14px 0 6px}
+.supplier-card .supplier-price span{color:var(--ink60);font-family:var(--fb);font-size:11px;font-weight:700}
+.supplier-score-grid{display:grid;gap:6px;grid-template-columns:1fr 1fr;margin-top:10px}
+.supplier-score{background:var(--paper);border-radius:6px;font-size:11px;padding:7px}
+.supplier-score b{display:block;font-size:13px}
+.supplier-badge{background:#D1FAE5;border-radius:999px;color:#065F46;display:inline-flex;font-size:10px;font-weight:900;letter-spacing:.07em;padding:5px 8px;text-transform:uppercase}
+.supplier-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.supplier-actions .btn{font-size:11px;padding:7px 10px}
 .lowes-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:16px;position:sticky;top:78px}
 .lowes-step{display:flex;gap:9px;border-bottom:1px solid var(--stucco);padding:9px 0;font-size:12px}
 .lowes-step b{color:var(--copper)}
@@ -516,6 +533,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .model-catalog{grid-template-columns:repeat(2,1fr)}
   .bp-workflow{grid-template-columns:repeat(2,1fr)}
   .bp-review-flags{grid-template-columns:1fr}
+  .supplier-grid{grid-template-columns:1fr}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .design-wrap{grid-template-columns:1fr}
   .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
@@ -1353,6 +1371,17 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   <div class="model-catalog" id="bp-models"></div>
 
   <div class="bp-plan-wrap no-print" id="bp-plan-preview"></div>
+
+  <div class="supplier-compare no-print" aria-label="Supplier quote comparison">
+    <div class="supplier-compare-head">
+      <div>
+        <h3>Supplier Quote Comparator</h3>
+        <p>Use the shop drawings and takeoff to compare delivery, price, quality, and availability before costs move into the final bid. Current example: Patton-style workshop takeoff, 8 Alpine Series windows at $2,100.</p>
+      </div>
+      <span class="supplier-badge">Internal builder tool</span>
+    </div>
+    <div class="supplier-grid" id="supplier-compare-grid"></div>
+  </div>
 
   <div class="bidout-grid">
     <div class="card" style="padding:0;overflow:hidden">
@@ -3381,6 +3410,7 @@ function renderBlueprint(force=false){
     city,
   ].map((txt,i)=>`<div class="lowes-step"><b>${i+1}</b><span>${txt}</span></div>`).join('');
   renderPlanPreview();
+  renderSupplierCompare();
   renderLowesCart();
 }
 
@@ -3392,6 +3422,11 @@ const LOWES_PACKAGES={
   pro:{label:'Pro-ready full ADU package',multiplier:1.08,drop3Multiplier:1},
   'finish-heavy':{label:'Finish-heavy package · appliances + interior emphasis',multiplier:1.12,drop3Multiplier:1.18},
 };
+const SUPPLIER_QUOTES=[
+  {id:'rakx',name:'RAKX Hardware',contact:'Jonathan',phone:'5055550188',scope:'Windows / hardware package',qty:8,product:'Alpine Series windows',price:2100,delivery:'Confirm Albuquerque job-site drop',quality:'Window specialty / hardware detail',availability:'Verify current stock and lead time',score:91,best:true},
+  {id:'lowes',name:"Lowe's Pro Desk",contact:'Amber',phone:'5055550112',scope:'Windows, doors, appliances, lumber',qty:8,product:'Alpine Series or approved equal',price:2250,delivery:'12th Street Lowe’s delivery in drops',quality:'Good availability; confirm substitutions',availability:'24-hour Pro Desk quote target',score:87},
+  {id:'rio-grande',name:'Rio Grande Building Company',contact:'Bernalillo desk',phone:'5055550174',scope:'Lumber, windows, building package',qty:8,product:'Alpine Series or comparable',price:2380,delivery:'Bernalillo supplier delivery quote',quality:'Regional supplier; compare lead times',availability:'Call for stock and delivery window',score:83},
+];
 function selectedLowesPackage(){
   const key=$('#lowes-package')?.value || 'pro';
   return {key, ...(LOWES_PACKAGES[key] || LOWES_PACKAGES.pro)};
@@ -3451,6 +3486,52 @@ function renderPlanPreview(){
   el.innerHTML=svg
     ?svg+`<div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap"><span class="muted" style="font-size:11px">Blueprint plan auto-drawn from the ${esc(bpModel.name)} floor-plan data — included on the printed quote sheet.</span><button class="btn ghost sm" style="margin-left:auto" onclick="downloadPlanSvg()">Download plan image</button></div>`
     :`<div class="muted" style="font-size:12px">No floor-plan data for ${esc(bpModel.name)} yet — plan previews cover the builder-ready models.</div>`;
+}
+function renderSupplierCompare(){
+  const grid=$('#supplier-compare-grid');if(!grid)return;
+  grid.innerHTML=SUPPLIER_QUOTES.map(s=>`<div class="supplier-card ${s.best?'best':''}">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+      <div><h4>${esc(s.name)}</h4><span class="supplier-role">${esc(s.contact)} · ${esc(s.scope)}</span></div>
+      ${s.best?'<span class="supplier-badge">Best current</span>':''}
+    </div>
+    <div class="supplier-price">${fmt0(s.price)} <span>/ ${s.qty} ${esc(s.product)}</span></div>
+    <div class="muted" style="font-size:12px">Compare against the shop drawing schedule before final bid: delivery, price, quality, and availability all matter.</div>
+    <div class="supplier-score-grid">
+      <div class="supplier-score"><b>${esc(s.delivery)}</b><span>Delivery</span></div>
+      <div class="supplier-score"><b>${esc(s.availability)}</b><span>Availability</span></div>
+      <div class="supplier-score"><b>${esc(s.quality)}</b><span>Quality</span></div>
+      <div class="supplier-score"><b>${s.score}/100</b><span>Fit score</span></div>
+    </div>
+    <div class="supplier-actions">
+      <button class="btn ghost" onclick="textSupplierQuote('${s.id}')">Text quote request</button>
+      <button class="btn copper" onclick="sendSupplierQuoteToBid('${s.id}')">Send to bid COGS</button>
+    </div>
+  </div>`).join('');
+}
+function supplierQuoteById(id){
+  return SUPPLIER_QUOTES.find(s=>s.id===id) || SUPPLIER_QUOTES[0];
+}
+function textSupplierQuote(id){
+  const s=supplierQuoteById(id);
+  const body=`ABQ ADU supplier quote request
+Project: ${bid.title||'ADU / workshop project'}
+Model: ${bpModel.name||bid.model||'Plan attached'}
+Scope: ${s.scope}
+Package: ${s.qty} ${s.product}
+Need comparison on: delivery, price, quality, availability.
+Current target/example price: ${fmt0(s.price)}
+Please reply with unit price, total price, lead time, substitutions, delivery cost, and job-site drop availability.`;
+  window.location.href=smsUrlFor(s.phone, body);
+}
+function sendSupplierQuoteToBid(id){
+  const s=supplierQuoteById(id);
+  bid.items=bid.items.filter(it=>it.source!==`supplier-${s.id}`);
+  bid.items.push({cat:'Materials',desc:`${s.name} - ${s.qty} ${s.product}`,kind:'base',qty:1,unit:'pkg',cost:s.price,source:`supplier-${s.id}`});
+  saveBid();
+  renderBid();
+  location.hash='bids';
+  showTab('bids');
+  setBidSaveStatus(`${s.name} supplier quote added to bid COGS. Confirm final lead time, delivery cost, and substitutions before sending the homeowner bid.`);
 }
 function downloadPlanSvg(){
   const svg=blueprintPlanSvg(bpModel);
