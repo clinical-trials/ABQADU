@@ -210,8 +210,11 @@ contains('fireblock');
 contains('transom window');
 contains('clerestory window');
 contains('Some components are interchangeable or substitutable');
-contains('Window/opening framing: verify RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape when threshold wood is removed, and fireblock before ordering.');
-contains('confirm RO, transom/clerestory needs, header, jack/king/cripple studs, sill foam, zip sill tape when threshold wood is removed, and fireblock');
+contains('Stick Framing Openings');
+contains('SIP Panel Approach');
+contains('openings are pre-cut and prepared from panel shop drawings');
+contains('Build method matters: stick framing needs RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape, and fireblock review; SIP panels route to pre-cut panel shop drawings, cut list, connection details, delivery, and installation checks.');
+contains('confirm build method: stick framing needs RO/header/jack/king/cripple/sill/fireblock review; SIP panels use pre-cut shop drawings and panel cut lists');
 
 function siteContains(snippet) {
   assert(

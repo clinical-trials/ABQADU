@@ -1482,7 +1482,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="muted" style="font-size:12px">Internal reference for license planning, GB-2 exam preparation, shop-drawing review, and field language. ABQ ADU currently carries GB98; builders also need to understand GB-2 residential construction concepts.</div>
     <div class="builder-knowledge-grid">
       <div class="builder-knowledge-card"><b>License Path</b><span>Current license context: GB98. Builder training path: GB-2 exam knowledge for residential building, code language, framing assemblies, and job-site responsibility.</span></div>
-      <div class="builder-knowledge-card"><b>Window / Opening Parts</b><span>Every window or door opening needs a rough opening (RO) and a framing vocabulary: king studs, jack studs, cripple studs, header, sill plate, sill foam, zip sill tape when threshold wood is removed, and fireblock where required.</span></div>
+      <div class="builder-knowledge-card"><b>Stick Framing Openings</b><span>For conventional framing, window and door openings need a rough opening (RO) and framing vocabulary: king studs, jack studs, cripple studs, header, sill plate, sill foam, zip sill tape when threshold wood is removed, and fireblock where required.</span></div>
+      <div class="builder-knowledge-card"><b>SIP Panel Approach</b><span>SIP panels are a different build method: openings are pre-cut and prepared from panel shop drawings. The software should route SIP jobs to panel layout, cut list, connection details, substitutions, delivery, and installation checks rather than assuming field-built jack/king/header framing.</span></div>
       <div class="builder-knowledge-card"><b>Opening Types</b><span>Track special openings separately: transom window, clerestory window, large sliders, full glass panels, and any opening over the engineering threshold. Some components are interchangeable or substitutable; substitutions must preserve code, structure, weather sealing, and inspection approval.</span></div>
     </div>
   </div>
@@ -3360,7 +3361,7 @@ const BLUEPRINT_REVIEW_FLAGS = [
   'Extra electric meter / panel: carry $3,500-$6,500 review allowance.',
   'Sewer confirmation study: verify route, tie-in, slope, and pump/equipment risk before final bid.',
   'Openings over 3 ft: engineering review before ordering windows, doors, or headers.',
-  'Window/opening framing: verify RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape when threshold wood is removed, and fireblock before ordering.',
+  'Build method matters: stick framing needs RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape, and fireblock review; SIP panels route to pre-cut panel shop drawings, cut list, connection details, delivery, and installation checks.',
   'Typical homeowner ADU max: 750 sf; larger models route to custom review.',
 ];
 
@@ -3583,7 +3584,7 @@ function lowesCartLines(model, packageMeta=selectedLowesPackage()){
     L(1,'Hardware','Framing nails','21° 3-1/4 in — 3 boxes per job site',3,'box',115),
     L(1,'Hardware','Roofing nails','1-1/4 in coil',2,'box',98),
     L(1,'Hardware','Fastener & consumables kit','Nails/fasteners/consumables target roughly $1,000 per job site',1,'kit',460),
-    L(2,'Windows & Doors','Windows','New construction, low-E — confirm RO, transom/clerestory needs, header, jack/king/cripple studs, sill foam, zip sill tape when threshold wood is removed, and fireblock; openings over 3 ft need engineering first',c.windowCount,'ea',420),
+    L(2,'Windows & Doors','Windows','New construction, low-E — confirm build method: stick framing needs RO/header/jack/king/cripple/sill/fireblock review; SIP panels use pre-cut shop drawings and panel cut lists; openings over 3 ft need engineering first',c.windowCount,'ea',420),
     L(2,'Windows & Doors','Exterior doors','Prehung, weather-rated',2,'ea',480),
     L(2,'Windows & Doors','Interior doors','Prehung',Math.max(1,c.doorCount-2),'ea',220),
     L(2,'Building Materials','Sheetrock / drywall 4x8 — 1/2 in','Walls + ceiling; confirm moisture board at bath',sheets,'sheet',16),
