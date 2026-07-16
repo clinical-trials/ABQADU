@@ -222,6 +222,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .print-doc-header{border-bottom:3px solid var(--blue);display:flex;justify-content:space-between;gap:18px;margin-bottom:16px;padding-bottom:12px}
 .print-doc-brand{font-family:var(--fd);font-size:28px;font-weight:900;line-height:1;text-transform:uppercase}
 .print-doc-brand span{color:var(--copper)}
+.print-doc-logo{display:block;height:auto;max-width:190px;width:100%}
 .print-doc-meta{text-align:right;color:var(--ink60)}
 .print-doc-title{font-family:var(--fd);font-size:24px;font-weight:900;line-height:1;text-transform:uppercase}
 .print-doc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 16px}
@@ -1404,6 +1405,13 @@ const store = {
   set:(k,v)=>localStorage.setItem('abqadu_'+k,JSON.stringify(v))
 };
 const GRID=12;
+const ABQADU_CONTACT = {
+  name:'ABQ ADU',
+  phone:'505-977-7659',
+  address:'131 Madison NE, Albuquerque, NM 87108',
+  city:'Albuquerque, New Mexico',
+  logo:'images/abqadu-logo.png',
+};
 
 /* Tabs */
 function currentTabFromHash(){
@@ -1702,7 +1710,7 @@ function buildEstimateInvoiceDocument(){
       </div>
       <div class="print-doc-grid" style="grid-template-columns:1fr 1fr">
         <div class="print-doc-kpi"><b>Bill To</b><span>${esc(estimateState.client||'Client name needed')}<br>${esc(estimateState.email||'')}<br>${esc(estimateState.phone||'')}<br>${esc(estimateState.address||'')}</span></div>
-        <div class="print-doc-kpi"><b>Bill From</b><span>ABQ ADU<br>General contractor: 505-977-7659<br>Albuquerque, New Mexico<br>Architect / Designer / Builder team</span></div>
+        <div class="print-doc-kpi"><b>Bill From</b><span>${esc(ABQADU_CONTACT.name)}<br>${esc(ABQADU_CONTACT.address)}<br>Phone: ${esc(ABQADU_CONTACT.phone)}<br>Architect / Designer / Builder team</span></div>
       </div>
     </section>
     <section class="print-doc-section">
@@ -2570,10 +2578,12 @@ function buildBidPrintDocument(){
   return `
     <div class="print-doc-header">
       <div>
-        <div class="print-doc-brand">ABQ <span>ADU</span></div>
+        <img class="print-doc-logo" src="${esc(ABQADU_CONTACT.logo)}" alt="ABQ ADU logo">
         <div class="muted">Builder bid, COGS, and invoice snapshot</div>
       </div>
       <div class="print-doc-meta">
+        <div><b>ABQ ADU:</b> ${esc(ABQADU_CONTACT.phone)}</div>
+        <div><b>Address:</b> ${esc(ABQADU_CONTACT.address)}</div>
         <div><b>Prepared:</b> ${shortDate(new Date().toISOString().slice(0,10))}</div>
         <div><b>Status:</b> ${esc(bid.status || 'draft')}</div>
         <div><b>Confidence:</b> ${esc(confidence.grade)} · ${esc(confidence.label)}</div>
@@ -2660,6 +2670,7 @@ function buildBuilderPrintShell(title, subtitle, bodyHtml){
     .print-doc-header{align-items:flex-end;border-bottom:3px solid var(--blue);display:flex;gap:18px;justify-content:space-between;margin-bottom:16px;padding-bottom:12px}
     .print-doc-brand{font-size:28px;font-weight:900;letter-spacing:.05em;line-height:1;text-transform:uppercase}
     .print-doc-brand span{color:var(--copper)}
+    .print-doc-logo{display:block;height:auto;max-width:210px;width:100%}
     .print-doc-meta{color:var(--muted);font-size:12px;line-height:1.45;text-align:right}
     .print-doc-title{color:var(--blue);font-size:24px;font-weight:900;line-height:1.05;margin:0 0 8px;text-transform:uppercase}
     .muted{color:var(--muted)}
@@ -2700,10 +2711,10 @@ function buildBuilderPrintShell(title, subtitle, bodyHtml){
     </div>
     <div class="print-doc-header">
       <div>
-        <div class="print-doc-brand">ABQ <span>ADU</span></div>
+        <img class="print-doc-logo" src="${esc(ABQADU_CONTACT.logo)}" alt="ABQ ADU logo">
         <div class="muted">${esc(subtitle||'Builder packet')}</div>
       </div>
-      <div class="print-doc-meta">Albuquerque, New Mexico<br>Builder: 505-977-7659<br>${esc(new Date().toLocaleDateString())}</div>
+      <div class="print-doc-meta">${esc(ABQADU_CONTACT.address)}<br>Builder: ${esc(ABQADU_CONTACT.phone)}<br>${esc(new Date().toLocaleDateString())}</div>
     </div>
     ${bodyHtml}
   </main>
