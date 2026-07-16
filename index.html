@@ -3618,13 +3618,28 @@ h2 em { font-style: normal; color: var(--terra); }
 .adu-window-main { height: 26px; left: 36px; top: 22px; width: 42px; }
 .adu-window-side { height: 22px; right: 32px; top: 24px; width: 38px; }
 
-.adu-model.window-picture .adu-door { display: none; }
-.adu-model.window-picture .adu-window-main { height: 34px; left: 34px; top: 18px; width: 74px; }
-.adu-model.window-picture .adu-window-side { height: 34px; right: 34px; top: 18px; width: 74px; }
-.adu-model.no-slider .adu-door { left: 72px; width: 30px; }
-.adu-model.no-slider .adu-window-main { left: 122px; width: 50px; }
-.adu-model.more-glass .adu-window-main { left: 24px; width: 62px; }
-.adu-model.more-glass .adu-window-side { right: 24px; width: 62px; }
+.adu-model.glass-full-panel .adu-door {
+  background: rgba(120,170,230,.58);
+  box-shadow: inset 0 0 0 3px var(--accent), inset 0 0 20px rgba(255,255,255,.24);
+  left: 82px;
+  width: 38px;
+}
+.adu-model.solid-door .adu-door {
+  background: var(--accent);
+  box-shadow: inset 0 0 0 3px rgba(28,25,23,.18);
+  left: 82px;
+  width: 32px;
+}
+.adu-model.solid-door .adu-window-main { left: 124px; width: 48px; }
+.adu-model.multi-pane-door .adu-door {
+  background:
+    linear-gradient(90deg, transparent 47%, var(--trim) 47% 53%, transparent 53%),
+    linear-gradient(transparent 47%, var(--trim) 47% 53%, transparent 53%),
+    rgba(120,170,230,.58);
+  box-shadow: inset 0 0 0 3px var(--accent), inset 0 0 20px rgba(255,255,255,.18);
+  left: 78px;
+  width: 42px;
+}
 
 .adu-portal {
   background: rgba(196,149,74,.24);
@@ -6590,9 +6605,10 @@ footer {
                 <button class="viewer-toggle" id="adu-spin-toggle" type="button" onclick="toggleAduSpin()">Auto 360</button>
               </div>
               <div class="viewer-toggle-grid" aria-label="Door and window layout">
-                <button class="viewer-toggle active" type="button" data-window-layout="standard" onclick="setWindowLayout('standard')">Slider</button>
-                <button class="viewer-toggle" type="button" data-window-layout="no-slider" onclick="setWindowLayout('no-slider')">Door + Window</button>
-                <button class="viewer-toggle" type="button" data-window-layout="window-picture" onclick="setWindowLayout('window-picture')">Picture Windows</button>
+                <button class="viewer-toggle active" type="button" data-window-layout="standard" onclick="setWindowLayout('standard')">Sliders</button>
+                <button class="viewer-toggle" type="button" data-window-layout="glass-full-panel" onclick="setWindowLayout('glass-full-panel')">Glass Full Panel</button>
+                <button class="viewer-toggle" type="button" data-window-layout="solid-door" onclick="setWindowLayout('solid-door')">Solid</button>
+                <button class="viewer-toggle" type="button" data-window-layout="multi-pane-door" onclick="setWindowLayout('multi-pane-door')">Multi Pane</button>
               </div>
               <div class="viewer-note">Interactive concept visualization for quick option testing.<span class="viewer-upgrade-note">Ideal final version: true 4K photorealistic GLB/USDZ models with 360 rotation and material swaps.</span></div>
             </div>
@@ -6729,6 +6745,19 @@ const ADU_NEXT_ACTIONS = [
 ];
 const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
 let ADU_DRAFT_TIMER = null;
+const ADU_DOOR_LAYOUTS = ['standard', 'glass-full-panel', 'solid-door', 'multi-pane-door'];
+const ADU_DOOR_LAYOUT_TO_OPTION = {
+  standard: 'standard',
+  'glass-full-panel': 'glass-full-panel',
+  'solid-door': 'solid-door',
+  'multi-pane-door': 'multi-pane-door',
+};
+const ADU_DOOR_OPTION_TO_LAYOUT = {
+  standard: 'standard',
+  'glass-full-panel': 'glass-full-panel',
+  'solid-door': 'solid-door',
+  'multi-pane-door': 'multi-pane-door',
+};
 
 // Optional builder/backend intake endpoint. Set window.ABQ_DESIGN_ENDPOINT before this script when a public proxy is deployed.
 const ABQ_DESIGN_ENDPOINT = window.ABQ_DESIGN_ENDPOINT || '';
@@ -6760,9 +6789,10 @@ const ADU_OPTIONS = {
     { id: 'portal-roof', label: 'Portal shade roof', sub: 'Shade-forward New Mexico patio profile', price: 9800, image: 'images/cromwell-sheet.png' },
   ],
   windows: [
-    { id: 'standard', label: 'Standard windows', sub: 'Balanced light and cost', price: 0, image: 'images/hyder-hut-sheet.png' },
-    { id: 'more-glass', label: 'More windows / larger openings', sub: 'More light, possible engineering burden over 3 ft', price: 11500, image: 'images/source-townhouse-render.webp' },
-    { id: 'no-slider', label: 'Eliminate slider', sub: 'Replace sliding glass with door/window package', price: 4200, image: 'images/hyder-hut-2br-sheet.png' },
+    { id: 'standard', label: 'Sliders', sub: 'Included sliding glass door package for indoor-outdoor flow', price: 0, image: 'images/hyder-hut-sheet.png' },
+    { id: 'glass-full-panel', label: 'Glass full panel', sub: 'Full-light exterior door for more daylight and a clean modern look', price: 3800, image: 'images/source-townhouse-render.webp' },
+    { id: 'solid-door', label: 'Solid exterior door', sub: 'More privacy and simpler security-focused entry package', price: 2200, image: 'images/hyder-hut-2br-sheet.png' },
+    { id: 'multi-pane-door', label: 'Multi-pane exterior door', sub: 'Classic divided-light style with more character at the entry', price: 5200, image: 'images/source-townhouse-render.webp' },
   ],
   orientation: [
     { id: 'right-hand', label: 'Right-hand entry', sub: 'Best when access runs along the right fence line', price: 0, image: 'images/altura-sheet.png' },
@@ -7375,7 +7405,7 @@ function chooseAduOption(group, id) {
   const isRemovingAddOn = group !== 'model' && ADU_CONFIG[group] === id && selected && selected.id !== defaultOption.id;
   ADU_CONFIG[group] = isRemovingAddOn ? defaultOption.id : id;
   if (group === 'windows') {
-    ADU_CONFIG.windowLayout = ADU_CONFIG.windows === 'more-glass' ? 'more-glass' : ADU_CONFIG.windows;
+    ADU_CONFIG.windowLayout = ADU_DOOR_OPTION_TO_LAYOUT[ADU_CONFIG.windows] || 'standard';
   }
   if (['features', 'interior', 'kitchen', 'bath'].includes(group)) {
     ADU_CONFIG.previewView = 'interior';
@@ -7529,8 +7559,8 @@ function toggleAduSpin() {
 }
 
 function setWindowLayout(layout) {
-  ADU_CONFIG.windowLayout = layout;
-  ADU_CONFIG.windows = layout === 'window-picture' ? 'more-glass' : layout;
+  ADU_CONFIG.windowLayout = ADU_DOOR_LAYOUTS.includes(layout) ? layout : 'standard';
+  ADU_CONFIG.windows = ADU_DOOR_LAYOUT_TO_OPTION[ADU_CONFIG.windowLayout] || 'standard';
   renderAduConfigurator();
 }
 
@@ -7541,9 +7571,7 @@ function renderAdu3D(color, roof, windows, outdoor) {
   model.style.setProperty('--wall', color.palette[0]);
   model.style.setProperty('--accent', color.palette[1]);
   model.style.setProperty('--trim', roof.id === 'flat-metal' ? color.palette[2] : '#5f5145');
-  model.classList.toggle('no-slider', ADU_CONFIG.windowLayout === 'no-slider');
-  model.classList.toggle('window-picture', ADU_CONFIG.windowLayout === 'window-picture');
-  model.classList.toggle('more-glass', ADU_CONFIG.windowLayout === 'more-glass');
+  ADU_DOOR_LAYOUTS.forEach(layout => model.classList.toggle(layout, ADU_CONFIG.windowLayout === layout));
   if (portal) portal.style.display = outdoor.id === 'stoop' ? 'none' : 'block';
   document.querySelectorAll('[data-window-layout]').forEach(button => {
     button.classList.toggle('active', button.dataset.windowLayout === ADU_CONFIG.windowLayout);
@@ -7616,7 +7644,7 @@ function getAduChangeItems(options = selectedAduOptions()) {
 function removeAduChange(group) {
   if (!ADU_OPTIONS[group]) return;
   ADU_CONFIG[group] = getDefaultOption(group).id;
-  if (group === 'windows') ADU_CONFIG.windowLayout = ADU_CONFIG.windows;
+  if (group === 'windows') ADU_CONFIG.windowLayout = ADU_DOOR_OPTION_TO_LAYOUT[ADU_CONFIG.windows] || 'standard';
   renderAduConfigurator();
   updateAduDraftStatus('Upgrade removed');
 }
