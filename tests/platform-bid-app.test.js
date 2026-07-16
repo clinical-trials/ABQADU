@@ -140,9 +140,9 @@ contains('5058651100');
 contains('jonathanb@raksmail.com');
 contains("Lowe's Pro Desk");
 contains('Amber');
-contains('Muras SIP Panels');
-contains('Pre-cut SIP panel package');
-contains('SIP panel shell package');
+contains('Muras PUR/SIP Panels');
+contains('Pre-cut PUR panel / SIP system package');
+contains('PUR/SIP panel shell package');
 contains('Potential dramatic COGS reduction vs stick framing');
 contains('quote required - compare reduced COGS vs stick framing');
 contains('Rio Grande Building Company');
@@ -216,11 +216,11 @@ contains('transom window');
 contains('clerestory window');
 contains('Some components are interchangeable or substitutable');
 contains('Stick Framing Openings');
-contains('SIP Panel Approach');
-contains('openings are pre-cut and prepared from panel shop drawings');
+contains('PUR / SIP Panel Approach');
+contains('PUR panels and SIP panel systems are a different build method');
 contains('Muras can help provide these panels, and materials/labor COGS may be dramatically reduced versus stick framing.');
-contains('Build method matters: stick framing needs RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape, and fireblock review; SIP panels route to Muras/pre-cut panel shop drawings, cut list, connection details, delivery, installation checks, and reduced COGS review.');
-contains('confirm build method: stick framing needs RO/header/jack/king/cripple/sill/fireblock review; SIP panels use Muras/pre-cut shop drawings and panel cut lists');
+contains('Build method matters: stick framing needs RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape, and fireblock review; PUR/SIP panel systems route to Muras/pre-cut panel shop drawings, cut list, connection details, delivery, installation checks, and reduced COGS review.');
+contains('confirm build method: stick framing needs RO/header/jack/king/cripple/sill/fireblock review; PUR/SIP panel systems use Muras/pre-cut shop drawings and panel cut lists');
 
 function siteContains(snippet) {
   assert(
