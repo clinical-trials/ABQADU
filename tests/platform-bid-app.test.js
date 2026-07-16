@@ -39,6 +39,7 @@ contains('Financing widget');
 contains('Change orders');
 contains('openBuilderPrintDocument(`${docLabel} ${docNumber || \'\'}`.trim()');
 assert(!html.includes('Version 6'), 'Expected platform.html visible/version copy to be upgraded to Version 7');
+assert(!siteHtml.includes('Version 6'), 'Expected index.html visible/version copy to be upgraded to Version 7');
 
 contains('class="bid-app-shell no-print"');
 contains('id="app-project-title"');
