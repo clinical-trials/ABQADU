@@ -379,6 +379,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .estimate-total-card .ln{display:flex;justify-content:space-between;font-size:13px;color:rgba(240,235,225,.72);margin-bottom:8px}
 .estimate-total-card .grand{border-top:2px solid rgba(196,149,74,.45);display:flex;justify-content:space-between;margin-top:10px;padding-top:10px}
 .estimate-total-card .grand b{color:var(--copper-l);font-family:var(--fd);font-size:28px;line-height:1}
+.estimate-payment-card{background:#fff;border:1px solid var(--stucco-d);border-left:5px solid var(--sage);border-radius:8px;display:grid;gap:10px;padding:14px}
+.estimate-payment-card h3{font-size:18px;line-height:1;margin:0;text-transform:uppercase}
+.estimate-payment-grid{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.estimate-payment-kpi{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;padding:9px}
+.estimate-payment-kpi b{display:block;font-family:var(--fd);font-size:21px;line-height:1}
+.estimate-payment-kpi span{color:var(--ink60);display:block;font-size:10px;font-weight:900;letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
 .estimate-doc-type{align-items:center;background:#FFF7E6;border:1px solid rgba(196,149,74,.45);border-radius:8px;display:flex;gap:10px;justify-content:space-between;padding:10px 12px}
 .estimate-doc-type b{color:#7A4E12;font-family:var(--fd);font-size:19px;line-height:1;text-transform:uppercase}
 .estimate-activity{display:grid;gap:8px;margin-top:10px;max-height:180px;overflow:auto}
@@ -545,7 +551,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-app-meta{font-size:12px}
   .estimate-title{font-size:28px}
   .estimate-hero{border-radius:8px;padding:14px}
-  .estimate-form-grid,.estimate-form-grid.two,.estimate-workflow,.estimate-library,.estimate-line-card,.estimate-future-grid{grid-template-columns:1fr}
+  .estimate-form-grid,.estimate-form-grid.two,.estimate-workflow,.estimate-library,.estimate-line-card,.estimate-future-grid,.estimate-payment-grid{grid-template-columns:1fr}
   .estimate-catalog-btn{min-height:58px}
   .estimate-line-card{padding:10px}
   .estimate-total-card{position:static}
@@ -799,12 +805,31 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <div class="ln"><span>Tax</span><span id="estimate-tax-out">$0</span></div>
           <div class="ln"><span>Shipping / handling</span><span id="estimate-handling-out">$0</span></div>
           <div class="ln"><span>Insurance</span><span id="estimate-insurance-out">$0</span></div>
+          <div class="ln"><span>Late fee</span><span id="estimate-late-fee-out">$0</span></div>
           <div class="grand"><span>Total</span><b id="estimate-total">$0</b></div>
           <div class="estimate-form-grid" style="grid-template-columns:1fr 1fr;margin-top:14px">
             <div><label class="fld" style="color:rgba(240,235,225,.72)">Tax rate %</label><input class="in" id="estimate-tax-rate" type="number" step="0.001" value="7.625"></div>
             <div><label class="fld" style="color:rgba(240,235,225,.72)">Discount</label><input class="in" id="estimate-discount" type="number" step="0.01" value="0"></div>
             <div><label class="fld" style="color:rgba(240,235,225,.72)">Handling</label><input class="in" id="estimate-handling" type="number" step="0.01" value="0"></div>
             <div><label class="fld" style="color:rgba(240,235,225,.72)">Insurance</label><input class="in" id="estimate-insurance" type="number" step="0.01" value="0"></div>
+          </div>
+        </div>
+        <div class="estimate-payment-card">
+          <h3>Invoice Payment Tracker</h3>
+          <div class="muted" style="font-size:12px">Use after converting an estimate to an invoice. This is local prototype tracking until Stripe/payment links are wired in.</div>
+          <div class="estimate-payment-grid">
+            <div class="estimate-payment-kpi"><b id="estimate-paid-out">$0</b><span>Paid</span></div>
+            <div class="estimate-payment-kpi"><b id="estimate-balance-out">$0</b><span>Balance</span></div>
+          </div>
+          <div class="estimate-form-grid two" style="margin-top:0">
+            <div><label class="fld">Payment status</label><select class="in" id="estimate-payment-status"><option>unpaid</option><option>partial</option><option>paid</option><option>failed</option><option>refunded</option></select></div>
+            <div><label class="fld">Paid amount</label><input class="in" id="estimate-paid-amount" type="number" step="0.01" value="0"></div>
+            <div><label class="fld">Paid date</label><input class="in" id="estimate-paid-date" type="date"></div>
+            <div><label class="fld">Late fee</label><input class="in" id="estimate-late-fee" type="number" step="0.01" value="0"></div>
+          </div>
+          <div class="estimate-hero-actions">
+            <button class="btn ghost" onclick="recordEstimatePayment('partial')">Record partial payment</button>
+            <button class="btn blue" onclick="recordEstimatePayment('paid')">Mark paid in full</button>
           </div>
         </div>
         <div class="estimate-card">
@@ -1537,6 +1562,7 @@ function defaultEstimateState(){
     client:'', phone:'', email:'', address:'',
     model:'Netherwood House', sqft:440, customerId:'',
     taxRate:7.625, discount:0, handling:0, insurance:0,
+    paymentStatus:'unpaid', paidAmount:0, paidDate:'', lateFee:0,
     terms:'Estimate valid for 14 days. Approved estimate can convert to invoice. First preconstruction invoice is $10,000.',
     notes:'Final price depends on utilities, sewer confirmation, site conditions, permitting, engineering review, and selected finishes.',
     signature:'',
@@ -1565,6 +1591,10 @@ function normalizeEstimateState(){
   estimateState.discount = Number(estimateState.discount ?? 0);
   estimateState.handling = Number(estimateState.handling ?? 0);
   estimateState.insurance = Number(estimateState.insurance ?? 0);
+  estimateState.paymentStatus ||= 'unpaid';
+  estimateState.paidAmount = Number(estimateState.paidAmount ?? 0);
+  estimateState.lateFee = Number(estimateState.lateFee ?? 0);
+  estimateState.paidDate ||= '';
 }
 function saveEstimateDraft(message='Estimate draft saved locally.'){
   syncEstimateFromInputs();
@@ -1581,11 +1611,14 @@ function estimateTotals(){
   const tax=taxBase*((Number(estimateState.taxRate)||0)/100);
   const handling=Number(estimateState.handling)||0;
   const insurance=Number(estimateState.insurance)||0;
-  const total=Math.max(0,subtotal-discount)+tax+handling+insurance;
-  return {subtotal,taxable,discount,tax,handling,insurance,total};
+  const lateFee=Number(estimateState.lateFee)||0;
+  const total=Math.max(0,subtotal-discount)+tax+handling+insurance+lateFee;
+  const paid=Math.max(0,Number(estimateState.paidAmount)||0);
+  const balance=Math.max(0,total-paid);
+  return {subtotal,taxable,discount,tax,handling,insurance,lateFee,total,paid,balance};
 }
 function syncEstimateFromInputs(){
-  const ids=['client','phone','email','address','model','sqft','status','number','expiry','due','terms','customer-id','notes','signature','tax-rate','discount','handling','insurance'];
+  const ids=['client','phone','email','address','model','sqft','status','number','expiry','due','terms','customer-id','notes','signature','tax-rate','discount','handling','insurance','payment-status','paid-amount','paid-date','late-fee'];
   ids.forEach(id=>{
     const el=$(`#estimate-${id}`);
     if(!el)return;
@@ -1602,7 +1635,7 @@ function renderEstimateWorkflow(t){
   const hasClient=Boolean(estimateState.client && estimateState.phone && estimateState.address);
   const hasScope=Boolean(estimateState.model && (+estimateState.sqft||0)>0 && estimateState.lines.length);
   const hasReview=Boolean((estimateState.terms || estimateState.notes) && t.total>0);
-  const hasSend=['sent','viewed','approved'].includes(estimateState.status) || estimateState.docType==='invoice' || estimateState.activity.some(a=>['Printed','Text prepared'].includes(a.type));
+  const hasSend=['sent','viewed','approved'].includes(estimateState.status) || estimateState.docType==='invoice' || ['partial','paid'].includes(estimateState.paymentStatus) || estimateState.activity.some(a=>['Printed','Text prepared'].includes(a.type));
   const states={client:hasClient,scope:hasScope,review:hasReview,send:hasSend};
   const order=['client','scope','review','send'];
   const next=order.find(key=>!states[key]) || 'send';
@@ -1638,6 +1671,7 @@ function renderEstimateTool(){
     expiry:estimateState.expiry, due:estimateState.due, terms:estimateState.terms, 'customer-id':estimateState.customerId,
     notes:estimateState.notes, signature:estimateState.signature, 'tax-rate':estimateState.taxRate,
     discount:estimateState.discount, handling:estimateState.handling, insurance:estimateState.insurance,
+    'payment-status':estimateState.paymentStatus, 'paid-amount':estimateState.paidAmount, 'paid-date':estimateState.paidDate, 'late-fee':estimateState.lateFee,
   };
   Object.entries(values).forEach(([id,value])=>{const el=$(`#estimate-${id}`); if(el)el.value=value ?? '';});
   setText('estimate-subtotal', fmt(t.subtotal));
@@ -1645,6 +1679,9 @@ function renderEstimateTool(){
   setText('estimate-tax-out', fmt(t.tax));
   setText('estimate-handling-out', fmt(t.handling));
   setText('estimate-insurance-out', fmt(t.insurance));
+  setText('estimate-late-fee-out', fmt(t.lateFee));
+  setText('estimate-paid-out', fmt(t.paid));
+  setText('estimate-balance-out', fmt(t.balance));
   setText('estimate-total', fmt(t.total));
   renderEstimateWorkflow(t);
   const library=$('#estimate-library');
@@ -1729,10 +1766,33 @@ function setEstimateStatus(status){
   estimateActivity(status.charAt(0).toUpperCase()+status.slice(1), `Document marked ${status}.`);
   renderEstimateTool();
 }
+function recordEstimatePayment(kind){
+  syncEstimateFromInputs();
+  const t=estimateTotals();
+  if(estimateState.docType!=='invoice')estimateState.docType='invoice';
+  if(kind==='paid'){
+    estimateState.paidAmount=t.total;
+    estimateState.paymentStatus='paid';
+    estimateState.status='approved';
+    estimateState.paidDate=new Date().toISOString().slice(0,10);
+    estimateActivity('Paid', `Invoice marked paid in full: ${fmt(t.total)}.`);
+  }else{
+    const current=Number(estimateState.paidAmount)||0;
+    const amount=prompt(`Partial payment amount (current ${fmt(current)}, balance ${fmt(t.balance)}):`, String(Math.min(t.balance || t.total, 10000)));
+    if(amount===null)return;
+    const paid=Math.max(0,Number(amount)||0);
+    estimateState.paidAmount=Math.min(t.total,current+paid);
+    estimateState.paymentStatus=estimateState.paidAmount>=t.total-0.005 ? 'paid' : 'partial';
+    estimateState.paidDate=new Date().toISOString().slice(0,10);
+    estimateActivity(estimateState.paymentStatus==='paid'?'Paid':'Partial payment', `${fmt(paid)} recorded on this invoice.`);
+  }
+  renderEstimateTool();
+}
 function convertEstimateToInvoice(){
   syncEstimateFromInputs();
   estimateState.docType='invoice';
   estimateState.status='draft';
+  estimateState.paymentStatus ||= 'unpaid';
   estimateState.invoiceNumber ||= `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*900)+100)}`;
   estimateActivity('Converted','Estimate converted to invoice without re-entering client or line-item data.');
   renderEstimateTool();
@@ -1776,6 +1836,10 @@ function buildEstimateInvoiceDocument(){
         <div class="print-doc-kpi"><b>${esc(shortDate(estimateState.expiry))}</b><span>Expiry</span></div>
         <div class="print-doc-kpi"><b>${esc(shortDate(estimateState.due))}</b><span>Due date</span></div>
         <div class="print-doc-kpi"><b>${fmt0(t.total)}</b><span>Total</span></div>
+        <div class="print-doc-kpi"><b>${esc(estimateState.paymentStatus||'unpaid')}</b><span>Payment status</span></div>
+        <div class="print-doc-kpi"><b>${fmt0(t.paid)}</b><span>Paid</span></div>
+        <div class="print-doc-kpi"><b>${fmt0(t.balance)}</b><span>Balance due</span></div>
+        <div class="print-doc-kpi"><b>${esc(estimateState.paidDate ? shortDate(estimateState.paidDate) : 'Not paid')}</b><span>Paid date</span></div>
       </div>
       <div class="print-doc-grid" style="grid-template-columns:1fr 1fr">
         <div class="print-doc-kpi"><b>Bill To</b><span>${esc(estimateState.client||'Client name needed')}<br>${esc(estimateState.email||'')}<br>${esc(estimateState.phone||'')}<br>${esc(estimateState.address||'')}</span></div>
@@ -1802,7 +1866,10 @@ function buildEstimateInvoiceDocument(){
           <tr><td>Tax</td><td class="r">${fmt(t.tax)}</td></tr>
           <tr><td>Shipping / handling</td><td class="r">${fmt(t.handling)}</td></tr>
           <tr><td>Insurance</td><td class="r">${fmt(t.insurance)}</td></tr>
+          <tr><td>Late fee</td><td class="r">${fmt(t.lateFee)}</td></tr>
           <tr><td><b>${docLabel} total</b></td><td class="r"><b>${fmt(t.total)}</b></td></tr>
+          <tr><td>Paid</td><td class="r">${fmt(t.paid)}</td></tr>
+          <tr><td><b>Balance due</b></td><td class="r"><b>${fmt(t.balance)}</b></td></tr>
         </tbody>
       </table>
     </section>
