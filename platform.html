@@ -461,6 +461,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .supplier-badge{background:#D1FAE5;border-radius:999px;color:#065F46;display:inline-flex;font-size:10px;font-weight:900;letter-spacing:.07em;padding:5px 8px;text-transform:uppercase}
 .supplier-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .supplier-actions .btn{font-size:11px;padding:7px 10px}
+.assembly-compare{background:#0F1F3D;border-radius:10px;color:var(--stucco);margin:16px 0;padding:16px}
+.assembly-compare h3{font-size:18px;margin:0;text-transform:uppercase}
+.assembly-compare p{color:rgba(240,235,225,.72);font-size:12px;line-height:1.45;margin:5px 0 12px;max-width:720px}
+.assembly-grid{display:grid;gap:10px;grid-template-columns:repeat(2,1fr)}
+.assembly-card{background:rgba(255,255,255,.08);border:1px solid rgba(232,201,138,.24);border-radius:8px;padding:12px}
+.assembly-card b{display:block;font-family:var(--fd);font-size:22px;text-transform:uppercase}
+.assembly-card strong{color:var(--copper-l);display:block;font-family:var(--fd);font-size:34px;line-height:1;margin:9px 0 4px}
+.assembly-card ul{font-size:12px;line-height:1.5;margin:9px 0 0 18px;color:rgba(240,235,225,.78)}
+.assembly-pill{background:rgba(84,116,96,.22);border:1px solid rgba(169,203,177,.35);border-radius:999px;color:#D1FAE5;display:inline-flex;font-size:10px;font-weight:900;letter-spacing:.07em;margin-top:10px;padding:5px 8px;text-transform:uppercase}
 .lowes-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:16px;position:sticky;top:78px}
 .lowes-step{display:flex;gap:9px;border-bottom:1px solid var(--stucco);padding:9px 0;font-size:12px}
 .lowes-step b{color:var(--copper)}
@@ -539,7 +548,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .model-catalog{grid-template-columns:repeat(2,1fr)}
   .bp-workflow{grid-template-columns:repeat(2,1fr)}
   .bp-review-flags{grid-template-columns:1fr}
-  .supplier-grid{grid-template-columns:1fr}
+  .supplier-grid,.assembly-grid{grid-template-columns:1fr}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .design-wrap{grid-template-columns:1fr}
   .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
@@ -1377,6 +1386,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   <div class="model-catalog" id="bp-models"></div>
 
   <div class="bp-plan-wrap no-print" id="bp-plan-preview"></div>
+
+  <div class="assembly-compare no-print" aria-label="Conventional framing versus PUR SIP panel cost comparison">
+    <h3>Assembly Cost Comparison</h3>
+    <p>Use this before sending supplier quote requests. PUR/SIP panels can cost more up front, but that single package may replace conventional exterior wall framing, exterior sheathing, insulation, and related framing labor/time.</p>
+    <div class="assembly-grid" id="assembly-compare-grid"></div>
+  </div>
 
   <div class="supplier-compare no-print" aria-label="Supplier quote comparison">
     <div class="supplier-compare-head">
@@ -3427,6 +3442,7 @@ function renderBlueprint(force=false){
     city,
   ].map((txt,i)=>`<div class="lowes-step"><b>${i+1}</b><span>${txt}</span></div>`).join('');
   renderPlanPreview();
+  renderAssemblyCompare(lines);
   renderSupplierCompare();
   renderLowesCart();
 }
@@ -3442,7 +3458,7 @@ const LOWES_PACKAGES={
 const SUPPLIER_QUOTES=[
   {id:'raks',name:'RAKS Hardware',contact:'Jonathan Baca',role:'Outside Sales',phone:'5056594186',direct:'5058663259',main:'5058651100',email:'jonathanb@raksmail.com',address:'108 Carson Drive, Los Lunas, NM 87031',scope:'Windows / hardware package',qty:8,product:'Alpine Series windows',price:2100,delivery:'Confirm Albuquerque job-site drop',quality:'Window specialty / hardware detail',availability:'Verify current stock and lead time',score:91,best:true},
   {id:'lowes',name:"Lowe's Pro Desk",contact:'Amber',phone:'5055550112',scope:'Windows, doors, appliances, lumber',qty:8,product:'Alpine Series or approved equal',price:2250,delivery:'12th Street Lowe’s delivery in drops',quality:'Good availability; confirm substitutions',availability:'24-hour Pro Desk quote target',score:87},
-  {id:'muras',name:'Muras PUR/SIP Panels',contact:'Panel supplier',phone:'',scope:'Pre-cut PUR panel / SIP system package',qty:1,product:'PUR/SIP panel shell package',price:0,quoteRequired:true,costImpact:'Potential dramatic COGS reduction vs stick framing',delivery:'Panel delivery schedule required before final bid',quality:'Factory-prepared openings and panel layout',availability:'Quote panel cut list from shop drawings',score:90},
+  {id:'muras',name:'Muras PUR/SIP Panels',contact:'Panel supplier',phone:'',scope:'Pre-cut PUR panel / SIP system package',qty:1,product:'PUR/SIP panel shell package',price:16000,quoteRequired:false,costImpact:'Up-front panel package replaces exterior sheathing, framing, insulation, and exterior framing labor/time',delivery:'Panel delivery schedule required before final bid',quality:'Factory-prepared openings and panel layout',availability:'Quote panel cut list from shop drawings',score:90},
   {id:'rio-grande',name:'Rio Grande Building Company',contact:'Bernalillo desk',phone:'5055550174',scope:'Lumber, windows, building package',qty:8,product:'Alpine Series or comparable',price:2380,delivery:'Bernalillo supplier delivery quote',quality:'Regional supplier; compare lead times',availability:'Call for stock and delivery window',score:83},
 ];
 function selectedLowesPackage(){
@@ -3504,6 +3520,39 @@ function renderPlanPreview(){
   el.innerHTML=svg
     ?svg+`<div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap"><span class="muted" style="font-size:11px">Blueprint plan auto-drawn from the ${esc(bpModel.name)} floor-plan data — included on the printed quote sheet.</span><button class="btn ghost sm" style="margin-left:auto" onclick="downloadPlanSvg()">Download plan image</button></div>`
     :`<div class="muted" style="font-size:12px">No floor-plan data for ${esc(bpModel.name)} yet — plan previews cover the builder-ready models.</div>`;
+}
+function renderAssemblyCompare(lines){
+  const el=$('#assembly-compare-grid');if(!el)return;
+  const conventionalKeys=['Lumber / framing package','Exterior finish package','Insulation package'];
+  const conventional=lines.filter(l=>conventionalKeys.includes(l.item)).reduce((s,l)=>s+l.budget,0);
+  const laborTimeAllowance=Math.round((bpModel.sqft||650)*10);
+  const conventionalTotal=conventional+laborTimeAllowance;
+  const panelPackage=16000;
+  const delta=panelPackage-conventionalTotal;
+  el.innerHTML=`
+    <div class="assembly-card">
+      <b>Conventional stick build</b>
+      <strong>${money0(conventionalTotal)}</strong>
+      <span class="muted" style="color:rgba(240,235,225,.68)">Estimated exterior wall assembly items + labor/time allowance</span>
+      <ul>
+        <li>Lumber / exterior framing package</li>
+        <li>Exterior sheathing / finish substrate</li>
+        <li>Insulation package</li>
+        <li>More field labor, measuring, cutting, and opening-framing coordination</li>
+      </ul>
+    </div>
+    <div class="assembly-card">
+      <b>Muras PUR/SIP panel path</b>
+      <strong>${money0(panelPackage)}</strong>
+      <span class="muted" style="color:rgba(240,235,225,.68)">Example up-front panel package; final quote required from panel shop drawings</span>
+      <ul>
+        <li>Includes exterior sheathing, framing, insulation, and exterior wall assembly</li>
+        <li>Openings are pre-cut/prepared from shop drawings</li>
+        <li>Can reduce field labor and schedule time even if the package line looks higher</li>
+        <li>Compare substitutions, delivery date, panel layout, connection details, and install requirements</li>
+      </ul>
+      <span class="assembly-pill">${delta<=0 ? 'Potential COGS/time savings' : 'Review labor/time offset'}</span>
+    </div>`;
 }
 function renderSupplierCompare(){
   const grid=$('#supplier-compare-grid');if(!grid)return;
