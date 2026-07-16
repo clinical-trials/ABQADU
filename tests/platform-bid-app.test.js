@@ -12,6 +12,30 @@ function contains(snippet) {
   );
 }
 
+contains('ABQ ADU — Platform (Version 7)');
+contains('data-tab="estimates"');
+contains('id="tab-estimates"');
+contains('Estimates &amp; Invoices');
+contains('Version 7 · estimate-to-invoice');
+contains('Version 7 builder app');
+contains('const ESTIMATE_CATALOG =');
+contains('function defaultEstimateState()');
+contains('let estimateState = store.get(\'estimateV7\'');
+contains('function renderEstimateTool()');
+contains('function addEstimateCatalogItem(key)');
+contains('function convertEstimateToInvoice()');
+contains('function markEstimateViewed()');
+contains('function buildEstimateInvoiceDocument()');
+contains('function printEstimateDocument()');
+contains('function textEstimateSummary()');
+contains('Hosted client links');
+contains('Stripe Connect payments');
+contains('QuickBooks Online sync');
+contains('Financing widget');
+contains('Change orders');
+contains('openBuilderPrintDocument(`${docLabel} ${docNumber || \'\'}`.trim()');
+assert(!html.includes('Version 6'), 'Expected platform.html visible/version copy to be upgraded to Version 7');
+
 contains('class="bid-app-shell no-print"');
 contains('id="app-project-title"');
 contains('onclick="newProjectFolder()"');

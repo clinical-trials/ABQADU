@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABQ ADU — Platform (Version 6)</title>
-<link rel="icon" type="image/png" href="favicon.png?v=6-abqadu-live">
-<link rel="apple-touch-icon" href="favicon.png?v=6-abqadu-live">
+<title>ABQ ADU — Platform (Version 7)</title>
+<link rel="icon" type="image/png" href="favicon.png?v=7-builder">
+<link rel="apple-touch-icon" href="favicon.png?v=7-builder">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
@@ -332,6 +332,50 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .send-date-input{border-color:var(--stucco-d)!important;background:#fff!important;font-size:12px;min-width:132px}
 .send-date-note{color:var(--ink60);display:block;font-size:10px;font-weight:700;letter-spacing:.05em;margin-top:3px;text-transform:uppercase}
 
+/* Version 7 estimate-to-invoice app */
+.estimate-app{display:grid;gap:16px}
+.estimate-hero{background:linear-gradient(135deg,var(--blue),#12284f);border:1px solid rgba(196,149,74,.34);border-radius:10px;color:var(--stucco);display:grid;gap:16px;grid-template-columns:minmax(0,1fr) minmax(250px,.38fr);overflow:hidden;padding:18px;position:relative}
+.estimate-hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(240,235,225,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(240,235,225,.055) 1px,transparent 1px);background-size:30px 30px;pointer-events:none}
+.estimate-hero>*{position:relative;z-index:1}
+.estimate-kicker{color:var(--copper-l);font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.estimate-title{font-family:var(--fd);font-size:34px;font-weight:900;line-height:.98;margin-top:4px;text-transform:uppercase}
+.estimate-summary{color:rgba(240,235,225,.72);font-size:13px;margin-top:8px;max-width:720px}
+.estimate-hero-actions{display:grid;gap:8px}
+.estimate-hero-actions .btn{min-height:46px}
+.estimate-status-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.estimate-status-pill{background:rgba(255,255,255,.08);border:1px solid rgba(240,235,225,.16);border-radius:999px;color:rgba(240,235,225,.78);font-size:10px;font-weight:900;letter-spacing:.08em;padding:6px 9px;text-transform:uppercase}
+.estimate-status-pill.hot{background:rgba(196,149,74,.18);border-color:rgba(196,149,74,.55);color:var(--copper-l)}
+.estimate-status-pill.ok{background:rgba(209,250,229,.12);border-color:rgba(61,82,71,.55);color:#D1FAE5}
+.estimate-grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) 330px;align-items:start}
+.estimate-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:15px}
+.estimate-card h3{font-size:18px;line-height:1;margin-bottom:4px;text-transform:uppercase}
+.estimate-form-grid{display:grid;gap:10px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+.estimate-form-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.estimate-form-grid .wide{grid-column:1/-1}
+.estimate-library{display:grid;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+.estimate-catalog-btn{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;color:var(--ink);min-height:68px;padding:10px;text-align:left}
+.estimate-catalog-btn:hover{border-color:var(--copper);box-shadow:0 8px 18px rgba(28,25,23,.08)}
+.estimate-catalog-btn b{display:block;font-size:12px;line-height:1.15}
+.estimate-catalog-btn span{color:var(--ink60);display:block;font-size:10px;line-height:1.3;margin-top:4px}
+.estimate-lines{display:grid;gap:9px;margin-top:12px}
+.estimate-line-card{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:8px;grid-template-columns:.78fr 1.55fr .45fr .55fr .45fr .42fr;align-items:end;padding:10px}
+.estimate-line-card .line-actions{display:flex;justify-content:flex-end}
+.estimate-line-card .btn{min-width:44px}
+.estimate-mobile-label{color:var(--ink60);display:block;font-size:10px;font-weight:900;letter-spacing:.08em;margin-bottom:3px;text-transform:uppercase}
+.estimate-side{display:grid;gap:14px;position:sticky;top:78px}
+.estimate-total-card{background:var(--blue);border-radius:8px;color:var(--stucco);padding:16px}
+.estimate-total-card .ln{display:flex;justify-content:space-between;font-size:13px;color:rgba(240,235,225,.72);margin-bottom:8px}
+.estimate-total-card .grand{border-top:2px solid rgba(196,149,74,.45);display:flex;justify-content:space-between;margin-top:10px;padding-top:10px}
+.estimate-total-card .grand b{color:var(--copper-l);font-family:var(--fd);font-size:28px;line-height:1}
+.estimate-doc-type{align-items:center;background:#FFF7E6;border:1px solid rgba(196,149,74,.45);border-radius:8px;display:flex;gap:10px;justify-content:space-between;padding:10px 12px}
+.estimate-doc-type b{color:#7A4E12;font-family:var(--fd);font-size:19px;line-height:1;text-transform:uppercase}
+.estimate-activity{display:grid;gap:8px;margin-top:10px;max-height:180px;overflow:auto}
+.estimate-activity-item{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;font-size:11px;line-height:1.35;padding:8px}
+.estimate-activity-item b{display:block;color:var(--ink);font-size:12px}
+.estimate-print-note{background:#EEF5F1;border:1px solid rgba(61,82,71,.28);border-radius:8px;color:#274338;font-size:12px;line-height:1.4;padding:10px 12px}
+.estimate-future-grid{display:grid;gap:8px;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:10px}
+.estimate-future-grid span{background:var(--paper);border:1px solid var(--stucco-d);border-radius:7px;color:var(--ink60);font-size:11px;font-weight:800;line-height:1.25;padding:9px;text-transform:uppercase}
+
 /* Gantt */
 .gantt-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
 .gantt-scroll{overflow-x:auto;border:1px solid var(--stucco-d);border-radius:8px;background:#fff}
@@ -430,6 +474,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid{grid-template-columns:1fr}
   .bid-app-shell{grid-template-columns:1fr}
   .bid-app-side{min-width:0}
+  .estimate-hero,.estimate-grid{grid-template-columns:1fr}
+  .estimate-side{position:static}
+  .estimate-library{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .estimate-line-card{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .estimate-line-card .line-actions{grid-column:1/-1}
+  .estimate-future-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bid-identity-grid{grid-template-columns:1fr 1fr}
   .bid-workflow-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
   .one-tap-cogs{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -480,6 +530,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .bid-app-shell{border-radius:8px;padding:14px}
   .bid-app-title{font-size:28px}
   .bid-app-meta{font-size:12px}
+  .estimate-title{font-size:28px}
+  .estimate-hero{border-radius:8px;padding:14px}
+  .estimate-form-grid,.estimate-form-grid.two,.estimate-library,.estimate-line-card,.estimate-future-grid{grid-template-columns:1fr}
+  .estimate-catalog-btn{min-height:58px}
+  .estimate-line-card{padding:10px}
+  .estimate-total-card{position:static}
   .bid-app-actions{grid-template-columns:1fr}
   .bid-app-action.primary:nth-child(5){grid-column:auto}
   .bid-app-action{min-height:48px}
@@ -567,6 +623,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .home-link{min-height:36px}
   .mobile-launch-pad{margin-left:-2px;margin-right:-2px;padding:10px}
   .bid-app-title{font-size:24px}
+  .estimate-title{font-size:24px}
   .bid-app-total b{font-size:26px}
   .cart-kpis .ck{min-width:100%;width:100%}
   .invoice-job-title{font-size:20px}
@@ -602,24 +659,150 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 <header class="topbar">
   <div class="logo">ABQ <span>ADU</span></div>
   <nav class="tabs">
-    <button class="tab active" data-tab="bids">Bids &amp; Invoicing</button>
+    <button class="tab active" data-tab="estimates">Estimates &amp; Invoices</button>
+    <button class="tab" data-tab="bids">Bids &amp; COGS</button>
     <button class="tab" data-tab="schedule">Schedule &amp; Critical Path</button>
     <button class="tab" data-tab="controls">Project Controls</button>
     <button class="tab" data-tab="blueprint">Blueprint Bidout</button>
     <button class="tab" data-tab="ai">Project Helper</button>
   </nav>
-  <span class="v-badge">Version 6</span>
+  <span class="v-badge">Version 7</span>
   <a class="home-link" href="index.html">← Site</a>
 </header>
 
 <div class="mobile-launch-pad" aria-label="Builder platform quick links">
-  <a href="platform.html" data-mobile-tab="bids"><b>Bids &amp; Invoicing</b><span>Bid jobs fast</span></a>
+  <a href="platform.html#estimates" data-mobile-tab="estimates"><b>Estimates &amp; Invoices</b><span>Win clients fast</span></a>
+  <a href="platform.html#bids" data-mobile-tab="bids"><b>Bids &amp; COGS</b><span>Deep bid math</span></a>
   <a href="platform.html#blueprint" data-mobile-tab="blueprint"><b>Blueprint Bidout</b><span>Materials + costs</span></a>
 </div>
 
+<!-- ════════ VERSION 7 ESTIMATES & INVOICES ════════ -->
+<section class="panel active" id="tab-estimates">
+  <div class="panel-head"><h2>Estimates &amp; Invoices</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Version 7 · estimate-to-invoice</span></div>
+  <p class="panel-sub">Create a professional estimate from a phone after the site visit, add common ADU line items in one tap, convert the approved estimate to an invoice, and print or save a clean homeowner-ready document.</p>
+
+  <div class="estimate-app">
+    <div class="estimate-hero no-print">
+      <div>
+        <div class="estimate-kicker">Version 7 builder app</div>
+        <div class="estimate-title" id="estimate-hero-title">Estimate in minutes</div>
+        <div class="estimate-summary" id="estimate-hero-summary">Start with client basics, tap in common ADU items, then print a polished estimate or convert it to an invoice without retyping the job.</div>
+        <div class="estimate-status-row">
+          <span class="estimate-status-pill hot" id="estimate-doc-pill">Estimate draft</span>
+          <span class="estimate-status-pill" id="estimate-client-pill">Client needed</span>
+          <span class="estimate-status-pill" id="estimate-view-pill">No views yet</span>
+        </div>
+      </div>
+      <div class="estimate-hero-actions">
+        <button class="btn copper" onclick="printEstimateDocument()">Print / Save PDF</button>
+        <button class="btn blue" onclick="convertEstimateToInvoice()">Convert to Invoice</button>
+        <button class="btn ghost" onclick="textEstimateSummary()">Text Ian / Builder</button>
+        <button class="btn ghost" onclick="markEstimateViewed()">Simulate Client View</button>
+      </div>
+    </div>
+
+    <div class="estimate-grid">
+      <div class="estimate-main">
+        <div class="estimate-card">
+          <h3>Client + Document Setup</h3>
+          <div class="muted" style="font-size:12px">Keep the field entry short: who, where, what model, and when the document expires.</div>
+          <div class="estimate-form-grid">
+            <div><label class="fld">Client name</label><input class="in" id="estimate-client" placeholder="Homeowner name"></div>
+            <div><label class="fld">Phone</label><input class="in" id="estimate-phone" placeholder="505-977-7659"></div>
+            <div><label class="fld">Email</label><input class="in" id="estimate-email" placeholder="client@example.com"></div>
+            <div class="wide"><label class="fld">Job site address</label><input class="in" id="estimate-address" placeholder="Street address, Albuquerque NM"></div>
+            <div><label class="fld">Model</label><select class="in" id="estimate-model">
+              <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option>
+            </select></div>
+            <div><label class="fld">Square feet</label><input class="in" id="estimate-sqft" type="number" min="1" value="440"></div>
+            <div><label class="fld">Status</label><select class="in" id="estimate-status"><option>draft</option><option>sent</option><option>viewed</option><option>approved</option><option>declined</option></select></div>
+            <div><label class="fld">Estimate #</label><input class="in" id="estimate-number"></div>
+            <div><label class="fld">Expires</label><input class="in" id="estimate-expiry" type="date"></div>
+            <div><label class="fld">Invoice due date</label><input class="in" id="estimate-due" type="date"></div>
+          </div>
+        </div>
+
+        <div class="estimate-card">
+          <h3>One-Tap Line Item Library</h3>
+          <div class="muted" style="font-size:12px">Reusable catalog items help the contractor build a professional estimate quickly from mobile.</div>
+          <div class="estimate-library" id="estimate-library"></div>
+        </div>
+
+        <div class="estimate-card">
+          <div class="bid-toolbar">
+            <div>
+              <h3>Estimate Lines</h3>
+              <div class="muted" style="font-size:12px">Grouped sections make the printed document easier for homeowners to understand.</div>
+            </div>
+            <div class="bid-toolbar-actions">
+              <button class="btn ghost sm" onclick="addEstimateLine()">+ Blank line</button>
+              <button class="btn ghost sm" onclick="saveEstimateDraft()">Save draft</button>
+            </div>
+          </div>
+          <div class="estimate-lines" id="estimate-lines"></div>
+        </div>
+
+        <div class="estimate-card">
+          <h3>Terms, Notes, and Signature</h3>
+          <div class="estimate-form-grid two">
+            <div><label class="fld">Payment terms</label><input class="in" id="estimate-terms" placeholder="Due on receipt / deposit required"></div>
+            <div><label class="fld">Customer ID</label><input class="in" id="estimate-customer-id" placeholder="Optional"></div>
+            <div class="wide"><label class="fld">Special notes</label><textarea class="in" id="estimate-notes" rows="4" placeholder="Scope exclusions, permitting notes, or next steps"></textarea></div>
+            <div class="wide"><label class="fld">Signature name</label><input class="in" id="estimate-signature" placeholder="Typed signature for prototype approval stamp"></div>
+          </div>
+        </div>
+
+        <div class="estimate-card">
+          <h3>Future Real App Backend</h3>
+          <div class="estimate-print-note">This static prototype can simulate delivery and views locally. Real open/view notifications require hosted document links, authenticated users, and backend ActivityLog events.</div>
+          <div class="estimate-future-grid">
+            <span>Hosted client links</span><span>Stripe Connect payments</span><span>QuickBooks Online sync</span><span>Financing widget</span>
+            <span>Change orders</span><span>Automated reminders</span><span>Weekly sales digest</span><span>Review collection</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="estimate-side">
+        <div class="estimate-doc-type">
+          <div><b id="estimate-side-type">Estimate</b><div class="muted" id="estimate-side-number" style="font-size:11px">Draft document</div></div>
+          <span class="pill" id="estimate-side-status" style="background:#FEF3C7;color:#92400E">draft</span>
+        </div>
+        <div class="estimate-total-card">
+          <div class="ln"><span>Subtotal</span><span id="estimate-subtotal">$0</span></div>
+          <div class="ln"><span>Discount</span><span id="estimate-discount-out">$0</span></div>
+          <div class="ln"><span>Tax</span><span id="estimate-tax-out">$0</span></div>
+          <div class="ln"><span>Shipping / handling</span><span id="estimate-handling-out">$0</span></div>
+          <div class="ln"><span>Insurance</span><span id="estimate-insurance-out">$0</span></div>
+          <div class="grand"><span>Total</span><b id="estimate-total">$0</b></div>
+          <div class="estimate-form-grid" style="grid-template-columns:1fr 1fr;margin-top:14px">
+            <div><label class="fld" style="color:rgba(240,235,225,.72)">Tax rate %</label><input class="in" id="estimate-tax-rate" type="number" step="0.001" value="7.625"></div>
+            <div><label class="fld" style="color:rgba(240,235,225,.72)">Discount</label><input class="in" id="estimate-discount" type="number" step="0.01" value="0"></div>
+            <div><label class="fld" style="color:rgba(240,235,225,.72)">Handling</label><input class="in" id="estimate-handling" type="number" step="0.01" value="0"></div>
+            <div><label class="fld" style="color:rgba(240,235,225,.72)">Insurance</label><input class="in" id="estimate-insurance" type="number" step="0.01" value="0"></div>
+          </div>
+        </div>
+        <div class="estimate-card">
+          <h3>Document Activity</h3>
+          <div class="muted" style="font-size:12px">Prototype activity log. Real notifications need backend delivery.</div>
+          <div class="estimate-activity" id="estimate-activity"></div>
+        </div>
+        <div class="estimate-card">
+          <h3>Fast Actions</h3>
+          <div class="estimate-hero-actions" style="margin-top:10px">
+            <button class="btn copper" onclick="printEstimateDocument()">Print / Save PDF</button>
+            <button class="btn blue" onclick="convertEstimateToInvoice()">Convert to invoice</button>
+            <button class="btn ghost" onclick="setEstimateStatus('sent')">Mark sent</button>
+            <button class="btn ghost" onclick="setEstimateStatus('approved')">Mark approved</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
 <!-- ════════ BIDS & INVOICING ════════ -->
-<section class="panel active" id="tab-bids">
-  <div class="panel-head"><h2>Bids &amp; Invoicing</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Version 6 · revenue-facing · prints a homeowner-safe summary</span></div>
+<section class="panel" id="tab-bids">
+  <div class="panel-head"><h2>Bids &amp; COGS</h2><span class="facing-chip builder">Builder-facing</span><span class="muted">Version 7 · deep COGS and draw schedule</span></div>
   <p class="panel-sub">Move from customer call to site visit within 24 hours, then build a line-item estimate with overhead, contingency, and New Mexico gross-receipts tax. Accept a bid to auto-generate the construction draw schedule, then edit draws and track payments as the build progresses.</p>
 
   <div class="bid-app-shell no-print">
@@ -914,7 +1097,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <div id="no-invoices" class="muted" style="padding:16px;text-align:center">No invoices yet — click <b>Build invoices for current job</b>. Invoice 1 will be exactly <b>$10,000</b>.</div>
           <button class="btn ghost sm" id="add-draw-btn" style="margin-top:10px;border-style:dashed;border-color:var(--copper);color:var(--copper);display:none" onclick="addInv()">+ Add draw</button>
           <div id="draw-recon" class="muted" style="margin-top:10px;font-size:12px;display:none"></div>
-          <div class="invoice-plan">Version 6 plan: connect homeowner phone number, contractor approval, and SMS delivery so invoice summaries can be texted automatically with payment links and weather/schedule context.</div>
+          <div class="invoice-plan">Version 7 plan: connect homeowner phone number, contractor approval, and SMS delivery so invoice summaries can be texted automatically with payment links and weather/schedule context.</div>
         </div>
       </div>
     </div>
@@ -1055,7 +1238,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
 <!-- ════════ BLUEPRINT BIDOUT ════════ -->
 <section class="panel" id="tab-blueprint">
-  <div class="panel-head"><h2>Internal Builder Materials Takeoff</h2><span class="facing-chip builder">Builder platform only · internal pricing</span><span class="muted">Version 6 · Lowe's Pro Desk workflow</span></div>
+  <div class="panel-head"><h2>Internal Builder Materials Takeoff</h2><span class="facing-chip builder">Builder platform only · internal pricing</span><span class="muted">Version 7 · Lowe's Pro Desk workflow</span></div>
   <p class="panel-sub">This is not homeowner-facing. Select a model, choose a package, generate a materials list, export the 12th Street Lowe's Pro Desk CSV, track quote status, then send quoted Lowe's pricing back into the builder bid COGS.</p>
 
   <div class="blueprint-hero">
@@ -1069,7 +1252,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       </div>
       <div class="drop-zone">
         <div style="font-family:var(--fd);font-size:16px;color:var(--copper);font-weight:700">Future upload lane</div>
-        <div style="font-size:12px;color:rgba(240,235,225,.65)">Upload city-approved plans, a PDF blueprint, or a designer sheet. Version 6 starts with manual review and standard assemblies; Version 6 can add an agent to draft the takeoff and flag engineering burden.</div>
+        <div style="font-size:12px;color:rgba(240,235,225,.65)">Upload city-approved plans, a PDF blueprint, or a designer sheet. Version 7 starts with manual review and standard assemblies; Version 7 can add an agent to draft the takeoff and flag engineering burden.</div>
       </div>
     </div>
     <div class="card">
@@ -1086,7 +1269,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   </div>
 
   <div class="source-note">
-    Source model list carried into Version 6 from the original site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
+    Source model list carried into Version 7 from the original site and the ABQADU designs page. Square footage marked "confirm" should be verified with the architect/builder before it is used in a signed bid.
   </div>
 
   <div class="materials-lane no-print" aria-label="Lowe's materials bidout priority workflow">
@@ -1224,17 +1407,18 @@ const GRID=12;
 
 /* Tabs */
 function currentTabFromHash(){
-  const raw=(location.hash || '#bids').slice(1).split('?')[0] || 'bids';
-  return document.querySelector(`.tab[data-tab="${raw}"]`) ? raw : 'bids';
+  const raw=(location.hash || '#estimates').slice(1).split('?')[0] || 'estimates';
+  return document.querySelector(`.tab[data-tab="${raw}"]`) ? raw : 'estimates';
 }
 function showTab(name){
-  name = name || 'bids';
+  name = name || 'estimates';
   const t=document.querySelector(`.tab[data-tab="${name}"]`);if(!t)return;
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('[data-mobile-tab]').forEach(x=>x.classList.toggle('active', x.dataset.mobileTab===name));
   t.classList.add('active');
   $('#tab-'+name).classList.add('active');
+  if(name==='estimates') renderEstimateTool();
   if(name==='schedule') renderGantt();
   if(name==='controls') renderControls();
   if(name==='design') ensureDesign();
@@ -1244,10 +1428,10 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.data
 document.querySelectorAll('[data-mobile-tab]').forEach(link=>{
   link.addEventListener('click', event=>{
     const tab=link.dataset.mobileTab;
-    if(tab==='bids'){
+    if(tab==='estimates' || tab==='bids'){
       event.preventDefault();
-      history.pushState(null,'',location.pathname);
-      showTab('bids');
+      history.pushState(null,'',`${location.pathname}#${tab}`);
+      showTab(tab);
       window.scrollTo({top:0,behavior:'smooth'});
     }
   });
@@ -1270,6 +1454,315 @@ function clearPrintMode(){
   clearPrintPanels();
 }
 window.addEventListener('afterprint',clearPrintMode);
+
+/* ═══════════════ VERSION 7 — ESTIMATES ═══════════════ */
+const ESTIMATE_CATALOG = {
+  precon:{section:'Preconstruction',part:'PRE-10000',description:'Preconstruction contract deposit - site plan, design coordination, ordinance checks, and subcontractor bid pulls',qty:1,unitPrice:10000,taxable:false},
+  sitePlan:{section:'Preconstruction',part:'SITE-PLAN',description:'Site plan, plat map review, model placement, and homeowner presentation package',qty:1,unitPrice:2500,taxable:false},
+  permitFast:{section:'Permitting',part:'PERMIT-FAST',description:'Fast-track city permitting allowance',qty:1,unitPrice:1300,taxable:false},
+  panelLow:{section:'Utilities',part:'ELEC-LOW',description:'Extra electric meter / panel allowance - low range',qty:1,unitPrice:3500,taxable:false},
+  panelHigh:{section:'Utilities',part:'ELEC-HIGH',description:'Extra electric meter / panel allowance - high range',qty:1,unitPrice:6500,taxable:false},
+  sewerStudy:{section:'Utilities',part:'SEWER-CONF',description:'Sewer confirmation study - verify route, tie-in, slope, and equipment risk before final bid',qty:1,unitPrice:1800,taxable:false},
+  lowesAppliance:{section:'Materials',part:'LOWES-APP',description:"Lowe's appliance package - dishwasher, range/cooktop, microwave, sink, and full-size fridge allowance",qty:1,unitPrice:6800,taxable:true},
+  plumbingFixtures:{section:'Materials',part:'PLMG-FIX',description:'Plumbing fixture package - toilet, faucet, double vanity allowance, shower/tub fixtures, hose bibs',qty:1,unitPrice:2600,taxable:true},
+  hvacMini:{section:'Mechanical',part:'HVAC-MINI',description:'Mini split HVAC equipment and installation allowance',qty:1,unitPrice:5800,taxable:true},
+  cabinetsCounters:{section:'Finishes',part:'FIN-CAB-CT',description:'Cabinets, large island, storage, and countertop allowance',qty:1,unitPrice:11500,taxable:true},
+  flooring:{section:'Finishes',part:'FIN-FLR',description:'Flooring material and installation allowance',qty:1,unitPrice:7200,taxable:true},
+  engineering:{section:'Design',part:'ENG-OPEN',description:'Engineering review for large openings, structural changes, or custom exterior revisions',qty:1,unitPrice:2500,taxable:false},
+};
+const ESTIMATE_CATALOG_LABELS = {
+  precon:['$10k preconstruction','Fixed first invoice'],
+  sitePlan:['Site plan','Place model on lot'],
+  permitFast:['Fast permit','City fast-track'],
+  panelLow:['Panel low','+ $3,500 review'],
+  panelHigh:['Panel high','+ $6,500 review'],
+  sewerStudy:['Sewer confirmation','Builder-only language'],
+  lowesAppliance:["Lowe's appliances",'Kitchen package'],
+  plumbingFixtures:['Plumbing fixtures','Bath + kitchen basics'],
+  hvacMini:['Mini split HVAC','Comfort package'],
+  cabinetsCounters:['Cabinets + counters','Island and storage'],
+  flooring:['Flooring','Material + install'],
+  engineering:['Engineering','Openings/custom changes'],
+};
+function defaultEstimateState(){
+  const today=new Date();
+  const expiry=new Date(today); expiry.setDate(expiry.getDate()+14);
+  const due=new Date(today); due.setDate(due.getDate()+7);
+  return {
+    docType:'estimate',
+    status:'draft',
+    number:`EST-${today.getFullYear()}-${String(Math.floor(Math.random()*900)+100)}`,
+    invoiceNumber:`INV-${today.getFullYear()}-${String(Math.floor(Math.random()*900)+100)}`,
+    date:today.toISOString().slice(0,10),
+    expiry:expiry.toISOString().slice(0,10),
+    due:due.toISOString().slice(0,10),
+    client:'', phone:'', email:'', address:'',
+    model:'Netherwood House', sqft:440, customerId:'',
+    taxRate:7.625, discount:0, handling:0, insurance:0,
+    terms:'Estimate valid for 14 days. Approved estimate can convert to invoice. First preconstruction invoice is $10,000.',
+    notes:'Final price depends on utilities, sewer confirmation, site conditions, permitting, engineering review, and selected finishes.',
+    signature:'',
+    activity:[{type:'Created',detail:'Version 7 estimate draft started on this device.',at:new Date().toISOString()}],
+    lines:[
+      {...ESTIMATE_CATALOG.precon},
+      {...ESTIMATE_CATALOG.sitePlan},
+      {...ESTIMATE_CATALOG.permitFast},
+    ],
+  };
+}
+let estimateState = store.get('estimateV7', null) || defaultEstimateState();
+let estimateBound=false;
+function normalizeEstimateState(){
+  estimateState.lines = Array.isArray(estimateState.lines) ? estimateState.lines : [];
+  estimateState.activity = Array.isArray(estimateState.activity) ? estimateState.activity : [];
+  estimateState.docType ||= 'estimate';
+  estimateState.status ||= 'draft';
+  estimateState.number ||= defaultEstimateState().number;
+  estimateState.invoiceNumber ||= defaultEstimateState().invoiceNumber;
+  estimateState.expiry ||= defaultEstimateState().expiry;
+  estimateState.due ||= defaultEstimateState().due;
+  estimateState.terms ||= 'Estimate valid for 14 days. Approved estimate can convert to invoice.';
+  estimateState.notes ||= '';
+  estimateState.taxRate = Number(estimateState.taxRate ?? 7.625);
+  estimateState.discount = Number(estimateState.discount ?? 0);
+  estimateState.handling = Number(estimateState.handling ?? 0);
+  estimateState.insurance = Number(estimateState.insurance ?? 0);
+}
+function saveEstimateDraft(message='Estimate draft saved locally.'){
+  syncEstimateFromInputs();
+  estimateState.updatedAt=new Date().toISOString();
+  store.set('estimateV7', estimateState);
+  renderEstimateTool();
+  setBidSaveStatus(message);
+}
+function estimateTotals(){
+  const subtotal=estimateState.lines.reduce((sum,line)=>sum+(Number(line.qty)||0)*(Number(line.unitPrice)||0),0);
+  const taxable=estimateState.lines.reduce((sum,line)=>line.taxable ? sum+(Number(line.qty)||0)*(Number(line.unitPrice)||0) : sum,0);
+  const discount=Number(estimateState.discount)||0;
+  const taxBase=Math.max(0,taxable-discount);
+  const tax=taxBase*((Number(estimateState.taxRate)||0)/100);
+  const handling=Number(estimateState.handling)||0;
+  const insurance=Number(estimateState.insurance)||0;
+  const total=Math.max(0,subtotal-discount)+tax+handling+insurance;
+  return {subtotal,taxable,discount,tax,handling,insurance,total};
+}
+function syncEstimateFromInputs(){
+  const ids=['client','phone','email','address','model','sqft','status','number','expiry','due','terms','customer-id','notes','signature','tax-rate','discount','handling','insurance'];
+  ids.forEach(id=>{
+    const el=$(`#estimate-${id}`);
+    if(!el)return;
+    const key=id.replace(/-([a-z])/g,(_,c)=>c.toUpperCase());
+    estimateState[key]=el.type==='number' ? Number(el.value||0) : el.value;
+  });
+}
+function estimateActivity(type,detail){
+  estimateState.activity.unshift({type,detail,at:new Date().toISOString()});
+  estimateState.activity=estimateState.activity.slice(0,14);
+  store.set('estimateV7', estimateState);
+}
+function renderEstimateTool(){
+  if(!$('#tab-estimates'))return;
+  normalizeEstimateState();
+  const t=estimateTotals();
+  const docLabel=estimateState.docType==='invoice'?'Invoice':'Estimate';
+  const docNumber=estimateState.docType==='invoice'?estimateState.invoiceNumber:estimateState.number;
+  setText('estimate-hero-title', `${docLabel} ${docNumber || ''}`.trim());
+  setText('estimate-hero-summary', `${estimateState.client || 'Client not entered'} · ${estimateState.model || 'Model'} · ${estimateState.address || 'Job site address needed'} · ${fmt0(t.total)}`);
+  setText('estimate-doc-pill', `${docLabel} ${estimateState.status || 'draft'}`);
+  setText('estimate-client-pill', estimateState.client ? estimateState.client : 'Client needed');
+  const views=estimateState.activity.filter(a=>a.type==='Viewed').length;
+  setText('estimate-view-pill', views ? `${views} view signal${views===1?'':'s'}` : 'No views yet');
+  setText('estimate-side-type', docLabel);
+  setText('estimate-side-number', docNumber || 'Draft document');
+  const status=$('#estimate-side-status');
+  if(status){
+    status.textContent=estimateState.status || 'draft';
+    status.style.background=estimateState.status==='approved'?'#D1FAE5':estimateState.status==='viewed'?'#DBEAFE':estimateState.status==='declined'?'#FEE2E2':'#FEF3C7';
+    status.style.color=estimateState.status==='approved'?'#065F46':estimateState.status==='viewed'?'#1E40AF':estimateState.status==='declined'?'#991B1B':'#92400E';
+  }
+  const values={
+    client:estimateState.client, phone:estimateState.phone, email:estimateState.email, address:estimateState.address,
+    model:estimateState.model, sqft:estimateState.sqft, status:estimateState.status, number:estimateState.number,
+    expiry:estimateState.expiry, due:estimateState.due, terms:estimateState.terms, 'customer-id':estimateState.customerId,
+    notes:estimateState.notes, signature:estimateState.signature, 'tax-rate':estimateState.taxRate,
+    discount:estimateState.discount, handling:estimateState.handling, insurance:estimateState.insurance,
+  };
+  Object.entries(values).forEach(([id,value])=>{const el=$(`#estimate-${id}`); if(el)el.value=value ?? '';});
+  setText('estimate-subtotal', fmt(t.subtotal));
+  setText('estimate-discount-out', fmt(t.discount));
+  setText('estimate-tax-out', fmt(t.tax));
+  setText('estimate-handling-out', fmt(t.handling));
+  setText('estimate-insurance-out', fmt(t.insurance));
+  setText('estimate-total', fmt(t.total));
+  const library=$('#estimate-library');
+  if(library)library.innerHTML=Object.entries(ESTIMATE_CATALOG).map(([key,line])=>{
+    const label=ESTIMATE_CATALOG_LABELS[key] || [line.description, fmt(line.unitPrice)];
+    return `<button class="estimate-catalog-btn" type="button" onclick="addEstimateCatalogItem('${key}')"><b>${esc(label[0])}</b><span>${esc(label[1])} · ${fmt0(line.unitPrice)}</span></button>`;
+  }).join('');
+  const lines=$('#estimate-lines');
+  if(lines)lines.innerHTML=estimateState.lines.map((line,i)=>`<div class="estimate-line-card">
+    <div><span class="estimate-mobile-label">Section</span><input class="in" value="${esc(line.section||'')}" onchange="editEstimateLine(${i},'section',this.value)"></div>
+    <div><span class="estimate-mobile-label">Description</span><input class="in" value="${esc(line.description||'')}" onchange="editEstimateLine(${i},'description',this.value)"></div>
+    <div><span class="estimate-mobile-label">Part #</span><input class="in" value="${esc(line.part||'')}" onchange="editEstimateLine(${i},'part',this.value)"></div>
+    <div><span class="estimate-mobile-label">Qty</span><input class="in" type="number" step="0.01" value="${Number(line.qty)||0}" onchange="editEstimateLine(${i},'qty',this.value)"></div>
+    <div><span class="estimate-mobile-label">Unit price</span><input class="in" type="number" step="0.01" value="${Number(line.unitPrice)||0}" onchange="editEstimateLine(${i},'unitPrice',this.value)"></div>
+    <div><span class="estimate-mobile-label">Tax</span><label class="readiness-option" style="min-height:44px"><input type="checkbox" ${line.taxable?'checked':''} onchange="editEstimateLine(${i},'taxable',this.checked)"> taxable</label></div>
+    <div class="line-actions"><button class="btn danger sm" onclick="deleteEstimateLine(${i})">Remove</button></div>
+  </div>`).join('') || '<div class="estimate-print-note">No line items yet. Tap a catalog item above to start.</div>';
+  const activity=$('#estimate-activity');
+  if(activity)activity.innerHTML=estimateState.activity.map(a=>`<div class="estimate-activity-item"><b>${esc(a.type)}</b>${esc(a.detail)}<br><span class="muted">${shortDate((a.at||'').slice(0,10))}</span></div>`).join('') || '<div class="muted" style="font-size:12px">No activity yet.</div>';
+  if(!estimateBound){
+    estimateBound=true;
+    document.querySelectorAll('#tab-estimates input,#tab-estimates select,#tab-estimates textarea').forEach(el=>{
+      el.addEventListener('change',()=>saveEstimateDraft('Estimate draft autosaved.'));
+    });
+  }
+  store.set('estimateV7', estimateState);
+}
+function addEstimateCatalogItem(key){
+  syncEstimateFromInputs();
+  const line=ESTIMATE_CATALOG[key];
+  if(!line)return;
+  estimateState.lines.push({...line});
+  estimateActivity('Line added', line.description);
+  renderEstimateTool();
+}
+function addEstimateLine(line={}){
+  syncEstimateFromInputs();
+  estimateState.lines.push({section:'Custom',part:'',description:'New custom line item',qty:1,unitPrice:0,taxable:false,...line});
+  estimateActivity('Line added','Blank editable line item added.');
+  renderEstimateTool();
+}
+function editEstimateLine(i,key,value){
+  const line=estimateState.lines[i];
+  if(!line)return;
+  line[key]=['qty','unitPrice'].includes(key) ? Number(value||0) : value;
+  if(key==='taxable')line[key]=Boolean(value);
+  store.set('estimateV7', estimateState);
+  renderEstimateTool();
+}
+function deleteEstimateLine(i){
+  const removed=estimateState.lines.splice(i,1)[0];
+  estimateActivity('Line removed', removed ? removed.description : 'Line item removed.');
+  renderEstimateTool();
+}
+function setEstimateStatus(status){
+  syncEstimateFromInputs();
+  estimateState.status=status;
+  estimateActivity(status.charAt(0).toUpperCase()+status.slice(1), `Document marked ${status}.`);
+  renderEstimateTool();
+}
+function convertEstimateToInvoice(){
+  syncEstimateFromInputs();
+  estimateState.docType='invoice';
+  estimateState.status='draft';
+  estimateState.invoiceNumber ||= `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*900)+100)}`;
+  estimateActivity('Converted','Estimate converted to invoice without re-entering client or line-item data.');
+  renderEstimateTool();
+}
+function markEstimateViewed(){
+  syncEstimateFromInputs();
+  estimateState.status='viewed';
+  estimateActivity('Viewed','Client-facing hosted link view simulated locally. Real view tracking requires backend event logging.');
+  renderEstimateTool();
+}
+function groupedEstimateLines(){
+  const groups={};
+  estimateState.lines.forEach(line=>{
+    const section=line.section || 'General';
+    groups[section] ||= [];
+    groups[section].push(line);
+  });
+  return groups;
+}
+function buildEstimateInvoiceDocument(){
+  syncEstimateFromInputs();
+  const t=estimateTotals();
+  const docLabel=estimateState.docType==='invoice'?'Invoice':'Estimate';
+  const docNumber=estimateState.docType==='invoice'?estimateState.invoiceNumber:estimateState.number;
+  const groups=groupedEstimateLines();
+  const rows=Object.entries(groups).map(([section,lines])=>`
+    <tr><td colspan="6" style="background:#F8F2E7;font-weight:900;text-transform:uppercase">${esc(section)}</td></tr>
+    ${lines.map(line=>`<tr>
+      <td>${esc(line.part||'')}</td>
+      <td>${esc(line.description||'')}</td>
+      <td class="r">${Number(line.qty)||0}</td>
+      <td class="r">${fmt(line.unitPrice)}</td>
+      <td>${line.taxable?'Yes':'No'}</td>
+      <td class="r">${fmt((Number(line.qty)||0)*(Number(line.unitPrice)||0))}</td>
+    </tr>`).join('')}`).join('');
+  return `
+    <section class="print-doc-section">
+      <div class="print-doc-title">${esc(docLabel)} ${esc(docNumber || '')}</div>
+      <div class="print-doc-grid">
+        <div class="print-doc-kpi"><b>${esc(estimateState.status||'draft')}</b><span>Status</span></div>
+        <div class="print-doc-kpi"><b>${esc(shortDate(estimateState.expiry))}</b><span>Expiry</span></div>
+        <div class="print-doc-kpi"><b>${esc(shortDate(estimateState.due))}</b><span>Due date</span></div>
+        <div class="print-doc-kpi"><b>${fmt0(t.total)}</b><span>Total</span></div>
+      </div>
+      <div class="print-doc-grid" style="grid-template-columns:1fr 1fr">
+        <div class="print-doc-kpi"><b>Bill To</b><span>${esc(estimateState.client||'Client name needed')}<br>${esc(estimateState.email||'')}<br>${esc(estimateState.phone||'')}<br>${esc(estimateState.address||'')}</span></div>
+        <div class="print-doc-kpi"><b>Bill From</b><span>ABQ ADU<br>General contractor: 505-977-7659<br>Albuquerque, New Mexico<br>Architect / Designer / Builder team</span></div>
+      </div>
+    </section>
+    <section class="print-doc-section">
+      <h3>Scope and pricing</h3>
+      <table class="print-doc-table">
+        <thead><tr><th>Item part #</th><th>Description</th><th class="r">Qty</th><th class="r">Unit price</th><th>Taxable</th><th class="r">Total</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </section>
+    <section class="print-doc-section" style="display:grid;grid-template-columns:1fr 260px;gap:16px">
+      <div>
+        <h3>Special notes and terms</h3>
+        <p>${esc(estimateState.notes||'')}</p>
+        <p style="margin-top:8px"><b>Terms:</b> ${esc(estimateState.terms||'')}</p>
+      </div>
+      <table class="print-doc-table">
+        <tbody>
+          <tr><td>Subtotal</td><td class="r">${fmt(t.subtotal)}</td></tr>
+          <tr><td>Discount</td><td class="r">${fmt(t.discount)}</td></tr>
+          <tr><td>Tax</td><td class="r">${fmt(t.tax)}</td></tr>
+          <tr><td>Shipping / handling</td><td class="r">${fmt(t.handling)}</td></tr>
+          <tr><td>Insurance</td><td class="r">${fmt(t.insurance)}</td></tr>
+          <tr><td><b>${docLabel} total</b></td><td class="r"><b>${fmt(t.total)}</b></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="print-doc-section">
+      <p>I declare that the above information is true and correct to the best of my knowledge.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:42px;margin-top:26px">
+        <div>Signature: ${esc(estimateState.signature||'____________________________')}</div>
+        <div>Date: ____________________________</div>
+      </div>
+    </section>`;
+}
+function printEstimateDocument(){
+  syncEstimateFromInputs();
+  estimateActivity('Printed', 'Print / Save PDF packet opened.');
+  const docLabel=estimateState.docType==='invoice'?'Invoice':'Estimate';
+  const docNumber=estimateState.docType==='invoice'?estimateState.invoiceNumber:estimateState.number;
+  openBuilderPrintDocument(`${docLabel} ${docNumber || ''}`.trim(), 'Version 7 professional builder document', buildEstimateInvoiceDocument(), 'tab-estimates', '');
+  renderEstimateTool();
+}
+function textEstimateSummary(){
+  syncEstimateFromInputs();
+  const t=estimateTotals();
+  const docLabel=estimateState.docType==='invoice'?'Invoice':'Estimate';
+  const docNumber=estimateState.docType==='invoice'?estimateState.invoiceNumber:estimateState.number;
+  const body=encodeURIComponent(`${docLabel} ${docNumber}
+Client: ${estimateState.client || 'Client needed'}
+Phone: ${estimateState.phone || ''}
+Address: ${estimateState.address || ''}
+Model: ${estimateState.model || ''} (${estimateState.sqft || ''} sf)
+Total: ${fmt(t.total)}
+Status: ${estimateState.status}
+
+Open Version 7 builder platform to print/save the PDF packet.`);
+  estimateActivity('Text prepared', `SMS summary prepared for Ian / builder.`);
+  renderEstimateTool();
+  window.location.href=`sms:5059777659?&body=${body}`;
+}
 
 /* ═══════════════ PHASE 1 — BIDS ═══════════════ */
 const SAMPLE_BID = {
@@ -2303,7 +2796,7 @@ ${first.num}: send ${shortDate(first.sendDate)} - ${first.desc} - ${fmt(first.am
 Preconstruction contract note:
 This first invoice is the $10,000 preconstruction deposit. The deposit starts proper bidding, ordinance checks, site planning, design coordination, subcontractor bid pulls, and permitting preparation for the homeowner project.
 
-Version 6 plan: after contractor approval, send this same individual invoice summary by SMS with payment links, weather context, and schedule impact notes.`);
+Version 7 plan: after contractor approval, send this same individual invoice summary by SMS with payment links, weather context, and schedule impact notes.`);
   window.location.href=`mailto:${INVOICE_PACKET_TO}?subject=${subject}&body=${body}`;
 }
 function delInv(i){
@@ -2636,11 +3129,11 @@ function renderDesignDrafts(){
 
 /* ═══════════════ VERSION 4 — MODEL CATALOG + LOWE'S BIDOUT ═══════════════ */
 const MODEL_CATALOG=[
-  {id:'hyder-hut',name:'Netherwood House',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 6 verified',bed:2,bath:1,type:'builder-ready'},
-  {id:'altura-24x24',name:'Altura',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 6 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'series-750',name:'750 Series',sqft:750,variation:'20x37.5 · 2BR or Lux 1BR · typical homeowner max',img:'images/750-series-sheet.jpg',source:'Version 6 verified',bed:'1-2',bath:1,type:'builder-ready'},
-  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · single-family home · expanded custom project',img:'images/cromwell-sheet.png',source:'Version 6 verified',bed:2,bath:1.5,type:'expanded'},
+  {id:'hyder-hut',name:'Netherwood House',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 7 verified',bed:1,bath:1,type:'builder-ready'},
+  {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 7 verified',bed:2,bath:1,type:'builder-ready'},
+  {id:'altura-24x24',name:'Altura',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 7 verified',bed:1,bath:1,type:'builder-ready'},
+  {id:'series-750',name:'750 Series',sqft:750,variation:'20x37.5 · 2BR or Lux 1BR · typical homeowner max',img:'images/750-series-sheet.jpg',source:'Version 7 verified',bed:'1-2',bath:1,type:'builder-ready'},
+  {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · single-family home · expanded custom project',img:'images/cromwell-sheet.png',source:'Version 7 verified',bed:2,bath:1.5,type:'expanded'},
   {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
   {id:'burton',name:'Burton',sqft:null,variation:'ABQADU source model · square footage confirm',img:'images/source-burton-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
   {id:'townhouse',name:'Townhouse',sqft:null,variation:'ABQADU source model · tighter urban footprint',img:'images/source-townhouse-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
