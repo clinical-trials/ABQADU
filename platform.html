@@ -1119,6 +1119,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <button class="quick-cogs-bundle" onclick="addCogsBundle('finishTradePulls')">+ Finish trade pulls</button>
             <button class="quick-cogs-bundle" onclick="addCogsBundle('utilityReview')">+ Utility review</button>
             <button class="quick-cogs-bundle" onclick="addCogsBundle('fullStarter')">+ Full starter bid</button>
+            <button class="quick-cogs-bundle" onclick="loadAmherstAlturaBenchmark()">+ Amherst Altura benchmark</button>
           </div>
           <div class="one-tap-cogs" aria-label="One tap common COGS line items">
             <button type="button" onclick="addPresetLine('lumber')"><b>Lumber package</b><span>Big spend placeholder</span></button>
@@ -2570,6 +2571,33 @@ function addCogsBundle(key){
   renderBid();
   const added=bundle.reduce((s,line)=>s+(+line.qty||0)*(+line.cost||0),0);
   setBidSaveStatus(`Added ${bundle.length} COGS lines (${fmt(added)} contractor cost). Draft saved.`);
+}
+function loadAmherstAlturaBenchmark(){
+  syncBidFromInputs();
+  bid.title='Amherst Altura benchmark - 600 sf';
+  bid.client='';
+  bid.address='435 Amherst Dr NE, Albuquerque NM 87106';
+  bid.model='Altura';
+  bid.sqft=600;
+  bid.status='draft';
+  bid.confidenceGrade='B+';
+  bid.readinessFlags=['needs utility review','missing site data'];
+  bid.items=[
+    {cat:'Benchmark',desc:'435 Amherst Dr NE Altura target consumer price - $185,000 / 600 sf = $308 per sf',kind:'review',qty:1,unit:'target',cost:0},
+    {cat:'Construction',desc:'Altura internal COGS midpoint - $160/sf; current estimate range $150-$170/sf',kind:'base',qty:600,unit:'sf',cost:160},
+    {cat:'Benchmark',desc:'COGS low reference - $150/sf x 600 sf = $90,000',kind:'review',qty:1,unit:'note',cost:0},
+    {cat:'Benchmark',desc:'COGS high reference - $170/sf x 600 sf = $102,000',kind:'review',qty:1,unit:'note',cost:0},
+    {cat:'Utilities',desc:'Electrical, water, and sewer confirmation still required before final price',kind:'review',qty:1,unit:'review',cost:0},
+  ];
+  const markup=$('#t-markup'), cont=$('#t-cont'), tax=$('#t-tax');
+  if(markup)markup.value='74.1';
+  if(cont)cont.value='5';
+  if(tax)tax.value='7.625';
+  invoices=[];
+  invoiceFolderOpen=false;
+  renderBid();
+  focusNewestCogsLine();
+  setBidSaveStatus('Loaded Amherst Altura benchmark: $185,000 consumer target, 600 sf, about $308/sf, with COGS range $150-$170/sf.');
 }
 function focusNewestCogsLine(){
   const rows=document.querySelectorAll('#bid-items tr');
