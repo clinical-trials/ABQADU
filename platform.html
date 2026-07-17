@@ -3551,9 +3551,10 @@ function renderAssemblyCompare(lines){
   const conventionalKeys=['Lumber / framing package','Exterior finish package','Insulation package'];
   const conventional=lines.filter(l=>conventionalKeys.includes(l.item)).reduce((s,l)=>s+l.budget,0);
   const laborTimeAllowance=Math.round((bpModel.sqft||650)*10);
+  const sipLaborReduction=Math.round(laborTimeAllowance*.65);
   const conventionalTotal=conventional+laborTimeAllowance;
   const panelPackage=16000;
-  const delta=panelPackage-conventionalTotal;
+  const delta=(panelPackage-sipLaborReduction)-conventionalTotal;
   el.innerHTML=`
     <div class="assembly-card">
       <b>Conventional stick build</b>
@@ -3573,6 +3574,7 @@ function renderAssemblyCompare(lines){
       <ul>
         <li>Includes exterior sheathing, framing, insulation, and exterior wall assembly</li>
         <li>Openings are pre-cut/prepared from shop drawings</li>
+        <li>Estimated labor reduction credit: ${money0(sipLaborReduction)} before final crew quote</li>
         <li>Can reduce field labor and schedule time even if the package line looks higher</li>
         <li>Compare substitutions, delivery date, panel layout, connection details, and install requirements</li>
       </ul>
@@ -3594,9 +3596,10 @@ function revenueRoutes(lines){
   const exteriorItems=['Lumber / framing package','Exterior finish package','Insulation package'];
   const exteriorConventional=lines.filter(l=>exteriorItems.includes(l.item)).reduce((s,l)=>s+l.budget,0);
   const laborTimeAllowance=Math.round(sf*10);
+  const sipLaborReduction=Math.round(laborTimeAllowance*.65);
   const conventionalWallAssembly=exteriorConventional+laborTimeAllowance;
   const routes=[
-    {id:'muras',name:'Muras PUR/SIP',cogs:base-conventionalWallAssembly+16000,daysSaved:7,risk:'Shop drawings + delivery coordination',quality:'Factory-prepared shell'},
+    {id:'muras',name:'Muras PUR/SIP',cogs:base-conventionalWallAssembly+16000-sipLaborReduction,daysSaved:7,laborCredit:sipLaborReduction,risk:'Shop drawings + delivery coordination',quality:'Factory-prepared shell'},
     {id:'lowes',name:"Lowe's package",cogs:base*1.02,daysSaved:1,risk:'Substitutions + Pro Desk quote timing',quality:'Broad availability'},
     {id:'raks',name:'RAKS openings/hardware',cogs:base-exteriorConventional+exteriorConventional*.94,daysSaved:2,risk:'Confirm delivery and lead time',quality:'Strong openings package'},
     {id:'rio-grande',name:'Rio Grande package',cogs:base*.99,daysSaved:2,risk:'Regional stock and delivery timing',quality:'Building package option'},
@@ -3622,6 +3625,7 @@ function renderRevenueOptimizer(lines){
     <dl>
       <dt>Route COGS</dt><dd>${fmt0(r.cogs)}</dd>
       <dt>Margin</dt><dd>${Math.round(r.margin*1000)/10}%</dd>
+      <dt>Labor impact</dt><dd>${r.laborCredit ? fmt0(r.laborCredit)+' labor credit' : 'standard labor'}</dd>
       <dt>Time impact</dt><dd>${r.daysSaved ? r.daysSaved+' days saved' : 'baseline'}</dd>
       <dt>Revenue score</dt><dd>${r.revenueScore}</dd>
       <dt>Risk</dt><dd>${esc(r.risk)}</dd>
