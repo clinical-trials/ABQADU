@@ -1179,6 +1179,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <div class="invoice-actions no-print">
           <button class="btn blue" onclick="acceptBid()">Build invoices for current job</button>
           <button class="btn print-red" onclick="printInvoicePacket()">Print professional invoice packet</button>
+          <button class="btn copper" onclick="printPreconstructionContract()">Print preconstruction contract</button>
           <button class="btn ghost" onclick="emailInvoicePacket()">Email only invoice 1 summary</button>
         </div>
         <button class="invoice-folder-toggle" type="button" onclick="toggleInvoiceFolder()" aria-expanded="false" id="invoice-folder-toggle">
@@ -3000,6 +3001,54 @@ function printInvoicePacket(){
   renderBid();
   renderBidPrintDocument();
   openBuilderPrintDocument(`${bid.title || 'ABQ ADU'} invoice packet`, 'Professional invoice packet', buildBidPrintDocument(), 'tab-bids', 'print-bid-summary');
+}
+function buildPreconstructionContractDocument(){
+  syncBidFromInputs();
+  const owner=bid.client || 'Owner';
+  const address=bid.address || 'Project address';
+  const project=bid.model || 'one accessory dwelling unit';
+  const contractor='Fifth Element Construction';
+  const today=shortDate(new Date().toISOString().slice(0,10));
+  return `
+    <div class="print-doc-header">
+      <div>
+        <img class="print-doc-logo" src="${esc(ABQADU_CONTACT.logo)}" alt="ABQ ADU logo">
+        <div class="muted">Preconstruction contract template - builder review required</div>
+      </div>
+      <div class="print-doc-meta">
+        <div><b>Prepared:</b> ${esc(today)}</div>
+        <div><b>Contractor:</b> ${esc(contractor)}</div>
+        <div><b>Phone:</b> ${esc(ABQADU_CONTACT.phone)}</div>
+        <div><b>Office:</b> ${esc(ABQADU_CONTACT.address)}</div>
+      </div>
+    </div>
+    <div class="print-doc-title">Preconstruction Letter Agreement</div>
+    <div class="print-doc-section">
+      <p><b>To:</b> ${esc(owner)}</p>
+      <p><b>Re:</b> Construction and development at ${esc(address)}</p>
+      <p>Dear ${esc(owner)},</p>
+      <p>${esc(owner)} ("Owner") is in the process of obtaining a fixed fee proposal ("Proposed Contract") from ${esc(contractor)} ("Contractor"). Contractor and Owner are referred to hereafter as the "parties." The parties anticipate that the Proposed Contract will provide for construction of certain improvements for Owner (the "Project"). While the parties are negotiating the terms of the Proposed Contract, and as an accommodation to Owner to preserve time and expedite the schedule, Owner and Contractor have agreed to proceed with an initial phase of certain preconstruction activities on the Project site ("Interim Work"), as set forth in this letter agreement ("Agreement").</p>
+      <p>Contractor understands that Contractor shall have the opportunity to present the Proposed Contract to Owner, but Contractor may not be chosen as the contractor for the Project, and Owner may undertake a formal bidding process if the parties cannot agree on a fixed fee for the Project.</p>
+      <p>It is the intention of the parties that this Agreement authorizes Contractor to engage certain subcontractors, vendors, and/or consultants, and to consult with Owner and certain designers or engineers in order to begin planning and preparing the Project.</p>
+      <p>If the Proposed Contract for the Project is finalized and executed, this Agreement shall automatically be superseded by such Proposed Contract, and all services and obligations under this Agreement shall be incorporated within and controlled for all purposes by the Proposed Contract.</p>
+      <p>Contractor acknowledges that it has inspected the site and information provided. Contractor shall make no claim for conditions which Contractor reasonably should have discovered or become aware of through a reasonable investigation of the site or a reasonable examination of information provided by Owner, and hereby waives any such claim.</p>
+      <p>Contractor shall perform and carry out the Interim Work in a professional, satisfactory, and timely manner. Contractor and its subcontractors shall comply with all building laws, regulations, decrees, codes, ordinances, resolutions, and other acts of any governmental authority, including Federal and State labor, employment, tax, and safety laws that apply to this Agreement and Contractor's and subcontractors' performance hereunder.</p>
+      <p>Contractor shall promptly pay subcontractors any sums due in connection with performance of Contractor's obligations hereunder. Contractor will take necessary actions to prevent recording of any claim of lien upon the site and/or against Owner. Contractor agrees and understands that the Interim Work contemplated under this Agreement shall not include any activity that would give rise to a lien under NMSA 1978, Section 48-2-2, and Contractor shall not allow subcontractors to perform any action on or related to the Project site that would give rise to a lien under NMSA 1978, Section 48-2-2.</p>
+      <p>Interim Work includes planning and coordination for the Proposed Contract, which is to include ${esc(project)}. The fee for Interim Work is <b>${fmt(PRECON_DEPOSIT)}</b>, payable upon execution of this Agreement.</p>
+      <p>If the parties are unable to negotiate and execute the Proposed Contract for the Project and this Agreement is terminated as provided below, upon receipt of Owner's written request, Contractor will assign to Owner all rights and obligations of any subcontracts, purchase orders, or related agreements executed pursuant to this Agreement, and Owner will hold Contractor harmless for obligations under such contracts up to the total sum. Contractor will indemnify and hold Owner harmless for damages or injuries caused by the negligence or fault of Contractor in the performance of services under this Agreement or any of Contractor's employees, agents, or subcontractors. All services or work pursuant to this Agreement will comply with applicable law and regulations and be performed by persons properly licensed to perform such work.</p>
+      <p>Either party may terminate this Agreement, with or without cause, upon seven (7) days' prior written notice to the other party. In the event of termination, Contractor shall immediately stop all work and services under this Agreement and deliver to Owner copies of all data, drawings, reports, estimates, summaries, and other information and materials accumulated by Contractor in performing this Agreement, whether completed or in process.</p>
+    </div>
+    <div class="print-doc-section">
+      <table class="print-doc-table"><tbody>
+        <tr><td style="height:64px;vertical-align:bottom">_____________________________<br>Owner</td><td style="height:64px;vertical-align:bottom">_____________________________<br>Contractor</td></tr>
+        <tr><td>Date: _________________________</td><td>Date: _________________________</td></tr>
+      </tbody></table>
+      <div class="muted" style="font-size:10px;margin-top:10px">Prototype template for builder workflow. Final contract language should be reviewed and approved by the contractor and counsel before use.</div>
+    </div>`;
+}
+function printPreconstructionContract(){
+  syncBidFromInputs();
+  openBuilderPrintDocument(`${bid.title || 'ABQ ADU'} preconstruction contract`, `${fmt(PRECON_DEPOSIT)} preconstruction agreement`, buildPreconstructionContractDocument(), 'tab-bids', 'print-bid-summary');
 }
 function printBidsAndInvoicing(){
   syncBidFromInputs();
