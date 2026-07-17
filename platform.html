@@ -798,6 +798,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <div class="muted" style="font-size:12px">Reusable catalog items help the contractor build a professional estimate quickly from mobile.</div>
           <div class="estimate-bundles" aria-label="Fast estimate packages">
             <button class="btn copper sm" onclick="addEstimateBundle('starter')">+ ADU starter estimate</button>
+            <button class="btn blue sm" onclick="addEstimateSqftBuildLine()">+ Build price $259/sf</button>
             <button class="btn ghost sm" onclick="addEstimateBundle('utilities')">+ Utility review package</button>
             <button class="btn ghost sm" onclick="addEstimateBundle('finishes')">+ Finish package</button>
             <button class="btn danger sm" onclick="confirmClearEstimateLines()">Clear lines</button>
@@ -1600,6 +1601,7 @@ window.addEventListener('afterprint',clearPrintMode);
 
 /* ═══════════════ VERSION 7 — ESTIMATES ═══════════════ */
 const ESTIMATE_CATALOG = {
+  aduBuild259:{section:'Construction',part:'ADU-259SF',description:'ADU build price - complete construction estimate at $259 per square foot',qty:440,unitPrice:259,taxable:false},
   precon:{section:'Preconstruction',part:'PRE-10000',description:'Preconstruction contract deposit - site plan, design coordination, ordinance checks, and subcontractor bid pulls',qty:1,unitPrice:10000,taxable:false},
   sitePlan:{section:'Preconstruction',part:'SITE-PLAN',description:'Site plan, plat map review, model placement, and homeowner presentation package',qty:1,unitPrice:2500,taxable:false},
   permitFast:{section:'Permitting',part:'PERMIT-FAST',description:'Fast-track city permitting allowance',qty:1,unitPrice:1300,taxable:false},
@@ -1614,6 +1616,7 @@ const ESTIMATE_CATALOG = {
   engineering:{section:'Design',part:'ENG-OPEN',description:'Engineering review for large openings, structural changes, or custom exterior revisions',qty:1,unitPrice:2500,taxable:false},
 };
 const ESTIMATE_CATALOG_LABELS = {
+  aduBuild259:['Build price $259/sf','Fast whole-home line'],
   precon:['$10k preconstruction','Fixed first invoice'],
   sitePlan:['Site plan','Place model on lot'],
   permitFast:['Fast permit','City fast-track'],
@@ -1802,6 +1805,14 @@ function addEstimateCatalogItem(key){
   estimateActivity('Line added', line.description);
   renderEstimateTool();
 }
+function addEstimateSqftBuildLine(){
+  syncEstimateFromInputs();
+  const sqft=Math.max(1,Number(estimateState.sqft)||440);
+  const line={...ESTIMATE_CATALOG.aduBuild259,qty:sqft};
+  estimateState.lines.push(line);
+  estimateActivity('Line added', `ADU build price added at ${fmt(line.unitPrice)} per sq ft for ${sqft} sq ft.`);
+  renderEstimateTool();
+}
 function addEstimateBundle(key){
   syncEstimateFromInputs();
   const bundle=ESTIMATE_BUNDLES[key] || [];
@@ -1903,6 +1914,10 @@ function buildEstimateInvoiceDocument(){
   const docLabel=estimateState.docType==='invoice'?'Invoice':'Estimate';
   const docNumber=estimateState.docType==='invoice'?estimateState.invoiceNumber:estimateState.number;
   const groups=groupedEstimateLines();
+  const sqft=Math.max(1,Number(estimateState.sqft)||0);
+  const aduBuildLine=estimateState.lines.find(line=>line.part==='ADU-259SF');
+  const aduBuildTotal=aduBuildLine ? (Number(aduBuildLine.qty)||0)*(Number(aduBuildLine.unitPrice)||0) : 0;
+  const effectivePsf=sqft ? t.total/sqft : 0;
   const rows=Object.entries(groups).map(([section,lines])=>`
     <tr><td colspan="6" style="background:#F8F2E7;font-weight:900;text-transform:uppercase">${esc(section)}</td></tr>
     ${lines.map(line=>`<tr>
@@ -1921,6 +1936,7 @@ function buildEstimateInvoiceDocument(){
         <div class="print-doc-kpi"><b>${esc(shortDate(estimateState.expiry))}</b><span>Expiry</span></div>
         <div class="print-doc-kpi"><b>${esc(shortDate(estimateState.due))}</b><span>Due date</span></div>
         <div class="print-doc-kpi"><b>${fmt0(t.total)}</b><span>Total</span></div>
+        <div class="print-doc-kpi"><b>${fmt0(effectivePsf)}</b><span>Total / sq ft</span></div>
         <div class="print-doc-kpi"><b>${esc(estimateState.paymentStatus||'unpaid')}</b><span>Payment status</span></div>
         <div class="print-doc-kpi"><b>${fmt0(t.paid)}</b><span>Paid</span></div>
         <div class="print-doc-kpi"><b>${fmt0(t.balance)}</b><span>Balance due</span></div>
@@ -1930,6 +1946,12 @@ function buildEstimateInvoiceDocument(){
         <div class="print-doc-kpi"><b>Bill To</b><span>${esc(estimateState.client||'Client name needed')}<br>${esc(estimateState.email||'')}<br>${esc(estimateState.phone||'')}<br>${esc(estimateState.address||'')}</span></div>
         <div class="print-doc-kpi"><b>Bill From</b><span>${esc(ABQADU_CONTACT.name)}<br>${esc(ABQADU_CONTACT.address)}<br>Phone: ${esc(ABQADU_CONTACT.phone)}<br>Architect / Designer / Builder team</span></div>
       </div>
+      <div class="print-doc-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="print-doc-kpi"><b>${esc(estimateState.model || 'ADU model')}</b><span>Model</span></div>
+        <div class="print-doc-kpi"><b>${Number(estimateState.sqft)||0} sf</b><span>Project size</span></div>
+        <div class="print-doc-kpi"><b>${aduBuildLine ? `${fmt0(aduBuildLine.unitPrice)} / sf` : 'Add $259/sf line'}</b><span>Build price basis</span></div>
+      </div>
+      ${aduBuildLine ? `<div class="estimate-print-note"><b>$259/sf sample build pricing:</b> ${Number(aduBuildLine.qty)||0} sq ft x ${fmt(aduBuildLine.unitPrice)} = ${fmt(aduBuildTotal)} before any additional utility, permitting, tax, discount, insurance, or handling adjustments.</div>` : ''}
     </section>
     <section class="print-doc-section">
       <h3>Scope and pricing</h3>
