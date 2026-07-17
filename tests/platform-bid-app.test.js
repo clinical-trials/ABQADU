@@ -147,6 +147,15 @@ contains('Up-front panel package replaces exterior sheathing, framing, insulatio
 contains('Assembly Cost Comparison');
 contains('PUR/SIP panels can cost more up front, but that single package may replace conventional exterior wall framing, exterior sheathing, insulation, and related framing labor/time.');
 contains('function renderAssemblyCompare(lines)');
+contains('Project Revenue Optimizer');
+contains('Compare procurement routes on the current project to maximize builder revenue');
+contains('Muras PUR/SIP panels, Lowe\'s package, RAKS openings/hardware, and Rio Grande building package');
+contains('Do not stack every supplier line into the bid.');
+contains('function revenueRoutes(lines)');
+contains('function renderRevenueOptimizer(lines)');
+contains('Best margin path');
+contains('Projected gross profit');
+contains('Revenue score');
 contains('Conventional stick build');
 contains('Muras PUR/SIP panel path');
 contains('Includes exterior sheathing, framing, insulation, and exterior wall assembly');
