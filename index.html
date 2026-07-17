@@ -4808,6 +4808,8 @@ footer {
     border-radius: 0;
     height: 100svh;
     max-height: none;
+    max-width: none;
+    width: 100vw;
   }
   .design-modal-header {
     padding: 12px 14px;
@@ -4816,6 +4818,7 @@ footer {
   .design-modal-subtitle { font-size: 11px; }
   .design-modal-body {
     padding: 10px;
+    -webkit-overflow-scrolling: touch;
   }
   .design-modal-body .design-builder-grid {
     grid-template-columns: 1fr;
@@ -4825,6 +4828,9 @@ footer {
   }
   .design-modal-footer {
     padding: 10px 12px 12px;
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
   }
   .wizard-bottom-row {
     align-items: stretch;
@@ -5093,6 +5099,7 @@ footer {
   .adu-match-option {
     min-height: 62px;
     padding: 13px 40px 13px 13px;
+    touch-action: manipulation;
   }
   .adu-match-option small {
     font-size: 12px;
@@ -5104,6 +5111,16 @@ footer {
   .adu-match-nav button {
     min-height: 48px;
     width: 100%;
+  }
+  .adu-match-model-sheet img {
+    max-height: 48svh;
+  }
+  .adu-match-recommendation {
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .adu-match-rec-copy {
+    font-size: 12px;
   }
   .design-step-strip { grid-template-columns: repeat(7, minmax(104px, 1fr)); }
   .design-step-card { min-height: 44px; }
@@ -5156,6 +5173,12 @@ footer {
   .wizard-next { margin-left: 0; }
   .wizard-footer-actions { grid-template-columns: 1fr; }
   .wizard-footer-actions .wizard-next { grid-column: auto; }
+  .wizard-footer-actions button,
+  .adu-match-report-actions button,
+  .adu-match-report-actions a,
+  .model-detail-actions button {
+    min-height: 48px;
+  }
   .config-line { flex-direction: column; gap: 2px; }
 }
 

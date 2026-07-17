@@ -660,8 +660,39 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .totals-card input{min-height:44px!important}
   .invoice-job-stats{grid-template-columns:1fr}
   .card{padding:14px;overflow-x:auto}
-  #tab-blueprint table{min-width:760px}
-  #tab-blueprint .card{-webkit-overflow-scrolling:touch}
+  #tab-blueprint table{min-width:0}
+  #tab-blueprint .card{overflow-x:visible}
+  #tab-blueprint table thead{display:none}
+  #tab-blueprint table,#tab-blueprint tbody,#tab-blueprint tr,#tab-blueprint td{display:block;width:100%}
+  #tab-blueprint tr{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;margin-bottom:10px;padding:8px}
+  #tab-blueprint td{border-bottom:1px solid var(--stucco);display:grid;gap:8px;grid-template-columns:116px minmax(0,1fr);padding:7px 4px;text-align:left!important}
+  #tab-blueprint td:last-child{border-bottom:0}
+  #bp-lines td:nth-child(1)::before{content:"Category"}
+  #bp-lines td:nth-child(2)::before{content:"Item"}
+  #bp-lines td:nth-child(3)::before{content:"Qty"}
+  #bp-lines td:nth-child(4)::before{content:"Unit"}
+  #bp-lines td:nth-child(5)::before{content:"Budget"}
+  #bp-lines td:nth-child(6)::before{content:"Review"}
+  #cart-rows .cart-drop-row{background:transparent;border:0;padding:0}
+  #cart-rows .cart-drop-row td{background:var(--stucco);border:1px solid var(--stucco-d);border-radius:8px;display:block;font-size:14px;padding:10px 12px}
+  #cart-rows .lineitem td:nth-child(1)::before{content:"Dept"}
+  #cart-rows .lineitem td:nth-child(2)::before{content:"Item #"}
+  #cart-rows .lineitem td:nth-child(3)::before{content:"Item"}
+  #cart-rows .lineitem td:nth-child(4)::before{content:"Spec"}
+  #cart-rows .lineitem td:nth-child(5)::before{content:"Qty"}
+  #cart-rows .lineitem td:nth-child(6)::before{content:"Unit"}
+  #cart-rows .lineitem td:nth-child(7)::before{content:"Budget / unit"}
+  #cart-rows .lineitem td:nth-child(8)::before{content:"Budget total"}
+  #cart-rows .lineitem td:nth-child(9)::before{content:"Quoted / unit"}
+  #cart-rows .lineitem td:nth-child(10)::before{content:"Quoted total"}
+  #cart-rows .lineitem td:nth-child(11)::before{content:"Remove"}
+  #tab-blueprint td::before{align-self:center;color:var(--ink60);font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+  #tab-blueprint td input,#tab-blueprint td select{background:#fff;border:1px solid var(--stucco-d);min-height:44px}
+  #tab-blueprint td button{align-items:center;display:inline-flex;justify-content:center;min-height:44px;min-width:44px}
+  .supplier-compare-head,.cart-head{align-items:stretch;flex-direction:column}
+  .supplier-actions{display:grid;grid-template-columns:1fr}
+  .supplier-actions .btn,.estimate-hero-actions .btn,.builder-text-card .btn{justify-content:center;min-height:46px;width:100%}
+  .lowes-card{position:static}
   .cart-pro-note{grid-template-columns:1fr}
   .cart-drops{grid-template-columns:1fr}
   .cart-actions{flex-direction:column;align-items:stretch}
@@ -669,7 +700,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   .cart-actions label{margin:0}
   .cart-drop-box input[type=date]{width:100%;min-height:44px}
   .bp-plan-wrap{max-width:100%}
-  #cart-body table{min-width:760px}
+  #cart-body table{min-width:0}
   .trade-pull-item button,.trade-pull-item .btn.sm{width:100%;min-height:46px}
   .materials-priority-chips span{font-size:9px}
   .builder-text-card .btn{justify-self:stretch}
