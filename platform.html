@@ -798,7 +798,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <div class="muted" style="font-size:12px">Reusable catalog items help the contractor build a professional estimate quickly from mobile.</div>
           <div class="estimate-bundles" aria-label="Fast estimate packages">
             <button class="btn copper sm" onclick="addEstimateBundle('starter')">+ ADU starter estimate</button>
-            <button class="btn blue sm" onclick="addEstimateSqftBuildLine()">+ Build price $259/sf</button>
+            <button class="btn blue sm" onclick="addEstimateSqftBuildLine()">+ Consumer price $285/sf</button>
             <button class="btn ghost sm" onclick="addEstimateBundle('utilities')">+ Utility review package</button>
             <button class="btn ghost sm" onclick="addEstimateBundle('finishes')">+ Finish package</button>
             <button class="btn danger sm" onclick="confirmClearEstimateLines()">Clear lines</button>
@@ -1601,7 +1601,7 @@ window.addEventListener('afterprint',clearPrintMode);
 
 /* ═══════════════ VERSION 7 — ESTIMATES ═══════════════ */
 const ESTIMATE_CATALOG = {
-  aduBuild259:{section:'Construction',part:'ADU-259SF',description:'ADU build price - complete construction estimate at $259 per square foot',qty:440,unitPrice:259,taxable:false},
+  aduBuild285:{section:'Construction',part:'ADU-285SF',description:'ADU consumer price - complete construction estimate at $285 per square foot',qty:440,unitPrice:285,taxable:false},
   precon:{section:'Preconstruction',part:'PRE-10000',description:'Preconstruction contract deposit - site plan, design coordination, ordinance checks, and subcontractor bid pulls',qty:1,unitPrice:10000,taxable:false},
   sitePlan:{section:'Preconstruction',part:'SITE-PLAN',description:'Site plan, plat map review, model placement, and homeowner presentation package',qty:1,unitPrice:2500,taxable:false},
   permitFast:{section:'Permitting',part:'PERMIT-FAST',description:'Fast-track city permitting allowance',qty:1,unitPrice:1300,taxable:false},
@@ -1616,7 +1616,7 @@ const ESTIMATE_CATALOG = {
   engineering:{section:'Design',part:'ENG-OPEN',description:'Engineering review for large openings, structural changes, or custom exterior revisions',qty:1,unitPrice:2500,taxable:false},
 };
 const ESTIMATE_CATALOG_LABELS = {
-  aduBuild259:['Build price $259/sf','Fast whole-home line'],
+  aduBuild285:['Consumer price $285/sf','Fast whole-home line'],
   precon:['$10k preconstruction','Fixed first invoice'],
   sitePlan:['Site plan','Place model on lot'],
   permitFast:['Fast permit','City fast-track'],
@@ -1808,9 +1808,9 @@ function addEstimateCatalogItem(key){
 function addEstimateSqftBuildLine(){
   syncEstimateFromInputs();
   const sqft=Math.max(1,Number(estimateState.sqft)||440);
-  const line={...ESTIMATE_CATALOG.aduBuild259,qty:sqft};
+  const line={...ESTIMATE_CATALOG.aduBuild285,qty:sqft};
   estimateState.lines.push(line);
-  estimateActivity('Line added', `ADU build price added at ${fmt(line.unitPrice)} per sq ft for ${sqft} sq ft.`);
+  estimateActivity('Line added', `ADU consumer price added at ${fmt(line.unitPrice)} per sq ft for ${sqft} sq ft.`);
   renderEstimateTool();
 }
 function addEstimateBundle(key){
@@ -1915,7 +1915,7 @@ function buildEstimateInvoiceDocument(){
   const docNumber=estimateState.docType==='invoice'?estimateState.invoiceNumber:estimateState.number;
   const groups=groupedEstimateLines();
   const sqft=Math.max(1,Number(estimateState.sqft)||0);
-  const aduBuildLine=estimateState.lines.find(line=>line.part==='ADU-259SF');
+  const aduBuildLine=estimateState.lines.find(line=>line.part==='ADU-285SF');
   const aduBuildTotal=aduBuildLine ? (Number(aduBuildLine.qty)||0)*(Number(aduBuildLine.unitPrice)||0) : 0;
   const effectivePsf=sqft ? t.total/sqft : 0;
   const rows=Object.entries(groups).map(([section,lines])=>`
@@ -1949,9 +1949,9 @@ function buildEstimateInvoiceDocument(){
       <div class="print-doc-grid" style="grid-template-columns:repeat(3,1fr)">
         <div class="print-doc-kpi"><b>${esc(estimateState.model || 'ADU model')}</b><span>Model</span></div>
         <div class="print-doc-kpi"><b>${Number(estimateState.sqft)||0} sf</b><span>Project size</span></div>
-        <div class="print-doc-kpi"><b>${aduBuildLine ? `${fmt0(aduBuildLine.unitPrice)} / sf` : 'Add $259/sf line'}</b><span>Build price basis</span></div>
+        <div class="print-doc-kpi"><b>${aduBuildLine ? `${fmt0(aduBuildLine.unitPrice)} / sf` : 'Add $285/sf line'}</b><span>Consumer price basis</span></div>
       </div>
-      ${aduBuildLine ? `<div class="estimate-print-note"><b>$259/sf sample build pricing:</b> ${Number(aduBuildLine.qty)||0} sq ft x ${fmt(aduBuildLine.unitPrice)} = ${fmt(aduBuildTotal)} before any additional utility, permitting, tax, discount, insurance, or handling adjustments.</div>` : ''}
+      ${aduBuildLine ? `<div class="estimate-print-note"><b>$285/sf consumer pricing:</b> ${Number(aduBuildLine.qty)||0} sq ft x ${fmt(aduBuildLine.unitPrice)} = ${fmt(aduBuildTotal)} before any additional utility, permitting, tax, discount, insurance, or handling adjustments.</div>` : ''}
     </section>
     <section class="print-doc-section">
       <h3>Scope and pricing</h3>
