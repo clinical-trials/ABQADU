@@ -214,6 +214,50 @@ Customer-facing guardrail:
 - Receipt images, supplier receipts, and internal expense notes are builder-only records.
 - Receipts should never sync to homeowner PDFs or InvoiceShelf customer documents unless explicitly marked reimbursable and approved by the builder.
 
+Technical reference:
+
+- `alfianlosari/AIReceiptScanner`
+- GitHub: https://github.com/alfianlosari/AIReceiptScanner
+
+Useful ideas from this repo:
+
+- Use a vision-capable model to read a receipt image and return structured receipt data.
+- Preserve a scan status workflow: idle, picking image, scanning, success, and failure.
+- Support camera, photo library, and file picker entry points in future native mobile versions.
+- Show scanned receipt results as editable structured data before saving.
+- Allow copy/export as JSON for debugging and accounting review.
+
+Important architecture note:
+
+- This repo is Swift-first and useful for a future iOS/mobile app.
+- ABQ ADU Version 7.2 should stay web-first: upload receipt image/PDF, extract structured data server-side, show an editable review screen, then save to project expenses.
+- OpenAI API keys must never live in the browser or a homeowner-facing page.
+- The server should own the scan request, model call, validation, and storage.
+
+Suggested extracted receipt schema:
+
+- Vendor.
+- Transaction date.
+- Receipt total.
+- Tax.
+- Payment method.
+- Line items.
+- Confidence score.
+- Raw extracted JSON.
+- Original attachment URL.
+- Project assignment.
+- COGS category.
+- Builder-approved flag.
+
+Version 7.2 scan flow:
+
+1. Builder uploads or photographs a receipt.
+2. Server sends the image/PDF to the receipt extraction service.
+3. System returns structured receipt fields and line items.
+4. Builder reviews and corrects the extraction.
+5. Builder assigns the receipt to a project and COGS category.
+6. Receipt becomes part of actual job-cost reporting and tax/accounting export.
+
 ### 9. Mileage Tracker
 
 Positioning:
@@ -289,6 +333,8 @@ Future versions can add automatic trip detection from a mobile app, but the web 
 - Add "Receipt Scanner" card to the builder platform.
 - Add upload/manual-entry prototype for job receipts.
 - Add project/category tagging for receipt expenses.
+- Add scan-status states: image selected, scanning, review needed, saved, failed.
+- Add editable extracted receipt fields before save.
 - Add "Mileage Tracker" card to the builder platform.
 - Add manual mileage log with quick trip purposes.
 - Add job profitability rollup that compares estimate, COGS, receipts, mileage, and gross margin.
