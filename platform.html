@@ -792,6 +792,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <button class="btn copper" onclick="printEstimateDocument()">Print / Save PDF</button>
         <button class="btn blue" onclick="convertEstimateToInvoice()">Convert to Invoice</button>
         <button class="btn ghost" onclick="textEstimateSummary()">Text Ian / Builder</button>
+        <button class="btn ghost" type="button" onclick="alert('Backend connection pending: this will sync the current estimate to InvoiceShelf once the invoice-engine API is connected.')">Sync to InvoiceShelf</button>
         <button class="btn ghost" onclick="markEstimateViewed()">Simulate Client View</button>
       </div>
     </div>
@@ -863,6 +864,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
         <div class="estimate-card">
           <h3>Future Real App Backend</h3>
+          <div class="estimate-print-note" style="margin-bottom:10px"><b>InvoiceShelf back-office engine:</b> ABQ ADU remains the builder cockpit for model, square footage, COGS, supplier bidout, and schedule. InvoiceShelf will handle professional estimate/invoice records, client views, status sync, and payment tracking behind the scenes.</div>
           <div class="estimate-print-note">This static prototype can simulate delivery and views locally. Real open/view notifications require hosted document links, authenticated users, and backend ActivityLog events.</div>
           <div class="estimate-future-grid">
             <span>Hosted client links</span><span>Stripe Connect payments</span><span>QuickBooks Online sync</span><span>Financing widget</span>
