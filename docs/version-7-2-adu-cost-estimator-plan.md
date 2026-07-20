@@ -12,6 +12,7 @@ The estimator should help a contractor move from site visit to credible quote qu
 4. Separate internal COGS from homeowner-facing price.
 5. Produce a professional estimate.
 6. Sync the customer-facing estimate to InvoiceShelf.
+7. Capture job expenses with receipt scanning and mileage tracking.
 
 ## Product Positioning
 
@@ -29,6 +30,7 @@ For ABQ ADU, the differentiator is that the estimator already understands ADU-sp
 - Engineering triggers for large openings.
 - Supplier paths including Lowe's, RAKS, Rio Grande, and Muras PUR/SIP panels.
 - Customer-facing bid price versus internal COGS and profit margin.
+- Receipt, expense, and mileage records that help reconcile job profitability and tax reporting.
 
 ## Open Source Reference
 
@@ -176,6 +178,78 @@ InvoiceShelf remains the back-office document engine for:
 
 Only customer-facing estimate and invoice lines should sync to InvoiceShelf.
 
+### 8. Receipt Scanner
+
+Positioning:
+
+> Ditch the Shoebox of Receipts.
+
+Builder value:
+
+- Scan and organize receipts in seconds.
+- Auto-import email receipts.
+- Assign expenses to a homeowner project, supplier, category, and estimate line.
+- Generate reports that make expense tracking and taxes easier.
+- Compare actual job expenses against estimated COGS.
+
+Core fields:
+
+- Project.
+- Supplier.
+- Receipt date.
+- Total.
+- Tax.
+- Payment method.
+- Category.
+- Photo/PDF attachment.
+- Reimbursable flag.
+- COGS category.
+- Notes.
+- Export status.
+
+Version 7.2 implementation should start with manual upload and manual category confirmation. Future versions can add OCR, email inbox import, and vendor matching.
+
+Customer-facing guardrail:
+
+- Receipt images, supplier receipts, and internal expense notes are builder-only records.
+- Receipts should never sync to homeowner PDFs or InvoiceShelf customer documents unless explicitly marked reimbursable and approved by the builder.
+
+### 9. Mileage Tracker
+
+Positioning:
+
+> Capture Every Mile.
+
+Builder value:
+
+- Track mileage by project, site visit, supplier pickup, delivery coordination, and permitting errands.
+- Generate tax-ready mileage reports.
+- Preserve job-level profitability by assigning travel cost to the right project.
+- Help the builder see hidden costs behind bids.
+
+Core fields:
+
+- Driver.
+- Project.
+- Start location.
+- End location.
+- Date.
+- Purpose.
+- Miles.
+- IRS rate used.
+- Deduction estimate.
+- Billable/reimbursable flag.
+- Notes.
+
+Version 7.2 should start with manual mobile entry:
+
+- Quick buttons: Site visit, supplier pickup, permit office, client meeting, subcontractor meeting.
+- Optional round-trip toggle.
+- Optional project assignment.
+- Exportable CSV/PDF report.
+
+Future versions can add automatic trip detection from a mobile app, but the web prototype should avoid background location tracking until privacy, permissions, and mobile app architecture are ready.
+
 ## Recommended Version 7.2 Build Sequence
 
 ### Sprint 1: Estimator Catalog Foundation
@@ -210,6 +284,16 @@ Only customer-facing estimate and invoice lines should sync to InvoiceShelf.
 - Define future agent task for blueprint-to-material takeoff.
 - Define review queue for items that require human builder approval.
 
+### Sprint 6: Receipt Scanner And Mileage Tracker
+
+- Add "Receipt Scanner" card to the builder platform.
+- Add upload/manual-entry prototype for job receipts.
+- Add project/category tagging for receipt expenses.
+- Add "Mileage Tracker" card to the builder platform.
+- Add manual mileage log with quick trip purposes.
+- Add job profitability rollup that compares estimate, COGS, receipts, mileage, and gross margin.
+- Add exportable tax-ready reports for receipts and mileage.
+
 ## Success Criteria
 
 - Builder can make a credible site-visit estimate from a phone in under 10 minutes.
@@ -218,6 +302,8 @@ Only customer-facing estimate and invoice lines should sync to InvoiceShelf.
 - Homeowner-facing documents look professional and do not expose internal COGS.
 - InvoiceShelf receives clean customer-facing estimates only.
 - ABQ ADU keeps the local print/PDF fallback working when InvoiceShelf is offline.
+- Builder can attach receipts and mileage to projects without exposing them to homeowners.
+- Builder can export receipt and mileage reports for tax/accounting review.
 
 ## Non-Goals For Version 7.2
 
@@ -226,3 +312,5 @@ Only customer-facing estimate and invoice lines should sync to InvoiceShelf.
 - Do not expose supplier comparison to homeowners.
 - Do not copy non-commercial open-source cost data into production.
 - Do not replace InvoiceShelf; integrate with it.
+- Do not build automatic background mileage tracking in the static website.
+- Do not auto-read contractor email inboxes until OAuth, permissions, and security review are designed.
