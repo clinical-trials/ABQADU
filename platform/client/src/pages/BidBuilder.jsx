@@ -86,6 +86,20 @@ export default function BidBuilder() {
     loadBids();
   };
 
+  const createInvoiceShelfEstimate = async () => {
+    if (!active?.id) return;
+    await save();
+    const res = await fetch(`/api/invoice-engine/bids/${active.id}/estimate`, { method: 'POST' });
+    const payload = await res.json();
+    if (!res.ok) {
+      alert(payload.error || 'InvoiceShelf estimate sync failed');
+      return;
+    }
+    alert(`InvoiceShelf estimate created: ${payload.invoiceshelf_estimate_id}`);
+    openBid(active.id);
+    loadBids();
+  };
+
   const totals = active ? computeTotals(active.items, active) : null;
 
   return (
@@ -199,6 +213,9 @@ export default function BidBuilder() {
                 </button>
                 <button onClick={downloadPdf} style={{ background: '#C4954A', color: '#FFF', border: 'none', borderRadius: 4, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                   Download PDF
+                </button>
+                <button onClick={createInvoiceShelfEstimate} style={{ background: '#0F1F3D', color: '#FFF', border: 'none', borderRadius: 4, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                  Create InvoiceShelf Estimate
                 </button>
                 <button onClick={generateInvoices} style={{ background: '#FFF', color: '#0F1F3D', border: '1px solid #0F1F3D', borderRadius: 4, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                   Accept &amp; Create Draw Schedule →

@@ -44,6 +44,16 @@ export default function Invoices() {
     URL.revokeObjectURL(url);
   };
 
+  const syncInvoiceShelfStatus = async (inv) => {
+    const res = await fetch(`/api/invoice-engine/invoices/${inv.id}/status`, { method: 'POST' });
+    const payload = await res.json();
+    if (!res.ok) {
+      alert(payload.error || 'InvoiceShelf status sync failed');
+      return;
+    }
+    load();
+  };
+
   const totalBilled = invoices.reduce((s, i) => s + parseFloat(i.amount || 0), 0);
   const totalPaid   = invoices.reduce((s, i) => s + parseFloat(i.paid || 0), 0);
   const outstanding = totalBilled - totalPaid;
@@ -102,6 +112,16 @@ export default function Invoices() {
                     style={{ background: 'none', border: '1px solid #C4954A', color: '#C4954A', borderRadius: 4, padding: '5px 10px', fontSize: 12, cursor: 'pointer' }}>
                     PDF
                   </button>
+                  <button onClick={() => syncInvoiceShelfStatus(inv)}
+                    style={{ background: 'none', border: '1px solid #0F1F3D', color: '#0F1F3D', borderRadius: 4, padding: '5px 10px', fontSize: 12, cursor: 'pointer', marginLeft: 6 }}>
+                    Sync InvoiceShelf Status
+                  </button>
+                  {inv.invoiceshelf_public_url && (
+                    <button onClick={() => window.open(inv.invoiceshelf_public_url, '_blank', 'noopener')}
+                      style={{ background: '#C4954A', border: '1px solid #C4954A', color: '#1C1917', borderRadius: 4, padding: '5px 10px', fontSize: 12, cursor: 'pointer', marginLeft: 6 }}>
+                      Open Client View
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
