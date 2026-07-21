@@ -294,6 +294,54 @@ Version 7.2 should start with manual mobile entry:
 
 Future versions can add automatic trip detection from a mobile app, but the web prototype should avoid background location tracking until privacy, permissions, and mobile app architecture are ready.
 
+Technical reference:
+
+- `hargata/lubelog`
+- GitHub: https://github.com/hargata/lubelog
+
+Useful ideas from this repo:
+
+- Web-first vehicle logbook architecture rather than native-only tracking.
+- Vehicle records tied to odometer readings, service history, fuel/mileage entries, expenses, reminders, and documents.
+- Report/export mindset that can support tax and accounting review.
+- Self-hosted app pattern that can inform an internal builder back-office module.
+
+Important adaptation for ABQ ADU:
+
+- Do not build a generic vehicle maintenance app inside the builder platform.
+- Use the LubeLogger pattern for contractor mileage and project-cost attribution.
+- Replace personal vehicle maintenance focus with job-linked trips: site visit, supplier pickup, permit office, client meeting, subcontractor meeting, delivery coordination, and warranty/service visit.
+- Connect vehicle/trip expenses to project COGS and tax-ready mileage reports.
+
+Suggested mileage tracker schema:
+
+- Vehicle.
+- Driver.
+- Project.
+- Trip purpose.
+- Start odometer.
+- End odometer.
+- Miles.
+- Date.
+- Start location.
+- End location.
+- IRS mileage rate.
+- Deduction estimate.
+- Fuel/parking/toll expense.
+- Receipt attachment.
+- Notes.
+- Export status.
+
+Version 7.2 mileage flow:
+
+1. Builder selects vehicle and project.
+2. Builder taps a trip purpose such as site visit or supplier pickup.
+3. Builder enters odometer start/end or total miles.
+4. System calculates deduction estimate using the selected mileage rate.
+5. Builder can attach fuel, parking, or toll receipts.
+6. Mileage rolls into project profitability and tax/accounting exports.
+7. Future mobile app can add automatic trip detection after privacy and permissions are designed.
+
 ## Recommended Version 7.2 Build Sequence
 
 ### Sprint 1: Estimator Catalog Foundation
@@ -337,6 +385,8 @@ Future versions can add automatic trip detection from a mobile app, but the web 
 - Add editable extracted receipt fields before save.
 - Add "Mileage Tracker" card to the builder platform.
 - Add manual mileage log with quick trip purposes.
+- Add vehicle records and odometer-based trip entry.
+- Add mileage deduction estimate and project attribution.
 - Add job profitability rollup that compares estimate, COGS, receipts, mileage, and gross margin.
 - Add exportable tax-ready reports for receipts and mileage.
 
