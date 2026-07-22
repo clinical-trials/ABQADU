@@ -304,6 +304,21 @@ contains('5059243320');
 contains('5059243860');
 contains('5059556656');
 contains('Text Ian');
+contains('Building code assessment tracker');
+contains('DEFAULT_CODE_ASSESSMENTS');
+contains('codeAssessmentsV7');
+contains('function renderCodeAssessments()');
+contains('function addCodeAssessment()');
+contains('function textCodeAssessmentsToIan()');
+contains('State baseline code cycle');
+contains('ADU zoning / IDO / permit submittal');
+contains('Local code + Green Building review');
+contains('Utilities: sewer and electrical');
+contains('Openings / structural engineering');
+contains('Inspection critical path');
+contains('Confirm currently adopted building, residential, electrical, energy, plumbing, mechanical, and fuel gas editions before final bid.');
+contains('Restore starter checklist');
+contains('Text Ian code status');
 
 function siteContains(snippet) {
   assert(

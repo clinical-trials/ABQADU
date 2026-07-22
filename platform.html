@@ -522,6 +522,20 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .regulator-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
 .regulator-actions a,.regulator-actions button{background:#fff;border:1px solid var(--stucco-d);border-radius:6px;color:var(--ink);cursor:pointer;font-size:11px;font-weight:800;padding:7px 8px;text-decoration:none}
 .regulator-actions .primary{background:var(--copper);border-color:var(--copper);color:#fff}
+.code-assessment{background:#fff;border:1px solid var(--stucco-d);border-left:5px solid var(--copper);border-radius:8px;margin:16px 0;padding:16px}
+.code-assessment h3{font-size:18px;margin-bottom:6px;text-transform:uppercase}
+.code-assessment-form{display:grid;gap:8px;grid-template-columns:1fr 1fr 1fr 1fr;margin-top:12px}
+.code-assessment-form .wide{grid-column:span 2}
+.code-assessment-grid{display:grid;gap:10px;grid-template-columns:repeat(2,1fr);margin-top:12px}
+.code-assessment-card{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;padding:12px}
+.code-assessment-card h4{font-size:15px;margin-bottom:4px}
+.code-assessment-card p{color:var(--ink60);font-size:12px;line-height:1.4;margin:0 0 8px}
+.code-assessment-meta{display:grid;gap:6px;grid-template-columns:repeat(2,1fr);font-size:11px;color:var(--ink60);margin:8px 0}
+.code-status{border-radius:999px;display:inline-block;font-size:10px;font-weight:900;letter-spacing:.06em;padding:4px 7px;text-transform:uppercase}
+.code-status.current{background:#E7F3ED;color:#2f6249}
+.code-status.review{background:#FEF6E7;color:#7a5a1a}
+.code-status.blocked{background:#FCEBE6;color:#A75335}
+.code-status.monitor{background:#EDF1F6;color:#3d526d}
 .note{background:#FEF6E7;border:1px solid var(--copper-l);border-radius:6px;padding:10px 14px;font-size:12px;color:#7a5a1a;margin-bottom:18px}
 
 /* Project controls */
@@ -556,7 +570,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .res-unit .cap{font-size:10px;color:var(--ink30);margin-top:4px}
 @media (max-width:900px){
   .kanban{grid-template-columns:repeat(2,1fr)}
-  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid,.code-watch-grid,.regulator-grid{grid-template-columns:1fr}
+  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid,.code-watch-grid,.regulator-grid,.code-assessment-grid,.code-assessment-form{grid-template-columns:1fr}
+  .code-assessment-form .wide{grid-column:auto}
+  .code-assessment-meta{grid-template-columns:1fr}
   .bid-app-shell{grid-template-columns:1fr}
   .bid-app-side{min-width:0}
   .estimate-hero,.estimate-grid{grid-template-columns:1fr}
@@ -1631,6 +1647,25 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="regulator-toolbar no-print" id="regulator-toolbar" aria-label="Filter regulator contacts"></div>
     <div class="regulator-grid" id="regulator-grid"></div>
   </div>
+  <div class="code-assessment">
+    <h3>Building code assessment tracker</h3>
+    <div class="muted" style="font-size:12px">Keep a living record of what code set was checked, which AHJ applies, what source was used, and what the next permitting action is. This is the builder paper trail before a bid is marked ready to send.</div>
+    <div class="code-assessment-form no-print">
+      <div><label class="fld">Jurisdiction</label><select class="in" id="code-assess-jurisdiction"><option>Albuquerque</option><option>Santa Fe</option><option>New Mexico CID</option><option>Other NM AHJ</option></select></div>
+      <div><label class="fld">Code / topic</label><input class="in" id="code-assess-topic" placeholder="Residential, plumbing, energy, zoning"></div>
+      <div><label class="fld">Status</label><select class="in" id="code-assess-status"><option value="review">Needs review</option><option value="current">Current / verified</option><option value="monitor">Monitor</option><option value="blocked">Blocked</option></select></div>
+      <div><label class="fld">Owner</label><input class="in" id="code-assess-owner" placeholder="Ian, Steve, Robert"></div>
+      <div><label class="fld">Last checked</label><input class="in" id="code-assess-date" type="date"></div>
+      <div><label class="fld">Source link</label><input class="in" id="code-assess-source" placeholder="Official city/state URL"></div>
+      <div class="wide"><label class="fld">Assessment / next action</label><input class="in" id="code-assess-note" placeholder="Confirm local amendment before permit handoff"></div>
+      <button class="btn copper" onclick="addCodeAssessment()">Add assessment</button>
+    </div>
+    <div class="regulator-toolbar no-print" aria-label="Building code assessment actions">
+      <button class="regulator-filter active" onclick="seedDefaultCodeAssessments()">Restore starter checklist</button>
+      <button class="regulator-filter" onclick="textCodeAssessmentsToIan()">Text Ian code status</button>
+    </div>
+    <div class="code-assessment-grid" id="code-assessment-grid"></div>
+  </div>
   <div class="ai-grid" id="ai-grid"></div>
 </section>
 
@@ -1769,6 +1804,63 @@ const CITY_REGULATORS = [
   }
 ];
 let regulatorFilter = 'All';
+const DEFAULT_CODE_ASSESSMENTS = [
+  {
+    jurisdiction:'New Mexico CID',
+    topic:'State baseline code cycle',
+    status:'review',
+    owner:'Ian',
+    lastChecked:'2026-07-22',
+    source:'https://www.rld.nm.gov/construction-industries/find-a-bureau/bureaus/rules-laws-and-building-codes/',
+    note:'Confirm currently adopted building, residential, electrical, energy, plumbing, mechanical, and fuel gas editions before final bid.'
+  },
+  {
+    jurisdiction:'Albuquerque',
+    topic:'ADU zoning / IDO / permit submittal',
+    status:'review',
+    owner:'Steve',
+    lastChecked:'2026-07-22',
+    source:'https://www.cabq.gov/planning/building-safety-division/building-safety-division',
+    note:'Confirm IDO ADU standards, setbacks, 750 sf planning max, permit submittal requirements, and local amendments for the project address.'
+  },
+  {
+    jurisdiction:'Santa Fe',
+    topic:'Local code + Green Building review',
+    status:'review',
+    owner:'Ian',
+    lastChecked:'2026-07-22',
+    source:'https://santafenm.gov/land-use/currently-adopted-codes',
+    note:'Confirm Santa Fe Building Permit Division requirements, land-use restrictions, and Green Building Code review for new accessory dwellings / guest houses.'
+  },
+  {
+    jurisdiction:'Project-specific',
+    topic:'Utilities: sewer and electrical',
+    status:'review',
+    owner:'Robert',
+    lastChecked:'',
+    source:'Project site visit / utility review',
+    note:'Electrical panel or extra meter review; sewer confirmation study for route, tie-in, slope, and pump/equipment risk before final bid.'
+  },
+  {
+    jurisdiction:'Project-specific',
+    topic:'Openings / structural engineering',
+    status:'monitor',
+    owner:'Steve',
+    lastChecked:'',
+    source:'Plan set and homeowner changes',
+    note:'Track sliders, glass full-panel doors, solid doors, multipane doors, transom/clerestory windows, and openings larger than 3 ft that may require engineering.'
+  },
+  {
+    jurisdiction:'Project-specific',
+    topic:'Inspection critical path',
+    status:'monitor',
+    owner:'Ian',
+    lastChecked:'',
+    source:'Permit card and AHJ inspection desk',
+    note:'Track foundation, framing, MEP rough-in, insulation, drywall, final inspection, and any weather-related recovery action.'
+  }
+];
+let codeAssessments = store.get('codeAssessmentsV7', DEFAULT_CODE_ASSESSMENTS);
 
 /* Tabs */
 function currentTabFromHash(){
@@ -1790,6 +1882,7 @@ function showTab(name){
   if(name==='blueprint') renderBlueprint();
   if(name==='ai') renderCodeCycleWatch();
   if(name==='ai') renderRegulatorPhonebook();
+  if(name==='ai') renderCodeAssessments();
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.dataset.tab;showTab(t.dataset.tab)});
 document.querySelectorAll('[data-mobile-tab]').forEach(link=>{
@@ -4510,6 +4603,90 @@ function textRegulatorToIan(id){
   ].filter(Boolean).join('\n');
   location.href=smsUrlFor(ABQADU_CONTACT.phone, lines);
 }
+function codeStatusLabel(status){
+  return ({current:'Current / verified',review:'Needs review',blocked:'Blocked',monitor:'Monitor'})[status] || 'Needs review';
+}
+function saveCodeAssessments(){
+  store.set('codeAssessmentsV7', codeAssessments);
+}
+function renderCodeAssessments(){
+  const grid=$('#code-assessment-grid');
+  if(!grid)return;
+  codeAssessments = Array.isArray(codeAssessments) && codeAssessments.length ? codeAssessments : DEFAULT_CODE_ASSESSMENTS;
+  grid.innerHTML=codeAssessments.map((item,i)=>`<article class="code-assessment-card">
+    <span class="code-status ${esc(item.status || 'review')}">${esc(codeStatusLabel(item.status))}</span>
+    <h4>${esc(item.topic)}</h4>
+    <p>${esc(item.note)}</p>
+    <div class="code-assessment-meta">
+      <div><b>Jurisdiction:</b> ${esc(item.jurisdiction)}</div>
+      <div><b>Owner:</b> <input class="in" style="padding:5px 7px;font-size:11px" value="${esc(item.owner || '')}" onchange="updateCodeAssessment(${i},'owner',this.value)"></div>
+      <div><b>Last checked:</b> <input class="in" style="padding:5px 7px;font-size:11px" type="date" value="${esc(item.lastChecked || '')}" onchange="updateCodeAssessment(${i},'lastChecked',this.value)"></div>
+      <div><b>Status:</b> <select class="in" style="padding:5px 7px;font-size:11px" onchange="updateCodeAssessment(${i},'status',this.value)">
+        ${['review','current','monitor','blocked'].map(s=>`<option value="${s}" ${item.status===s?'selected':''}>${codeStatusLabel(s)}</option>`).join('')}
+      </select></div>
+    </div>
+    <div class="regulator-actions no-print">
+      <a href="${esc(item.source || '#')}" target="_blank" rel="noopener">Source</a>
+      <button onclick="textSingleCodeAssessmentToIan(${i})">Text Ian</button>
+      <button onclick="removeCodeAssessment(${i})">Remove</button>
+    </div>
+  </article>`).join('');
+}
+function updateCodeAssessment(index,key,value){
+  if(!codeAssessments[index])return;
+  codeAssessments[index][key]=value;
+  saveCodeAssessments();
+  renderCodeAssessments();
+}
+function addCodeAssessment(){
+  const item={
+    jurisdiction:$('#code-assess-jurisdiction')?.value || 'Other NM AHJ',
+    topic:$('#code-assess-topic')?.value || 'Code review item',
+    status:$('#code-assess-status')?.value || 'review',
+    owner:$('#code-assess-owner')?.value || 'Ian',
+    lastChecked:$('#code-assess-date')?.value || new Date().toISOString().slice(0,10),
+    source:$('#code-assess-source')?.value || 'Official source needed',
+    note:$('#code-assess-note')?.value || 'Verify with the local authority having jurisdiction before final bid.'
+  };
+  codeAssessments=[item,...codeAssessments];
+  saveCodeAssessments();
+  ['code-assess-topic','code-assess-source','code-assess-note'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});
+  renderCodeAssessments();
+}
+function removeCodeAssessment(index){
+  codeAssessments=codeAssessments.filter((_,i)=>i!==index);
+  saveCodeAssessments();
+  renderCodeAssessments();
+}
+function seedDefaultCodeAssessments(){
+  codeAssessments=DEFAULT_CODE_ASSESSMENTS.map(x=>({...x}));
+  saveCodeAssessments();
+  renderCodeAssessments();
+}
+function codeAssessmentText(item){
+  return `${item.jurisdiction} — ${item.topic}
+Status: ${codeStatusLabel(item.status)}
+Owner: ${item.owner || 'unassigned'}
+Last checked: ${item.lastChecked || 'not entered'}
+Next action: ${item.note}
+Source: ${item.source || 'official source needed'}`;
+}
+function textSingleCodeAssessmentToIan(index){
+  const item=codeAssessments[index];
+  if(!item)return;
+  location.href=smsUrlFor(ABQADU_CONTACT.phone, `ABQ ADU building code assessment\n\n${codeAssessmentText(item)}`);
+}
+function textCodeAssessmentsToIan(){
+  const open=codeAssessments.filter(item=>item.status!=='current').slice(0,5);
+  const body=`ABQ ADU building code assessment status
+
+Open / monitor items:
+${open.map(codeAssessmentText).join('\n\n---\n\n')}
+
+Verified items: ${codeAssessments.filter(item=>item.status==='current').length}
+Needs attention: ${codeAssessments.filter(item=>item.status!=='current').length}`;
+  location.href=smsUrlFor(ABQADU_CONTACT.phone, body);
+}
 
 /* ═══════════════ PROJECT CONTROLS ═══════════════ */
 const PROJECTS=[
@@ -4626,6 +4803,7 @@ renderBid();
 showTab(currentTabFromHash());
 renderCodeCycleWatch();
 renderRegulatorPhonebook();
+renderCodeAssessments();
 </script>
 </body>
 </html>
