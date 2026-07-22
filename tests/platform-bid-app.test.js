@@ -323,10 +323,15 @@ contains('Weather delay assessor');
 contains('weather-mcp template');
 contains('WEATHER_MCP_TOOL_PLAN');
 contains('WEATHER_RULES');
+contains('WEATHER_SOURCE_CARDS');
 contains('weatherDelayEventsV7');
+contains('weatherLocationsV7');
 contains('function renderWeatherDelayTool');
 contains('function weatherEventImpact');
 contains('function textWeatherRecoveryPlan');
+contains('function saveWeatherLocation');
+contains('function addWeatherSample');
+contains('function textWeatherEventCrew');
 contains('Rain / monsoon');
 contains('Wind');
 contains('Wildfire smoke / air quality');
@@ -340,6 +345,13 @@ contains('get_wildfire_info');
 contains('get_lightning_strikes');
 contains('critical path');
 contains('Text recovery plan');
+contains('Save weather location');
+contains('Demo monsoon hit');
+contains('Demo wind hold');
+contains('Demo smoke / AQI');
+contains('MCP ready');
+contains('Service status');
+contains('Text crew');
 
 function siteContains(snippet) {
   assert(

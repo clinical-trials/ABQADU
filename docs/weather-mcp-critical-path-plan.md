@@ -31,9 +31,13 @@ The `weather-mcp/weather-mcp` repository is useful as the backend pattern for we
 
 - The Schedule & Critical Path tab includes a Weather Delay Assessor.
 - Builder manually logs location, weather hazard, affected activity, severity, and weather days.
+- Builder can save jobsite weather locations for repeat use.
+- Builder can load demo events for monsoon rain, roofing wind, and wildfire smoke / AQI.
 - The tool checks whether the affected activity is on the critical path.
 - Critical-path weather delays move the finish date; noncritical weather delays consume float first.
 - The tool generates a textable recovery plan for Ian / builder.
+- Each logged weather event can generate a crew-specific text draft.
+- The UI displays the MCP source-readiness cards that should eventually power automation: forecast, current weather, alerts, air quality, wildfire information, lightning, radar, and weather-service status.
 
 ## Future backend flow
 

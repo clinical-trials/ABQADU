@@ -406,6 +406,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .weather-impact-card{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;padding:12px}
 .weather-impact-card b{display:block;font-family:var(--fd);font-size:18px;margin-bottom:3px;text-transform:uppercase}
 .weather-impact-card span{color:var(--ink60);font-size:12px;line-height:1.4}
+.weather-source-grid{display:grid;gap:8px;grid-template-columns:repeat(4,1fr);margin-top:12px}
+.weather-source-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:10px}
+.weather-source-card b{display:block;font-size:12px;margin-bottom:3px}.weather-source-card span{color:var(--ink60);display:block;font-size:11px;line-height:1.35}
 .weather-event-list{display:grid;gap:8px;margin-top:12px}
 .weather-event{align-items:center;background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;display:grid;gap:8px;grid-template-columns:1fr auto;padding:10px}
 .weather-event strong{display:block;font-size:13px}.weather-event small{color:var(--ink60);display:block;font-size:11px;margin-top:2px}
@@ -581,7 +584,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .res-unit .cap{font-size:10px;color:var(--ink30);margin-top:4px}
 @media (max-width:900px){
   .kanban{grid-template-columns:repeat(2,1fr)}
-  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid,.code-watch-grid,.regulator-grid,.code-assessment-grid,.code-assessment-form,.weather-tool-grid,.weather-impact-grid{grid-template-columns:1fr}
+  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid,.code-watch-grid,.regulator-grid,.code-assessment-grid,.code-assessment-form,.weather-tool-grid,.weather-impact-grid,.weather-source-grid{grid-template-columns:1fr}
   .code-assessment-form .wide{grid-column:auto}
   .code-assessment-meta{grid-template-columns:1fr}
   .bid-app-shell{grid-template-columns:1fr}
@@ -1347,7 +1350,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <button class="btn ghost" onclick="textWeatherRecoveryPlan()">Text recovery plan</button>
       <button class="btn ghost" onclick="clearWeatherDelayEvents()">Clear weather log</button>
     </div>
+    <div class="weather-tool-grid no-print">
+      <div><label class="fld">Save jobsite weather location</label><input class="in" id="weather-jobsite-name" placeholder="Amherst, Mackland, etc."></div>
+      <div><label class="fld">Address / city</label><input class="in" id="weather-jobsite-address" placeholder="435 Amherst Dr NE, Albuquerque"></div>
+      <button class="btn ghost" onclick="saveWeatherLocation()">Save weather location</button>
+      <button class="btn ghost" onclick="addWeatherSample('rain')">Demo monsoon hit</button>
+      <button class="btn ghost" onclick="addWeatherSample('wind')">Demo wind hold</button>
+      <button class="btn ghost" onclick="addWeatherSample('air')">Demo smoke / AQI</button>
+    </div>
     <div class="weather-impact-grid" id="weather-impact-grid"></div>
+    <div class="weather-source-grid" id="weather-source-grid"></div>
     <div class="weather-event-list" id="weather-event-list"></div>
     <div class="weather-mcp-note"><b>Future MCP hook:</b> wire weather-mcp tools for forecast, current conditions, alerts, air quality, wildfire information, radar/lightning, and service-status checks. Until the server is connected, this planner uses builder-entered weather events and the CPM float calculation.</div>
   </div>
@@ -3550,6 +3562,16 @@ const WEATHER_MCP_TOOL_PLAN = [
   'search_location',
   'save_location'
 ];
+const WEATHER_SOURCE_CARDS = [
+  {tool:'get_forecast',label:'Forecast',use:'Rain, wind, heat, freeze planning for the next work window.'},
+  {tool:'get_current_weather',label:'Current conditions',use:'Same-day crew go/no-go before dispatch.'},
+  {tool:'get_alerts',label:'Weather alerts',use:'NWS warnings that can trigger stop-work or recovery messaging.'},
+  {tool:'get_air_quality',label:'Air quality',use:'Wildfire smoke / AQI crew safety checks.'},
+  {tool:'get_wildfire_info',label:'Wildfire info',use:'Fire proximity, evacuation, delivery route, and site-safety risk.'},
+  {tool:'get_lightning_strikes',label:'Lightning',use:'Roof, lift, exterior, and elevated-work holds.'},
+  {tool:'get_radar_image',label:'Radar',use:'Near-term rain cell timing for slab, roof, and delivery decisions.'},
+  {tool:'get_weather_services_status',label:'Service status',use:'Confirms weather feeds are online before trusting automation.'}
+];
 const WEATHER_RULES = {
   rain:{label:'Rain / monsoon',base:7,affects:['Foundation','Roof','Exterior','Site Prep'],recovery:'Stage tarps, resequence interior work, and assume one rain day can create up to seven calendar days of recovery on critical exterior work.'},
   wind:{label:'Wind',base:3,affects:['Roof','Framing','Exterior'],recovery:'Hold roofing, roof dry-in, tall-wall work, exterior panels, crane/panel lifts, and dust-sensitive finish work until gusts are safe.'},
@@ -3560,6 +3582,10 @@ const WEATHER_RULES = {
   freeze:{label:'Freeze / frost',base:2,affects:['Foundation','Plumbing','Exterior'],recovery:'Protect concrete, plumbing rough-in, exterior water lines, adhesives, stucco, and paint temperature windows.'}
 };
 let weatherDelayEvents = store.get('weatherDelayEventsV7', []);
+let weatherLocations = store.get('weatherLocationsV7', [
+  {id:'albuquerque',name:'Albuquerque default',label:'Albuquerque, NM',address:'Albuquerque, NM'},
+  {id:'santa-fe',name:'Santa Fe default',label:'Santa Fe, NM',address:'Santa Fe, NM'}
+]);
 function renderGantt(){
   const {map,finish}=runCPM(ACTS);
   const ROW=30,HEAD=40,LBL=190,W=LBL+finish*ZOOM+40,H=HEAD+ACTS.length*ROW+10;
@@ -3636,6 +3662,12 @@ function renderWeatherDelayTool(mapArg=null, finishArg=null){
     activitySelect.innerHTML=ACTS.map(a=>`<option value="${esc(a.id)}">${esc(a.id)} · ${esc(a.name)}</option>`).join('');
     activitySelect.value='G';
   }
+  const locationSelect=$('#weather-location');
+  if(locationSelect){
+    const current=locationSelect.value;
+    locationSelect.innerHTML=weatherLocations.map(loc=>`<option value="${esc(loc.id)}">${esc(loc.label)}</option>`).join('') + '<option value="custom">Custom project address</option>';
+    if([...locationSelect.options].some(o=>o.value===current))locationSelect.value=current;
+  }
   const map=mapArg || runCPM(ACTS).map;
   const events=Array.isArray(weatherDelayEvents) ? weatherDelayEvents : [];
   const impacts=events.map(event=>weatherEventImpact(event,map));
@@ -3649,6 +3681,12 @@ function renderWeatherDelayTool(mapArg=null, finishArg=null){
     <div class="weather-impact-card"><b>${totalFinishDelay} days</b><span>Projected finish-date movement from logged weather events after available float is used.</span></div>
     <div class="weather-impact-card"><b>${criticalEvents}</b><span>Weather events touching the current critical path.</span></div>
     <div class="weather-impact-card"><b>${revisedFinish}</b><span>Weather-adjusted finish date if no recovery actions are taken.</span></div>`;
+  const sourceGrid=$('#weather-source-grid');
+  if(sourceGrid)sourceGrid.innerHTML=WEATHER_SOURCE_CARDS.map(card=>`<div class="weather-source-card">
+    <b>${esc(card.label)} <span class="code-status monitor" style="margin-left:4px">MCP ready</span></b>
+    <span><code>${esc(card.tool)}</code></span>
+    <span>${esc(card.use)}</span>
+  </div>`).join('');
   const list=$('#weather-event-list');
   if(list)list.innerHTML=events.length ? events.map((event,i)=>{
     const imp=weatherEventImpact(event,map);
@@ -3656,7 +3694,7 @@ function renderWeatherDelayTool(mapArg=null, finishArg=null){
       <div><strong>${esc(imp.rule.label)} · ${esc(imp.act.name)}</strong>
       <small>${esc(event.location || 'Albuquerque, NM')} · ${event.days} weather day(s) · ${esc(event.severity)} severity · ${imp.node?.crit?'critical path':'float '+imp.floatDays+'d'} · finish impact ${imp.finishDelay}d</small>
       <small>${esc(imp.rule.recovery)}</small></div>
-      <button class="btn ghost sm no-print" onclick="removeWeatherDelayEvent(${i})">Remove</button>
+      <div class="regulator-actions no-print"><button onclick="textWeatherEventCrew(${i})">Text crew</button><button onclick="removeWeatherDelayEvent(${i})">Remove</button></div>
     </div>`;
   }).join('') : `<div class="weather-event"><div><strong>No weather delays logged yet.</strong><small>Add rain, wind, wildfire smoke / air quality, lightning, heat, or freeze events to see critical-path impact.</small></div></div>`;
 }
@@ -3671,6 +3709,28 @@ function addWeatherDelayEvent(){
   store.set('weatherDelayEventsV7', weatherDelayEvents);
   renderGantt();
 }
+function saveWeatherLocation(){
+  const name=$('#weather-jobsite-name')?.value?.trim();
+  const address=$('#weather-jobsite-address')?.value?.trim();
+  if(!name && !address)return;
+  const id=`jobsite-${Date.now()}`;
+  const label=[name,address].filter(Boolean).join(' · ');
+  weatherLocations=[...weatherLocations,{id,name:name||address,label,address:address||name}];
+  store.set('weatherLocationsV7', weatherLocations);
+  ['weather-jobsite-name','weather-jobsite-address'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});
+  renderWeatherDelayTool();
+}
+function addWeatherSample(type){
+  const sample={
+    rain:{location:'Albuquerque, NM',type:'rain',activityId:'D',activityName:'Roofing (metal)',severity:'moderate',days:1},
+    wind:{location:'Albuquerque, NM',type:'wind',activityId:'D',activityName:'Roofing (metal)',severity:'high',days:1},
+    air:{location:'Santa Fe, NM',type:'air',activityId:'C',activityName:'Framing',severity:'moderate',days:1},
+    wildfire:{location:'Santa Fe, NM',type:'wildfire',activityId:'LD',activityName:"Lowe's Pro job-site delivery drops",severity:'high',days:1}
+  }[type] || {location:'Albuquerque, NM',type:'rain',activityId:'D',activityName:'Roofing (metal)',severity:'moderate',days:1};
+  weatherDelayEvents=[{...sample,loggedAt:new Date().toISOString()},...weatherDelayEvents];
+  store.set('weatherDelayEventsV7', weatherDelayEvents);
+  renderGantt();
+}
 function removeWeatherDelayEvent(index){
   weatherDelayEvents=weatherDelayEvents.filter((_,i)=>i!==index);
   store.set('weatherDelayEventsV7', weatherDelayEvents);
@@ -3680,6 +3740,23 @@ function clearWeatherDelayEvents(){
   weatherDelayEvents=[];
   store.set('weatherDelayEventsV7', weatherDelayEvents);
   renderGantt();
+}
+function textWeatherEventCrew(index){
+  const event=weatherDelayEvents[index];
+  if(!event)return;
+  const {map}=runCPM(ACTS);
+  const imp=weatherEventImpact(event,map);
+  const phone=(imp.act.crew.match(/[\d-]{7,}/)||[''])[0].replace(/-/g,'') || ABQADU_CONTACT.phone;
+  const body=`ABQ ADU weather update — ${imp.act.name}
+
+Hazard: ${imp.rule.label}
+Location: ${event.location}
+Severity: ${event.severity}
+Schedule impact: ${imp.finishDelay} day(s) to finish date
+Action: ${imp.rule.recovery}
+
+Reply with recovery plan and earliest safe restart.`;
+  location.href=smsUrlFor(phone, body);
 }
 function textWeatherRecoveryPlan(){
   const {map,finish}=runCPM(ACTS);
