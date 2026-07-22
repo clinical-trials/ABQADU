@@ -286,6 +286,24 @@ contains('Santa Fe Green Building Code review');
 contains('City of Albuquerque Planning / Building Safety requirements');
 contains('santafenm.gov/land-use/currently-adopted-codes');
 contains('cabq.gov/planning/building-safety-division/building-safety-division');
+contains('City regulator phone book');
+contains('CITY_REGULATORS');
+contains('function renderRegulatorPhonebook()');
+contains('function textRegulatorToIan(id)');
+contains('City of Albuquerque Building Safety Division');
+contains('City of Albuquerque Planning Department');
+contains('ABQ 311 Community Contact Center');
+contains('City of Santa Fe Building Permit Counter');
+contains('City of Santa Fe Green Building Review');
+contains('City of Santa Fe Building Inspections');
+contains('New Mexico CID Albuquerque Office');
+contains('New Mexico CID Santa Fe Office');
+contains('permitcounter@santafenm.gov');
+contains('roortiz@santafenm.gov');
+contains('5059243320');
+contains('5059243860');
+contains('5059556656');
+contains('Text Ian');
 
 function siteContains(snippet) {
   assert(

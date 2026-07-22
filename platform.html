@@ -508,6 +508,20 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .code-watch-card ul{margin:7px 0 0 17px}
 .code-watch-result{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;color:var(--ink60);font-size:12px;line-height:1.45;margin-top:10px;padding:10px}
 .code-watch-result strong{color:var(--ink)}
+.regulator-phonebook{background:#fff;border:1px solid var(--stucco-d);border-left:5px solid var(--sage);border-radius:8px;margin:16px 0;padding:16px}
+.regulator-phonebook h3{font-size:18px;margin-bottom:6px;text-transform:uppercase}
+.regulator-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.regulator-filter{background:var(--paper);border:1px solid var(--stucco-d);border-radius:999px;color:var(--ink60);cursor:pointer;font-size:12px;font-weight:800;padding:8px 11px;text-transform:uppercase}
+.regulator-filter.active{background:var(--sage);border-color:var(--sage);color:#fff}
+.regulator-grid{display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
+.regulator-card{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;padding:12px}
+.regulator-card h4{font-size:15px;margin-bottom:4px}
+.regulator-card .tag{background:#fff;border:1px solid rgba(61,82,71,.16);border-radius:999px;color:var(--sage);display:inline-block;font-size:10px;font-weight:900;letter-spacing:.06em;margin-bottom:7px;padding:4px 7px;text-transform:uppercase}
+.regulator-card p{color:var(--ink60);font-size:12px;line-height:1.4;margin:0 0 9px}
+.regulator-meta{color:var(--ink60);font-size:12px;line-height:1.45;margin:8px 0}
+.regulator-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.regulator-actions a,.regulator-actions button{background:#fff;border:1px solid var(--stucco-d);border-radius:6px;color:var(--ink);cursor:pointer;font-size:11px;font-weight:800;padding:7px 8px;text-decoration:none}
+.regulator-actions .primary{background:var(--copper);border-color:var(--copper);color:#fff}
 .note{background:#FEF6E7;border:1px solid var(--copper-l);border-radius:6px;padding:10px 14px;font-size:12px;color:#7a5a1a;margin-bottom:18px}
 
 /* Project controls */
@@ -542,7 +556,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .res-unit .cap{font-size:10px;color:var(--ink30);margin-top:4px}
 @media (max-width:900px){
   .kanban{grid-template-columns:repeat(2,1fr)}
-  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid,.code-watch-grid{grid-template-columns:1fr}
+  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid,.code-watch-grid,.regulator-grid{grid-template-columns:1fr}
   .bid-app-shell{grid-template-columns:1fr}
   .bid-app-side{min-width:0}
   .estimate-hero,.estimate-grid{grid-template-columns:1fr}
@@ -1611,6 +1625,12 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       </div>
     </div>
   </div>
+  <div class="regulator-phonebook">
+    <h3>City regulator phone book</h3>
+    <div class="muted" style="font-size:12px">Internal builder contact list for Ian: permit counters, plan review, inspections, zoning, green building, and New Mexico CID. Use official source links to confirm current phone and email before sending a live packet.</div>
+    <div class="regulator-toolbar no-print" id="regulator-toolbar" aria-label="Filter regulator contacts"></div>
+    <div class="regulator-grid" id="regulator-grid"></div>
+  </div>
   <div class="ai-grid" id="ai-grid"></div>
 </section>
 
@@ -1658,6 +1678,97 @@ const NM_CODE_CYCLE = {
     'https://www.rld.nm.gov/construction-industries/find-a-bureau/bureaus/rules-laws-and-building-codes/'
   ]
 };
+const CITY_REGULATORS = [
+  {
+    id:'cabq-building-safety',
+    city:'Albuquerque',
+    group:'Permits',
+    name:'City of Albuquerque Building Safety Division',
+    role:'Building permits, plan review, trade permits, inspections',
+    phone:'5059243320',
+    email:'',
+    source:'https://www.cabq.gov/planning/building-safety-division/building-safety-division',
+    note:'Use for Albuquerque building permit and inspection routing. Verify active code edition and any local amendments before permit handoff.'
+  },
+  {
+    id:'cabq-planning',
+    city:'Albuquerque',
+    group:'Zoning',
+    name:'City of Albuquerque Planning Department',
+    role:'IDO, zoning, land-use questions, ADU placement questions',
+    phone:'5059243860',
+    email:'',
+    source:'https://www.cabq.gov/planning/contact-us',
+    note:'Use for IDO / zoning questions before bid is marked ready to send.'
+  },
+  {
+    id:'cabq-311',
+    city:'Albuquerque',
+    group:'General',
+    name:'ABQ 311 Community Contact Center',
+    role:'General city routing when the right permitting contact is unclear',
+    phone:'5057682000',
+    email:'',
+    source:'https://www.cabq.gov/311',
+    note:'Fallback routing line for Albuquerque city services.'
+  },
+  {
+    id:'santa-fe-permit-counter',
+    city:'Santa Fe',
+    group:'Permits',
+    name:'City of Santa Fe Building Permit Counter',
+    role:'Permit intake, Citizen Self Service, permit counter routing',
+    phone:'',
+    email:'permitcounter@santafenm.gov',
+    source:'https://santafenm.gov/land-use/building-permits',
+    note:'Use for Santa Fe permit intake and routing. Santa Fe projects may need local land-use and green-building review.'
+  },
+  {
+    id:'santa-fe-green-building',
+    city:'Santa Fe',
+    group:'Green Building',
+    name:'City of Santa Fe Green Building Review',
+    role:'Green Building Code review for new accessory dwellings / guest houses',
+    phone:'',
+    email:'roortiz@santafenm.gov',
+    source:'https://santafenm.gov/land-use/currently-adopted-codes',
+    note:'Use when a Santa Fe ADU/guest-house project needs Green Building Code review before final pricing or permit handoff.'
+  },
+  {
+    id:'santa-fe-inspections',
+    city:'Santa Fe',
+    group:'Inspections',
+    name:'City of Santa Fe Building Inspections',
+    role:'Inspection scheduling and inspection process questions',
+    phone:'5059556656',
+    email:'',
+    source:'https://santafenm.gov/land-use/inspections',
+    note:'Use for Santa Fe inspection scheduling questions after permit issuance.'
+  },
+  {
+    id:'nm-cid-albuquerque',
+    city:'Statewide',
+    group:'State CID',
+    name:'New Mexico CID Albuquerque Office',
+    role:'State Construction Industries Division office',
+    phone:'5052229800',
+    email:'',
+    source:'https://www.rld.nm.gov/construction-industries/locations-contacts/',
+    note:'Use for state code, licensing, inspection, and CID routing questions in the Albuquerque region.'
+  },
+  {
+    id:'nm-cid-santa-fe',
+    city:'Statewide',
+    group:'State CID',
+    name:'New Mexico CID Santa Fe Office',
+    role:'State Construction Industries Division office',
+    phone:'5054764700',
+    email:'',
+    source:'https://www.rld.nm.gov/construction-industries/locations-contacts/',
+    note:'Use for state code, licensing, inspection, and CID routing questions in the Santa Fe region.'
+  }
+];
+let regulatorFilter = 'All';
 
 /* Tabs */
 function currentTabFromHash(){
@@ -1678,6 +1789,7 @@ function showTab(name){
   if(name==='design') ensureDesign();
   if(name==='blueprint') renderBlueprint();
   if(name==='ai') renderCodeCycleWatch();
+  if(name==='ai') renderRegulatorPhonebook();
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.dataset.tab;showTab(t.dataset.tab)});
 document.querySelectorAll('[data-mobile-tab]').forEach(link=>{
@@ -4352,6 +4464,52 @@ function renderCodeCycleWatch(){
     ? `<strong>Needs code review.</strong> Permit target ${permitDate} is on or after the ${transitionDate} planning trigger. Add a code-cycle check before permit handoff, confirm the AHJ code edition, and carry schedule float for plan-review comments.`
     : `<strong>Monitor only.</strong> Permit target ${permitDate} is before the ${transitionDate} planning trigger. Keep the code-cycle watch in the project file and verify again before final bid.`) + localNote;
 }
+function renderRegulatorPhonebook(){
+  const toolbar=$('#regulator-toolbar');
+  const grid=$('#regulator-grid');
+  if(!toolbar || !grid)return;
+  const filters=['All',...Array.from(new Set(CITY_REGULATORS.map(c=>c.city)))];
+  toolbar.innerHTML=filters.map(f=>`<button class="regulator-filter ${regulatorFilter===f?'active':''}" onclick="setRegulatorFilter('${esc(f)}')">${esc(f)}</button>`).join('');
+  const contacts=CITY_REGULATORS.filter(c=>regulatorFilter==='All' || c.city===regulatorFilter);
+  grid.innerHTML=contacts.map(c=>{
+    const phoneLink=c.phone ? `<a href="tel:${esc(c.phone)}">Call ${esc(formatPhone(c.phone))}</a>` : '';
+    const emailLink=c.email ? `<a href="mailto:${esc(c.email)}">Email</a>` : '';
+    return `<article class="regulator-card">
+      <span class="tag">${esc(c.city)} · ${esc(c.group)}</span>
+      <h4>${esc(c.name)}</h4>
+      <p>${esc(c.role)}</p>
+      <div class="regulator-meta">
+        ${c.phone?`<div><b>Phone:</b> ${esc(formatPhone(c.phone))}</div>`:''}
+        ${c.email?`<div><b>Email:</b> ${esc(c.email)}</div>`:''}
+        <div><b>Source:</b> official city/state page</div>
+      </div>
+      <p>${esc(c.note)}</p>
+      <div class="regulator-actions">
+        ${phoneLink}
+        ${emailLink}
+        <a href="${esc(c.source)}" target="_blank" rel="noopener">Source</a>
+        <button class="primary" onclick="textRegulatorToIan('${esc(c.id)}')">Text Ian</button>
+      </div>
+    </article>`;
+  }).join('');
+}
+function setRegulatorFilter(filter){
+  regulatorFilter=filter;
+  renderRegulatorPhonebook();
+}
+function textRegulatorToIan(id){
+  const contact=CITY_REGULATORS.find(c=>c.id===id);
+  if(!contact)return;
+  const lines=[
+    `ABQ ADU regulator contact for ${contact.city}: ${contact.name}`,
+    `Role: ${contact.role}`,
+    contact.phone ? `Phone: ${formatPhone(contact.phone)}` : '',
+    contact.email ? `Email: ${contact.email}` : '',
+    `Note: ${contact.note}`,
+    `Source: ${contact.source}`
+  ].filter(Boolean).join('\n');
+  location.href=smsUrlFor(ABQADU_CONTACT.phone, lines);
+}
 
 /* ═══════════════ PROJECT CONTROLS ═══════════════ */
 const PROJECTS=[
@@ -4467,6 +4625,7 @@ function renderControls(){
 renderBid();
 showTab(currentTabFromHash());
 renderCodeCycleWatch();
+renderRegulatorPhonebook();
 </script>
 </body>
 </html>
