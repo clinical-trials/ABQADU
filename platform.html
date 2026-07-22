@@ -1580,6 +1580,14 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <span>Before a bid becomes ready to send, verify the applicable code edition with New Mexico CID and the City of Albuquerque authority having jurisdiction. Use the builder planning date below as a transition trigger, then adjust it when the AHJ publishes project-specific guidance.</span>
         <div class="row no-print" style="gap:8px;align-items:end;flex-wrap:wrap;margin-top:10px">
           <div>
+            <label class="fld">Authority having jurisdiction</label>
+            <select class="in" id="code-ahj" onchange="renderCodeCycleWatch()">
+              <option value="albuquerque">Albuquerque</option>
+              <option value="santa-fe">Santa Fe</option>
+              <option value="other-nm">Other New Mexico AHJ</option>
+            </select>
+          </div>
+          <div>
             <label class="fld">Permit target date</label>
             <input class="in" id="code-permit-date" type="date" value="2026-08-01" onchange="renderCodeCycleWatch()">
           </div>
@@ -1595,8 +1603,9 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <b>Builder action list</b>
         <ul>
           <li>Code-cycle check before permit handoff.</li>
-          <li>Confirm plumbing, mechanical, fuel gas, electrical, residential, and energy code editions before final bid.</li>
+          <li>Confirm state baseline plus city-specific amendments before final bid.</li>
           <li>Flag bids as <b>needs code review</b> when permit filing may cross the transition window.</li>
+          <li>Santa Fe projects require Green Building Code review for new accessory dwellings / guest houses.</li>
           <li>Carry schedule float for plan review comments caused by code-cycle transition.</li>
         </ul>
       </div>
@@ -1627,6 +1636,23 @@ const NM_CODE_CYCLE = {
   label:'New Mexico 2026 code-cycle transition',
   verified:'Official NM Register Issue 12 adopted 2024 New Mexico Plumbing Code and 2024 New Mexico Mechanical Code rules for CID in June 2026.',
   caution:'Use August 1, 2026 as the builder planning trigger until CID or the City of Albuquerque publishes project-specific applicability guidance.',
+  ahjProfiles:{
+    albuquerque:{
+      label:'Albuquerque',
+      note:'Use New Mexico CID baseline codes plus City of Albuquerque Planning / Building Safety requirements, IDO ADU standards, local permit submittal rules, and any published local amendments.',
+      source:'https://www.cabq.gov/planning/building-safety-division/building-safety-division'
+    },
+    'santa-fe':{
+      label:'Santa Fe',
+      note:'Use New Mexico CID baseline codes plus City of Santa Fe Building Permit Division requirements, Santa Fe land-use rules, and Santa Fe Green Building Code review for new accessory dwellings / guest houses.',
+      source:'https://santafenm.gov/land-use/currently-adopted-codes'
+    },
+    'other-nm':{
+      label:'Other New Mexico AHJ',
+      note:'Use New Mexico CID baseline codes, then verify county/city amendments, zoning, historic review, floodplain, utility, and inspection requirements with the local authority having jurisdiction.',
+      source:'https://www.rld.nm.gov/construction-industries/find-a-bureau/bureaus/rules-laws-and-building-codes/'
+    }
+  },
   sources:[
     'https://www.srca.nm.gov/nmac-home/new-mexico-register/volume-xxxvii-issue-12/adopted-rules-issue-12/',
     'https://www.rld.nm.gov/construction-industries/find-a-bureau/bureaus/rules-laws-and-building-codes/'
@@ -4312,16 +4338,19 @@ $('#ai-grid').innerHTML=HELPERS.map((a,i)=>`<div class="ai-card">
 </div>`).join('');
 function aiShow(i,btn){const o=$('#ai-'+i);o.classList.toggle('show');btn.textContent=o.classList.contains('show')?'Hide output':'Preview output'}
 function renderCodeCycleWatch(){
+  const ahjInput=$('#code-ahj');
   const permitInput=$('#code-permit-date');
   const transitionInput=$('#code-transition-date');
   const out=$('#code-watch-result');
   if(!out)return;
+  const ahj=NM_CODE_CYCLE.ahjProfiles[ahjInput?.value] || NM_CODE_CYCLE.ahjProfiles.albuquerque;
   const permitDate=permitInput?.value || NM_CODE_CYCLE.planningTransitionDate;
   const transitionDate=transitionInput?.value || NM_CODE_CYCLE.planningTransitionDate;
   const inTransition = permitDate >= transitionDate;
-  out.innerHTML = inTransition
+  const localNote = `<br><strong>${ahj.label} AHJ:</strong> ${ahj.note}`;
+  out.innerHTML = (inTransition
     ? `<strong>Needs code review.</strong> Permit target ${permitDate} is on or after the ${transitionDate} planning trigger. Add a code-cycle check before permit handoff, confirm the AHJ code edition, and carry schedule float for plan-review comments.`
-    : `<strong>Monitor only.</strong> Permit target ${permitDate} is before the ${transitionDate} planning trigger. Keep the code-cycle watch in the project file and verify again before final bid.`;
+    : `<strong>Monitor only.</strong> Permit target ${permitDate} is before the ${transitionDate} planning trigger. Keep the code-cycle watch in the project file and verify again before final bid.`) + localNote;
 }
 
 /* ═══════════════ PROJECT CONTROLS ═══════════════ */

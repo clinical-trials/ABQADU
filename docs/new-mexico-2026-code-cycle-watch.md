@@ -15,15 +15,18 @@ Last checked: July 22, 2026
 ## How the builder software accommodates this
 
 1. Project Helper includes a New Mexico 2026 code-cycle watch card.
-2. The card lets the builder compare a project permit target date against a configurable transition date.
-3. Projects crossing the transition trigger are flagged as "Needs code review."
-4. The permit narrative helper now reminds the builder to verify the applicable code edition with New Mexico CID and the City of Albuquerque authority having jurisdiction before final bid or permit handoff.
-5. The risk helper includes code-cycle transition as a permit risk for jobs near the transition window.
+2. The card lets the builder choose the authority having jurisdiction: Albuquerque, Santa Fe, or another New Mexico AHJ.
+3. The card compares a project permit target date against a configurable transition date.
+4. Projects crossing the transition trigger are flagged as "Needs code review."
+5. The permit narrative helper now reminds the builder to verify the applicable code edition with New Mexico CID and the local authority having jurisdiction before final bid or permit handoff.
+6. The risk helper includes code-cycle transition as a permit risk for jobs near the transition window.
 
 ## Builder checklist
 
 - Verify active plumbing, mechanical, fuel gas, electrical, residential, building, and energy code editions before final bid.
-- Confirm whether the City of Albuquerque has local amendments, plan-review grace periods, or permit-submittal rules that affect the project.
+- Confirm whether the city or county has local amendments, plan-review grace periods, or permit-submittal rules that affect the project.
+- Albuquerque projects should be checked against City of Albuquerque Planning / Building Safety requirements, IDO ADU standards, local permit submittal rules, and any local amendments.
+- Santa Fe projects should be checked against the City of Santa Fe Building Permit Division, local land-use rules, and Santa Fe Green Building Code review for new accessory dwellings / guest houses.
 - Update subcontractor scopes if code-cycle changes affect fixture, mechanical, electrical, energy, structural, or inspection requirements.
 - Keep the code-cycle check as a critical-path task before permit handoff.
 
@@ -31,3 +34,5 @@ Last checked: July 22, 2026
 
 - New Mexico Register adopted rules, Issue 12: https://www.srca.nm.gov/nmac-home/new-mexico-register/volume-xxxvii-issue-12/adopted-rules-issue-12/
 - New Mexico RLD/CID Rules, Laws and Building Codes: https://www.rld.nm.gov/construction-industries/find-a-bureau/bureaus/rules-laws-and-building-codes/
+- City of Albuquerque Building Safety Division: https://www.cabq.gov/planning/building-safety-division/building-safety-division
+- City of Santa Fe currently adopted codes: https://santafenm.gov/land-use/currently-adopted-codes

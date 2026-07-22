@@ -279,6 +279,13 @@ contains('function renderCodeCycleWatch()');
 contains('NM_CODE_CYCLE');
 contains('New Mexico 2026 code-cycle transition');
 contains('confirm the active code editions with New Mexico CID and the City of Albuquerque');
+contains('Authority having jurisdiction');
+contains('Albuquerque');
+contains('Santa Fe');
+contains('Santa Fe Green Building Code review');
+contains('City of Albuquerque Planning / Building Safety requirements');
+contains('santafenm.gov/land-use/currently-adopted-codes');
+contains('cabq.gov/planning/building-safety-division/building-safety-division');
 
 function siteContains(snippet) {
   assert(
