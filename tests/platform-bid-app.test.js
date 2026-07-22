@@ -269,6 +269,16 @@ contains('PUR panels and SIP panel systems are a different build method');
 contains('Muras can help provide these panels, and materials/labor COGS may be dramatically reduced versus stick framing.');
 contains('Build method matters: stick framing needs RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape, and fireblock review; PUR/SIP panel systems route to Muras/pre-cut panel shop drawings, cut list, connection details, delivery, installation checks, and reduced COGS review.');
 contains('confirm build method: stick framing needs RO/header/jack/king/cripple/sill/fireblock review; PUR/SIP panel systems use Muras/pre-cut shop drawings and panel cut lists');
+contains('New Mexico 2026 code-cycle watch');
+contains('Official New Mexico Register Issue 12 adopted 2024 Plumbing and Mechanical code rules');
+contains('2026-08-01');
+contains('Code-cycle check before permit handoff');
+contains('authority having jurisdiction');
+contains('Needs code review.');
+contains('function renderCodeCycleWatch()');
+contains('NM_CODE_CYCLE');
+contains('New Mexico 2026 code-cycle transition');
+contains('confirm the active code editions with New Mexico CID and the City of Albuquerque');
 
 function siteContains(snippet) {
   assert(

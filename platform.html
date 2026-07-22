@@ -499,6 +499,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .builder-knowledge-card{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;padding:12px}
 .builder-knowledge-card b{display:block;font-family:var(--fd);font-size:18px;margin-bottom:5px;text-transform:uppercase}
 .builder-knowledge-card span{color:var(--ink60);display:block;font-size:12px;line-height:1.45}
+.code-watch{background:#fff;border:1px solid rgba(167,83,53,.32);border-left:5px solid var(--terra);border-radius:8px;margin:16px 0;padding:16px}
+.code-watch h3{font-size:18px;margin-bottom:6px;text-transform:uppercase}
+.code-watch-grid{display:grid;gap:10px;grid-template-columns:1.15fr .85fr;margin-top:12px}
+.code-watch-card{background:#FEF6E7;border:1px solid rgba(196,149,74,.32);border-radius:8px;padding:12px}
+.code-watch-card b{display:block;color:#6f4b16;font-family:var(--fd);font-size:17px;margin-bottom:5px;text-transform:uppercase}
+.code-watch-card span,.code-watch-card li{color:#6f4b16;font-size:12px;line-height:1.45}
+.code-watch-card ul{margin:7px 0 0 17px}
+.code-watch-result{background:var(--paper);border:1px solid var(--stucco-d);border-radius:8px;color:var(--ink60);font-size:12px;line-height:1.45;margin-top:10px;padding:10px}
+.code-watch-result strong{color:var(--ink)}
 .note{background:#FEF6E7;border:1px solid var(--copper-l);border-radius:6px;padding:10px 14px;font-size:12px;color:#7a5a1a;margin-bottom:18px}
 
 /* Project controls */
@@ -533,7 +542,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .res-unit .cap{font-size:10px;color:var(--ink30);margin-top:4px}
 @media (max-width:900px){
   .kanban{grid-template-columns:repeat(2,1fr)}
-  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid{grid-template-columns:1fr}
+  .bid-wrap,.ai-grid,.blueprint-hero,.bidout-grid,.builder-knowledge-grid,.code-watch-grid{grid-template-columns:1fr}
   .bid-app-shell{grid-template-columns:1fr}
   .bid-app-side{min-width:0}
   .estimate-hero,.estimate-grid{grid-template-columns:1fr}
@@ -1562,6 +1571,37 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <div class="builder-knowledge-card"><b>Opening Types</b><span>Track special openings separately: transom window, clerestory window, large sliders, full glass panels, and any opening over the engineering threshold. Some components are interchangeable or substitutable; substitutions must preserve code, structure, weather sealing, and inspection approval.</span></div>
     </div>
   </div>
+  <div class="code-watch">
+    <h3>New Mexico 2026 code-cycle watch</h3>
+    <div class="muted" style="font-size:12px">Official New Mexico Register Issue 12 adopted 2024 Plumbing and Mechanical code rules for the Construction Industries Division in June 2026. The builder platform now treats code-cycle changes as a permit-readiness checkpoint so bids, schedules, and permit narratives are not locked to stale assumptions.</div>
+    <div class="code-watch-grid">
+      <div class="code-watch-card">
+        <b>Permit checkpoint</b>
+        <span>Before a bid becomes ready to send, verify the applicable code edition with New Mexico CID and the City of Albuquerque authority having jurisdiction. Use the builder planning date below as a transition trigger, then adjust it when the AHJ publishes project-specific guidance.</span>
+        <div class="row no-print" style="gap:8px;align-items:end;flex-wrap:wrap;margin-top:10px">
+          <div>
+            <label class="fld">Permit target date</label>
+            <input class="in" id="code-permit-date" type="date" value="2026-08-01" onchange="renderCodeCycleWatch()">
+          </div>
+          <div>
+            <label class="fld">Planning transition date</label>
+            <input class="in" id="code-transition-date" type="date" value="2026-08-01" onchange="renderCodeCycleWatch()">
+          </div>
+          <button class="btn copper sm" onclick="renderCodeCycleWatch()">Check code risk</button>
+        </div>
+        <div class="code-watch-result" id="code-watch-result"></div>
+      </div>
+      <div class="code-watch-card">
+        <b>Builder action list</b>
+        <ul>
+          <li>Code-cycle check before permit handoff.</li>
+          <li>Confirm plumbing, mechanical, fuel gas, electrical, residential, and energy code editions before final bid.</li>
+          <li>Flag bids as <b>needs code review</b> when permit filing may cross the transition window.</li>
+          <li>Carry schedule float for plan review comments caused by code-cycle transition.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
   <div class="ai-grid" id="ai-grid"></div>
 </section>
 
@@ -1582,6 +1622,16 @@ const ABQADU_CONTACT = {
   city:'Albuquerque, New Mexico',
   logo:'images/abqadu-logo.png',
 };
+const NM_CODE_CYCLE = {
+  planningTransitionDate:'2026-08-01',
+  label:'New Mexico 2026 code-cycle transition',
+  verified:'Official NM Register Issue 12 adopted 2024 New Mexico Plumbing Code and 2024 New Mexico Mechanical Code rules for CID in June 2026.',
+  caution:'Use August 1, 2026 as the builder planning trigger until CID or the City of Albuquerque publishes project-specific applicability guidance.',
+  sources:[
+    'https://www.srca.nm.gov/nmac-home/new-mexico-register/volume-xxxvii-issue-12/adopted-rules-issue-12/',
+    'https://www.rld.nm.gov/construction-industries/find-a-bureau/bureaus/rules-laws-and-building-codes/'
+  ]
+};
 
 /* Tabs */
 function currentTabFromHash(){
@@ -1601,6 +1651,7 @@ function showTab(name){
   if(name==='controls') renderControls();
   if(name==='design') ensureDesign();
   if(name==='blueprint') renderBlueprint();
+  if(name==='ai') renderCodeCycleWatch();
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{location.hash=t.dataset.tab;showTab(t.dataset.tab)});
 document.querySelectorAll('[data-mobile-tab]').forEach(link=>{
@@ -4221,9 +4272,9 @@ NOTES: Verify rear/side setbacks of 5'/3' on the survey before submittal.`},
 
 Scope: Construction of one new detached accessory dwelling unit of 440 square feet (1 bedroom / 1 bathroom) on an existing residential lot in Albuquerque, New Mexico.
 
-The proposed ADU conforms to the City of Albuquerque Integrated Development Ordinance §14-16-6-7 governing accessory dwelling units, including size, height, and setback provisions. Construction shall comply with the 2021 International Residential Code and the 2021 International Energy Conservation Code.
+The proposed ADU conforms to the City of Albuquerque Integrated Development Ordinance §14-16-6-7 governing accessory dwelling units, including size, height, and setback provisions. Before final bid or permit handoff, confirm the active code editions with New Mexico CID and the City of Albuquerque authority having jurisdiction. The platform is tracking the New Mexico 2026 code-cycle transition because official NM Register Issue 12 adopted 2024 Plumbing and Mechanical code rules in June 2026.
 
-The structure is wood-framed on a monolithic slab foundation, with a standing-seam metal roof and three-coat stucco exterior. All electrical, plumbing, and mechanical work shall be performed by New Mexico-licensed trades under separate permit.`},
+The structure is wood-framed or panelized on a monolithic slab foundation, with a standing-seam metal roof and stucco or approved exterior cladding. All electrical, plumbing, and mechanical work shall be performed by New Mexico-licensed trades under separate permit.`},
   {t:'Delay Forecast',ph:'Phase 2',svc:'scheduleForecast.js',out:`DELAY RISK: Moderate
 
 The critical path runs Framing → MEP rough-in → Insulation → Drywall → Finishes → Cabinets → Final. Framing is 60% complete and tracking on schedule.
@@ -4238,7 +4289,8 @@ Recommendation: Front-load the MEP inspection booking and confirm the insulation
 1. MEP inspection delay — P4 × I5 = 20 (Critical). Zero-float activity; a failed or late inspection slips the entire project. Mitigation: pre-inspection walkthrough, book early.
 2. Monsoon weather on roofing/dry-in — P4 × I3 = 12 (High). Mitigation: weather buffer, tarping plan.
 3. Cabinet lead time — P3 × I3 = 9 (Medium). Mitigation: order at drywall start, not finish.
-4. Concrete cure in summer heat — P2 × I3 = 6 (Medium). Mitigation: evening pours, curing blankets.`},
+4. New Mexico 2026 code-cycle transition — P3 × I4 = 12 (High for permits near transition). Mitigation: confirm applicable code edition with CID/AHJ before final bid, then update permit narrative and subcontractor scopes.
+5. Concrete cure in summer heat — P2 × I3 = 6 (Medium). Mitigation: evening pours, curing blankets.`},
   {t:'Weekly Briefing',ph:'Phase 2',svc:'weeklyBriefing.js',out:`WEEKLY BRIEFING — Netherwood House ADU
 
 Status: On schedule. Project is 14% complete overall; site prep and foundation are done, framing is underway at 60%.
@@ -4246,6 +4298,8 @@ Status: On schedule. Project is 14% complete overall; site prep and foundation a
 This week: Complete framing (Tyler's crew), begin roofing and window install. Book the MEP rough-in inspection for early next week — it's on the critical path.
 
 Heads-up: No float on MEP. A monsoon system is forecast mid-week; have tarps staged for the dry-in. Cabinets should be ordered now to avoid a finish-stage bottleneck.
+
+Code-cycle check: If this permit crosses the builder planning transition date of August 1, 2026, verify active New Mexico code editions before the permit narrative is issued.
 
 Cash: Deposit and foundation draws collected. Next invoice (framing complete, 30%) is ready to send.`},
 ];
@@ -4257,6 +4311,18 @@ $('#ai-grid').innerHTML=HELPERS.map((a,i)=>`<div class="ai-card">
   <div class="ai-out" id="ai-${i}">${HELPERS[i].out}</div>
 </div>`).join('');
 function aiShow(i,btn){const o=$('#ai-'+i);o.classList.toggle('show');btn.textContent=o.classList.contains('show')?'Hide output':'Preview output'}
+function renderCodeCycleWatch(){
+  const permitInput=$('#code-permit-date');
+  const transitionInput=$('#code-transition-date');
+  const out=$('#code-watch-result');
+  if(!out)return;
+  const permitDate=permitInput?.value || NM_CODE_CYCLE.planningTransitionDate;
+  const transitionDate=transitionInput?.value || NM_CODE_CYCLE.planningTransitionDate;
+  const inTransition = permitDate >= transitionDate;
+  out.innerHTML = inTransition
+    ? `<strong>Needs code review.</strong> Permit target ${permitDate} is on or after the ${transitionDate} planning trigger. Add a code-cycle check before permit handoff, confirm the AHJ code edition, and carry schedule float for plan-review comments.`
+    : `<strong>Monitor only.</strong> Permit target ${permitDate} is before the ${transitionDate} planning trigger. Keep the code-cycle watch in the project file and verify again before final bid.`;
+}
 
 /* ═══════════════ PROJECT CONTROLS ═══════════════ */
 const PROJECTS=[
@@ -4371,6 +4437,7 @@ function renderControls(){
 /* init */
 renderBid();
 showTab(currentTabFromHash());
+renderCodeCycleWatch();
 </script>
 </body>
 </html>
