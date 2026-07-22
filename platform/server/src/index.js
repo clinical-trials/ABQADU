@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
@@ -28,6 +30,17 @@ app.use('/api/invoices',     require('./routes/invoices'));
 app.use('/api/invoice-engine', require('./routes/invoiceEngine'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
+
+// Serve the built React client so the whole platform runs on one port.
+// (Falls through when no build exists yet, e.g. API-only dev.)
+const clientBuild = path.join(__dirname, '..', '..', 'client', 'build');
+if (fs.existsSync(clientBuild)) {
+  app.use(express.static(clientBuild));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(clientBuild, 'index.html'));
+  });
+}
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`ABQ ADU server on :${PORT}`));

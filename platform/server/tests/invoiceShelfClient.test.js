@@ -29,7 +29,11 @@ async function run() {
   console.log('InvoiceShelf client tests passed');
 }
 
-run().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+if (typeof test === 'function') {
+  test('InvoiceShelf client creates authorized API requests', run);
+} else {
+  run().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}
