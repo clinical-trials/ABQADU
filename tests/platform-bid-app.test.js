@@ -319,6 +319,27 @@ contains('Inspection critical path');
 contains('Confirm currently adopted building, residential, electrical, energy, plumbing, mechanical, and fuel gas editions before final bid.');
 contains('Restore starter checklist');
 contains('Text Ian code status');
+contains('Weather delay assessor');
+contains('weather-mcp template');
+contains('WEATHER_MCP_TOOL_PLAN');
+contains('WEATHER_RULES');
+contains('weatherDelayEventsV7');
+contains('function renderWeatherDelayTool');
+contains('function weatherEventImpact');
+contains('function textWeatherRecoveryPlan');
+contains('Rain / monsoon');
+contains('Wind');
+contains('Wildfire smoke / air quality');
+contains('Wildfire proximity');
+contains('Lightning');
+contains('Extreme heat');
+contains('Freeze / frost');
+contains('get_forecast');
+contains('get_air_quality');
+contains('get_wildfire_info');
+contains('get_lightning_strikes');
+contains('critical path');
+contains('Text recovery plan');
 
 function siteContains(snippet) {
   assert(
