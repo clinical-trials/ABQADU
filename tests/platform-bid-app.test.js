@@ -352,6 +352,10 @@ contains('Demo smoke / AQI');
 contains('MCP ready');
 contains('Service status');
 contains('Text crew');
+contains('Builder operating principle');
+contains('maximize dollars per day');
+contains('minimizing labor cost per day');
+contains('Mobile-first triage');
 
 function siteContains(snippet) {
   assert(

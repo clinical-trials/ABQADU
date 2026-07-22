@@ -14,6 +14,14 @@ The estimator should help a contractor move from site visit to credible quote qu
 6. Sync the customer-facing estimate to InvoiceShelf.
 7. Capture job expenses with receipt scanning and mileage tracking.
 
+## Builder Operating Principle
+
+The builder platform must be mobile-friendly and extremely easy for a busy builder to use in the field. The first screen should triage the most important information first: bid readiness, client status, weather delays, supplier quotes, unpaid invoices, and critical-path blockers.
+
+The business focus is to maximize dollars per day through faster new-project bids, active follow-up, and continuous builds, while minimizing labor cost per day by reducing idle crews, missed handoffs, unnecessary back-and-forth, and delayed subcontractor coordination.
+
+Fast group texting is a core workflow. Weather delays, inspection changes, supplier updates, schedule recovery, and critical-path issues should be easy to send to the right crews quickly so the build keeps moving.
+
 ## Product Positioning
 
 Cost Estimator for ADU Construction Projects.
