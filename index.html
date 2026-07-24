@@ -451,6 +451,25 @@ h1 em {
   color: rgba(240,235,225,.7);
 }
 
+.hero-trust-strip {
+  background: var(--blueprint);
+  max-width: 100%;
+  padding: 0 var(--gutter) 72px;
+}
+
+.hero-trust-inner {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, .7fr);
+  margin: 0 auto;
+  max-width: var(--max);
+}
+
+.hero-trust-inner .credential-ribbon,
+.hero-trust-inner .hero-phone-card {
+  margin-top: 0;
+}
+
 /* ─── Section base ────────────────────────────────────────── */
 section {
   padding: 96px var(--gutter);
@@ -4588,7 +4607,13 @@ footer {
 /* ─── Responsive ──────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .hero { grid-template-columns: 1fr; }
-  .hero-photo { display: none; }
+  .hero-photo {
+    height: clamp(260px, 48vw, 420px);
+    margin: 0 auto;
+    max-width: 760px;
+    width: 100%;
+  }
+  .hero-trust-inner { grid-template-columns: 1fr; }
   .design-builder-grid { grid-template-columns: minmax(0, 1fr); }
   .config-preview { max-width: 760px; width: 100%; justify-self: center; }
   .finance-grid { grid-template-columns: 1fr; }
@@ -4642,6 +4667,18 @@ footer {
     padding: 92px 20px 52px !important;
     gap: 28px;
   }
+  .hero-photo {
+    border-radius: 8px;
+    height: clamp(220px, 58vw, 340px);
+    box-shadow: 0 18px 44px rgba(0,0,0,.35);
+  }
+  .hero-photo-caption {
+    font-size: 10px;
+    padding: 42px 14px 12px;
+  }
+  .hero-trust-strip {
+    padding: 0 20px 48px;
+  }
   .hero-version-pill { font-size: 9px; margin-bottom: 12px; max-width: 100%; }
   .hero-eyebrow { flex-wrap: wrap; margin-bottom: 14px; }
   .hero-desc { font-size: 16px; line-height: 1.6; max-width: 100%; margin-bottom: 28px; }
@@ -4651,15 +4688,15 @@ footer {
   .credential-ribbon {
     align-items: flex-start;
     gap: 14px;
-    grid-template-columns: 116px minmax(0, 1fr);
+    grid-template-columns: 96px minmax(0, 1fr);
     margin-top: 22px;
     padding: 14px;
   }
   .credential-seal {
     border-radius: 20px 9px 20px 9px;
-    height: 82px;
+    height: 72px;
     padding: 8px;
-    width: 116px;
+    width: 96px;
   }
   .credential-title {
     font-size: 17px;
@@ -5031,6 +5068,14 @@ footer {
   h1 { font-size: clamp(38px, 13vw, 54px); }
   h2 { font-size: clamp(32px, 11vw, 44px); }
   .hero { padding: 82px 16px 48px !important; }
+  .hero-trust-strip { padding: 0 16px 42px; }
+  .credential-ribbon {
+    grid-template-columns: 1fr;
+  }
+  .credential-seal {
+    height: 76px;
+    width: 112px;
+  }
   #process,
   #platform,
   #design,
@@ -5563,20 +5608,6 @@ footer {
       <a href="#models" class="btn-primary">Explore Our Models</a>
       <a href="#quote" class="btn-outline">Get a Free Quote</a>
     </div>
-    <div class="credential-ribbon" aria-label="ADU Specialist directory listing">
-      <div class="credential-seal"><img src="images/adu-specialist-logo.png" alt="ADU Specialist logo"></div>
-      <div>
-        <div class="credential-title">We are an accredited <a href="https://www.aduspecialist.org/" target="_blank" rel="noopener">ADU specialist</a>.</div>
-        <div class="credential-copy">Our team is listed in the ADU Specialist directory as an Architect / Designer / Builder, and we are the only one in New Mexico with this designation. <a class="credential-link" href="https://www.aduspecialist.org/directory" target="_blank" rel="noopener">Click here to see the directory</a>.</div>
-      </div>
-    </div>
-    <div class="hero-phone-card">
-      <div>
-        <b>Prefer the phone?</b>
-        <span>If you would rather speak with a real person, call us. We pick up when we can and return calls quickly to schedule free site visits.</span>
-      </div>
-      <a class="hero-phone-button" href="tel:15059777659">Call GC</a>
-    </div>
     <div class="hero-stats">
       <div>
         <div class="stat-num">7</div>
@@ -5597,6 +5628,25 @@ footer {
   <div class="hero-photo">
     <img src="images/v5-site-photos/hero-original-adu.jpg" alt="Polished backyard ADU hero image with warm lighting and modern finishes">
     <div class="hero-photo-caption">Design-ready ADU — Albuquerque, NM</div>
+  </div>
+</section>
+
+<section class="hero-trust-strip" aria-label="ABQ ADU credentials and phone contact">
+  <div class="hero-trust-inner">
+    <div class="credential-ribbon" aria-label="ADU Specialist directory listing">
+      <div class="credential-seal"><img src="images/adu-specialist-logo.png" alt="ADU Specialist logo"></div>
+      <div>
+        <div class="credential-title">We are an accredited <a href="https://www.aduspecialist.org/" target="_blank" rel="noopener">ADU specialist</a>.</div>
+        <div class="credential-copy">Our team is listed in the ADU Specialist directory as an Architect / Designer / Builder, and we are the only one in New Mexico with this designation. <a class="credential-link" href="https://www.aduspecialist.org/directory" target="_blank" rel="noopener">Click here to see the directory</a>.</div>
+      </div>
+    </div>
+    <div class="hero-phone-card">
+      <div>
+        <b>Prefer the phone?</b>
+        <span>If you would rather speak with a real person, call us. We pick up when we can and return calls quickly to schedule free site visits.</span>
+      </div>
+      <a class="hero-phone-button" href="tel:15059777659">Call GC</a>
+    </div>
   </div>
 </section>
 
