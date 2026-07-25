@@ -19,3 +19,14 @@ assert(
   'Hero photo should remain visible on tablet/mobile.'
 );
 
+for (const removedSnippet of [
+  'Version 7.2 Model Intelligence',
+  'Pulled Model',
+  'source-catalog',
+  'source-model-grid',
+]) {
+  assert(
+    !html.includes(removedSnippet),
+    `Removed model catalog content should not be present: ${removedSnippet}`
+  );
+}
