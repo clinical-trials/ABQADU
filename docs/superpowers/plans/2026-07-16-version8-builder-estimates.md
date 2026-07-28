@@ -1,8 +1,8 @@
-# Version 7 Builder Estimates Implementation Plan
+# Version 8 Builder Estimates Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a builder-backend Version 7 prototype that lets a contractor create professional estimates quickly, convert them to invoices, print/mobile-save client-ready documents, and track local send/view activity.
+**Goal:** Add a builder-backend Version 8 prototype that lets a contractor create professional estimates quickly, convert them to invoices, print/mobile-save client-ready documents, and track local send/view activity.
 
 **Architecture:** Keep the homeowner ADU wizard stable. Add a builder-only `Estimates & Invoices` tab to `platform.html` using the current static/localStorage architecture. The prototype models estimate, invoice, client, line items, catalog, status, and activity log locally; real delivery, payments, QuickBooks, reminders, and view tracking are documented as backend requirements.
 
@@ -10,8 +10,8 @@
 
 ## Global Constraints
 
-- All Version 7 work is builder backend / webapp only.
-- Update visible builder platform text to Version 7.
+- All Version 8 work is builder backend / webapp only.
+- Update visible builder platform text to Version 8.
 - Build estimates first; invoices convert from approved/sent estimates.
 - Mobile contractor speed matters more than exhaustive enterprise settings.
 - Real open/view tracking requires hosted links and backend events; the static prototype may simulate status and activity logs only.
@@ -23,14 +23,14 @@
 ### Task 1: Direction PDF
 
 **Files:**
-- Create: `work/create_version7_builder_estimates_pdf.py`
-- Create: `output/pdf/abq-adu-version7-builder-estimates-direction.pdf`
+- Create: `work/create_version8_builder_estimates_pdf.py`
+- Create: `output/pdf/abq-adu-version8-builder-estimates-direction.pdf`
 
 **Interfaces:**
 - Produces: a polished PDF roadmap for review.
 
-- [x] Generate a concise PDF with MVP, data model, phases, backend requirements, and Version 7 prototype scope.
-- [x] Verify text extraction contains "Version 7" and "Estimate-to-Invoice".
+- [x] Generate a concise PDF with MVP, data model, phases, backend requirements, and Version 8 prototype scope.
+- [x] Verify text extraction contains "Version 8" and "Estimate-to-Invoice".
 
 ### Task 2: Builder Navigation And Version Text
 
@@ -42,8 +42,8 @@
 - Produces: new tab `data-tab="estimates"` and mobile quick link to the estimating tool.
 
 - [x] Add `Estimates & Invoices` tab before `Bids & Invoicing`.
-- [x] Update builder platform badges from Version 6 to Version 7.
-- [x] Add tests for Version 7 and tab presence.
+- [x] Update builder platform badges from Version 6 to Version 8.
+- [x] Add tests for Version 8 and tab presence.
 
 ### Task 3: Estimate Builder UI
 
@@ -71,7 +71,7 @@
 - [x] Add one-tap catalog items.
 - [x] Calculate subtotal, discount, tax, handling, insurance, and total.
 - [x] Convert estimate to invoice with due date and status.
-- [x] Simulate sent/viewed/approved/declined activity log for Version 7 static prototype.
+- [x] Simulate sent/viewed/approved/declined activity log for Version 8 static prototype.
 
 ### Task 5: Mobile-Safe Print
 
@@ -92,8 +92,8 @@
 - Modify: `tests/platform-bid-app.test.js`
 
 **Interfaces:**
-- Produces: passing local tests and pushed `version7` branch.
+- Produces: passing local tests and pushed `version8` branch.
 
 - [x] Run `node tests/platform-bid-app.test.js`.
 - [x] Parse inline scripts in `index.html` and `platform.html`.
-- [ ] Push to GitHub branch `version7`.
+- [ ] Push to GitHub branch `version8`.

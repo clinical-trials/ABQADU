@@ -10,7 +10,7 @@ Last checked: July 22, 2026
 ## What is not yet verified from public official text
 
 - I did not find a public official page confirming a statewide August 1, 2026 effective date for all building-code changes.
-- For Version 7.2, the app treats August 1, 2026 as a builder planning trigger, not as a legal conclusion.
+- For Version 8, the app treats August 1, 2026 as a builder planning trigger, not as a legal conclusion.
 
 ## How the builder software accommodates this
 

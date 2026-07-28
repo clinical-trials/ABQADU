@@ -20,7 +20,7 @@ assert(
 );
 
 for (const removedSnippet of [
-  'Version 7.2 Model Intelligence',
+  'Model Intelligence',
   'Pulled Model',
   'source-catalog',
   'source-model-grid',

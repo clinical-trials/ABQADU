@@ -12,12 +12,12 @@ function contains(snippet) {
   );
 }
 
-contains('ABQ ADU — Platform (Version 7.2)');
+contains('ABQ ADU — Platform (Version 8)');
 contains('data-tab="estimates"');
 contains('id="tab-estimates"');
 contains('Estimates &amp; Invoices');
-contains('Version 7.2 · estimate-to-invoice');
-contains('Version 7.2 builder app');
+contains('Version 8 · estimate-to-invoice');
+contains('Version 8 builder app');
 contains('InvoiceShelf back-office engine');
 contains('ABQ ADU remains the builder cockpit');
 contains('Sync to InvoiceShelf');
@@ -68,8 +68,8 @@ contains('QuickBooks Online sync');
 contains('Financing widget');
 contains('Change orders');
 contains('openBuilderPrintDocument(`${docLabel} ${docNumber || \'\'}`.trim()');
-assert(!html.includes('Version 6'), 'Expected platform.html visible/version copy to be upgraded to Version 7.2');
-assert(!siteHtml.includes('Version 6'), 'Expected index.html visible/version copy to be upgraded to Version 7.2');
+assert(!html.includes('Version 6'), 'Expected platform.html visible/version copy to be upgraded to Version 8');
+assert(!siteHtml.includes('Version 6'), 'Expected index.html visible/version copy to be upgraded to Version 8');
 
 contains('class="bid-app-shell no-print"');
 contains('id="app-project-title"');

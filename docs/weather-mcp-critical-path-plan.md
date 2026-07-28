@@ -27,7 +27,7 @@ The `weather-mcp/weather-mcp` repository is useful as the backend pattern for we
 - Service status
 - Location search and saved jobsite locations
 
-## Current Version 7 implementation
+## Current Version 8 implementation
 
 - The Schedule & Critical Path tab includes a Weather Delay Assessor.
 - Builder manually logs location, weather hazard, affected activity, severity, and weather days.

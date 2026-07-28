@@ -38,9 +38,9 @@
 - `platform/client/src/pages/BidBuilder.jsx`
   - Adds "Create InvoiceShelf estimate" and "Sync draw invoices" actions after a bid is ready.
 - `platform.html`
-  - Keeps static Version 7 prototype aligned with the back-office concept: visible notes/buttons are local fallbacks until backend connection is available.
+  - Keeps static Version 8 prototype aligned with the back-office concept: visible notes/buttons are local fallbacks until backend connection is available.
 - `tests/platform-invoiceshelf-plan.test.js`
-  - Static guard that validates the plan and visible Version 7 copy reference InvoiceShelf as the back-office engine.
+  - Static guard that validates the plan and visible Version 8 copy reference InvoiceShelf as the back-office engine.
 - `platform/server/tests/invoiceShelfMapper.test.js`
   - Unit tests for customer, estimate, invoice, and payment mapping.
 - `platform/server/tests/invoiceEngine.routes.test.js`
@@ -841,7 +841,7 @@ git commit -m "Expose InvoiceShelf sync actions in builder UI"
 
 ---
 
-### Task 6: Keep Static Version 7 Prototype Honest
+### Task 6: Keep Static Version 8 Prototype Honest
 
 **Files:**
 - Modify: `platform.html`

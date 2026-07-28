@@ -1,4 +1,4 @@
-# Version 7.2: ADU Cost Estimator Plan
+# Version 8: ADU Cost Estimator Plan
 
 ## Goal
 
@@ -170,7 +170,7 @@ Future input sources:
 - Muras PUR/SIP package.
 - Photos from site visit.
 
-Version 7.2 should start with manual line-item entry and one-tap bundles. PDF/photo parsing can become Version 8.
+Version 8 should start with manual line-item entry and one-tap bundles. PDF/photo parsing can move into a later release after the mobile estimating workflow is stable.
 
 ### 7. InvoiceShelf Integration
 
@@ -215,7 +215,7 @@ Core fields:
 - Notes.
 - Export status.
 
-Version 7.2 implementation should start with manual upload and manual category confirmation. Future versions can add OCR, email inbox import, and vendor matching.
+Version 8 implementation should start with manual upload and manual category confirmation. Future versions can add OCR, email inbox import, and vendor matching.
 
 Customer-facing guardrail:
 
@@ -238,7 +238,7 @@ Useful ideas from this repo:
 Important architecture note:
 
 - This repo is Swift-first and useful for a future iOS/mobile app.
-- ABQ ADU Version 7.2 should stay web-first: upload receipt image/PDF, extract structured data server-side, show an editable review screen, then save to project expenses.
+- ABQ ADU Version 8 should stay web-first: upload receipt image/PDF, extract structured data server-side, show an editable review screen, then save to project expenses.
 - OpenAI API keys must never live in the browser or a homeowner-facing page.
 - The server should own the scan request, model call, validation, and storage.
 
@@ -257,7 +257,7 @@ Suggested extracted receipt schema:
 - COGS category.
 - Builder-approved flag.
 
-Version 7.2 scan flow:
+Version 8 scan flow:
 
 1. Builder uploads or photographs a receipt.
 2. Server sends the image/PDF to the receipt extraction service.
@@ -293,7 +293,7 @@ Core fields:
 - Billable/reimbursable flag.
 - Notes.
 
-Version 7.2 should start with manual mobile entry:
+Version 8 should start with manual mobile entry:
 
 - Quick buttons: Site visit, supplier pickup, permit office, client meeting, subcontractor meeting.
 - Optional round-trip toggle.
@@ -340,7 +340,7 @@ Suggested mileage tracker schema:
 - Notes.
 - Export status.
 
-Version 7.2 mileage flow:
+Version 8 mileage flow:
 
 1. Builder selects vehicle and project.
 2. Builder taps a trip purpose such as site visit or supplier pickup.
@@ -350,7 +350,7 @@ Version 7.2 mileage flow:
 6. Mileage rolls into project profitability and tax/accounting exports.
 7. Future mobile app can add automatic trip detection after privacy and permissions are designed.
 
-## Recommended Version 7.2 Build Sequence
+## Recommended Version 8 Build Sequence
 
 ### Sprint 1: Estimator Catalog Foundation
 
@@ -409,7 +409,7 @@ Version 7.2 mileage flow:
 - Builder can attach receipts and mileage to projects without exposing them to homeowners.
 - Builder can export receipt and mileage reports for tax/accounting review.
 
-## Non-Goals For Version 7.2
+## Non-Goals For Version 8
 
 - Do not build full AI plan parsing yet.
 - Do not automatically order materials.
