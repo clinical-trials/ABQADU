@@ -181,13 +181,20 @@ router.post('/:id/pdf', async (req, res) => {
   <footer><span>ABQ ADU — Albuquerque, NM · Payable upon receipt</span><span>${inv.invoice_number}</span></footer>
   </body></html>`;
 
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0' });
-  const pdf = await page.pdf({ format: 'Letter', margin: { top: '0', bottom: '0', left: '0', right: '0' } });
-  await browser.close();
-  res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${inv.invoice_number}.pdf"` });
-  res.send(pdf);
+  let browser;
+  try {
+    browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const pdf = await page.pdf({ format: 'Letter', margin: { top: '0', bottom: '0', left: '0', right: '0' } });
+    res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${inv.invoice_number}.pdf"` });
+    res.send(pdf);
+  } catch (err) {
+    console.error('[pdf] invoice export failed:', err.message);
+    res.status(503).json({ error: 'PDF export is unavailable on this server (headless Chromium not installed). Install Chromium/puppeteer deps to enable.' });
+  } finally {
+    if (browser) await browser.close();
+  }
 });
 
 module.exports = router;

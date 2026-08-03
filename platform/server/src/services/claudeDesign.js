@@ -1,6 +1,20 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Construct the client lazily so the server can BOOT without ANTHROPIC_API_KEY.
+// The SDK throws if constructed with an empty key, so we only build it once a
+// key is actually present. When there's no key, the exported functions return a
+// friendly "disabled" message instead of throwing (which would hang the request).
+let _client = null;
+function getClient() {
+  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  return _client;
+}
+function aiEnabled() {
+  return Boolean(process.env.ANTHROPIC_API_KEY);
+}
+const AI_DISABLED_MSG =
+  'AI features are not configured on this server. Add ANTHROPIC_API_KEY to the server .env and restart to enable this.';
+
 const MODEL = 'claude-sonnet-4-6';
 const GRID = 12;
 
@@ -13,6 +27,7 @@ function describeRooms(rooms) {
 }
 
 async function generateDesignBrief(rooms, templateName, projectInfo) {
+  if (!aiEnabled()) return AI_DISABLED_MSG;
   const totalSf = rooms.reduce((s, r) => s + (r.w / GRID) * (r.h / GRID), 0);
   const prompt = `You are an ADU design consultant for ABQ ADU, a construction company in Albuquerque, NM.
 
@@ -31,7 +46,7 @@ Write a concise design brief (3–4 paragraphs) that:
 
 Keep it professional but approachable — this will be shared with the homeowner.`;
 
-  const msg = await client.messages.create({
+  const msg = await getClient().messages.create({
     model: MODEL,
     max_tokens: 600,
     messages: [{ role: 'user', content: prompt }],
@@ -40,6 +55,7 @@ Keep it professional but approachable — this will be shared with the homeowner
 }
 
 async function analyzeCompliance(rooms, totalSqft) {
+  if (!aiEnabled()) return AI_DISABLED_MSG;
   const prompt = `You are a building code specialist familiar with Albuquerque, NM zoning and the International Residential Code (IRC).
 
 Review this ADU floor plan against ABQ IDO §14-16-6-7 and IRC requirements:
@@ -64,7 +80,7 @@ RECOMMENDATIONS:
 - [list any suggestions]
 NOTES: [any general observations]`;
 
-  const msg = await client.messages.create({
+  const msg = await getClient().messages.create({
     model: MODEL,
     max_tokens: 500,
     messages: [{ role: 'user', content: prompt }],
@@ -73,6 +89,7 @@ NOTES: [any general observations]`;
 }
 
 async function generatePermitNarrative(rooms, templateName, projectInfo) {
+  if (!aiEnabled()) return AI_DISABLED_MSG;
   const totalSf = rooms.reduce((s, r) => s + (r.w / GRID) * (r.h / GRID), 0);
   const bedrooms = rooms.filter(r => r.type === 'bedroom').length;
   const bathrooms = rooms.filter(r => r.type === 'bathroom').length;
@@ -100,7 +117,7 @@ The narrative should:
 
 Keep it formal and concise — 2–3 paragraphs suitable for a permit submittal.`;
 
-  const msg = await client.messages.create({
+  const msg = await getClient().messages.create({
     model: MODEL,
     max_tokens: 500,
     messages: [{ role: 'user', content: prompt }],
