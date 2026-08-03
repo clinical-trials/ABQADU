@@ -30,6 +30,7 @@ app.use('/api/invoices',     require('./routes/invoices'));
 app.use('/api/invoice-engine', require('./routes/invoiceEngine'));
 app.use('/api/command-center', require('./routes/commandCenter'));
 app.use('/api/integrations', require('./routes/productionIntegrations'));
+app.use('/api/weather', require('./routes/weather'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 

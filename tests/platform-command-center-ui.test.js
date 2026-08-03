@@ -19,6 +19,8 @@ contains(page, "fetch('/api/integrations/sms/send'");
 contains(page, "fetch('/api/integrations/stripe/checkout'");
 contains(page, "fetch('/api/integrations/ocr/receipt'");
 contains(page, "fetch('/api/integrations/clerk/status')");
+contains(page, "fetch(`/api/weather/forecast?zip=");
+contains(page, "fetch('/api/weather/forecast/activity'");
 contains(page, 'Builder Command Center');
 contains(page, 'Server-backed Version 9 demo');
 contains(page, 'Add Project');
@@ -32,5 +34,9 @@ contains(page, 'Supplier Quote Comparator');
 contains(page, 'Receipt Scanner Demo');
 contains(page, 'Mileage Tracker Demo');
 contains(page, 'Simulate Client View');
+contains(page, 'Weather Delay Assessor');
+contains(page, 'Check Weather');
+contains(page, 'Log Weather Risk');
+contains(page, 'Text Weather Crew');
 
 console.log('Version 9 command center UI checks passed');

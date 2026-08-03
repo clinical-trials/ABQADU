@@ -67,6 +67,8 @@ export default function CommandCenter() {
   const [note, setNote] = useState('');
   const [receiptText, setReceiptText] = useState("LOWE'S HOME IMPROVEMENT\n08/03/2026\nDrywall mud and house wrap\nTOTAL $284.76");
   const [liveStatus, setLiveStatus] = useState('');
+  const [weatherZip, setWeatherZip] = useState('87106');
+  const [weatherForecast, setWeatherForecast] = useState(null);
 
   const load = () => fetch('/api/command-center').then(r => r.json()).then(setState);
   const loadIntegrations = () => fetch('/api/integrations/status').then(r => r.json()).then(setIntegrations);
@@ -176,6 +178,33 @@ export default function CommandCenter() {
     setLiveStatus(payload.configured ? 'Clerk env is configured. Add ClerkProvider on the hosted client.' : `Clerk missing: ${payload.missing.join(', ') || 'token'}`);
   };
 
+  const checkWeather = async () => {
+    const res = await fetch(`/api/weather/forecast?zip=${encodeURIComponent(weatherZip)}`);
+    const payload = await res.json();
+    if (!res.ok) {
+      setLiveStatus(`Weather unavailable: ${payload.detail || payload.error}`);
+      return;
+    }
+    setWeatherForecast(payload);
+    setLiveStatus(`Weather checked for ${payload.location}: ${payload.risk_level} risk`);
+  };
+
+  const logWeatherRisk = async () => {
+    const activeProject = state.projects?.[0]?.client || 'Builder project';
+    const res = await fetch('/api/weather/forecast/activity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ zip: weatherZip, project: activeProject, forecast: weatherForecast }),
+    });
+    const payload = await res.json();
+    if (!res.ok) {
+      setLiveStatus(`Weather log failed: ${payload.detail || payload.error}`);
+      return;
+    }
+    setState(payload);
+    setLiveStatus('Weather risk logged to the project activity feed.');
+  };
+
   const updateList = (key, id, field, value) => {
     saveState({
       ...state,
@@ -257,6 +286,49 @@ export default function CommandCenter() {
               <button style={styles.button} onClick={sendLiveSms}>Send Live SMS</button>
               <button style={styles.ghost} onClick={() => addActivity('Builder text', note || primaryMessage)}>Log text</button>
             </div>
+          </section>
+
+          <section style={styles.card}>
+            <div style={styles.kicker}>Weather Delay Assessor</div>
+            <p style={{ fontSize: 13, color: '#78716C', margin: '0 0 10px' }}>
+              Check New Mexico ZIP codes for rain, wind, freeze, and heat risks that can move the critical path.
+            </p>
+            <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 900, color: '#57534E' }}>
+              Project ZIP code
+              <input style={{ ...styles.input, minHeight: 44 }} value={weatherZip} inputMode="numeric" onChange={e => setWeatherZip(e.target.value)} />
+            </label>
+            <div className="v9-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+              <button style={styles.button} onClick={checkWeather}>Check Weather</button>
+              <button style={styles.ghost} onClick={logWeatherRisk}>Log Weather Risk</button>
+              <a
+                style={{ ...styles.ghost, textDecoration: 'none' }}
+                href={`sms:${state.builder.phone}?&body=${encodeURIComponent(weatherForecast?.crew_message || `Weather check needed for ${weatherZip}.`)}`}
+              >
+                Text Weather Crew
+              </a>
+            </div>
+            {weatherForecast && (
+              <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: weatherForecast.risk_level === 'high' ? '#FEF2F2' : '#F5F0E8', fontSize: 13 }}>
+                <b>{weatherForecast.location}</b>
+                <div style={{ marginTop: 4 }}>{weatherForecast.crew_message}</div>
+                <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <span style={{ ...styles.badge, background: weatherForecast.risk_level === 'high' ? '#F87171' : '#C4954A' }}>
+                    {weatherForecast.risk_level} risk
+                  </span>
+                  <span style={styles.badge}>{weatherForecast.delay_days} day delay</span>
+                  <span style={styles.badge}>{weatherForecast.source}</span>
+                </div>
+              </div>
+            )}
+            {!!state.weather_checks?.length && (
+              <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
+                {state.weather_checks.slice(0, 3).map(check => (
+                  <div key={check.id} style={{ fontSize: 12, borderLeft: '3px solid #0F1F3D', paddingLeft: 9 }}>
+                    <b>{check.project} · {check.zip}</b><br />{check.crew_message}
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           <section style={styles.card}>

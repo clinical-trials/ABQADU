@@ -87,6 +87,20 @@ function starterState() {
       { id: 'activity-2', type: 'Supplier', detail: 'RAKS window package needs second quote.', at: nowIso() },
       { id: 'activity-3', type: 'Weather/code', detail: 'Check Albuquerque/Santa Fe AHJ code cycle before permit handoff.', at: nowIso() },
     ],
+    weather_checks: [
+      {
+        id: 'weather-starter',
+        project: 'Amherst Altura',
+        zip: '87106',
+        source: 'wttr.in',
+        location: 'Albuquerque, New Mexico',
+        risk_level: 'low',
+        delay_days: 0,
+        crew_message: 'Weather risk for 87106: LOW risk. Keep crews on the current critical path.',
+        checked_at: nowIso(),
+        risks: [],
+      },
+    ],
     message_drafts: [
       {
         id: 'msg-ian-daily',
