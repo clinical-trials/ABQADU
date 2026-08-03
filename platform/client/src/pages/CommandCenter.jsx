@@ -32,25 +32,28 @@ function useMobilePatch() {
   }, []);
 }
 
-function ProjectCard({ project }) {
+function ProjectCard({ project, onChange }) {
   const profitLow = Number(project.bid_total || 0) - Number(project.cogs_high || 0);
   const profitHigh = Number(project.bid_total || 0) - Number(project.cogs_low || 0);
   return (
     <article style={styles.card}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 900 }}>{project.client}</div>
-          <div style={{ fontSize: 12, color: '#78716C', marginTop: 2 }}>{project.address}</div>
+          <input style={{ ...styles.input, fontSize: 18, fontWeight: 900 }} value={project.client} onChange={e => onChange(project.id, 'client', e.target.value)} />
+          <input style={{ ...styles.input, marginTop: 6 }} value={project.address} onChange={e => onChange(project.id, 'address', e.target.value)} />
         </div>
-        <span style={{ alignSelf: 'flex-start', background: '#F5F0E8', borderRadius: 999, padding: '5px 8px', fontSize: 11, fontWeight: 900 }}>{project.confidence}</span>
+        <select style={{ ...styles.input, width: 82, fontWeight: 900 }} value={project.confidence} onChange={e => onChange(project.id, 'confidence', e.target.value)}>
+          {['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C', 'D', 'F'].map(g => <option key={g}>{g}</option>)}
+        </select>
       </div>
       <div style={{ ...styles.grid, marginTop: 14 }}>
-        <div><div style={styles.kicker}>Model</div><b>{project.model}</b><div>{project.sqft} sf</div></div>
-        <div><div style={styles.kicker}>Bid</div><b>{fmt(project.bid_total)}</b><div>{fmt(Number(project.bid_total || 0) / Number(project.sqft || 1))}/sf</div></div>
-        <div><div style={styles.kicker}>COGS Range</div><b>{fmt(project.cogs_low)} - {fmt(project.cogs_high)}</b><div>Profit {fmt(profitLow)} - {fmt(profitHigh)}</div></div>
+        <div><div style={styles.kicker}>Model</div><input style={styles.input} value={project.model} onChange={e => onChange(project.id, 'model', e.target.value)} /><input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.sqft} onChange={e => onChange(project.id, 'sqft', Number(e.target.value))} /></div>
+        <div><div style={styles.kicker}>Bid</div><input style={styles.input} type="number" value={project.bid_total} onChange={e => onChange(project.id, 'bid_total', Number(e.target.value))} /><div>{fmt(Number(project.bid_total || 0) / Number(project.sqft || 1))}/sf</div></div>
+        <div><div style={styles.kicker}>COGS Range</div><input style={styles.input} type="number" value={project.cogs_low} onChange={e => onChange(project.id, 'cogs_low', Number(e.target.value))} /><input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.cogs_high} onChange={e => onChange(project.id, 'cogs_high', Number(e.target.value))} /><div>Profit {fmt(profitLow)} - {fmt(profitHigh)}</div></div>
       </div>
       <div style={{ marginTop: 12, padding: 11, borderRadius: 8, background: '#FAF7F2', fontSize: 13 }}>
-        <b>{project.status}</b><br />{project.next_action}
+        <input style={styles.input} value={project.status} onChange={e => onChange(project.id, 'status', e.target.value)} />
+        <textarea style={{ ...styles.input, marginTop: 6 }} value={project.next_action} onChange={e => onChange(project.id, 'next_action', e.target.value)} />
       </div>
     </article>
   );
@@ -59,11 +62,18 @@ function ProjectCard({ project }) {
 export default function CommandCenter() {
   useMobilePatch();
   const [state, setState] = useState(null);
+  const [integrations, setIntegrations] = useState(null);
   const [saving, setSaving] = useState(false);
   const [note, setNote] = useState('');
+  const [receiptText, setReceiptText] = useState("LOWE'S HOME IMPROVEMENT\n08/03/2026\nDrywall mud and house wrap\nTOTAL $284.76");
+  const [liveStatus, setLiveStatus] = useState('');
 
   const load = () => fetch('/api/command-center').then(r => r.json()).then(setState);
-  useEffect(() => { load(); }, []);
+  const loadIntegrations = () => fetch('/api/integrations/status').then(r => r.json()).then(setIntegrations);
+  useEffect(() => {
+    load();
+    loadIntegrations();
+  }, []);
 
   const totals = useMemo(() => {
     const projects = state?.projects || [];
@@ -104,6 +114,68 @@ export default function CommandCenter() {
     saveState({ ...state, mileage: [trip, ...(state.mileage || [])] });
   };
 
+  const addProject = () => {
+    const project = {
+      id: `project-${Date.now()}`,
+      client: 'New homeowner',
+      address: 'Albuquerque, NM',
+      model: 'Netherwood House',
+      sqft: 440,
+      bid_total: 125400,
+      cogs_low: 66000,
+      cogs_high: 74800,
+      confidence: 'B',
+      status: 'Needs site data',
+      next_action: 'Schedule site visit, confirm utilities, and prepare a first bid.',
+    };
+    saveState({ ...state, projects: [project, ...(state.projects || [])] });
+  };
+
+  const sendLiveSms = async () => {
+    const res = await fetch('/api/integrations/sms/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: state.builder.phone, body: note || primaryMessage }),
+    });
+    const payload = await res.json();
+    setLiveStatus(res.ok ? `Live SMS sent: ${payload.sid}` : `SMS not sent: ${payload.error}`);
+    if (res.ok) load();
+  };
+
+  const createStripePaymentLink = async () => {
+    const project = state.projects[0];
+    const res = await fetch('/api/integrations/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: 10000,
+        description: `$10,000 preconstruction invoice - ${project.client}`,
+        client_email: '',
+        metadata: { project_id: project.id, draw: 'preconstruction' },
+      }),
+    });
+    const payload = await res.json();
+    setLiveStatus(res.ok ? `Stripe payment link ready: ${payload.url}` : `Stripe not ready: ${payload.error}`);
+    if (payload.url) window.open(payload.url, '_blank', 'noopener,noreferrer');
+  };
+
+  const parseReceiptOcr = async () => {
+    const res = await fetch('/api/integrations/ocr/receipt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw_text: receiptText, project: state.projects[0]?.client || 'Unassigned' }),
+    });
+    const payload = await res.json();
+    setLiveStatus(res.ok ? `Receipt parsed: ${payload.receipt.vendor} ${fmt(payload.receipt.amount)}` : `OCR not ready: ${payload.error}`);
+    if (res.ok) load();
+  };
+
+  const checkClerkLogin = async () => {
+    const res = await fetch('/api/integrations/clerk/status');
+    const payload = await res.json();
+    setLiveStatus(payload.configured ? 'Clerk env is configured. Add ClerkProvider on the hosted client.' : `Clerk missing: ${payload.missing.join(', ') || 'token'}`);
+  };
+
   const updateList = (key, id, field, value) => {
     saveState({
       ...state,
@@ -138,9 +210,12 @@ export default function CommandCenter() {
           </div>
 
           <section style={styles.card}>
-            <div style={styles.kicker}>Active Projects</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center', marginBottom: 10 }}>
+              <div style={styles.kicker}>Active Projects</div>
+              <button style={styles.button} onClick={addProject}>Add Project</button>
+            </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              {state.projects.map(p => <ProjectCard key={p.id} project={p} />)}
+              {state.projects.map(p => <ProjectCard key={p.id} project={p} onChange={(id, field, value) => updateList('projects', id, field, value)} />)}
             </div>
           </section>
 
@@ -160,17 +235,43 @@ export default function CommandCenter() {
 
         <aside style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
           <section style={styles.card}>
+            <div style={styles.kicker}>Live Integration Status</div>
+            <div style={{ display: 'grid', gap: 7 }}>
+              {Object.entries(integrations || {}).map(([name, info]) => (
+                <div key={name} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 13 }}>
+                  <b style={{ textTransform: 'capitalize' }}>{name}</b>
+                  <span style={{ color: info.configured ? '#065F46' : '#92400E', fontWeight: 900 }}>
+                    {info.configured ? 'Configured' : `Missing ${info.missing.length}`}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <button style={{ ...styles.ghost, marginTop: 10 }} onClick={loadIntegrations}>Refresh status</button>
+          </section>
+
+          <section style={styles.card}>
             <div style={styles.kicker}>Text Ian / Builder</div>
             <textarea style={{ ...styles.input, minHeight: 120 }} value={note || primaryMessage} onChange={e => setNote(e.target.value)} />
             <div className="v9-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <a style={{ ...styles.button, textDecoration: 'none' }} href={`sms:${state.builder.phone}?&body=${encodeURIComponent(note || primaryMessage)}`}>Text {state.builder.phone}</a>
+              <button style={styles.button} onClick={sendLiveSms}>Send Live SMS</button>
               <button style={styles.ghost} onClick={() => addActivity('Builder text', note || primaryMessage)}>Log text</button>
             </div>
           </section>
 
           <section style={styles.card}>
+            <div style={styles.kicker}>Payments</div>
+            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>$10,000 preconstruction payment link for the current lead.</p>
+            <button style={styles.button} onClick={createStripePaymentLink}>Create Stripe Payment Link</button>
+          </section>
+
+          <section style={styles.card}>
             <div style={styles.kicker}>Receipt Scanner Demo</div>
-            <button style={styles.button} onClick={addReceipt}>Add receipt</button>
+            <textarea style={{ ...styles.input, minHeight: 92, marginBottom: 8 }} value={receiptText} onChange={e => setReceiptText(e.target.value)} />
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button style={styles.button} onClick={parseReceiptOcr}>Parse Receipt OCR</button>
+              <button style={styles.ghost} onClick={addReceipt}>Add receipt manually</button>
+            </div>
             <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
               {state.receipts.map(r => (
                 <div key={r.id} style={{ fontSize: 13, padding: 10, borderRadius: 8, background: '#FAF7F2' }}>
@@ -203,6 +304,13 @@ export default function CommandCenter() {
                 </div>
               ))}
             </div>
+          </section>
+
+          <section style={styles.card}>
+            <div style={styles.kicker}>Clerk Login</div>
+            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Checks whether Clerk environment variables are configured on the server.</p>
+            <button style={styles.button} onClick={checkClerkLogin}>Check Clerk Login</button>
+            {liveStatus && <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: '#F5F0E8', fontSize: 12 }}>{liveStatus}</div>}
           </section>
         </aside>
       </main>

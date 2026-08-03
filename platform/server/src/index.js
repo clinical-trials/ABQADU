@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '15mb' }));
 
 app.use('/api/wbs',          require('./routes/wbs'));
 app.use('/api/activities',   require('./routes/activities'));
@@ -29,6 +29,7 @@ app.use('/api/bids',         require('./routes/bids'));
 app.use('/api/invoices',     require('./routes/invoices'));
 app.use('/api/invoice-engine', require('./routes/invoiceEngine'));
 app.use('/api/command-center', require('./routes/commandCenter'));
+app.use('/api/integrations', require('./routes/productionIntegrations'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
