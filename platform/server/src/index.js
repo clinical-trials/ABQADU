@@ -28,6 +28,7 @@ app.use('/api/clients',      require('./routes/clients'));
 app.use('/api/bids',         require('./routes/bids'));
 app.use('/api/invoices',     require('./routes/invoices'));
 app.use('/api/invoice-engine', require('./routes/invoiceEngine'));
+app.use('/api/command-center', require('./routes/commandCenter'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 

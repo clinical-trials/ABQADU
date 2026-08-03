@@ -12,12 +12,15 @@ function contains(snippet) {
   );
 }
 
-contains('ABQ ADU — Platform (Version 8)');
+contains('ABQ ADU — Platform (Version 9)');
 contains('data-tab="estimates"');
 contains('id="tab-estimates"');
 contains('Estimates &amp; Invoices');
-contains('Version 8 · estimate-to-invoice');
-contains('Version 8 builder app');
+contains('Version 9 · estimate-to-invoice');
+contains('Version 9 builder app');
+contains('Version 9 real demo path');
+contains('server-backed Command Center');
+contains('/command-center');
 contains('InvoiceShelf back-office engine');
 contains('ABQ ADU remains the builder cockpit');
 contains('Sync to InvoiceShelf');
@@ -30,7 +33,7 @@ contains('$285/sf consumer pricing');
 contains('Total / sq ft');
 contains('Consumer price basis');
 contains('function defaultEstimateState()');
-contains('let estimateState = store.get(\'estimateV7\'');
+contains('let estimateState = store.get(\'estimateV9\'');
 contains('function renderEstimateTool()');
 contains('id="estimate-workflow"');
 contains('data-estimate-step="client"');
@@ -68,8 +71,8 @@ contains('QuickBooks Online sync');
 contains('Financing widget');
 contains('Change orders');
 contains('openBuilderPrintDocument(`${docLabel} ${docNumber || \'\'}`.trim()');
-assert(!html.includes('Version 6'), 'Expected platform.html visible/version copy to be upgraded to Version 8');
-assert(!siteHtml.includes('Version 6'), 'Expected index.html visible/version copy to be upgraded to Version 8');
+assert(!html.includes('Version 6'), 'Expected platform.html visible/version copy to be upgraded to Version 9');
+assert(!siteHtml.includes('Version 6'), 'Expected index.html visible/version copy to be upgraded to Version 9');
 
 contains('class="bid-app-shell no-print"');
 contains('id="app-project-title"');
