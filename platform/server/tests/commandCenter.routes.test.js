@@ -16,8 +16,8 @@ async function run() {
   assertIncludes(routeFile, "router.put('/'");
   assertIncludes(routeFile, "router.post('/reset'");
   assertIncludes(routeFile, "router.post('/activity'");
-  assertIncludes(storeFile, 'version9-command-center.json');
-  assertIncludes(storeFile, 'Version 9');
+  assertIncludes(storeFile, 'version10-command-center.json');
+  assertIncludes(storeFile, 'Version 10');
   assertIncludes(indexFile, "app.use('/api/command-center'");
 
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'abqadu-command-center-'));
@@ -25,7 +25,7 @@ async function run() {
   jest.resetModules();
   const store = require('../src/services/commandCenterStore');
   const initial = await store.resetCommandCenter();
-  expect(initial.version).toBe('Version 9');
+  expect(initial.version).toBe('Version 10');
   expect(initial.projects.length).toBeGreaterThan(0);
   const saved = await store.saveCommandCenter({ projects: [{ id: 'demo', client: 'Demo', address: 'ABQ', model: 'Netherwood', sqft: 440 }] });
   expect(saved.projects[0].model).toBe('Netherwood');

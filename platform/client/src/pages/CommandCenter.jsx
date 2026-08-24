@@ -12,9 +12,11 @@ const styles = {
   cardDark: { background: '#0F1F3D', color: '#F0EBE1', borderRadius: 10, padding: 16, boxShadow: '0 10px 30px rgba(15,31,61,.12)' },
   kicker: { fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: '#A8A29E', fontWeight: 900, marginBottom: 8 },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 12 },
-  button: { border: 'none', borderRadius: 8, background: '#3D5247', color: '#FFF', padding: '10px 13px', fontSize: 13, fontWeight: 800, cursor: 'pointer' },
-  ghost: { border: '1px solid #E7E0D5', borderRadius: 8, background: '#FFF', color: '#1C1917', padding: '10px 13px', fontSize: 13, fontWeight: 800, cursor: 'pointer' },
-  input: { border: '1px solid #E7E0D5', borderRadius: 7, padding: '9px 10px', fontSize: 13, width: '100%', boxSizing: 'border-box' },
+  button: { border: 'none', borderRadius: 8, background: '#3D5247', color: '#FFF', padding: '12px 14px', minHeight: 44, fontSize: 13, fontWeight: 800, cursor: 'pointer' },
+  ghost: { border: '1px solid #E7E0D5', borderRadius: 8, background: '#FFF', color: '#1C1917', padding: '12px 14px', minHeight: 44, fontSize: 13, fontWeight: 800, cursor: 'pointer' },
+  input: { border: '1px solid #E7E0D5', borderRadius: 7, padding: '10px 11px', minHeight: 44, fontSize: 13, width: '100%', boxSizing: 'border-box' },
+  miniCard: { padding: 12, background: '#FAF7F2', border: '1px solid #EFE7DA', borderRadius: 8 },
+  label: { display: 'grid', gap: 5, fontSize: 12, fontWeight: 900, color: '#57534E' },
 };
 
 function useMobilePatch() {
@@ -22,9 +24,10 @@ function useMobilePatch() {
     const style = document.createElement('style');
     style.textContent = `
       @media (max-width: 840px){
-        .v9-shell{grid-template-columns:1fr!important}
-        .v9-row{grid-template-columns:1fr!important}
-        .v9-actions{position:sticky;bottom:0;background:#FAF7F2;padding:10px 0}
+        .v10-shell{grid-template-columns:1fr!important}
+        .v10-row{grid-template-columns:1fr!important}
+        .v10-actions{position:sticky;bottom:0;background:#FAF7F2;padding:10px 0}
+        .v10-header-action{width:100%;margin-left:0!important}
       }
     `;
     document.head.appendChild(style);
@@ -32,9 +35,16 @@ function useMobilePatch() {
   }, []);
 }
 
-function ProjectCard({ project, onChange }) {
+function Field({ label, children }) {
+  return <label style={styles.label}>{label}{children}</label>;
+}
+
+function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateInvoices }) {
   const profitLow = Number(project.bid_total || 0) - Number(project.cogs_high || 0);
   const profitHigh = Number(project.bid_total || 0) - Number(project.cogs_low || 0);
+  const invoices = project.invoice_drafts || [
+    { id: `${project.id}-preconstruction`, label: 'Invoice 1: $10,000 Preconstruction', amount: 10000, status: 'Draft ready' },
+  ];
   return (
     <article style={styles.card}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
@@ -47,9 +57,52 @@ function ProjectCard({ project, onChange }) {
         </select>
       </div>
       <div style={{ ...styles.grid, marginTop: 14 }}>
-        <div><div style={styles.kicker}>Model</div><input style={styles.input} value={project.model} onChange={e => onChange(project.id, 'model', e.target.value)} /><input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.sqft} onChange={e => onChange(project.id, 'sqft', Number(e.target.value))} /></div>
-        <div><div style={styles.kicker}>Bid</div><input style={styles.input} type="number" value={project.bid_total} onChange={e => onChange(project.id, 'bid_total', Number(e.target.value))} /><div>{fmt(Number(project.bid_total || 0) / Number(project.sqft || 1))}/sf</div></div>
-        <div><div style={styles.kicker}>COGS Range</div><input style={styles.input} type="number" value={project.cogs_low} onChange={e => onChange(project.id, 'cogs_low', Number(e.target.value))} /><input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.cogs_high} onChange={e => onChange(project.id, 'cogs_high', Number(e.target.value))} /><div>Profit {fmt(profitLow)} - {fmt(profitHigh)}</div></div>
+        <div>
+          <div style={styles.kicker}>Project Intake</div>
+          <Field label="Phone"><input style={styles.input} value={project.client_phone || ''} onChange={e => onChange(project.id, 'client_phone', e.target.value)} /></Field>
+          <Field label="Email"><input style={styles.input} value={project.client_email || ''} onChange={e => onChange(project.id, 'client_email', e.target.value)} /></Field>
+          <Field label="Preferred contact"><input style={styles.input} value={project.preferred_contact || 'Phone'} onChange={e => onChange(project.id, 'preferred_contact', e.target.value)} /></Field>
+          <Field label="Best contact time"><input style={styles.input} value={project.best_contact_time || 'Morning'} onChange={e => onChange(project.id, 'best_contact_time', e.target.value)} /></Field>
+        </div>
+        <div>
+          <div style={styles.kicker}>Model Select</div>
+          <select style={styles.input} value={project.model_id || project.model} onChange={e => onChange(project.id, 'model_id', e.target.value)}>
+            <option value={project.model}>{project.model || 'Choose model'}</option>
+            {modelCatalog.map(model => <option key={model.id} value={model.id}>{model.name} · {model.sqft} sf</option>)}
+          </select>
+          <input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.sqft} onChange={e => onChange(project.id, 'sqft', Number(e.target.value))} />
+          <button style={{ ...styles.ghost, marginTop: 8, width: '100%' }} onClick={() => onApplyModel(project.id, project.model_id || project.model)}>Apply Model Defaults</button>
+        </div>
+        <div>
+          <div style={styles.kicker}>Estimate / Invoice</div>
+          <input style={styles.input} type="number" value={project.bid_total} onChange={e => onChange(project.id, 'bid_total', Number(e.target.value))} />
+          <div style={{ fontSize: 13, marginTop: 6 }}>{fmt(Number(project.bid_total || 0) / Number(project.sqft || 1))}/sf customer price</div>
+          <input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.cogs_low} onChange={e => onChange(project.id, 'cogs_low', Number(e.target.value))} />
+          <input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.cogs_high} onChange={e => onChange(project.id, 'cogs_high', Number(e.target.value))} />
+          <div style={{ fontSize: 13, marginTop: 6 }}>Profit {fmt(profitLow)} - {fmt(profitHigh)}</div>
+          <button style={{ ...styles.button, marginTop: 8, width: '100%' }} onClick={() => onCreateInvoices(project.id)}>Create $10k Invoice</button>
+        </div>
+      </div>
+      <div style={{ ...styles.grid, marginTop: 12 }}>
+        {[
+          ['Site visit', project.site_visit_status || 'Needs scheduling'],
+          ['Utility review', project.utility_review_status || 'Needs utility review'],
+          ['Sewer confirmation', project.sewer_confirmation_status || 'Needs sewer confirmation'],
+          ['Setbacks / site plan', project.setbacks_site_plan_status || 'Needs site plan'],
+        ].map(([label, value]) => (
+          <div key={label} style={styles.miniCard}>
+            <div style={styles.kicker}>{label}</div>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>{value}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...styles.grid, marginTop: 12 }}>
+        {invoices.map(invoice => (
+          <div key={invoice.id || invoice.label} style={styles.miniCard}>
+            <b>{invoice.label || invoice.stage}</b>
+            <div style={{ fontSize: 13 }}>{fmt(invoice.amount)} · {invoice.status || 'Draft'}</div>
+          </div>
+        ))}
       </div>
       <div style={{ marginTop: 12, padding: 11, borderRadius: 8, background: '#FAF7F2', fontSize: 13 }}>
         <input style={styles.input} value={project.status} onChange={e => onChange(project.id, 'status', e.target.value)} />
@@ -122,6 +175,14 @@ export default function CommandCenter() {
       client: 'New homeowner',
       address: 'Albuquerque, NM',
       model: 'Netherwood House',
+      client_phone: '',
+      client_email: '',
+      preferred_contact: 'Phone',
+      best_contact_time: 'Morning',
+      site_visit_status: 'Needs scheduling',
+      utility_review_status: 'Needs utility review',
+      sewer_confirmation_status: 'Needs sewer confirmation',
+      setbacks_site_plan_status: 'Needs site plan',
       sqft: 440,
       bid_total: 125400,
       cogs_low: 66000,
@@ -131,6 +192,30 @@ export default function CommandCenter() {
       next_action: 'Schedule site visit, confirm utilities, and prepare a first bid.',
     };
     saveState({ ...state, projects: [project, ...(state.projects || [])] });
+  };
+
+  const applyModelDefaults = async (projectId, model) => {
+    const saved = await fetch(`/api/command-center/projects/${projectId}/apply-model`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model }),
+    }).then(r => r.json());
+    setState(saved);
+  };
+
+  const createInvoiceDrafts = async (projectId) => {
+    const saved = await fetch(`/api/command-center/projects/${projectId}/invoice-drafts`, { method: 'POST' }).then(r => r.json());
+    setState(saved);
+  };
+
+  const sendSupplierToCogs = async (quoteId) => {
+    const projectId = state.projects?.[0]?.id;
+    const saved = await fetch(`/api/command-center/projects/${projectId}/send-supplier-to-cogs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quote_id: quoteId }),
+    }).then(r => r.json());
+    setState(saved);
   };
 
   const sendLiveSms = async () => {
@@ -213,23 +298,44 @@ export default function CommandCenter() {
   };
 
   if (!state) {
-    return <div style={{ ...styles.page, padding: 32 }}>Loading Version 9 builder command center…</div>;
+    return <div style={{ ...styles.page, padding: 32 }}>Loading Version 10 builder command center...</div>;
   }
 
   const primaryMessage = state.message_drafts?.[0]?.body || '';
+  const modelCatalog = state.model_catalog || [
+    { id: 'netherwood-440', name: 'Netherwood 440', sqft: 440 },
+    { id: 'altura-576', name: 'Altura 576', sqft: 576 },
+    { id: 'cromwell-1280', name: 'Cromwell 1280', sqft: 1280 },
+  ];
+  const supplierQuotes = state.supplier_quotes || [
+    { id: 'lowes-lumber', supplier: "Lowe's", package: 'Lumber, house wrap, windows/doors', status: 'Bid requested', quoted_total: 38500 },
+    { id: 'raks-drywall', supplier: 'RAKS', package: 'Sheetrock, mud, roofing, fixtures', status: 'Need delivery window', quoted_total: 22600 },
+    { id: 'rio-grande-finish', supplier: 'Rio Grande', package: 'Cabinets, appliances, lighting, flooring', status: 'Comparing scope', quoted_total: 31400 },
+    { id: 'sip-pur-shell', supplier: 'SIP/PUR panel supplier', package: 'Panelized shell and insulation package', status: 'Lead time pending', quoted_total: 61500 },
+    { id: 'conventional-shell', supplier: 'Conventional build package', package: 'Framing, sheathing, insulation, exterior labor', status: 'Baseline COGS', quoted_total: 54800 },
+  ];
+  const sipPurComparison = state.sip_pur_comparison || [
+    { id: 'conventional', method: 'Conventional', total_cogs: 111500, labor_days: 42, schedule_effect: 'Baseline field build', gross_profit_impact: 'Known margin, higher weather exposure' },
+    { id: 'sip-pur', method: 'SIP/PUR panelized shell', total_cogs: 119800, labor_days: 30, schedule_effect: 'Shorter dry-in window', gross_profit_impact: 'Higher material cost, lower labor risk' },
+  ];
+  const crewMessages = state.crew_messages || [
+    { id: 'crew-roofing', trade: 'Roofing', status: 'Text ready', body: 'Weather window is tightening. Protect dry-in materials and confirm next safe roof day.' },
+    { id: 'crew-trenching', trade: 'Trenching', status: 'Text ready', body: 'Hold trench work until rain risk clears; update utility inspection timing.' },
+  ];
 
   return (
     <div style={styles.page}>
       <header style={styles.header}>
         <div>
-          <h1 style={styles.title}>Builder Command Center</h1>
-          <div style={{ color: '#CFC7BC', marginTop: 6 }}>Server-backed Version 9 demo · mobile-first builder triage</div>
+          <h1 style={styles.title}>Builder Operating System</h1>
+          <div style={{ color: '#CFC7BC', marginTop: 6 }}>Server-backed Version 10 · mobile-first project, bid, invoice, supplier, and crew triage</div>
         </div>
-        <span style={styles.badge}>Version 9</span>
-        <button style={{ ...styles.button, marginLeft: 'auto' }} onClick={() => addActivity('Client view', 'Client opened the simulated estimate/invoice view.')}>Simulate Client View</button>
+        <span style={styles.badge}>Version 10</span>
+        <button className="v10-header-action" style={{ ...styles.button, marginLeft: 'auto' }} onClick={() => addActivity('Client view', 'Client opened the simulated estimate/invoice view.')}>Preview Client View</button>
+        <button className="v10-header-action" style={styles.ghost} onClick={() => window.print()}>Print Client Packet</button>
       </header>
 
-      <main className="v9-shell" style={styles.shell}>
+      <main className="v10-shell" style={styles.shell}>
         <section style={{ display: 'grid', gap: 14 }}>
           <div style={styles.grid}>
             <div style={styles.cardDark}><div style={styles.kicker}>Bid Volume</div><div style={{ fontSize: 28, fontWeight: 900 }}>{fmt(totals.bidVolume)}</div></div>
@@ -244,18 +350,39 @@ export default function CommandCenter() {
               <button style={styles.button} onClick={addProject}>Add Project</button>
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              {state.projects.map(p => <ProjectCard key={p.id} project={p} onChange={(id, field, value) => updateList('projects', id, field, value)} />)}
+              {state.projects.map(p => (
+                <ProjectCard
+                  key={p.id}
+                  project={p}
+                  modelCatalog={modelCatalog}
+                  onChange={(id, field, value) => updateList('projects', id, field, value)}
+                  onApplyModel={applyModelDefaults}
+                  onCreateInvoices={createInvoiceDrafts}
+                />
+              ))}
             </div>
           </section>
 
           <section style={styles.card}>
             <div style={styles.kicker}>Supplier Quote Comparator</div>
             <div style={{ display: 'grid', gap: 10 }}>
-              {state.supplier_quotes.map(q => (
-                <div className="v9-row" key={q.id} style={{ display: 'grid', gridTemplateColumns: '1.2fr .9fr .7fr', gap: 10, alignItems: 'center', padding: 12, background: '#FAF7F2', borderRadius: 8 }}>
+              {supplierQuotes.map(q => (
+                <div className="v10-row" key={q.id} style={{ display: 'grid', gridTemplateColumns: '1.2fr .9fr .7fr auto', gap: 10, alignItems: 'center', padding: 12, background: '#FAF7F2', borderRadius: 8 }}>
                   <div><b>{q.supplier}</b><div style={{ fontSize: 12, color: '#78716C' }}>{q.package}</div></div>
                   <input style={styles.input} value={q.status} onChange={e => updateList('supplier_quotes', q.id, 'status', e.target.value)} />
                   <input style={styles.input} type="number" value={q.quoted_total} onChange={e => updateList('supplier_quotes', q.id, 'quoted_total', Number(e.target.value))} />
+                  <button style={styles.ghost} onClick={() => sendSupplierToCogs(q.id)}>Send to COGS</button>
+                </div>
+              ))}
+            </div>
+            <div style={{ ...styles.kicker, marginTop: 16 }}>SIP/PUR vs Conventional</div>
+            <div style={styles.grid}>
+              {sipPurComparison.map(item => (
+                <div key={item.id || item.method} style={styles.miniCard}>
+                  <b>{item.method}</b>
+                  <div style={{ fontSize: 13, marginTop: 5 }}>COGS {fmt(item.total_cogs)} · {item.labor_days} labor days</div>
+                  <div style={{ fontSize: 12, color: '#78716C', marginTop: 5 }}>{item.schedule_effect}</div>
+                  <div style={{ fontSize: 12, color: '#57534E', marginTop: 5 }}>{item.gross_profit_impact}</div>
                 </div>
               ))}
             </div>
@@ -281,10 +408,23 @@ export default function CommandCenter() {
           <section style={styles.card}>
             <div style={styles.kicker}>Text Ian / Builder</div>
             <textarea style={{ ...styles.input, minHeight: 120 }} value={note || primaryMessage} onChange={e => setNote(e.target.value)} />
-            <div className="v9-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+            <div className="v10-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <a style={{ ...styles.button, textDecoration: 'none' }} href={`sms:${state.builder.phone}?&body=${encodeURIComponent(note || primaryMessage)}`}>Text {state.builder.phone}</a>
               <button style={styles.button} onClick={sendLiveSms}>Send Live SMS</button>
               <button style={styles.ghost} onClick={() => addActivity('Builder text', note || primaryMessage)}>Log text</button>
+            </div>
+          </section>
+
+          <section style={styles.card}>
+            <div style={styles.kicker}>Crew Messages</div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {crewMessages.slice(0, 5).map(message => (
+                <div key={message.id} style={styles.miniCard}>
+                  <b>{message.trade}</b>
+                  <span style={{ marginLeft: 8, color: '#065F46', fontSize: 12, fontWeight: 900 }}>{message.status}</span>
+                  <div style={{ fontSize: 13, marginTop: 5 }}>{message.body}</div>
+                </div>
+              ))}
             </div>
           </section>
 
@@ -297,7 +437,7 @@ export default function CommandCenter() {
               Project ZIP code
               <input style={{ ...styles.input, minHeight: 44 }} value={weatherZip} inputMode="numeric" onChange={e => setWeatherZip(e.target.value)} />
             </label>
-            <div className="v9-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+            <div className="v10-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <button style={styles.button} onClick={checkWeather}>Check Weather</button>
               <button style={styles.ghost} onClick={logWeatherRisk}>Log Weather Risk</button>
               <a
