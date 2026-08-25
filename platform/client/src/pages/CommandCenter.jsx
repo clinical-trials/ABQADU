@@ -4,10 +4,11 @@ const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionD
 
 const styles = {
   page: { fontFamily: 'DM Sans, sans-serif', background: '#FAF7F2', minHeight: '100vh', color: '#1C1917' },
-  header: { background: '#1C1917', color: '#F0EBE1', padding: '22px clamp(16px, 4vw, 36px)', display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' },
+  header: { background: '#1C1917', color: '#F0EBE1', padding: '22px clamp(16px, 4vw, 36px)', display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' },
+  headerInner: { width: '100%', maxWidth: 1440, display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' },
   title: { fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 'clamp(28px, 6vw, 46px)', margin: 0, letterSpacing: '.02em', lineHeight: 1 },
   badge: { background: '#C4954A', color: '#1C1917', borderRadius: 999, padding: '7px 11px', fontSize: 12, fontWeight: 900, textTransform: 'uppercase' },
-  shell: { padding: 'clamp(14px, 4vw, 28px)', display: 'grid', gridTemplateColumns: 'minmax(0, 1.35fr) minmax(280px, .65fr)', gap: 18 },
+  shell: { width: '100%', maxWidth: 1440, margin: '0 auto', boxSizing: 'border-box', padding: 'clamp(14px, 4vw, 28px)', display: 'grid', gridTemplateColumns: 'minmax(0, 1.35fr) minmax(280px, .65fr)', gap: 18 },
   card: { background: '#FFF', border: '1px solid #E7E0D5', borderRadius: 10, padding: 16, boxShadow: '0 10px 30px rgba(28,25,23,.05)' },
   cardDark: { background: '#0F1F3D', color: '#F0EBE1', borderRadius: 10, padding: 16, boxShadow: '0 10px 30px rgba(15,31,61,.12)' },
   kicker: { fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', color: '#A8A29E', fontWeight: 900, marginBottom: 8 },
@@ -48,7 +49,7 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
   return (
     <article style={styles.card}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-        <div>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <input style={{ ...styles.input, fontSize: 18, fontWeight: 900 }} value={project.client} onChange={e => onChange(project.id, 'client', e.target.value)} />
           <input style={{ ...styles.input, marginTop: 6 }} value={project.address} onChange={e => onChange(project.id, 'address', e.target.value)} />
         </div>
@@ -326,13 +327,15 @@ export default function CommandCenter() {
   return (
     <div style={styles.page}>
       <header style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Builder Operating System</h1>
-          <div style={{ color: '#CFC7BC', marginTop: 6 }}>Server-backed Version 10 · mobile-first project, bid, invoice, supplier, and crew triage</div>
+        <div style={styles.headerInner}>
+          <div>
+            <h1 style={styles.title}>Builder Operating System</h1>
+            <div style={{ color: '#CFC7BC', marginTop: 6 }}>Server-backed Version 10 · mobile-first project, bid, invoice, supplier, and crew triage</div>
+          </div>
+          <span style={styles.badge}>Version 10</span>
+          <button className="v10-header-action" style={{ ...styles.button, marginLeft: 'auto' }} onClick={() => addActivity('Client view', 'Client opened the simulated estimate/invoice view.')}>Preview Client View</button>
+          <button className="v10-header-action" style={styles.ghost} onClick={() => window.print()}>Print Client Packet</button>
         </div>
-        <span style={styles.badge}>Version 10</span>
-        <button className="v10-header-action" style={{ ...styles.button, marginLeft: 'auto' }} onClick={() => addActivity('Client view', 'Client opened the simulated estimate/invoice view.')}>Preview Client View</button>
-        <button className="v10-header-action" style={styles.ghost} onClick={() => window.print()}>Print Client Packet</button>
       </header>
 
       <main className="v10-shell" style={styles.shell}>
