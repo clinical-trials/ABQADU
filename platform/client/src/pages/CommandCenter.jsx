@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import useCommandCenter from '../hooks/useCommandCenter';
+import ClientPacket from '../components/ClientPacket';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
@@ -24,6 +26,10 @@ function useMobilePatch() {
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
+      .command-center-workspace button:disabled { opacity:.5; cursor:not-allowed; }
+      .command-center-workspace input, .command-center-workspace select, .command-center-workspace textarea { font-size:16px!important; }
+      .command-center-workspace section, .command-center-workspace aside { min-width:0; }
+      .command-center-workspace button:focus-visible, .command-center-workspace input:focus-visible, .command-center-workspace select:focus-visible { outline:3px solid #C4954A; outline-offset:2px; }
       @media (max-width: 840px){
         .v10-shell{grid-template-columns:1fr!important}
         .v10-row{grid-template-columns:1fr!important}
@@ -40,20 +46,20 @@ function Field({ label, children }) {
   return <label style={styles.label}>{label}{children}</label>;
 }
 
-function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateInvoices }) {
+function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateInvoices, busy }) {
   const profitLow = Number(project.bid_total || 0) - Number(project.cogs_high || 0);
   const profitHigh = Number(project.bid_total || 0) - Number(project.cogs_low || 0);
   const invoices = project.invoice_drafts || [
     { id: `${project.id}-preconstruction`, label: 'Invoice 1: $10,000 Preconstruction', amount: 10000, status: 'Draft ready' },
   ];
   return (
-    <article style={styles.card}>
+    <article style={styles.card} aria-label={`Project details for ${project.client}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <input style={{ ...styles.input, fontSize: 18, fontWeight: 900 }} value={project.client} onChange={e => onChange(project.id, 'client', e.target.value)} />
-          <input style={{ ...styles.input, marginTop: 6 }} value={project.address} onChange={e => onChange(project.id, 'address', e.target.value)} />
+          <input aria-label="Client name" style={{ ...styles.input, fontSize: 18, fontWeight: 900 }} value={project.client} onChange={e => onChange(project.id, 'client', e.target.value)} />
+          <input aria-label="Site address" style={{ ...styles.input, marginTop: 6 }} value={project.address} onChange={e => onChange(project.id, 'address', e.target.value)} />
         </div>
-        <select style={{ ...styles.input, width: 82, fontWeight: 900 }} value={project.confidence} onChange={e => onChange(project.id, 'confidence', e.target.value)}>
+        <select aria-label="Estimate confidence" style={{ ...styles.input, width: 82, fontWeight: 900 }} value={project.confidence} onChange={e => onChange(project.id, 'confidence', e.target.value)}>
           {['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C', 'D', 'F'].map(g => <option key={g}>{g}</option>)}
         </select>
       </div>
@@ -67,33 +73,37 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
         </div>
         <div>
           <div style={styles.kicker}>Model Select</div>
-          <select style={styles.input} value={project.model_id || project.model} onChange={e => onChange(project.id, 'model_id', e.target.value)}>
+          <select aria-label="House model" style={styles.input} value={project.model_id || project.model} onChange={e => onChange(project.id, 'model_id', e.target.value)}>
             <option value={project.model}>{project.model || 'Choose model'}</option>
             {modelCatalog.map(model => <option key={model.id} value={model.id}>{model.name} · {model.sqft} sf</option>)}
           </select>
-          <input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.sqft} onChange={e => onChange(project.id, 'sqft', Number(e.target.value))} />
-          <button style={{ ...styles.ghost, marginTop: 8, width: '100%' }} onClick={() => onApplyModel(project.id, project.model_id || project.model)}>Apply Model Defaults</button>
+          <Field label="Square feet"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Square feet" min="1" type="number" value={project.sqft} onChange={e => onChange(project.id, 'sqft', Number(e.target.value))} /></Field>
+          <button style={{ ...styles.ghost, marginTop: 8, width: '100%' }} disabled={busy} onClick={() => onApplyModel(project.id, project.model_id || project.model)}>Apply Model Defaults</button>
         </div>
         <div>
           <div style={styles.kicker}>Estimate / Invoice</div>
-          <input style={styles.input} type="number" value={project.bid_total} onChange={e => onChange(project.id, 'bid_total', Number(e.target.value))} />
+          <Field label="Customer price"><input style={styles.input} aria-label="Customer price" min="0" type="number" value={project.bid_total} onChange={e => onChange(project.id, 'bid_total', Number(e.target.value))} /></Field>
           <div style={{ fontSize: 13, marginTop: 6 }}>{fmt(Number(project.bid_total || 0) / Number(project.sqft || 1))}/sf customer price</div>
-          <input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.cogs_low} onChange={e => onChange(project.id, 'cogs_low', Number(e.target.value))} />
-          <input style={{ ...styles.input, marginTop: 6 }} type="number" value={project.cogs_high} onChange={e => onChange(project.id, 'cogs_high', Number(e.target.value))} />
+          <Field label="Estimated cost low"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Estimated cost low" min="0" type="number" value={project.cogs_low} onChange={e => onChange(project.id, 'cogs_low', Number(e.target.value))} /></Field>
+          <Field label="Estimated cost high"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Estimated cost high" min="0" type="number" value={project.cogs_high} onChange={e => onChange(project.id, 'cogs_high', Number(e.target.value))} /></Field>
           <div style={{ fontSize: 13, marginTop: 6 }}>Profit {fmt(profitLow)} - {fmt(profitHigh)}</div>
-          <button style={{ ...styles.button, marginTop: 8, width: '100%' }} onClick={() => onCreateInvoices(project.id)}>Create $10k Invoice</button>
+          <button style={{ ...styles.button, marginTop: 8, width: '100%' }} disabled={busy} onClick={() => onCreateInvoices(project.id)}>Create $10k Invoice</button>
         </div>
       </div>
       <div style={{ ...styles.grid, marginTop: 12 }}>
         {[
-          ['Site visit', project.site_visit_status || 'Needs scheduling'],
-          ['Utility review', project.utility_review_status || 'Needs utility review'],
-          ['Sewer confirmation', project.sewer_confirmation_status || 'Needs sewer confirmation'],
-          ['Setbacks / site plan', project.setbacks_site_plan_status || 'Needs site plan'],
-        ].map(([label, value]) => (
-          <div key={label} style={styles.miniCard}>
-            <div style={styles.kicker}>{label}</div>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>{value}</div>
+          ['Site visit', 'site_visit_status', ['Needs scheduling', 'Scheduled', 'Completed']],
+          ['Utility review', 'utility_review_status', ['Needs confirmation', 'In review', 'Confirmed']],
+          ['Sewer confirmation', 'sewer_confirmation_status', ['Needs sewer confirmation study', 'In review', 'Confirmed']],
+          ['Setbacks / site plan', 'setbacks_site_plan_status', ['Needs site plan', 'In review', 'Confirmed']],
+        ].map(([label, field, options]) => (
+          <div key={field} style={styles.miniCard}>
+            <Field label={label}>
+              <select style={styles.input} value={project[field] || options[0]} onChange={e => onChange(project.id, field, e.target.value)}>
+                {project[field] && !options.includes(project[field]) && <option>{project[field]}</option>}
+                {options.map(option => <option key={option}>{option}</option>)}
+              </select>
+            </Field>
           </div>
         ))}
       </div>
@@ -105,9 +115,10 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
           </div>
         ))}
       </div>
+      {project.readiness_label && <p style={{ fontSize: 13, color: '#3D5247', fontWeight: 800 }}>Estimate readiness: {project.readiness_label}</p>}
       <div style={{ marginTop: 12, padding: 11, borderRadius: 8, background: '#FAF7F2', fontSize: 13 }}>
-        <input style={styles.input} value={project.status} onChange={e => onChange(project.id, 'status', e.target.value)} />
-        <textarea style={{ ...styles.input, marginTop: 6 }} value={project.next_action} onChange={e => onChange(project.id, 'next_action', e.target.value)} />
+        <input aria-label="Project status" style={styles.input} value={project.status} onChange={e => onChange(project.id, 'status', e.target.value)} />
+        <textarea aria-label="Next action" style={{ ...styles.input, marginTop: 6 }} value={project.next_action} onChange={e => onChange(project.id, 'next_action', e.target.value)} />
       </div>
     </article>
   );
@@ -115,21 +126,31 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
 
 export default function CommandCenter() {
   useMobilePatch();
-  const [state, setState] = useState(null);
+  const { state, saving, error, status, load, saveState, updateList, runAction, clearError } = useCommandCenter();
+  const [activeProjectId, setActiveProjectId] = useState('');
+  const [clientPreview, setClientPreview] = useState(null);
+  const activeProject = state?.projects?.find(project => project.id === activeProjectId) || state?.projects?.[0] || null;
   const [integrations, setIntegrations] = useState(null);
-  const [saving, setSaving] = useState(false);
   const [note, setNote] = useState('');
   const [receiptText, setReceiptText] = useState("LOWE'S HOME IMPROVEMENT\n08/03/2026\nDrywall mud and house wrap\nTOTAL $284.76");
   const [liveStatus, setLiveStatus] = useState('');
+  const [paymentLink, setPaymentLink] = useState(null);
   const [weatherZip, setWeatherZip] = useState('87106');
   const [weatherForecast, setWeatherForecast] = useState(null);
 
-  const load = () => fetch('/api/command-center').then(r => r.json()).then(setState);
-  const loadIntegrations = () => fetch('/api/integrations/status').then(r => r.json()).then(setIntegrations);
+  const loadIntegrations = async () => {
+    try {
+      const response = await fetch('/api/integrations/status');
+      if (!response.ok) throw new Error('Integration status is unavailable.');
+      setIntegrations(await response.json());
+    } catch (err) { setLiveStatus(err.message); }
+  };
+  useEffect(() => { loadIntegrations(); }, []);
   useEffect(() => {
-    load();
-    loadIntegrations();
-  }, []);
+    setWeatherForecast(null);
+    setPaymentLink(null);
+    setWeatherZip(activeProject?.zip || activeProject?.address?.match(/\b\d{5}\b/)?.[0] || '87106');
+  }, [activeProject?.id, activeProject?.zip, activeProject?.address]);
 
   const totals = useMemo(() => {
     const projects = state?.projects || [];
@@ -140,34 +161,24 @@ export default function CommandCenter() {
     return { bidVolume, grossProfitFloor: bidVolume - cogsHigh, miles, receipts };
   }, [state]);
 
-  const saveState = async (next) => {
-    setSaving(true);
-    const saved = await fetch('/api/command-center', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(next),
-    }).then(r => r.json());
-    setState(saved);
-    setSaving(false);
-  };
+  const addActivity = (type, detail) => runAction('/api/command-center/activity', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, detail }),
+  });
 
-  const addActivity = async (type, detail) => {
-    const saved = await fetch('/api/command-center/activity', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, detail }),
-    }).then(r => r.json());
-    setState(saved);
+  const previewClient = async () => {
+    if (!activeProject) return;
+    const preview = await runAction(`/api/command-center/projects/${activeProject.id}/client-view-preview`);
+    if (preview) setClientPreview(preview);
   };
 
   const addReceipt = () => {
-    const receipt = { id: `receipt-${Date.now()}`, vendor: 'New receipt', project: 'Unassigned', amount: 0, category: 'Materials', note: 'Tap to edit in the production receipt scanner.' };
-    saveState({ ...state, receipts: [receipt, ...(state.receipts || [])] });
+    const receipt = { id: `receipt-${Date.now()}`, vendor: 'New receipt', project: activeProject?.client || 'Unassigned', project_id: activeProject?.id, amount: 0, category: 'Materials', note: 'Tap to edit in the production receipt scanner.' };
+    saveState(current => ({ receipts: [receipt, ...(current.receipts || [])] }));
   };
 
   const addMileage = () => {
-    const trip = { id: `mile-${Date.now()}`, date: new Date().toISOString().slice(0, 10), project: 'Unassigned', miles: 0, purpose: 'Builder trip.' };
-    saveState({ ...state, mileage: [trip, ...(state.mileage || [])] });
+    const trip = { id: `mile-${Date.now()}`, date: new Date().toISOString().slice(0, 10), project: activeProject?.client || 'Unassigned', project_id: activeProject?.id, miles: 0, purpose: 'Builder trip.' };
+    saveState(current => ({ mileage: [trip, ...(current.mileage || [])] }));
   };
 
   const addProject = () => {
@@ -192,114 +203,71 @@ export default function CommandCenter() {
       status: 'Needs site data',
       next_action: 'Schedule site visit, confirm utilities, and prepare a first bid.',
     };
-    saveState({ ...state, projects: [project, ...(state.projects || [])] });
+    saveState(current => ({ projects: [project, ...(current.projects || [])] }));
+    setActiveProjectId(project.id);
   };
 
-  const applyModelDefaults = async (projectId, model) => {
-    const saved = await fetch(`/api/command-center/projects/${projectId}/apply-model`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model }),
-    }).then(r => r.json());
-    setState(saved);
+  const applyModelDefaults = (projectId, model) => runAction(`/api/command-center/projects/${projectId}/apply-model`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model }),
+  });
+  const createInvoiceDrafts = projectId => runAction(`/api/command-center/projects/${projectId}/invoice-drafts`, { method: 'POST' });
+  const sendSupplierToCogs = async quoteId => {
+    if (!activeProject) return;
+    const saved = await runAction(`/api/command-center/projects/${activeProject.id}/send-supplier-to-cogs`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quote_id: quoteId }),
+    });
+    if (saved) setLiveStatus(`Supplier quote added to ${activeProject.client}.`);
   };
-
-  const createInvoiceDrafts = async (projectId) => {
-    const saved = await fetch(`/api/command-center/projects/${projectId}/invoice-drafts`, { method: 'POST' }).then(r => r.json());
-    setState(saved);
-  };
-
-  const sendSupplierToCogs = async (quoteId) => {
-    const projectId = state.projects?.[0]?.id;
-    const saved = await fetch(`/api/command-center/projects/${projectId}/send-supplier-to-cogs`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ quote_id: quoteId }),
-    }).then(r => r.json());
-    setState(saved);
-  };
-
   const sendLiveSms = async () => {
-    const res = await fetch('/api/integrations/sms/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const payload = await runAction('/api/integrations/sms/send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ to: state.builder.phone, body: note || primaryMessage }),
     });
-    const payload = await res.json();
-    setLiveStatus(res.ok ? `Live SMS sent: ${payload.sid}` : `SMS not sent: ${payload.error}`);
-    if (res.ok) load();
+    if (payload) { setLiveStatus(`Live SMS sent: ${payload.sid}`); await load(); }
   };
-
   const createStripePaymentLink = async () => {
-    const project = state.projects[0];
-    const res = await fetch('/api/integrations/stripe/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: 10000,
-        description: `$10,000 preconstruction invoice - ${project.client}`,
-        client_email: '',
-        metadata: { project_id: project.id, draw: 'preconstruction' },
-      }),
+    if (!activeProject) return;
+    const payload = await runAction('/api/integrations/stripe/checkout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: 10000, description: `$10,000 preconstruction invoice - ${activeProject.client}`, client_email: activeProject.client_email || '', metadata: { project_id: activeProject.id, draw: 'preconstruction' } }),
     });
-    const payload = await res.json();
-    setLiveStatus(res.ok ? `Stripe payment link ready: ${payload.url}` : `Stripe not ready: ${payload.error}`);
-    if (payload.url) window.open(payload.url, '_blank', 'noopener,noreferrer');
+    if (payload) {
+      setPaymentLink(payload.url ? { url: payload.url, project_id: activeProject.id } : null);
+      setLiveStatus(payload.url ? `Payment link ready for ${activeProject.client}.` : 'Payment link could not be created.');
+    }
   };
-
   const parseReceiptOcr = async () => {
-    const res = await fetch('/api/integrations/ocr/receipt', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ raw_text: receiptText, project: state.projects[0]?.client || 'Unassigned' }),
+    if (!activeProject) return;
+    const payload = await runAction('/api/integrations/ocr/receipt', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw_text: receiptText, project: activeProject.client, project_id: activeProject.id }),
     });
-    const payload = await res.json();
-    setLiveStatus(res.ok ? `Receipt parsed: ${payload.receipt.vendor} ${fmt(payload.receipt.amount)}` : `OCR not ready: ${payload.error}`);
-    if (res.ok) load();
+    if (payload) setLiveStatus(`Receipt parsed: ${payload.receipt.vendor} ${fmt(payload.receipt.amount)}`);
   };
-
   const checkClerkLogin = async () => {
-    const res = await fetch('/api/integrations/clerk/status');
-    const payload = await res.json();
-    setLiveStatus(payload.configured ? 'Clerk env is configured. Add ClerkProvider on the hosted client.' : `Clerk missing: ${payload.missing.join(', ') || 'token'}`);
+    const payload = await runAction('/api/integrations/clerk/status');
+    if (payload) setLiveStatus(payload.configured ? 'Login service is configured.' : 'Login service has not been connected yet.');
   };
-
   const checkWeather = async () => {
-    const res = await fetch(`/api/weather/forecast?zip=${encodeURIComponent(weatherZip)}`);
-    const payload = await res.json();
-    if (!res.ok) {
-      setLiveStatus(`Weather unavailable: ${payload.detail || payload.error}`);
-      return;
+    if (!activeProject) return;
+    const payload = await runAction(`/api/weather/forecast?zip=${encodeURIComponent(weatherZip)}`);
+    if (payload) {
+      setWeatherForecast({ ...payload, project_id: activeProject.id, zip: weatherZip });
+      setLiveStatus(`Weather checked for ${payload.location}: ${payload.risk_level} risk`);
     }
-    setWeatherForecast(payload);
-    setLiveStatus(`Weather checked for ${payload.location}: ${payload.risk_level} risk`);
   };
-
+  const weatherMatches = !!weatherForecast && weatherForecast.project_id === activeProject?.id && weatherForecast.zip === weatherZip;
   const logWeatherRisk = async () => {
-    const activeProject = state.projects?.[0]?.client || 'Builder project';
-    const res = await fetch('/api/weather/forecast/activity', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ zip: weatherZip, project: activeProject, forecast: weatherForecast }),
+    if (!activeProject || !weatherMatches) return;
+    const payload = await runAction('/api/weather/forecast/activity', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ zip: weatherZip, project_id: activeProject.id, forecast: weatherForecast }),
     });
-    const payload = await res.json();
-    if (!res.ok) {
-      setLiveStatus(`Weather log failed: ${payload.detail || payload.error}`);
-      return;
-    }
-    setState(payload);
-    setLiveStatus('Weather risk logged to the project activity feed.');
-  };
-
-  const updateList = (key, id, field, value) => {
-    saveState({
-      ...state,
-      [key]: (state[key] || []).map(item => item.id === id ? { ...item, [field]: value } : item),
-    });
+    if (payload) setLiveStatus(`Weather risk logged for ${activeProject.client}.`);
   };
 
   if (!state) {
-    return <div style={{ ...styles.page, padding: 32 }}>Loading Version 10 builder command center...</div>;
+    return <div style={{ ...styles.page, padding: 32 }}>{error ? <><p role="alert">{error}</p><button style={styles.button} onClick={load}>Retry loading</button></> : 'Loading Version 10 builder command center...'}</div>;
   }
 
   const primaryMessage = state.message_drafts?.[0]?.body || '';
@@ -319,27 +287,41 @@ export default function CommandCenter() {
     { id: 'conventional', method: 'Conventional', total_cogs: 111500, labor_days: 42, schedule_effect: 'Baseline field build', gross_profit_impact: 'Known margin, higher weather exposure' },
     { id: 'sip-pur', method: 'SIP/PUR panelized shell', total_cogs: 119800, labor_days: 30, schedule_effect: 'Shorter dry-in window', gross_profit_impact: 'Higher material cost, lower labor risk' },
   ];
-  const crewMessages = state.crew_messages || [
-    { id: 'crew-roofing', trade: 'Roofing', status: 'Text ready', body: 'Weather window is tightening. Protect dry-in materials and confirm next safe roof day.' },
-    { id: 'crew-trenching', trade: 'Trenching', status: 'Text ready', body: 'Hold trench work until rain risk clears; update utility inspection timing.' },
-  ];
+  const crewMessages = (state.crew_messages || []).filter(message => message.project_id === activeProject?.id);
+  const projectWeatherChecks = (state.weather_checks || []).filter(check => check.project_id === activeProject?.id);
+  const projectReceipts = (state.receipts || []).filter(row => !row.project_id || row.project_id === activeProject?.id);
+  const projectMileage = (state.mileage || []).filter(row => !row.project_id || row.project_id === activeProject?.id);
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="command-center-workspace">
       <header style={styles.header}>
         <div style={styles.headerInner}>
           <div>
             <h1 style={styles.title}>Builder Operating System</h1>
-            <div style={{ color: '#CFC7BC', marginTop: 6 }}>Server-backed Version 10 · mobile-first project, bid, invoice, supplier, and crew triage</div>
+            <div style={{ color: '#CFC7BC', marginTop: 6 }}>Version 10 · Projects, estimates, suppliers, and crews</div>
           </div>
           <span style={styles.badge}>Version 10</span>
-          <button className="v10-header-action" style={{ ...styles.button, marginLeft: 'auto' }} onClick={() => addActivity('Client view', 'Client opened the simulated estimate/invoice view.')}>Preview Client View</button>
-          <button className="v10-header-action" style={styles.ghost} onClick={() => window.print()}>Print Client Packet</button>
+          <button className="v10-header-action" style={{ ...styles.button, marginLeft: 'auto' }} disabled={!activeProject || saving} onClick={previewClient}>Preview Client View</button>
+          <button className="v10-header-action" style={styles.ghost} disabled={!activeProject || saving} onClick={previewClient}>Print Client Packet</button>
         </div>
       </header>
 
+      <section aria-label="Project workspace" style={{ maxWidth: 1440, margin: '0 auto', padding: '18px clamp(14px, 4vw, 28px) 0', boxSizing: 'border-box' }}>
+        <div style={{ ...styles.card, display: 'flex', flexWrap: 'wrap', alignItems: 'end', gap: 16 }}>
+          <label style={{ ...styles.label, flex: '1 1 260px' }}>Active project
+            <select aria-label="Active project" style={styles.input} value={activeProject?.id || ''} disabled={!state.projects.length || saving} onChange={e => setActiveProjectId(e.target.value)}>
+              {!state.projects.length && <option value="">Add a project to get started</option>}
+              {state.projects.map(project => <option key={project.id} value={project.id}>{project.client} · {project.model}</option>)}
+            </select>
+          </label>
+          <div style={{ flex: '1 1 220px', fontSize: 13 }}><b>Working on {activeProject?.client || 'your next project'}</b><p style={{ margin: '6px 0 0', color: '#57534E' }}>Client packets, supplier costs, receipts, and weather use this project.</p></div>
+          <div style={{ display: 'grid', gap: 6 }}><span role="status" style={{ fontSize: 13 }}>{status}</span><button disabled={saving} style={styles.ghost} onClick={() => saveState({})}>{error ? 'Retry saving' : 'Save changes'}</button></div>
+        </div>
+        {error && <div role="alert" style={{ padding: 12, background: '#FEE2E2', color: '#991B1B', borderRadius: 8 }}>{error} Any unsaved edits remain in this tab. <button style={styles.ghost} onClick={clearError}>Dismiss error</button></div>}
+        {liveStatus && <p role="status" style={{ padding: 12, background: '#E8EEE8', borderRadius: 8 }}>{liveStatus}</p>}
+      </section>
       <main className="v10-shell" style={styles.shell}>
-        <section style={{ display: 'grid', gap: 14 }}>
+        <section style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
           <div style={styles.grid}>
             <div style={styles.cardDark}><div style={styles.kicker}>Bid Volume</div><div style={{ fontSize: 28, fontWeight: 900 }}>{fmt(totals.bidVolume)}</div></div>
             <div style={styles.cardDark}><div style={styles.kicker}>Profit Floor</div><div style={{ fontSize: 28, fontWeight: 900 }}>{fmt(totals.grossProfitFloor)}</div></div>
@@ -350,13 +332,14 @@ export default function CommandCenter() {
           <section style={styles.card}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center', marginBottom: 10 }}>
               <div style={styles.kicker}>Active Projects</div>
-              <button style={styles.button} onClick={addProject}>Add Project</button>
+              <button style={styles.button} disabled={saving} onClick={addProject}>Add Project</button>
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              {state.projects.map(p => (
+              {(activeProject ? [activeProject] : []).map(p => (
                 <ProjectCard
                   key={p.id}
                   project={p}
+                  busy={saving}
                   modelCatalog={modelCatalog}
                   onChange={(id, field, value) => updateList('projects', id, field, value)}
                   onApplyModel={applyModelDefaults}
@@ -368,13 +351,14 @@ export default function CommandCenter() {
 
           <section style={styles.card}>
             <div style={styles.kicker}>Supplier Quote Comparator</div>
+            <p style={{ fontSize: 13, color: '#57534E' }}>Send selected quotes to {activeProject?.client || 'the active project'}.</p>
             <div style={{ display: 'grid', gap: 10 }}>
               {supplierQuotes.map(q => (
                 <div className="v10-row" key={q.id} style={{ display: 'grid', gridTemplateColumns: '1.2fr .9fr .7fr auto', gap: 10, alignItems: 'center', padding: 12, background: '#FAF7F2', borderRadius: 8 }}>
                   <div><b>{q.supplier}</b><div style={{ fontSize: 12, color: '#78716C' }}>{q.package}</div></div>
                   <input style={styles.input} value={q.status} onChange={e => updateList('supplier_quotes', q.id, 'status', e.target.value)} />
                   <input style={styles.input} type="number" value={q.quoted_total} onChange={e => updateList('supplier_quotes', q.id, 'quoted_total', Number(e.target.value))} />
-                  <button style={styles.ghost} onClick={() => sendSupplierToCogs(q.id)}>Send to COGS</button>
+                  <button disabled={!activeProject || saving} style={styles.ghost} onClick={() => sendSupplierToCogs(q.id)}>Send to COGS</button>
                 </div>
               ))}
             </div>
@@ -400,7 +384,7 @@ export default function CommandCenter() {
                 <div key={name} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 13 }}>
                   <b style={{ textTransform: 'capitalize' }}>{name}</b>
                   <span style={{ color: info.configured ? '#065F46' : '#92400E', fontWeight: 900 }}>
-                    {info.configured ? 'Configured' : `Missing ${info.missing.length}`}
+                    {info.configured ? 'Connected' : 'Not connected'}
                   </span>
                 </div>
               ))}
@@ -413,13 +397,14 @@ export default function CommandCenter() {
             <textarea style={{ ...styles.input, minHeight: 120 }} value={note || primaryMessage} onChange={e => setNote(e.target.value)} />
             <div className="v10-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <a style={{ ...styles.button, textDecoration: 'none' }} href={`sms:${state.builder.phone}?&body=${encodeURIComponent(note || primaryMessage)}`}>Text {state.builder.phone}</a>
-              <button style={styles.button} onClick={sendLiveSms}>Send Live SMS</button>
+              <button style={styles.button} disabled={saving || !integrations?.twilio?.configured} onClick={sendLiveSms}>Send Live SMS</button>
               <button style={styles.ghost} onClick={() => addActivity('Builder text', note || primaryMessage)}>Log text</button>
             </div>
           </section>
 
           <section style={styles.card}>
             <div style={styles.kicker}>Crew Messages</div>
+            {!crewMessages.length && <p style={{ fontSize: 13 }}>No weather crew drafts for this project yet.</p>}
             <div style={{ display: 'grid', gap: 8 }}>
               {crewMessages.slice(0, 5).map(message => (
                 <div key={message.id} style={styles.miniCard}>
@@ -438,19 +423,19 @@ export default function CommandCenter() {
             </p>
             <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 900, color: '#57534E' }}>
               Project ZIP code
-              <input style={{ ...styles.input, minHeight: 44 }} value={weatherZip} inputMode="numeric" onChange={e => setWeatherZip(e.target.value)} />
+              <input style={{ ...styles.input, minHeight: 44 }} value={weatherZip} inputMode="numeric" maxLength={5} onChange={e => { setWeatherZip(e.target.value); setWeatherForecast(null); }} />
             </label>
             <div className="v10-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-              <button style={styles.button} onClick={checkWeather}>Check Weather</button>
-              <button style={styles.ghost} onClick={logWeatherRisk}>Log Weather Risk</button>
+              <button style={styles.button} disabled={!activeProject || saving || !/^\d{5}$/.test(weatherZip)} onClick={checkWeather}>Check Weather</button>
+              <button style={styles.ghost} disabled={!weatherMatches || saving} onClick={logWeatherRisk}>Log Weather Risk</button>
               <a
                 style={{ ...styles.ghost, textDecoration: 'none' }}
-                href={`sms:${state.builder.phone}?&body=${encodeURIComponent(weatherForecast?.crew_message || `Weather check needed for ${weatherZip}.`)}`}
+                href={`sms:${state.builder.phone}?&body=${encodeURIComponent((weatherMatches ? weatherForecast.crew_message : null) || `Weather check needed for ${weatherZip}.`)}`}
               >
                 Text Weather Crew
               </a>
             </div>
-            {weatherForecast && (
+            {weatherMatches && (
               <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: weatherForecast.risk_level === 'high' ? '#FEF2F2' : '#F5F0E8', fontSize: 13 }}>
                 <b>{weatherForecast.location}</b>
                 <div style={{ marginTop: 4 }}>{weatherForecast.crew_message}</div>
@@ -463,9 +448,9 @@ export default function CommandCenter() {
                 </div>
               </div>
             )}
-            {!!state.weather_checks?.length && (
+            {!!projectWeatherChecks.length && (
               <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
-                {state.weather_checks.slice(0, 3).map(check => (
+                {projectWeatherChecks.slice(0, 3).map(check => (
                   <div key={check.id} style={{ fontSize: 12, borderLeft: '3px solid #0F1F3D', paddingLeft: 9 }}>
                     <b>{check.project} · {check.zip}</b><br />{check.crew_message}
                   </div>
@@ -476,22 +461,25 @@ export default function CommandCenter() {
 
           <section style={styles.card}>
             <div style={styles.kicker}>Payments</div>
-            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>$10,000 preconstruction payment link for the current lead.</p>
-            <button style={styles.button} onClick={createStripePaymentLink}>Create Stripe Payment Link</button>
+            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>$10,000 preconstruction payment link for {activeProject?.client || 'the active project'}.</p>
+            <button style={styles.button} disabled={!activeProject || saving || !integrations?.stripe?.configured} onClick={createStripePaymentLink}>Create Stripe Payment Link</button>
+            {paymentLink?.project_id === activeProject?.id && paymentLink?.url && <p><a href={paymentLink.url} target="_blank" rel="noopener noreferrer">Open payment link</a></p>}
+            {!integrations?.stripe?.configured && <p style={{ fontSize: 13, color: '#78716C' }}>Connect payments before creating a payment link.</p>}
           </section>
 
           <section style={styles.card}>
             <div style={styles.kicker}>Receipt Scanner Demo</div>
             <textarea style={{ ...styles.input, minHeight: 92, marginBottom: 8 }} value={receiptText} onChange={e => setReceiptText(e.target.value)} />
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button style={styles.button} onClick={parseReceiptOcr}>Parse Receipt OCR</button>
-              <button style={styles.ghost} onClick={addReceipt}>Add receipt manually</button>
+              <button style={styles.button} disabled={!activeProject || saving} onClick={parseReceiptOcr}>Parse Receipt OCR</button>
+              <button style={styles.ghost} disabled={!activeProject || saving} onClick={addReceipt}>Add receipt manually</button>
             </div>
             <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
-              {state.receipts.map(r => (
+              {projectReceipts.map(r => (
                 <div key={r.id} style={{ fontSize: 13, padding: 10, borderRadius: 8, background: '#FAF7F2' }}>
-                  <input style={styles.input} value={r.vendor} onChange={e => updateList('receipts', r.id, 'vendor', e.target.value)} />
-                  <input style={{ ...styles.input, marginTop: 6 }} type="number" value={r.amount} onChange={e => updateList('receipts', r.id, 'amount', Number(e.target.value))} />
+                  <p style={{ margin: '0 0 8px' }}>{r.project_id ? 'Project' : 'Legacy receipt · project not linked'}: {r.project || 'Unassigned'}</p>
+                  <input aria-label={`Receipt vendor for ${r.project || 'unassigned project'}`} style={styles.input} value={r.vendor} onChange={e => updateList('receipts', r.id, 'vendor', e.target.value)} />
+                  <input aria-label={`Receipt amount for ${r.vendor}`} style={{ ...styles.input, marginTop: 6 }} type="number" value={r.amount} onChange={e => updateList('receipts', r.id, 'amount', Number(e.target.value))} />
                 </div>
               ))}
             </div>
@@ -499,12 +487,13 @@ export default function CommandCenter() {
 
           <section style={styles.card}>
             <div style={styles.kicker}>Mileage Tracker Demo</div>
-            <button style={styles.button} onClick={addMileage}>Add trip</button>
+            <button style={styles.button} disabled={!activeProject || saving} onClick={addMileage}>Add trip</button>
             <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
-              {state.mileage.map(m => (
+              {projectMileage.map(m => (
                 <div key={m.id} style={{ fontSize: 13, padding: 10, borderRadius: 8, background: '#FAF7F2' }}>
-                  <input style={styles.input} value={m.project} onChange={e => updateList('mileage', m.id, 'project', e.target.value)} />
-                  <input style={{ ...styles.input, marginTop: 6 }} type="number" value={m.miles} onChange={e => updateList('mileage', m.id, 'miles', Number(e.target.value))} />
+                  <p style={{ margin: '0 0 8px' }}>{m.project_id ? 'Project' : 'Legacy trip · project not linked'}: {m.project || 'Unassigned'}</p>
+                  <input aria-label={`Trip purpose for ${m.project || 'unassigned project'}`} style={styles.input} value={m.purpose || ''} onChange={e => updateList('mileage', m.id, 'purpose', e.target.value)} />
+                  <input aria-label={`Miles for ${m.project || 'unassigned project'}`} style={{ ...styles.input, marginTop: 6 }} type="number" value={m.miles} onChange={e => updateList('mileage', m.id, 'miles', Number(e.target.value))} />
                 </div>
               ))}
             </div>
@@ -525,10 +514,10 @@ export default function CommandCenter() {
             <div style={styles.kicker}>Clerk Login</div>
             <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Checks whether Clerk environment variables are configured on the server.</p>
             <button style={styles.button} onClick={checkClerkLogin}>Check Clerk Login</button>
-            {liveStatus && <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: '#F5F0E8', fontSize: 12 }}>{liveStatus}</div>}
           </section>
         </aside>
       </main>
+      {clientPreview && <ClientPacket preview={clientPreview} onClose={() => setClientPreview(null)} />}
     </div>
   );
 }

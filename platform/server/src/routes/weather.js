@@ -18,26 +18,32 @@ router.get('/forecast', async (req, res) => {
 router.post('/forecast/activity', async (req, res) => {
   try {
     const state = await loadCommandCenter();
-    const forecast = req.body?.forecast || await fetchWttrForecast(req.body?.zip || '87106');
+    const projects = Array.isArray(state.projects) ? state.projects : [];
     const requestedProject = req.body?.project;
-    const projectName = typeof requestedProject === 'string'
+    const hasProjectId = Object.prototype.hasOwnProperty.call(req.body || {}, 'project_id');
+    const legacyProjectKey = typeof requestedProject === 'string'
       ? requestedProject
-      : requestedProject?.client || state.projects?.[0]?.client || 'Builder project';
-    const projectRecord = typeof requestedProject === 'object' && requestedProject
-      ? requestedProject
-      : (state.projects || []).find(projectItem => projectItem.client === projectName || projectItem.id === requestedProject) ||
-        state.projects?.[0] ||
-        { id: 'unknown-project', client: projectName };
+      : requestedProject?.id || requestedProject?.client;
+    const projectRecord = hasProjectId
+      ? projects.find(project => project.id === req.body.project_id)
+      : legacyProjectKey
+        ? projects.find(project => project.id === legacyProjectKey || project.client === legacyProjectKey)
+        : projects[0];
+    if (!projectRecord) return res.status(404).json({ error: 'Project not found' });
+
+    const forecast = req.body?.forecast || await fetchWttrForecast(req.body?.zip || '87106');
     const crewMessages = createCrewMessagesFromForecast(projectRecord, forecast);
     const check = {
-      id: `weather-${Date.now()}`,
-      project: projectRecord.client || projectName,
       ...forecast,
+      id: `weather-${Date.now()}`,
+      project_id: projectRecord.id,
+      project: projectRecord.client,
     };
     const activity = {
       id: `activity-${Date.now()}`,
       type: 'Weather delay',
-      detail: `${projectRecord.client || projectName}: ${forecast.crew_message}`,
+      project_id: projectRecord.id,
+      detail: `${projectRecord.client}: ${forecast.crew_message}`,
       at: new Date().toISOString(),
     };
 

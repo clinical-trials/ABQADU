@@ -29,6 +29,34 @@ test('readiness labels prioritize blocked estimate conditions', () => {
   expect(getReadinessLabel({ address: '435 Amherst Dr NE', utility_review_status: 'Confirmed' })).toBe('Ready to send');
 });
 
+test.each([
+  ['site_visit_status', 'Needs scheduling', 'Missing site data'],
+  ['site_visit_status', 'Scheduled', 'Missing site data'],
+  ['site_visit_status', '', 'Missing site data'],
+  ['utility_review_status', '', 'Needs utility review'],
+  ['utility_review_status', null, 'Needs utility review'],
+  ['sewer_confirmation_status', 'Needs sewer confirmation study', 'Needs sewer confirmation'],
+  ['sewer_confirmation_status', '', 'Needs sewer confirmation'],
+  ['setbacks_site_plan_status', 'Needs site plan', 'Needs site plan'],
+  ['setbacks_site_plan_status', null, 'Needs site plan'],
+])('readiness blocks an incomplete %s of %s', (field, value, expected) => {
+  const { getReadinessLabel } = require('../src/services/estimateEngine');
+
+  expect(getReadinessLabel({ address: '435 Amherst Dr NE', [field]: value })).toBe(expected);
+});
+
+test('readiness advances after the recorded site checks are completed', () => {
+  const { getReadinessLabel } = require('../src/services/estimateEngine');
+
+  expect(getReadinessLabel({
+    address: '435 Amherst Dr NE',
+    site_visit_status: 'Completed',
+    utility_review_status: 'Confirmed',
+    sewer_confirmation_status: 'Confirmed',
+    setbacks_site_plan_status: 'Confirmed',
+  })).toBe('Ready to send');
+});
+
 test('invoice drafts always start with ten thousand dollar preconstruction invoice', () => {
   const { createInvoiceDrafts, buildDrawSchedule } = require('../src/services/estimateEngine');
 
@@ -62,7 +90,9 @@ test('client view preview exposes homeowner-facing estimate package', () => {
   expect(preview.project.client).toBe('Amherst homeowner');
   expect(preview.readiness_label).toBe('Ready to send');
   expect(preview.invoice_drafts[0].amount).toBe(10000);
-  expect(preview.metrics.price_per_sqft).toBe(308);
+  expect(preview.metrics).toEqual({ price_per_sqft: 308 });
+  expect(preview.project).not.toHaveProperty('cogs_low');
+  expect(preview.project).not.toHaveProperty('cogs_high');
 });
 
 test('command center estimate routes expose model, invoice, and preview actions', async () => {
@@ -176,6 +206,22 @@ test('command center exposes supplier bidout routes and Send to COGS service mut
   expect(updatedProject.supplier_status).toBe('Supplier COGS imported');
   expect(updatedProject.cogs_low).toBeGreaterThanOrEqual(section.subtotal);
   expect(sent.activity[0].detail).toContain('Send to COGS');
+});
+
+test.each(['missing-project', undefined, ''])('supplier import rejects unknown project %s', projectId => {
+  const { sendSupplierPackageToCogs } = require('../src/services/supplierEngine');
+  const state = {
+    projects: [{ id: 'existing-project', sqft: 600, cogs_low: 90000, cogs_high: 102000 }],
+    estimate_sections: [],
+    activity: [],
+  };
+
+  expect(() => sendSupplierPackageToCogs(state, {
+    project_id: projectId,
+    package_id: 'lowes-pro',
+  })).toThrow(expect.objectContaining({ status: 404, message: 'Project not found' }));
+  expect(state.estimate_sections).toEqual([]);
+  expect(state.activity).toEqual([]);
 });
 
 test('Version 10 model catalog contains canonical ADU models', () => {

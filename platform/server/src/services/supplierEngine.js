@@ -176,7 +176,12 @@ function buildSupplierBidout({ project = {}, customPackages = [] } = {}) {
 
 function sendSupplierPackageToCogs(state = {}, { project_id, package_id } = {}) {
   const projects = Array.isArray(state.projects) ? state.projects : [];
-  const project = projects.find(row => row.id === project_id) || { id: project_id };
+  const project = projects.find(row => row.id === project_id);
+  if (!project) {
+    const error = new Error('Project not found');
+    error.status = 404;
+    throw error;
+  }
   const customPackages = [
     ...(Array.isArray(state.supplier_packages) ? state.supplier_packages : []),
     ...(Array.isArray(state.supplier_quotes) ? state.supplier_quotes : []),

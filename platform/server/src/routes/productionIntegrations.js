@@ -64,18 +64,30 @@ router.post('/stripe/checkout', async (req, res) => {
 
 router.post('/ocr/receipt', async (req, res) => {
   try {
+    let state = await loadCommandCenter();
+    const hasProjectId = Object.prototype.hasOwnProperty.call(req.body || {}, 'project_id');
+    let project = hasProjectId
+      ? (state.projects || []).find(item => item.id === req.body.project_id)
+      : null;
+    if (hasProjectId && !project) return res.status(404).json({ error: 'Project not found' });
+
     const parsed = await ocrSpaceReceipt(req.body || {});
-    const state = await loadCommandCenter();
+    state = await loadCommandCenter();
+    if (hasProjectId) {
+      project = (state.projects || []).find(item => item.id === req.body.project_id);
+      if (!project) return res.status(404).json({ error: 'Project not found' });
+    }
     const receipt = {
       id: `receipt-${Date.now()}`,
       vendor: parsed.vendor,
-      project: req.body.project || 'Unassigned',
+      ...(project ? { project_id: project.id } : {}),
+      project: project ? project.client : req.body?.project || 'Unassigned',
       amount: parsed.total,
       category: parsed.category,
       note: `OCR confidence: ${parsed.confidence}. Review before tax/accounting export.`,
       date: parsed.date,
     };
-    await saveCommandCenter({
+    const savedState = await saveCommandCenter({
       receipts: [receipt, ...(state.receipts || [])],
       activity: [{
         id: `activity-${Date.now()}-ocr`,
@@ -84,7 +96,7 @@ router.post('/ocr/receipt', async (req, res) => {
         at: new Date().toISOString(),
       }, ...(state.activity || [])].slice(0, 40),
     });
-    res.status(201).json({ ok: true, parsed, receipt });
+    res.status(201).json({ ok: true, parsed, receipt, state: savedState });
   } catch (err) {
     sendError(res, err);
   }

@@ -35,9 +35,14 @@ function calculateProjectMetrics(project = {}) {
 }
 
 function getReadinessLabel(project = {}) {
-  if (!project.address || project.site_visit_status === 'Not scheduled') return 'Missing site data';
+  const hasIncompleteCheck = (field, completed) => (
+    Object.prototype.hasOwnProperty.call(project, field) && !completed.includes(project[field])
+  );
+  if (!project.address || hasIncompleteCheck('site_visit_status', ['Completed'])) return 'Missing site data';
   if (project.engineering_status === 'Needs engineering') return 'Needs engineering';
-  if (project.utility_review_status && project.utility_review_status !== 'Confirmed') return 'Needs utility review';
+  if (hasIncompleteCheck('utility_review_status', ['Confirmed'])) return 'Needs utility review';
+  if (hasIncompleteCheck('sewer_confirmation_status', ['Confirmed'])) return 'Needs sewer confirmation';
+  if (hasIncompleteCheck('setbacks_site_plan_status', ['Confirmed', 'Completed'])) return 'Needs site plan';
   if (project.supplier_status === 'Needs supplier comparison') return 'Needs supplier comparison';
   return 'Ready to send';
 }
@@ -136,7 +141,7 @@ function createClientViewPreview(project = {}) {
       bid_total: numeric(project.bid_total),
     },
     readiness_label: getReadinessLabel(project),
-    metrics: calculateProjectMetrics(project),
+    metrics: { price_per_sqft: dollarsPerSqft(project.bid_total, project.sqft) },
     invoice_drafts: createInvoiceDrafts(project),
     draw_schedule: buildDrawSchedule(project),
     notes: 'Preview only. Final contract depends on site review, utilities, sewer confirmation, permitting, and engineering review.',

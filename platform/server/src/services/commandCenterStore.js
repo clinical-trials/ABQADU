@@ -1,12 +1,30 @@
 const fs = require('fs/promises');
 const path = require('path');
 const { MODEL_CATALOG, applyModelDefaults } = require('./modelCatalog');
+const { getReadinessLabel } = require('./estimateEngine');
 
 const storePath = process.env.COMMAND_CENTER_STORE_PATH ||
   path.join(__dirname, '..', '..', 'data', 'version10-command-center.json');
 
 function nowIso() {
   return new Date().toISOString();
+}
+
+function withProjectReadiness(state) {
+  if (!Array.isArray(state.projects)) return state;
+  return {
+    ...state,
+    projects: state.projects.map(project => {
+      const normalizedProject = {
+        ...project,
+        site_visit_status: project.site_visit_status || 'Needs scheduling',
+        utility_review_status: project.utility_review_status || 'Needs confirmation',
+        sewer_confirmation_status: project.sewer_confirmation_status || 'Needs sewer confirmation study',
+        setbacks_site_plan_status: project.setbacks_site_plan_status || 'Needs site plan',
+      };
+      return { ...normalizedProject, readiness_label: getReadinessLabel(normalizedProject) };
+    }),
+  };
 }
 
 function starterState() {
@@ -148,23 +166,23 @@ async function ensureStore() {
 async function loadCommandCenter() {
   await ensureStore();
   const raw = await fs.readFile(storePath, 'utf8');
-  return JSON.parse(raw);
+  return withProjectReadiness(JSON.parse(raw));
 }
 
 async function saveCommandCenter(nextState) {
   const current = await loadCommandCenter();
-  const saved = {
+  const saved = withProjectReadiness({
     ...current,
     ...nextState,
     version: 'Version 10',
     updated_at: nowIso(),
-  };
+  });
   await fs.writeFile(storePath, JSON.stringify(saved, null, 2));
   return saved;
 }
 
 async function resetCommandCenter() {
-  const reset = starterState();
+  const reset = withProjectReadiness(starterState());
   await fs.mkdir(path.dirname(storePath), { recursive: true });
   await fs.writeFile(storePath, JSON.stringify(reset, null, 2));
   return reset;

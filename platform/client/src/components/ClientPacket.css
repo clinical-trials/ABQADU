@@ -1,0 +1,342 @@
+body.client-packet-open {
+  overflow: hidden;
+}
+
+.client-packet-overlay,
+.client-packet-overlay * {
+  box-sizing: border-box;
+}
+
+.client-packet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.75rem;
+  background: rgba(28, 38, 32, 0.78);
+  color: #1c1917;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.client-packet-dialog {
+  width: 100%;
+  max-width: 54rem;
+  margin: 0 auto;
+  overflow-wrap: anywhere;
+  background: #faf7f2;
+  border-radius: 0.625rem;
+  box-shadow: 0 1.5rem 5rem rgba(0, 0, 0, 0.25);
+}
+
+.client-packet-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e7e0d5;
+}
+
+.client-packet-toolbar p {
+  display: none;
+  margin: 0;
+  font-size: 0.875rem;
+  color: #57534e;
+}
+
+.client-packet-button {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #d8d0c2;
+  border-radius: 0.375rem;
+  background: #fff;
+  color: #1c1917;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.client-packet-print {
+  border-color: #3d5247;
+  background: #3d5247;
+  color: #fff;
+}
+
+.client-packet-button:hover {
+  filter: brightness(0.94);
+}
+
+.client-packet-button:focus-visible {
+  outline: 3px solid #a16e24;
+  outline-offset: 3px;
+}
+
+.client-packet-document {
+  padding: 1.5rem 1rem;
+  border-top: 0.3rem solid #c4954a;
+}
+
+.client-packet-header {
+  display: grid;
+  gap: 1.25rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #d8d0c2;
+}
+
+.client-packet-brand {
+  margin: 0;
+  color: #3d5247;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.client-packet-tagline,
+.client-packet-header address {
+  font-size: 0.875rem;
+  color: #57534e;
+}
+
+.client-packet-tagline {
+  margin: 0.625rem 0 0;
+}
+
+.client-packet-header address {
+  font-style: normal;
+}
+
+.client-packet-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.client-packet-title-row > div {
+  min-width: 0;
+  flex: 1 1 14rem;
+}
+
+.client-packet-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #3d5247;
+}
+
+.client-packet-document h1 {
+  margin: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.875rem, 5vw, 2.75rem);
+  line-height: 1.1;
+}
+
+.client-packet-date {
+  margin: 0.625rem 0 0;
+  color: #57534e;
+  font-size: 0.875rem;
+}
+
+.client-packet-status {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid #c4954a;
+  border-radius: 999px;
+  color: #6d4b1a;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.client-packet-intro {
+  max-width: 65ch;
+  margin: 1.25rem 0;
+  color: #57534e;
+  font-size: 0.875rem;
+}
+
+.client-packet-project {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid #d8d0c2;
+  border-radius: 0.375rem;
+  background: #fff;
+}
+
+.client-packet-project dl {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.client-packet-project dt,
+.client-packet-total > span {
+  color: #57534e;
+  font-size: 0.875rem;
+}
+
+.client-packet-project dd {
+  margin: 0.125rem 0 0;
+  font-weight: 700;
+}
+
+.client-packet-project dd span {
+  font-weight: 400;
+}
+
+.client-packet-total {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  min-width: 0;
+  padding-top: 1rem;
+  border-top: 1px solid #e7e0d5;
+}
+
+.client-packet-total strong {
+  color: #3d5247;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.75rem;
+  line-height: 1.1;
+}
+
+.client-packet-schedule {
+  margin-top: 1.75rem;
+}
+
+.client-packet-document h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.client-packet-section-note {
+  margin: 0.3rem 0 0.875rem;
+  color: #57534e;
+  font-size: 0.875rem;
+}
+
+.client-packet-stages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #d8d0c2;
+}
+
+.client-packet-stage {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: 0.3rem 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e7e0d5;
+  break-inside: avoid;
+}
+
+.client-packet-stage-number {
+  color: #80602e;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.client-packet-stage h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.client-packet-stage p {
+  margin: 0.3rem 0;
+  font-size: 0.875rem;
+  color: #57534e;
+}
+
+.client-packet-stage-status {
+  color: #6d4b1a;
+  font-size: 0.875rem;
+}
+
+.client-packet-stage-amount {
+  grid-column: 2;
+  color: #3d5247;
+  font-size: 1.125rem;
+}
+
+.client-packet-review {
+  margin-top: 1.5rem;
+  padding: 1rem 1.125rem;
+  border-left: 3px solid #c4954a;
+  background: #f0ebe1;
+  break-inside: avoid;
+}
+
+.client-packet-review p {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+}
+
+.client-packet-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #d8d0c2;
+  color: #57534e;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 840px) {
+  .client-packet-overlay { padding: 2rem; }
+  .client-packet-toolbar { padding: 1rem 1.5rem; }
+  .client-packet-toolbar p { display: block; }
+  .client-packet-document { padding: 2.5rem; }
+  .client-packet-header { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; }
+  .client-packet-header address { max-width: 17rem; justify-self: end; text-align: right; }
+  .client-packet-project { grid-template-columns: minmax(0, 1fr) minmax(0, 0.75fr); }
+  .client-packet-total { padding: 0 0 0 1.5rem; border-top: 0; border-left: 1px solid #e7e0d5; }
+  .client-packet-stage { grid-template-columns: 1.75rem minmax(0, 1fr) minmax(5rem, auto); }
+  .client-packet-stage-amount { grid-column: 3; align-self: start; text-align: right; }
+}
+
+@media print {
+  @page { margin: 0.55in; }
+
+  body.client-packet-open { margin: 0 !important; overflow: visible !important; background: #fff !important; }
+  body.client-packet-open > :not(.client-packet-overlay) { display: none !important; }
+  body.client-packet-open .command-center-workspace { display: none !important; }
+  .client-packet-overlay { position: static; display: block; overflow: visible; padding: 0; background: #fff; color: #1c1917; }
+  .client-packet-dialog { max-width: none; margin: 0; border-radius: 0; box-shadow: none; background: #fff; }
+  .client-packet-toolbar { display: none !important; }
+  .client-packet-document { padding: 0.2in 0 0; font-size: 10pt; }
+  .client-packet-header { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; padding-bottom: 0.15in; }
+  .client-packet-header address { max-width: 2.6in; justify-self: end; text-align: right; }
+  .client-packet-brand { font-size: 26pt; }
+  .client-packet-tagline, .client-packet-header address, .client-packet-eyebrow, .client-packet-date,
+  .client-packet-status, .client-packet-intro, .client-packet-project dt, .client-packet-total > span,
+  .client-packet-section-note, .client-packet-stage-number, .client-packet-stage p,
+  .client-packet-stage-status, .client-packet-review p, .client-packet-footer { font-size: 9pt; }
+  .client-packet-title-row { margin-top: 0.2in; }
+  .client-packet-document h1 { font-size: 25pt; }
+  .client-packet-intro { margin: 0.1in 0 0.15in; }
+  .client-packet-project { grid-template-columns: minmax(0, 1fr) minmax(0, 0.75fr); gap: 1rem; padding: 0.15in; break-inside: avoid; }
+  .client-packet-project dl { gap: 0.1in; }
+  .client-packet-total { padding: 0 0 0 0.15in; border-top: 0; border-left: 1px solid #e7e0d5; }
+  .client-packet-total strong { font-size: 28pt; }
+  .client-packet-schedule { margin-top: 0.2in; }
+  .client-packet-document h2 { font-size: 12pt; break-after: avoid; }
+  .client-packet-section-note { margin-bottom: 0.1in; break-after: avoid; }
+  .client-packet-stage { grid-template-columns: 1.5rem minmax(0, 1fr) minmax(0, auto); gap: 0.2rem 0.5rem; padding: 0.1in 0; }
+  .client-packet-stage h3 { font-size: 10pt; }
+  .client-packet-stage-amount { grid-column: 3; align-self: start; text-align: right; font-size: 11pt; }
+  .client-packet-review { margin-top: 0.15in; padding: 0.1in 0.15in; }
+  .client-packet-footer { margin-top: 0.2in; padding-top: 0.1in; }
+}
