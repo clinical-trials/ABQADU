@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const router = require('../asyncRouter')();
 const { pool } = require('../db');
 const { runCPM } = require('../services/cpm');
 const { recalcProject } = require('../services/scheduleRecalc');

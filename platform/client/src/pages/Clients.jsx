@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { requestJson } from '../utils/api';
+import useApiList from '../hooks/useApiList';
+import useApiAction from '../hooks/useApiAction';
+import ApiError from '../components/ApiError';
 
 const STATUS_COLORS = {
   lead:   { bg: '#FEF3C7', fg: '#92400E' },
@@ -13,31 +17,29 @@ const input = {
 };
 
 export default function Clients() {
-  const [clients, setClients] = useState([]);
+  const { data: clients, loading, error, reload: load } = useApiList('/api/clients');
+  const { run, pending, error: actionError } = useApiAction();
   const [adding, setAdding]   = useState(false);
   const [form, setForm]       = useState({ name: '', email: '', phone: '', address: '', lead_source: '', status: 'lead' });
 
-  const load = () => fetch('/api/clients').then(r => r.json()).then(setClients);
-  useEffect(() => { load(); }, []);
-
-  const save = async () => {
+  const save = () => run(async () => {
     if (!form.name) return;
-    await fetch('/api/clients', {
+    await requestJson('/api/clients', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
     setAdding(false);
     setForm({ name: '', email: '', phone: '', address: '', lead_source: '', status: 'lead' });
-    load();
-  };
+    await load();
+  });
 
-  const updateStatus = async (id, status) => {
-    await fetch(`/api/clients/${id}`, {
+  const updateStatus = (id, status) => run(async () => {
+    await requestJson(`/api/clients/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     });
-    load();
-  };
+    await load();
+  });
 
   return (
     <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#FAF7F2', minHeight: '100vh' }}>
@@ -52,6 +54,9 @@ export default function Clients() {
       </div>
 
       <div style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
+        <ApiError message={error} onRetry={load} />
+        <ApiError message={actionError} />
+        {loading && <p role="status">Loading clients…</p>}
         {adding && (
           <div style={{ background: '#FFF', border: '1px solid #E7E0D5', borderRadius: 8, padding: 20, marginBottom: 16 }}>
             <div style={{ fontWeight: 700, marginBottom: 14 }}>New Client / Lead</div>
@@ -63,7 +68,7 @@ export default function Clients() {
             </div>
             <input style={input} placeholder="Property address" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
             <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-              <button onClick={save} style={{ background: '#3D5247', color: '#FFF', border: 'none', borderRadius: 4, padding: '8px 18px', fontSize: 13, cursor: 'pointer' }}>Save</button>
+              <button onClick={save} disabled={pending} style={{ background: '#3D5247', color: '#FFF', border: 'none', borderRadius: 4, padding: '8px 18px', fontSize: 13, cursor: 'pointer' }}>Save</button>
               <button onClick={() => setAdding(false)} style={{ border: '1px solid #E7E0D5', borderRadius: 4, padding: '8px 14px', fontSize: 13, cursor: 'pointer', background: '#FFF' }}>Cancel</button>
             </div>
           </div>
@@ -91,7 +96,7 @@ export default function Clients() {
                 <td style={{ padding: '12px', color: '#78716C' }}>{c.lead_source || '—'}</td>
                 <td style={{ padding: '12px', color: '#78716C' }}>{c.bid_count || 0}</td>
                 <td style={{ padding: '12px' }}>
-                  <select value={c.status} onChange={e => updateStatus(c.id, e.target.value)}
+                  <select disabled={pending} value={c.status} onChange={e => updateStatus(c.id, e.target.value)}
                     style={{ padding: '4px 8px', border: '1px solid #E7E0D5', borderRadius: 4, fontSize: 12, fontWeight: 600,
                       background: (STATUS_COLORS[c.status] || {}).bg, color: (STATUS_COLORS[c.status] || {}).fg }}>
                     {['lead', 'active', 'won', 'lost'].map(s => <option key={s} value={s}>{s}</option>)}
@@ -99,7 +104,7 @@ export default function Clients() {
                 </td>
               </tr>
             ))}
-            {!clients.length && (
+            {!loading && !error && !clients.length && (
               <tr><td colSpan={5} style={{ padding: 32, textAlign: 'center', color: '#A8A29E' }}>No clients yet — add your first lead.</td></tr>
             )}
           </tbody>

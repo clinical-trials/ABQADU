@@ -3,11 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const errorHandler = require('./errorHandler');
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 
+app.use('/api/projects',     require('./routes/projects'));
 app.use('/api/wbs',          require('./routes/wbs'));
 app.use('/api/activities',   require('./routes/activities'));
 app.use('/api/dependencies', require('./routes/dependencies'));
@@ -33,6 +35,7 @@ app.use('/api/integrations', require('./routes/productionIntegrations'));
 app.use('/api/weather', require('./routes/weather'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
+app.use('/api', (_req, res) => res.status(404).json({ error: 'API endpoint not found' }));
 
 // Serve the built React client so the whole platform runs on one port.
 // (Falls through when no build exists yet, e.g. API-only dev.)
@@ -45,7 +48,11 @@ if (fs.existsSync(clientBuild)) {
   });
 }
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`ABQ ADU server on :${PORT}`));
+app.use(errorHandler);
+
+if (require.main === module) {
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, process.env.HOST || '0.0.0.0', () => console.log(`ABQ ADU server on :${PORT}`));
+}
 
 module.exports = app;

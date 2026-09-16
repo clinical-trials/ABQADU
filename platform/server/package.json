@@ -6,6 +6,7 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "jest --runInBand",
+    "doctor": "node scripts/doctor.js",
     "migrate": "node src/migrations/run.js"
   },
   "dependencies": {

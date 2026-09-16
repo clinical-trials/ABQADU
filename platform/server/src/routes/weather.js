@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const router = require('../asyncRouter')();
 const { fetchWttrForecast } = require('../services/weatherIntelligence');
 const { loadCommandCenter, saveCommandCenter } = require('../services/commandCenterStore');
 const { createCrewMessagesFromForecast } = require('../services/crewMessageEngine');

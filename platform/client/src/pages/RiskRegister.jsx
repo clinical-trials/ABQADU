@@ -1,36 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import RiskMatrix from '../components/risk/RiskMatrix';
+import { requestJson } from '../utils/api';
+import useApiList from '../hooks/useApiList';
+import useApiAction from '../hooks/useApiAction';
+import ApiError from '../components/ApiError';
 
 const CATEGORIES = ['schedule','cost','safety','weather','permit','subcontractor'];
 const STATUS_COLORS = { open: '#FEE2E2', mitigated: '#FEF3C7', closed: '#D1FAE5', realized: '#F3F4F6' };
 
 export default function RiskRegister({ projectId }) {
-  const [risks, setRisks]     = useState([]);
+  const { data: risks, loading, error, reload: load } = useApiList(projectId ? `/api/risks/${projectId}` : null);
+  const { run, pending, error: actionError } = useApiAction();
   const [form, setForm]       = useState({ title:'', category:'schedule', probability:3, impact:3 });
   const [adding, setAdding]   = useState(false);
 
-  const load = () =>
-    fetch(`/api/risks/${projectId}`).then(r => r.json()).then(setRisks);
-
-  useEffect(() => { load(); }, [projectId]);
-
-  const save = async () => {
-    await fetch('/api/risks', {
+  const save = () => run(async () => {
+    if (!form.title.trim() || !projectId) return;
+    await requestJson('/api/risks', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, project_id: projectId }),
     });
     setAdding(false);
     setForm({ title:'', category:'schedule', probability:3, impact:3 });
-    load();
-  };
+    await load();
+  });
 
-  const updateStatus = async (id, status) => {
-    await fetch(`/api/risks/${id}`, {
+  const updateStatus = (id, status) => run(async () => {
+    await requestJson(`/api/risks/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     });
-    load();
-  };
+    await load();
+  });
 
   return (
     <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#FAF7F2', minHeight: '100vh' }}>
@@ -45,6 +46,9 @@ export default function RiskRegister({ projectId }) {
         </button>
       </div>
 
+      <ApiError message={error} onRetry={load} />
+      <ApiError message={actionError} />
+      {loading && <p role="status">Loading risks…</p>}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 0 }}>
         {/* Risk table */}
         <div style={{ padding: 24 }}>
@@ -74,7 +78,7 @@ export default function RiskRegister({ projectId }) {
                 </select>
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                <button onClick={save}
+                <button onClick={save} disabled={pending}
                   style={{ background: '#3D5247', color: '#FFF', border: 'none',
                     borderRadius: 4, padding: '8px 18px', fontSize: 13, cursor: 'pointer' }}>
                   Save
@@ -114,7 +118,7 @@ export default function RiskRegister({ projectId }) {
                     </span>
                   </td>
                   <td style={{ padding: '10px 12px' }}>
-                    <select value={r.status}
+                    <select value={r.status} disabled={pending}
                       onChange={e => updateStatus(r.id, e.target.value)}
                       style={{ padding: '4px 6px', border: '1px solid #E7E0D5',
                         borderRadius: 4, fontSize: 12,

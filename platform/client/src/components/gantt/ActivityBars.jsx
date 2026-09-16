@@ -6,11 +6,11 @@ const BAR_Y_OFF = (ROW_HEIGHT - BAR_H) / 2;
 const BL_H      = 6;
 const BL_Y_OFF  = ROW_HEIGHT - 8;
 
-export default function ActivityBars({ activities, xFromDate, totalWidth, onDrop, onSelect, selected }) {
+export default function ActivityBars({ activities, xFromDate, totalWidth, onDrop, onSelect, selected, disabled }) {
   const dragging = useRef(null);
 
   const handleMouseDown = useCallback((e, activity) => {
-    if (!activity.planned_start) return;
+    if (disabled || !activity.planned_start) return;
     dragging.current = {
       activityId: activity.id,
       startX: e.clientX,
@@ -34,7 +34,7 @@ export default function ActivityBars({ activities, xFromDate, totalWidth, onDrop
     };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
-  }, [xFromDate, onDrop]);
+  }, [xFromDate, onDrop, disabled]);
 
   return (
     <svg width={totalWidth} height={activities.length * ROW_HEIGHT} style={{ display: 'block' }}>
@@ -53,7 +53,7 @@ export default function ActivityBars({ activities, xFromDate, totalWidth, onDrop
         const strokeColor = isSelected ? '#C4954A' : 'transparent';
 
         return (
-          <g key={a.id} style={{ cursor: 'ew-resize' }}
+          <g key={a.id} style={{ cursor: disabled ? 'wait' : 'ew-resize' }}
             onMouseDown={e => handleMouseDown(e, a)}
             onClick={() => onSelect(a.id)}
           >

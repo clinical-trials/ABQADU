@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { requestJson, requestList, requestPdf } from '../utils/api';
+import useApiList from '../hooks/useApiList';
+import useApiAction from '../hooks/useApiAction';
+import ApiError from '../components/ApiError';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -13,31 +17,36 @@ function computeTotals(items, bid) {
 
 const cell = { padding: '6px 8px', border: '1px solid #E7E0D5', borderRadius: 4, fontSize: 13, fontFamily: 'inherit', width: '100%' };
 
+function checkedBid(value) {
+  if (!value?.id || !Array.isArray(value.items) || value.items.some(item => !item || typeof item !== 'object')) {
+    throw new Error('The server returned an invalid bid. Your current entries are unchanged. Please try again.');
+  }
+  return value;
+}
+
 export default function BidBuilder() {
-  const [bids, setBids]       = useState([]);
-  const [clients, setClients] = useState([]);
+  const bidList = useApiList('/api/bids');
+  const clientList = useApiList('/api/clients');
+  const bids = bidList.data;
+  const clients = clientList.data;
+  const loadBids = bidList.reload;
   const [active, setActive]   = useState(null);   // full bid object being edited
-  const [saving, setSaving]   = useState(false);
+  const [notice, setNotice] = useState('');
+  const { run, pending: saving, error: actionError } = useApiAction();
+  const runAction = action => run(async () => { setNotice(''); return action(); });
 
-  const loadBids = () => fetch('/api/bids').then(r => r.json()).then(setBids);
-  useEffect(() => {
-    loadBids();
-    fetch('/api/clients').then(r => r.json()).then(setClients);
-  }, []);
+  const openBid = id => runAction(async () => {
+    setActive(checkedBid(await requestJson(`/api/bids/${id}`)));
+  });
 
-  const openBid = async (id) => {
-    const bid = await fetch(`/api/bids/${id}`).then(r => r.json());
-    setActive(bid);
-  };
-
-  const newBid = async () => {
-    const bid = await fetch('/api/bids', {
+  const newBid = () => runAction(async () => {
+    const bid = checkedBid(await requestJson('/api/bids', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'ADU Estimate', items: [] }),
-    }).then(r => r.json());
-    loadBids();
+    }));
     setActive(bid);
-  };
+    await loadBids();
+  });
 
   const updateField = (k, v) => setActive(a => ({ ...a, [k]: v }));
   const updateItem = (idx, k, v) => setActive(a => ({
@@ -48,9 +57,8 @@ export default function BidBuilder() {
   }));
   const removeItem = (idx) => setActive(a => ({ ...a, items: a.items.filter((_, i) => i !== idx) }));
 
-  const save = async () => {
-    setSaving(true);
-    const updated = await fetch(`/api/bids/${active.id}`, {
+  const persistActive = async () => {
+    const updated = checkedBid(await requestJson(`/api/bids/${active.id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: active.title, status: active.status, client_id: active.client_id,
@@ -58,47 +66,44 @@ export default function BidBuilder() {
         contingency_pct: active.contingency_pct, notes: active.notes,
         valid_until: active.valid_until, items: active.items,
       }),
-    }).then(r => r.json());
+    }));
     setActive(updated);
-    loadBids();
-    setSaving(false);
+    await loadBids();
+    return updated;
   };
+  const save = () => runAction(async () => { await persistActive(); setNotice('Bid saved.'); });
 
-  const downloadPdf = async () => {
-    await save();
-    const res = await fetch(`/api/bids/${active.id}/pdf`, { method: 'POST' });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `${active.bid_number}.pdf`; a.click();
-    URL.revokeObjectURL(url);
-  };
+  const downloadPdf = () => runAction(async () => {
+    const saved = await persistActive();
+    await requestPdf(`/api/bids/${saved.id}/pdf`, { method: 'POST' }, `${saved.bid_number}.pdf`);
+  });
 
-  const generateInvoices = async () => {
-    await save();
-    await fetch(`/api/invoices/from-bid/${active.id}`, { method: 'POST' });
-    await fetch(`/api/bids/${active.id}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'accepted' }),
-    });
-    alert('Draw schedule created — see the Invoices tab.');
-    openBid(active.id);
-    loadBids();
-  };
-
-  const createInvoiceShelfEstimate = async () => {
-    if (!active?.id) return;
-    await save();
-    const res = await fetch(`/api/invoice-engine/bids/${active.id}/estimate`, { method: 'POST' });
-    const payload = await res.json();
-    if (!res.ok) {
-      alert(payload.error || 'InvoiceShelf estimate sync failed');
-      return;
+  const generateInvoices = () => runAction(async () => {
+    const saved = await persistActive();
+    const invoices = await requestList(`/api/invoices/from-bid/${saved.id}`, { method: 'POST' });
+    if (!invoices.length) throw new Error('No draw invoices were returned. Check Invoices before trying again.');
+    try {
+      const updated = checkedBid(await requestJson(`/api/bids/${saved.id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'accepted' }),
+      }));
+      setActive(updated);
+    } catch (error) {
+      throw new Error(`Draw invoices were created, but the bid status could not be updated. Check Invoices before creating another draw schedule. ${error.message}`);
     }
-    alert(`InvoiceShelf estimate created: ${payload.invoiceshelf_estimate_id}`);
-    openBid(active.id);
-    loadBids();
-  };
+    setNotice('Draw schedule created — see the Invoices tab.');
+    await loadBids();
+  });
+
+  const createInvoiceShelfEstimate = () => runAction(async () => {
+    if (!active?.id) return;
+    const saved = await persistActive();
+    const payload = await requestJson(`/api/invoice-engine/bids/${saved.id}/estimate`, { method: 'POST' });
+    if (!payload?.invoiceshelf_estimate_id) throw new Error('InvoiceShelf did not confirm an estimate. Check its status before trying again.');
+    setNotice(`InvoiceShelf estimate created: ${payload.invoiceshelf_estimate_id}`);
+    setActive(checkedBid(await requestJson(`/api/bids/${saved.id}`)));
+    await loadBids();
+  });
 
   const totals = active ? computeTotals(active.items, active) : null;
 
@@ -108,17 +113,22 @@ export default function BidBuilder() {
         <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 28, letterSpacing: '.02em', margin: 0 }}>
           Bids &amp; Estimates
         </h1>
-        <button onClick={newBid}
+        <button onClick={newBid} disabled={saving}
           style={{ marginLeft: 'auto', background: '#C4954A', color: '#FFF', border: 'none', borderRadius: 4, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           + New Bid
         </button>
       </div>
 
+      <ApiError message={bidList.error} onRetry={loadBids} />
+      <ApiError message={clientList.error} onRetry={clientList.reload} />
+      <ApiError message={actionError} />
+      {notice && <p role="status" style={{ padding: '0 24px' }}>{notice}</p>}
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', minHeight: 'calc(100vh - 68px)' }}>
         {/* Bid list */}
         <div style={{ borderRight: '1px solid #E7E0D5', background: '#FFF', padding: 12 }}>
+          {bidList.loading && <p role="status">Loading bids…</p>}
           {bids.map(b => (
-            <div key={b.id} onClick={() => openBid(b.id)}
+            <div key={b.id} onClick={() => { if (!saving) openBid(b.id); }}
               style={{ padding: '12px 14px', borderRadius: 6, cursor: 'pointer', marginBottom: 6,
                 background: active?.id === b.id ? '#F5F0E8' : 'transparent',
                 border: active?.id === b.id ? '1px solid #C4954A' : '1px solid transparent' }}>
@@ -132,7 +142,7 @@ export default function BidBuilder() {
               </span>
             </div>
           ))}
-          {!bids.length && <div style={{ padding: 20, textAlign: 'center', color: '#A8A29E', fontSize: 13 }}>No bids yet</div>}
+          {!bidList.loading && !bidList.error && !bids.length && <div style={{ padding: 20, textAlign: 'center', color: '#A8A29E', fontSize: 13 }}>No bids yet</div>}
         </div>
 
         {/* Bid editor */}
@@ -140,7 +150,7 @@ export default function BidBuilder() {
           {!active ? (
             <div style={{ color: '#A8A29E', textAlign: 'center', marginTop: 80 }}>Select or create a bid to begin.</div>
           ) : (
-            <>
+            <fieldset disabled={saving} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap' }}>
                 <input value={active.title} onChange={e => updateField('title', e.target.value)}
                   style={{ ...cell, fontSize: 18, fontWeight: 700, flex: 1, minWidth: 240 }} />
@@ -221,7 +231,7 @@ export default function BidBuilder() {
                   Accept &amp; Create Draw Schedule →
                 </button>
               </div>
-            </>
+            </fieldset>
           )}
         </div>
       </div>

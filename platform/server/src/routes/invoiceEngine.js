@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const router = require('../asyncRouter')();
 const { pool } = require('../db');
 const { computeBidTotals } = require('../services/bidCalc');
 const { makeInvoiceShelfClient } = require('../services/invoiceShelfClient');

@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const router = require('../asyncRouter')();
 const puppeteer = require('puppeteer');
 const { pool } = require('../db');
 const { computeBidTotals, bomToLineItems } = require('../services/bidCalc');

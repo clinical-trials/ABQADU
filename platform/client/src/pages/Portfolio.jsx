@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import useApiList from '../hooks/useApiList';
+import ApiError from '../components/ApiError';
 
 const HEALTH_CONFIG = {
   on_schedule: { label: 'On Schedule', bg: '#D1FAE5', color: '#065F46' },
@@ -7,14 +9,7 @@ const HEALTH_CONFIG = {
 };
 
 export default function Portfolio() {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading]   = useState(true);
-
-  useEffect(() => {
-    fetch('/api/portfolio')
-      .then(r => r.json())
-      .then(data => { setProjects(data); setLoading(false); });
-  }, []);
+  const { data: projects, loading, error, reload } = useApiList('/api/portfolio');
 
   if (loading) return (
     <div style={{ padding: 40, fontFamily: 'DM Sans, sans-serif', color: '#78716C' }}>
@@ -37,6 +32,8 @@ export default function Portfolio() {
           ABQ ADU · Portfolio
         </h1>
       </div>
+
+      <ApiError message={error} onRetry={reload} />
 
       {/* KPI strip */}
       <div style={{ display: 'flex', gap: 16, padding: '20px 32px',
@@ -72,6 +69,11 @@ export default function Portfolio() {
                 <div style={{ fontSize: 11, color: '#78716C', marginTop: 2 }}>
                   {p.project_start} → {p.planned_finish} · {p.total_activities} activities
                 </div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12 }}>
+                  <a href={`/schedule/${p.id}`}>Schedule</a>
+                  <a href={`/field/${p.id}`}>Field operations</a>
+                  <a href={`/risks/${p.id}`}>Risks</a>
+                </div>
               </div>
 
               {/* Progress bar */}
@@ -101,9 +103,10 @@ export default function Portfolio() {
           );
         })}
 
-        {!projects.length && (
+        {!error && !projects.length && (
           <div style={{ textAlign: 'center', color: '#A8A29E', padding: 48, fontSize: 14 }}>
             No active projects yet.
+            <div style={{ marginTop: 12 }}><a href="/schedule">Create or manage a project</a></div>
           </div>
         )}
       </div>

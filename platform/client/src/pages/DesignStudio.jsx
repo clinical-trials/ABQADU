@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DesignCanvas from '../components/design/DesignCanvas';
 import RoomPalette from '../components/design/RoomPalette';
@@ -6,6 +6,7 @@ import RoomProperties from '../components/design/RoomProperties';
 import TemplatePicker from '../components/design/TemplatePicker';
 import ConstraintsPanel from '../components/design/ConstraintsPanel';
 import useDesignState from '../components/design/useDesignState';
+import { requestJson } from '../utils/api';
 
 const S = {
   page: {
@@ -59,8 +60,13 @@ export default function DesignStudio() {
 
   const [showPicker, setShowPicker] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
+  const [saveError, setSaveError] = useState('');
+  const [saving, setSaving] = useState(false);
   const [designId, setDesignId] = useState(null);
   const [templateName, setTemplateName] = useState('');
+  const currentRooms = useRef(rooms);
+  currentRooms.current = rooms;
+  useEffect(() => { setSaveStatus(''); }, [rooms]);
 
   const selectedRoom = rooms.find(r => r.id === selectedId) || null;
 
@@ -71,6 +77,8 @@ export default function DesignStudio() {
   }
 
   async function handleSave() {
+    if (saving) return;
+    setSaving(true); setSaveError('');
     setSaveStatus('Saving…');
     try {
       const payload = {
@@ -80,22 +88,20 @@ export default function DesignStudio() {
       };
       const url = designId ? `/api/designs/${designId}` : '/api/designs';
       const method = designId ? 'PUT' : 'POST';
-      const res = await fetch(url, {
+      const data = await requestJson(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setDesignId(data.id);
-        setSaveStatus('Saved ✓');
-      } else {
-        setSaveStatus('Error');
-      }
-    } catch {
-      setSaveStatus('Error');
+      if (!data?.id) throw new Error('The server did not confirm this design was saved.');
+      setDesignId(data.id);
+      setSaveStatus(currentRooms.current === rooms ? 'Saved ✓' : 'Save Latest Changes');
+    } catch (error) {
+      setSaveStatus('Retry Save');
+      setSaveError(error.message);
+    } finally {
+      setSaving(false);
     }
-    setTimeout(() => setSaveStatus(''), 2500);
   }
 
   return (
@@ -119,10 +125,12 @@ export default function DesignStudio() {
           Scroll to zoom · Drag rooms to move
         </span>
         <button style={S.outlineBtn} onClick={() => setShowPicker(true)}>Templates</button>
-        <button style={S.saveBtn} onClick={handleSave}>
+        <button disabled={saving} style={S.saveBtn} onClick={handleSave}>
           {saveStatus || 'Save Design'}
         </button>
       </div>
+
+      {saveError && <p role="alert" style={{color:'#fecaca',padding:'0 20px'}}>Design not saved: {saveError} Your current canvas is still here.</p>}
 
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
         <div style={S.body}>

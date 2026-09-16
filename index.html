@@ -2202,6 +2202,10 @@ h2 em { font-style: normal; color: var(--terra); }
   white-space: nowrap;
 }
 
+.draft-status { white-space: normal; line-height: 1.5; }
+.design-draft-status { margin: 16px 0; padding: 12px; border: 1px solid var(--copper); border-radius: 6px; font-size: 14px; line-height: 1.5; }
+.design-draft-status[hidden] { display: none; }
+
 .wizard-step-status {
   background: rgba(196,149,74,.12);
   border: 1px solid rgba(196,149,74,.26);
@@ -4293,6 +4297,29 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .form-submit:hover { background: #a04d2e; }
+
+.assessment-help { font-size: 13px; line-height: 1.5; }
+.assessment-result { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(196,149,74,.4); }
+.assessment-result[hidden] { display: none; }
+.assessment-result h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 25px; margin-bottom: 10px; }
+.assessment-result textarea { width: 100%; min-height: 220px; resize: vertical; }
+.assessment-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.assessment-actions a,
+.assessment-actions button {
+  border: 1px solid var(--copper);
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--charcoal);
+  padding: 12px 15px;
+  min-height: 44px;
+  font: inherit;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.assessment-actions a:first-child { background: var(--terra); color: var(--white); border-color: var(--terra); }
+.assessment-actions a:focus-visible,
+.assessment-actions button:focus-visible { outline: 3px solid var(--copper); outline-offset: 3px; }
 
 /* ─── Testimonials ────────────────────────────────────────── */
 .testimonials-section { background: var(--stucco); }
@@ -6558,7 +6585,7 @@ footer {
               <div class="wizard-progress-track" aria-hidden="true"><span class="wizard-progress-fill" id="adu-progress-fill"></span></div>
               <div class="wizard-progress-meta">
                 <div class="wizard-step-helper" id="adu-step-helper">Choose one step, then tap Next. Drafts save automatically.</div>
-                <div class="draft-status" id="adu-draft-status">Draft ready</div>
+                <div class="draft-status" id="adu-draft-status" role="status">Draft ready</div>
               </div>
             </div>
             <div class="wizard-footer-actions">
@@ -6583,6 +6610,7 @@ footer {
       <button class="design-result-close" type="button" onclick="closeDesignResult()" aria-label="Close design summary">×</button>
     </div>
     <div id="design-result-body"></div>
+    <div class="design-draft-status" id="design-draft-status" role="status" hidden></div>
     <div class="design-send-status" id="design-send-status" data-state="idle" hidden></div>
     <div class="design-result-actions">
       <button class="print" type="button" onclick="printDesignSummary()">Print / Save PDF</button>
@@ -6636,6 +6664,8 @@ const ADU_NEXT_ACTIONS = [
 ];
 const ADU_DRAFT_KEY = 'abqadu_homeowner_design_draft';
 let ADU_DRAFT_TIMER = null;
+let ADU_MEMORY_DRAFT = null;
+let ADU_DRAFT_STORAGE_ISSUE = '';
 const ADU_DOOR_LAYOUTS = ['standard', 'glass-full-panel', 'solid-door', 'multi-pane-door'];
 const ADU_DOOR_LAYOUT_TO_OPTION = {
   standard: 'standard',
@@ -7612,11 +7642,63 @@ function jumpAduStep(step) {
 function updateAduDraftStatus(text) {
   const status = document.getElementById('adu-draft-status');
   if (status) status.textContent = text;
+  const resultStatus = document.getElementById('design-draft-status');
+  if (resultStatus) {
+    resultStatus.hidden = !ADU_DRAFT_STORAGE_ISSUE;
+    resultStatus.textContent = ADU_DRAFT_STORAGE_ISSUE ? text : '';
+  }
+}
+
+function temporaryAduDraftMessage() {
+  const reason = ADU_DRAFT_STORAGE_ISSUE === 'unreadable'
+    ? 'An unreadable saved draft was preserved.'
+    : 'Browser storage is unavailable or full; existing saved data is unchanged.';
+  return `This design is kept in this tab only. ${reason} Print or share it before closing this page.`;
+}
+
+function readAduStoredDraft() {
+  let raw;
+  try {
+    raw = localStorage.getItem(ADU_DRAFT_KEY);
+  } catch {
+    ADU_DRAFT_STORAGE_ISSUE = 'unavailable';
+    return null;
+  }
+  if (raw === null) return null;
+  try {
+    const draft = JSON.parse(raw);
+    const valid = draft && typeof draft === 'object' && !Array.isArray(draft)
+      && ADU_OPTIONS.model.some(option => option.id === draft.model)
+      && Object.keys(ADU_CONFIG).every(key => {
+        if (draft[key] === undefined) return true;
+        if (key === 'step') return Number.isInteger(draft.step) && draft.step >= 0 && draft.step < ADU_TOTAL_STEPS;
+        if (key === 'previewView') return ['exterior', 'interior'].includes(draft.previewView);
+        if (key === 'windowLayout') return ADU_DOOR_LAYOUTS.includes(draft.windowLayout);
+        return ADU_OPTIONS[key]?.some(option => option.id === draft[key]);
+      });
+    if (!valid) throw new Error('Unrecognized draft');
+    return draft;
+  } catch {
+    // Preserve the original value for recovery instead of replacing an unreadable draft.
+    ADU_DRAFT_STORAGE_ISSUE = 'unreadable';
+    return null;
+  }
 }
 
 function saveAduDraft() {
-  localStorage.setItem(ADU_DRAFT_KEY, JSON.stringify({ ...ADU_CONFIG, savedAt: new Date().toISOString() }));
-  updateAduDraftStatus(`Draft saved ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`);
+  clearTimeout(ADU_DRAFT_TIMER);
+  const stored = ADU_DRAFT_STORAGE_ISSUE ? null : readAduStoredDraft();
+  ADU_MEMORY_DRAFT = { ...(stored || ADU_MEMORY_DRAFT || {}), ...ADU_CONFIG, savedAt: new Date().toISOString() };
+  if (!ADU_DRAFT_STORAGE_ISSUE) {
+    try {
+      localStorage.setItem(ADU_DRAFT_KEY, JSON.stringify(ADU_MEMORY_DRAFT));
+    } catch {
+      ADU_DRAFT_STORAGE_ISSUE = 'unavailable';
+    }
+  }
+  updateAduDraftStatus(ADU_DRAFT_STORAGE_ISSUE
+    ? temporaryAduDraftMessage()
+    : `Draft saved ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`);
 }
 
 function scheduleAduDraftSave() {
@@ -7625,21 +7707,21 @@ function scheduleAduDraftSave() {
 }
 
 function restoreAduDraft() {
-  try {
-    const draft = JSON.parse(localStorage.getItem(ADU_DRAFT_KEY) || 'null');
-    if (!draft) return false;
-    Object.keys(ADU_CONFIG).forEach(key => {
-      if (draft[key] !== undefined) ADU_CONFIG[key] = draft[key];
-    });
-    updateAduDraftStatus('Draft restored');
-    return true;
-  } catch {
+  const draft = ADU_MEMORY_DRAFT || (ADU_DRAFT_STORAGE_ISSUE ? null : readAduStoredDraft());
+  if (!draft) {
+    if (ADU_DRAFT_STORAGE_ISSUE) updateAduDraftStatus(temporaryAduDraftMessage());
     return false;
   }
+  Object.keys(ADU_CONFIG).forEach(key => {
+    if (draft[key] !== undefined) ADU_CONFIG[key] = draft[key];
+  });
+  ADU_MEMORY_DRAFT = { ...draft };
+  updateAduDraftStatus(ADU_DRAFT_STORAGE_ISSUE ? temporaryAduDraftMessage() : 'Draft restored');
+  return true;
 }
 
 function resetAduDraft() {
-  localStorage.removeItem(ADU_DRAFT_KEY);
+  clearTimeout(ADU_DRAFT_TIMER);
   Object.assign(ADU_CONFIG, {
     step: 0,
     previewView: 'exterior',
@@ -7658,8 +7740,9 @@ function resetAduDraft() {
     utilities: 'panel-review',
     revenue: 'family',
   });
-  renderAduConfigurator();
-  updateAduDraftStatus('Draft reset');
+  renderAduConfigurator({ saveDraft: false });
+  saveAduDraft();
+  updateAduDraftStatus(ADU_DRAFT_STORAGE_ISSUE ? `Draft reset. ${temporaryAduDraftMessage()}` : 'Draft reset and saved');
 }
 
 function openAduDesignModal(restoreDraft = false) {
@@ -7682,7 +7765,7 @@ function closeAduDesignModal() {
   document.body.style.overflow = '';
 }
 
-function renderAduConfigurator() {
+function renderAduConfigurator({ saveDraft = true } = {}) {
   const wizard = document.getElementById('homeowner-configurator');
   if (wizard) wizard.classList.toggle('in-progress', ADU_CONFIG.step > 0);
   ['model', 'color', 'siding', 'roof', 'windows', 'orientation', 'outdoor', 'features', 'interior', 'kitchen', 'bath', 'utilities', 'revenue'].forEach(renderChoiceGroup);
@@ -7757,7 +7840,7 @@ function renderAduConfigurator() {
   renderAduChangeList('config-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   renderAduChangeList('review-change-list', { model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue });
   updateAduProgress();
-  scheduleAduDraftSave();
+  if (saveDraft) scheduleAduDraftSave();
 }
 
 function aduWizardNext() {
@@ -8131,7 +8214,8 @@ Object.assign(window, {
 });
 
 renderAduMatcher();
-renderAduConfigurator();
+restoreAduDraft();
+renderAduConfigurator({ saveDraft: false });
 
 const aduStage = document.getElementById('adu-3d-stage');
 const aduSlider = document.getElementById('adu-rotate-slider');
@@ -8398,7 +8482,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         </div>
       </div>
 
-      <div class="qualifier-cta-box">
+      <form class="qualifier-cta-box" id="assessment-form" aria-describedby="assessment-help">
         <h3>Get Your<br>Free Quote</h3>
         <p>Tell us about your property and your goals. We'll respond within one business day with a preliminary assessment and cost range — no obligation.</p>
         <p style="background:#F8F2E7;border:1px solid rgba(196,149,74,.32);border-radius:8px;color:#57534E;font-size:14px;line-height:1.5;margin:0 0 18px;padding:12px;">
@@ -8407,34 +8491,34 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         </p>
         <div class="form-row">
           <div class="form-field">
-            <label>First Name</label>
-            <input type="text" placeholder="Sarah">
+            <label for="assessment-first-name">First Name (required)</label>
+            <input id="assessment-first-name" name="firstName" type="text" placeholder="Sarah" autocomplete="given-name" required>
           </div>
           <div class="form-field">
-            <label>Last Name</label>
-            <input type="text" placeholder="Whitmore">
+            <label for="assessment-last-name">Last Name</label>
+            <input id="assessment-last-name" name="lastName" type="text" placeholder="Whitmore" autocomplete="family-name">
           </div>
         </div>
         <div class="form-row">
           <div class="form-field">
-            <label>Phone</label>
-            <input type="tel" placeholder="(505) 555-0100">
+            <label for="assessment-phone">Phone</label>
+            <input id="assessment-phone" name="phone" type="tel" placeholder="(505) 555-0100" autocomplete="tel" aria-describedby="assessment-help">
           </div>
           <div class="form-field">
-            <label>Email</label>
-            <input type="email" placeholder="sarah@example.com">
+            <label for="assessment-email">Email</label>
+            <input id="assessment-email" name="email" type="email" placeholder="sarah@example.com" autocomplete="email" aria-describedby="assessment-help">
           </div>
         </div>
         <div class="form-row">
           <div class="form-field form-full">
-            <label>Property Address</label>
-            <input type="text" placeholder="147 Elm Street, Albuquerque, NM">
+            <label for="assessment-address">Property Address</label>
+            <input id="assessment-address" name="address" type="text" placeholder="147 Elm Street, Albuquerque, NM" autocomplete="street-address">
           </div>
         </div>
         <div class="form-row">
           <div class="form-field">
-            <label>Model Interest</label>
-            <select>
+            <label for="assessment-model">Model Interest</label>
+            <select id="assessment-model" name="model">
               <option>Not sure yet</option>
               <option>Netherwood House (1BR, 440 sq ft)</option>
               <option>Netherwood House 2BR (550 sq ft)</option>
@@ -8444,8 +8528,8 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
             </select>
           </div>
           <div class="form-field">
-            <label>Intended Use</label>
-            <select>
+            <label for="assessment-use">Intended Use</label>
+            <select id="assessment-use" name="use">
               <option>In-law / family housing</option>
               <option>Rental income</option>
               <option>Home office</option>
@@ -8456,12 +8540,30 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         </div>
         <div class="form-row">
           <div class="form-field form-full">
-            <label>Anything else we should know?</label>
-            <textarea rows="3" placeholder="Lot size, existing structures, timeline, budget range..."></textarea>
+            <label for="assessment-notes">Anything else we should know?</label>
+            <textarea id="assessment-notes" name="notes" rows="3" placeholder="Lot size, existing structures, timeline, budget range..."></textarea>
           </div>
         </div>
-        <button class="form-submit">Request My Free Assessment</button>
-      </div>
+        <p class="assessment-help" id="assessment-help">Enter a phone number or email. Prepare your request, then review and send it by text. You can also copy or download it to share.</p>
+        <button class="form-submit" type="submit">Prepare My Assessment Request</button>
+        <noscript><p>To request an assessment, call <a href="tel:15059777659">(505) 977-7659</a>.</p></noscript>
+        <section class="assessment-result" id="assessment-result" aria-labelledby="assessment-result-heading" hidden>
+          <h4 id="assessment-result-heading" tabindex="-1">Review your assessment request</h4>
+          <p role="status">Your request is ready. It has not been sent. Open a text draft below, review it in your messaging app, and send it to ABQ ADU.</p>
+          <div class="form-field">
+            <label for="assessment-summary">Your request</label>
+            <textarea id="assessment-summary" rows="10" readonly></textarea>
+          </div>
+          <div class="assessment-actions">
+            <a id="assessment-text-link">Open Text Draft</a>
+            <button id="assessment-copy-button" type="button">Copy Request</button>
+            <a id="assessment-download-link" download="abq-adu-assessment-request.txt">Download Request</a>
+            <a href="tel:15059777659">Call the GC</a>
+          </div>
+          <p class="assessment-help" id="assessment-copy-status" role="status"></p>
+          <p class="assessment-help">If your device cannot open a text draft, copy or download the request, or call (505) 977-7659.</p>
+        </section>
+      </form>
     </div>
   </div>
 </section>
@@ -8530,31 +8632,31 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
     <div class="footer-col">
       <h4>Models</h4>
       <ul>
-        <li><a href="#">Netherwood House</a></li>
-        <li><a href="#">Netherwood House 2BR</a></li>
-        <li><a href="#">Altura</a></li>
-        <li><a href="#">750 Series</a></li>
-        <li><a href="#">Cromwell</a></li>
+        <li><a href="#design" onclick="designSpecificModel('hyder-hut'); return false;">Netherwood House</a></li>
+        <li><a href="#design" onclick="designSpecificModel('hyder-hut-2br'); return false;">Netherwood House 2BR</a></li>
+        <li><a href="#design" onclick="designSpecificModel('altura-24x24'); return false;">Altura</a></li>
+        <li><a href="#design" onclick="designSpecificModel('series-750'); return false;">750 Series</a></li>
+        <li><a href="#design" onclick="designSpecificModel('cromwell'); return false;">Cromwell</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Company</h4>
       <ul>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Gallery</a></li>
-        <li><a href="#">Process</a></li>
-        <li><a href="#">FAQ</a></li>
-        <li><a href="#">Blog</a></li>
+        <li><a href="#models">Our Models</a></li>
+        <li><a href="#process">Process</a></li>
+        <li><a href="#design">Design Studio</a></li>
+        <li><a href="#financing">Financing</a></li>
+        <li><a href="#quote">Contact</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Contractors</h4>
       <ul>
-        <li><a href="#">Join the Network</a></li>
-        <li><a href="#">Advertise</a></li>
-        <li><a href="#">Contractor Login</a></li>
-        <li><a href="#">Scheduling Tool</a></li>
-        <li><a href="#">Bid Platform</a></li>
+        <li><a href="#contractors">Join the Network</a></li>
+        <li><a href="#contractors">Advertise</a></li>
+        <li><a href="platform.html">Builder Platform</a></li>
+        <li><a href="platform.html#schedule">Scheduling Tool</a></li>
+        <li><a href="platform.html#bids">Bid Platform</a></li>
       </ul>
     </div>
   </div>
@@ -8566,6 +8668,66 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
 </footer>
 
 <script>
+const assessmentForm = document.getElementById('assessment-form');
+const assessmentResult = document.getElementById('assessment-result');
+const assessmentSummary = document.getElementById('assessment-summary');
+
+function validateAssessmentContact() {
+  const firstName = assessmentForm.elements.namedItem('firstName');
+  const phone = assessmentForm.elements.namedItem('phone');
+  const email = assessmentForm.elements.namedItem('email');
+  const phoneValue = phone.value.trim();
+  const digitCount = phoneValue.replace(/\D/g, '').length;
+  firstName.setCustomValidity(firstName.value.trim() ? '' : 'Enter your first name.');
+  phone.setCustomValidity(phoneValue && (!/^[+\d().\s-]+$/.test(phoneValue) || digitCount < 7 || digitCount > 15) ? 'Enter a complete phone number, or provide an email instead.' : '');
+  email.setCustomValidity(!phoneValue && !email.value.trim() ? 'Enter a phone number or email so we can reach you.' : '');
+}
+
+assessmentForm.addEventListener('input', () => {
+  validateAssessmentContact();
+  assessmentResult.hidden = true;
+});
+
+assessmentForm.addEventListener('submit', event => {
+  event.preventDefault();
+  validateAssessmentContact();
+  if (!assessmentForm.reportValidity()) return;
+  const values = new FormData(assessmentForm);
+  const field = name => String(values.get(name) || '').trim();
+  const summary = [
+    'ABQ ADU — Free assessment request',
+    '',
+    `Name: ${[field('firstName'), field('lastName')].filter(Boolean).join(' ')}`,
+    `Phone: ${field('phone') || 'Not provided'}`,
+    `Email: ${field('email') || 'Not provided'}`,
+    `Property address: ${field('address') || 'To be confirmed'}`,
+    `Model interest: ${field('model')}`,
+    `Intended use: ${field('use')}`,
+    `Notes: ${field('notes') || 'None provided'}`,
+  ].join('\n');
+  assessmentSummary.value = summary;
+  document.getElementById('assessment-text-link').href = `sms:15059777659?&body=${encodeURIComponent(summary)}`;
+  document.getElementById('assessment-download-link').href = `data:text/plain;charset=utf-8,${encodeURIComponent(summary)}`;
+  document.getElementById('assessment-copy-status').textContent = '';
+  assessmentResult.hidden = false;
+  document.getElementById('assessment-result-heading').focus();
+});
+
+document.getElementById('assessment-copy-button').addEventListener('click', async () => {
+  const status = document.getElementById('assessment-copy-status');
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(assessmentSummary.value);
+    status.textContent = 'Request copied. Paste it into your message and send it to ABQ ADU.';
+  } catch {
+    assessmentSummary.focus();
+    assessmentSummary.select();
+    status.textContent = 'Your request is selected. Use your device’s Copy command, then paste it into your message.';
+  }
+});
+
+validateAssessmentContact();
+
 function openLightbox(src) {
   document.getElementById('lightbox-img').src = src;
   document.getElementById('lightbox').classList.add('open');

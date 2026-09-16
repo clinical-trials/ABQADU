@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ApiError from '../ApiError';
 
-export default function ActivityPanel({ activity, onClose, onSave }) {
+export default function ActivityPanel({ activity, onClose, onSave, saving, saveError }) {
   const [form, setForm] = useState({});
+  const editingId = useRef(null);
 
   useEffect(() => {
+    // A list refresh creates a new object for the same activity. Keep the
+    // current draft until the user closes the panel or selects another task.
+    if (editingId.current === activity?.id) return;
+    editingId.current = activity?.id;
     if (activity) setForm({
       name: activity.name || '',
       duration_days: activity.duration_days || 1,
@@ -34,8 +40,9 @@ export default function ActivityPanel({ activity, onClose, onSave }) {
   );
 
   return (
-    <div style={{
+    <fieldset disabled={saving} style={{
       position: 'fixed', right: 0, top: 0, bottom: 0, width: 340,
+      border: 0, margin: 0, padding: 0, minWidth: 0,
       background: '#FFFFFF', borderLeft: '1px solid #E7E0D5',
       boxShadow: '-4px 0 24px rgba(0,0,0,0.08)', zIndex: 200,
       display: 'flex', flexDirection: 'column',
@@ -47,6 +54,7 @@ export default function ActivityPanel({ activity, onClose, onSave }) {
           fontSize: 18, cursor: 'pointer', color: '#78716C' }}>×</button>
       </div>
 
+      <ApiError message={saveError} />
       <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
         {field('Activity Name', 'name')}
         {field('Duration (days)', 'duration_days', 'number')}
@@ -108,7 +116,7 @@ export default function ActivityPanel({ activity, onClose, onSave }) {
       </div>
 
       <div style={{ padding: 16, borderTop: '1px solid #E7E0D5', display: 'flex', gap: 10 }}>
-        <button onClick={() => onSave(activity.id, form)}
+        <button disabled={saving} onClick={() => onSave(activity.id, form)}
           style={{ flex: 1, background: '#3D5247', color: '#FFF', border: 'none',
             borderRadius: 4, padding: '10px 0', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           Save Changes
@@ -119,6 +127,6 @@ export default function ActivityPanel({ activity, onClose, onSave }) {
           Cancel
         </button>
       </div>
-    </div>
+    </fieldset>
   );
 }

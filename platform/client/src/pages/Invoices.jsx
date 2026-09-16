@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { requestJson, requestPdf } from '../utils/api';
+import useApiList from '../hooks/useApiList';
+import useApiAction from '../hooks/useApiAction';
+import ApiError from '../components/ApiError';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -10,49 +14,35 @@ const STATUS = {
 };
 
 export default function Invoices() {
-  const [invoices, setInvoices] = useState([]);
+  const { data: invoices, loading, error, reload: load } = useApiList('/api/invoices');
+  const { run, pending, error: actionError } = useApiAction();
   const [payFor, setPayFor]     = useState(null);
   const [payAmt, setPayAmt]     = useState('');
   const [payMethod, setPayMethod] = useState('check');
 
-  const load = () => fetch('/api/invoices').then(r => r.json()).then(setInvoices);
-  useEffect(() => { load(); }, []);
-
-  const setStatus = async (id, status) => {
-    await fetch(`/api/invoices/${id}`, {
+  const setStatus = (id, status) => run(async () => {
+    await requestJson(`/api/invoices/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     });
-    load();
-  };
+    await load();
+  });
 
-  const recordPayment = async () => {
+  const recordPayment = () => run(async () => {
     if (!payAmt) return;
-    await fetch(`/api/invoices/${payFor.id}/payments`, {
+    await requestJson(`/api/invoices/${payFor.id}/payments`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: parseFloat(payAmt), method: payMethod }),
     });
-    setPayFor(null); setPayAmt(''); load();
-  };
+    setPayFor(null); setPayAmt(''); await load();
+  });
 
-  const downloadPdf = async (inv) => {
-    const res = await fetch(`/api/invoices/${inv.id}/pdf`, { method: 'POST' });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `${inv.invoice_number}.pdf`; a.click();
-    URL.revokeObjectURL(url);
-  };
+  const downloadPdf = inv => run(() => requestPdf(`/api/invoices/${inv.id}/pdf`, { method: 'POST' }, `${inv.invoice_number}.pdf`));
 
-  const syncInvoiceShelfStatus = async (inv) => {
-    const res = await fetch(`/api/invoice-engine/invoices/${inv.id}/status`, { method: 'POST' });
-    const payload = await res.json();
-    if (!res.ok) {
-      alert(payload.error || 'InvoiceShelf status sync failed');
-      return;
-    }
-    load();
-  };
+  const syncInvoiceShelfStatus = inv => run(async () => {
+    await requestJson(`/api/invoice-engine/invoices/${inv.id}/status`, { method: 'POST' });
+    await load();
+  });
 
   const totalBilled = invoices.reduce((s, i) => s + parseFloat(i.amount || 0), 0);
   const totalPaid   = invoices.reduce((s, i) => s + parseFloat(i.paid || 0), 0);
@@ -66,6 +56,9 @@ export default function Invoices() {
         </h1>
       </div>
 
+      <ApiError message={error} onRetry={load} />
+      {!payFor && <ApiError message={actionError} />}
+      {loading && <p role="status">Loading invoices…</p>}
       {/* KPI strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, padding: '20px 24px', maxWidth: 1100, margin: '0 auto' }}>
         {[['Total Billed', totalBilled, '#1C1917'], ['Collected', totalPaid, '#3D5247'], ['Outstanding', outstanding, '#B85C38']].map(([l, v, c]) => (
@@ -95,7 +88,7 @@ export default function Invoices() {
                 <td style={{ padding: '10px 12px', textAlign: 'right', color: '#3D5247' }}>{fmt(inv.paid)}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600, color: parseFloat(inv.balance) > 0 ? '#B85C38' : '#3D5247' }}>{fmt(inv.balance)}</td>
                 <td style={{ padding: '10px 12px' }}>
-                  <select value={inv.status} onChange={e => setStatus(inv.id, e.target.value)}
+                  <select disabled={pending} value={inv.status} onChange={e => setStatus(inv.id, e.target.value)}
                     style={{ padding: '4px 8px', border: '1px solid #E7E0D5', borderRadius: 4, fontSize: 12, fontWeight: 600,
                       background: (STATUS[inv.status] || {}).bg, color: (STATUS[inv.status] || {}).fg }}>
                     {['draft', 'sent', 'paid', 'overdue'].map(s => <option key={s} value={s}>{s}</option>)}
@@ -108,11 +101,11 @@ export default function Invoices() {
                       Record Payment
                     </button>
                   )}
-                  <button onClick={() => downloadPdf(inv)}
+                  <button disabled={pending} onClick={() => downloadPdf(inv)}
                     style={{ background: 'none', border: '1px solid #C4954A', color: '#C4954A', borderRadius: 4, padding: '5px 10px', fontSize: 12, cursor: 'pointer' }}>
                     PDF
                   </button>
-                  <button onClick={() => syncInvoiceShelfStatus(inv)}
+                  <button disabled={pending} onClick={() => syncInvoiceShelfStatus(inv)}
                     style={{ background: 'none', border: '1px solid #0F1F3D', color: '#0F1F3D', borderRadius: 4, padding: '5px 10px', fontSize: 12, cursor: 'pointer', marginLeft: 6 }}>
                     Sync InvoiceShelf Status
                   </button>
@@ -125,7 +118,7 @@ export default function Invoices() {
                 </td>
               </tr>
             ))}
-            {!invoices.length && (
+            {!loading && !error && !invoices.length && (
               <tr><td colSpan={8} style={{ padding: 32, textAlign: 'center', color: '#A8A29E' }}>No invoices yet — accept a bid to generate a draw schedule.</td></tr>
             )}
           </tbody>
@@ -138,6 +131,7 @@ export default function Invoices() {
           onClick={e => e.target === e.currentTarget && setPayFor(null)}>
           <div style={{ background: '#FFF', borderRadius: 8, padding: 24, width: 360 }}>
             <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Record Payment</div>
+            <ApiError message={actionError} />
             <div style={{ fontSize: 12, color: '#A8A29E', marginBottom: 16 }}>{payFor.invoice_number} · Balance {fmt(payFor.balance)}</div>
             <label style={{ fontSize: 12, color: '#57534E' }}>Amount</label>
             <input type="number" value={payAmt} onChange={e => setPayAmt(e.target.value)}
@@ -148,7 +142,7 @@ export default function Invoices() {
               {['check', 'card', 'ach', 'cash'].map(m => <option key={m} value={m}>{m}</option>)}
             </select>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={recordPayment} style={{ flex: 1, background: '#3D5247', color: '#FFF', border: 'none', borderRadius: 4, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Save Payment</button>
+              <button disabled={pending} onClick={recordPayment} style={{ flex: 1, background: '#3D5247', color: '#FFF', border: 'none', borderRadius: 4, padding: '10px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Save Payment</button>
               <button onClick={() => setPayFor(null)} style={{ border: '1px solid #E7E0D5', background: '#FFF', borderRadius: 4, padding: '10px 14px', fontSize: 14, cursor: 'pointer' }}>Cancel</button>
             </div>
           </div>

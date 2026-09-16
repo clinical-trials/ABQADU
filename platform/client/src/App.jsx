@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Portfolio from './pages/Portfolio';
 import Scheduler from './pages/Scheduler';
 import RiskRegister from './pages/RiskRegister';
@@ -9,6 +9,7 @@ import Clients from './pages/Clients';
 import BidBuilder from './pages/BidBuilder';
 import Invoices from './pages/Invoices';
 import CommandCenter from './pages/CommandCenter';
+import ProjectWorkspace from './components/ProjectWorkspace';
 
 function Nav() {
   return (
@@ -29,10 +30,10 @@ function Nav() {
         { to: '/clients', label: 'Clients' },
         { to: '/bids', label: 'Bids' },
         { to: '/invoices', label: 'Invoices' },
-        { to: '/schedule/1', label: 'Schedule' },
-        { to: '/field/1', label: 'Field Ops' },
-        { to: '/risks/1', label: 'Risks' },
-        { to: '/design/1', label: 'Design' },
+        { to: '/schedule', label: 'Schedule' },
+        { to: '/field', label: 'Field Ops' },
+        { to: '/risks', label: 'Risks' },
+        { to: '/design', label: 'Design' },
       ].map(link => (
         <Link key={link.to} to={link.to} style={{
           fontSize: 12, fontWeight: 700, letterSpacing: '.04em',
@@ -50,18 +51,15 @@ function Nav() {
 }
 
 function SchedulerRoute() {
-  const { id } = useParams();
-  return <Scheduler projectId={parseInt(id)} />;
+  return <ProjectWorkspace section="schedule">{id => <Scheduler projectId={id} />}</ProjectWorkspace>;
 }
 
 function FieldRoute() {
-  const { id } = useParams();
-  return <FieldOperations projectId={parseInt(id)} />;
+  return <ProjectWorkspace section="field">{id => <FieldOperations projectId={id} />}</ProjectWorkspace>;
 }
 
 function RiskRoute() {
-  const { id } = useParams();
-  return <RiskRegister projectId={parseInt(id)} />;
+  return <ProjectWorkspace section="risks">{id => <RiskRegister projectId={id} />}</ProjectWorkspace>;
 }
 
 export default function App() {
@@ -75,10 +73,10 @@ export default function App() {
           <Route path="/clients"        element={<Clients />} />
           <Route path="/bids"           element={<BidBuilder />} />
           <Route path="/invoices"       element={<Invoices />} />
-          <Route path="/schedule/:id"   element={<SchedulerRoute />} />
-          <Route path="/field/:id"      element={<FieldRoute />} />
-          <Route path="/risks/:id"      element={<RiskRoute />} />
-          <Route path="/design/:id"     element={<DesignStudio />} />
+          <Route path="/schedule/:id?"   element={<SchedulerRoute />} />
+          <Route path="/field/:id?"      element={<FieldRoute />} />
+          <Route path="/risks/:id?"      element={<RiskRoute />} />
+          <Route path="/design/:id"     element={<ProjectWorkspace section="design">{() => <DesignStudio />}</ProjectWorkspace>} />
           <Route path="/design"         element={<DesignStudio />} />
         </Routes>
       </div>

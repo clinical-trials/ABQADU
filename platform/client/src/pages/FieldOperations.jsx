@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { requestJson } from '../utils/api';
+import useApiList from '../hooks/useApiList';
+import useApiAction from '../hooks/useApiAction';
+import ApiError from '../components/ApiError';
 
 const COLUMNS = [
   { status: 'pending',     label: 'To Do',       bg: '#F5F0E8', accent: '#A8A29E' },
@@ -8,33 +12,31 @@ const COLUMNS = [
 ];
 
 export default function FieldOperations({ projectId }) {
-  const [tasks, setTasks]   = useState([]);
   const [date, setDate]     = useState(new Date().toISOString().slice(0, 10));
   const [adding, setAdding] = useState(false);
   const [form, setForm]     = useState({ title: '', task_date: date });
 
-  const load = () =>
-    fetch(`/api/field-tasks/${projectId}?date=${date}`).then(r => r.json()).then(setTasks);
+  const { data: tasks, loading, error, reload: load } = useApiList(projectId ? `/api/field-tasks/${projectId}?date=${date}` : null);
+  const { run, pending, error: actionError } = useApiAction();
 
-  useEffect(() => { load(); }, [projectId, date]);
-
-  const updateStatus = async (id, status) => {
-    await fetch(`/api/field-tasks/${id}`, {
+  const updateStatus = (id, status) => run(async () => {
+    await requestJson(`/api/field-tasks/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     });
-    load();
-  };
+    await load();
+  });
 
-  const addTask = async () => {
-    await fetch('/api/field-tasks', {
+  const addTask = () => run(async () => {
+    if (!form.title.trim() || !projectId) return;
+    await requestJson('/api/field-tasks', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, project_id: projectId, task_date: date }),
     });
     setAdding(false);
     setForm({ title: '', task_date: date });
-    load();
-  };
+    await load();
+  });
 
   return (
     <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#FAF7F2', minHeight: '100vh' }}>
@@ -52,6 +54,9 @@ export default function FieldOperations({ projectId }) {
         </button>
       </div>
 
+      <ApiError message={error} onRetry={load} />
+      <ApiError message={actionError} />
+      {loading && <p role="status">Loading field tasks…</p>}
       {adding && (
         <div style={{ padding: '16px 24px', background: '#FFF', borderBottom: '1px solid #E7E0D5',
           display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -59,7 +64,7 @@ export default function FieldOperations({ projectId }) {
             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
             style={{ flex: 1, padding: '8px 12px', border: '1px solid #E7E0D5',
               borderRadius: 4, fontSize: 13, fontFamily: 'inherit' }} />
-          <button onClick={addTask}
+          <button onClick={addTask} disabled={pending}
             style={{ background: '#3D5247', color: '#FFF', border: 'none',
               borderRadius: 4, padding: '8px 16px', fontSize: 13, cursor: 'pointer' }}>
             Add
@@ -98,7 +103,7 @@ export default function FieldOperations({ projectId }) {
                     )}
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       {COLUMNS.filter(c => c.status !== col.status).map(c => (
-                        <button key={c.status} onClick={() => updateStatus(task.id, c.status)}
+                        <button key={c.status} disabled={pending} onClick={() => updateStatus(task.id, c.status)}
                           style={{ fontSize: 10, padding: '2px 8px', border: `1px solid ${c.accent}`,
                             borderRadius: 999, color: c.accent, background: 'transparent',
                             cursor: 'pointer', fontWeight: 600 }}>
@@ -108,7 +113,7 @@ export default function FieldOperations({ projectId }) {
                     </div>
                   </div>
                 ))}
-                {!colTasks.length && (
+                {!loading && !error && !colTasks.length && (
                   <div style={{ textAlign: 'center', color: '#D4C9B8', fontSize: 12,
                     padding: '20px 0', border: '2px dashed #E7E0D5', borderRadius: 8 }}>
                     No tasks

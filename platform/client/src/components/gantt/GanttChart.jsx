@@ -6,12 +6,16 @@ import ActivityBars from './ActivityBars';
 import DependencyArrows from './DependencyArrows';
 import ActivityPanel from './ActivityPanel';
 
-export default function GanttChart({ activities, dependencies, onSaveActivity, onDragActivity }) {
+export default function GanttChart({ activities, dependencies, onSaveActivity, onDragActivity, saving, saveError }) {
   const scrollRef = useRef(null);
+  const savingRef = useRef(saving);
+  savingRef.current = saving;
   const {
     zoom, setZoom, expanded, toggleExpand, selected, setSelected,
     viewStart, viewEnd, xFromDate, totalWidth, pxPerDay,
   } = useGanttState(activities);
+  const selectActivity = id => { if (!savingRef.current) setSelected(id); };
+  const dragActivity = (id, daysShift) => { if (!savingRef.current) return onDragActivity(id, daysShift); };
 
   const selectedActivity = activities.find(a => a.id === selected);
   const totalHeight = activities.length * ROW_HEIGHT;
@@ -51,7 +55,7 @@ export default function GanttChart({ activities, dependencies, onSaveActivity, o
           expanded={expanded}
           onToggle={toggleExpand}
           selected={selected}
-          onSelect={setSelected}
+          onSelect={selectActivity}
         />
 
         {/* Right: Gantt scroll area */}
@@ -77,8 +81,9 @@ export default function GanttChart({ activities, dependencies, onSaveActivity, o
                 activities={activities}
                 xFromDate={xFromDate}
                 totalWidth={totalWidth}
-                onDrop={onDragActivity}
-                onSelect={setSelected}
+                onDrop={dragActivity}
+                onSelect={selectActivity}
+                disabled={saving}
                 selected={selected}
               />
               <DependencyArrows
@@ -95,8 +100,12 @@ export default function GanttChart({ activities, dependencies, onSaveActivity, o
       {/* Activity edit panel */}
       <ActivityPanel
         activity={selectedActivity}
-        onClose={() => setSelected(null)}
-        onSave={(id, form) => { onSaveActivity(id, form); setSelected(null); }}
+        onClose={() => selectActivity(null)}
+        onSave={async (id, form) => {
+          if (await onSaveActivity(id, form)) setSelected(current => current === id ? null : current);
+        }}
+        saving={saving}
+        saveError={saveError}
       />
     </div>
   );

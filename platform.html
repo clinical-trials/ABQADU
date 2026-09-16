@@ -38,6 +38,9 @@ header.topbar{position:sticky;top:0;z-index:50;background:var(--ink);color:var(-
 .tab.active{color:var(--copper);border-bottom-color:var(--copper)}
 .home-link{font-size:11px;color:var(--ink30);text-decoration:none;letter-spacing:.05em;text-transform:uppercase}
 .home-link:hover{color:var(--copper)}
+.storage-warning{max-width:1232px;margin:16px auto;padding:14px 18px;background:#FEF3C7;border:1px solid #B8852A;border-radius:8px;color:#78350F}
+.storage-warning[hidden]{display:none}
+.storage-warning .btn{margin-top:10px}
 .v-badge{background:rgba(196,149,74,.15);border:1px solid rgba(196,149,74,.4);color:var(--copper);
   font-size:10px;letter-spacing:.1em;padding:3px 8px;border-radius:4px;text-transform:uppercase}
 
@@ -817,6 +820,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   <span class="v-badge">Version 10</span>
   <a class="home-link" href="index.html">← Site</a>
 </header>
+
+<div class="storage-warning no-print" id="storage-warning" role="alert" hidden>
+  <p id="storage-warning-message"></p>
+  <button class="btn ghost sm" type="button" onclick="downloadPageBackup()">Download page backup (JSON)</button>
+</div>
 
 <div class="mobile-launch-pad" aria-label="Builder platform quick links">
   <a href="platform.html#estimates" data-mobile-tab="estimates"><b>Estimates &amp; Invoices</b><span>Win clients fast</span></a>
@@ -1727,10 +1735,80 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 const $ = s => document.querySelector(s);
 const fmt = n => '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmt0 = n => '$' + Math.round(Number(n||0)).toLocaleString('en-US');
-const store = {
-  get:(k,d)=>{try{return JSON.parse(localStorage.getItem('abqadu_'+k))??d}catch{return d}},
-  set:(k,v)=>localStorage.setItem('abqadu_'+k,JSON.stringify(v))
-};
+const isStoredRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const isStoredRecordList = value => Array.isArray(value) && value.every(isStoredRecord);
+const isStoredInvoiceList = value => isStoredRecordList(value) && value.every(invoice =>
+  typeof invoice.num === 'string' && (invoice.desc == null || typeof invoice.desc === 'string'));
+function isStoredBid(value){
+  return isStoredRecord(value)
+    && (value.title == null || typeof value.title === 'string')
+    && (value.items == null || isStoredRecordList(value.items));
+}
+const store = (()=>{
+  const memory = new Map();
+  const originalData = new Map();
+  let persistent = true;
+  let unreadable = false;
+  const warningMessage = () => `${unreadable ? 'Some saved browser data could not be read. Existing data has been left unchanged.' : 'Browser saving is unavailable.'} Changes are kept only on this page and will be lost when you reload or close it. Download a page backup before leaving, or use Print / Save PDF and bid exports.`;
+  function useMemoryOnly(invalidData=false){
+    // Keep this session in memory after a failure: later successful writes must
+    // not suggest that every draft was saved, or replace an unreadable original.
+    persistent=false;
+    unreadable ||= invalidData;
+    const warning=$('#storage-warning');
+    if(warning)warning.hidden=false;
+    const message=$('#storage-warning-message');
+    if(message)message.textContent=warningMessage();
+    setBidSaveStatus(warningMessage());
+    const chip=$('#app-status-pill');
+    if(chip){chip.textContent='Changes only on this page';chip.classList.add('warn');}
+  }
+  return {
+    get persistent(){return persistent;},
+    warningMessage,
+    get(k,d,validate){
+      if(memory.has(k))return memory.get(k);
+      let value=d;
+      let raw;
+      try{
+        raw=window.localStorage.getItem('abqadu_'+k);
+        if(raw!==null){
+          originalData.set(k,raw);
+          const parsed=JSON.parse(raw);
+          const valid=validate || (Array.isArray(d) ? isStoredRecordList : isStoredRecord(d) ? isStoredRecord : v=>typeof v===typeof d);
+          if(parsed!==null){
+            if(!valid(parsed))throw new Error('Invalid saved data');
+            value=parsed;
+          }
+        }
+      }catch{
+        useMemoryOnly(raw!=null);
+      }
+      memory.set(k,value);
+      return value;
+    },
+    set(k,v){
+      memory.set(k,v);
+      if(!persistent)return false;
+      try{
+        window.localStorage.setItem('abqadu_'+k,JSON.stringify(v));
+        return true;
+      }catch{
+        useMemoryOnly();
+        return false;
+      }
+    },
+    backup:()=>({drafts:Object.fromEntries(memory),originalBrowserData:Object.fromEntries(originalData)})
+  };
+})();
+function downloadPageBackup(){
+  if(estimateBound)syncEstimateFromInputs();
+  store.set('estimateV9',estimateState);
+  syncBidFromInputs();
+  saveBid();
+  const backup={exportedAt:new Date().toISOString(),...store.backup()};
+  downloadTextFile(`abq-adu-page-backup-${backup.exportedAt.slice(0,10)}.json`,JSON.stringify(backup,null,2),'application/json');
+}
 const GRID=12;
 const ABQADU_CONTACT = {
   name:'ABQ ADU',
@@ -2031,7 +2109,10 @@ function defaultEstimateState(){
     ],
   };
 }
-let estimateState = store.get('estimateV9', null) || defaultEstimateState();
+let estimateState = store.get('estimateV9', defaultEstimateState(), value=>isStoredRecord(value)
+  && (value.lines == null || isStoredRecordList(value.lines))
+  && (value.activity == null || (isStoredRecordList(value.activity)
+    && value.activity.every(item => item.at == null || typeof item.at === 'string'))));
 let estimateBound=false;
 function normalizeEstimateState(){
   estimateState.lines = Array.isArray(estimateState.lines) ? estimateState.lines : [];
@@ -2431,13 +2512,14 @@ function normalizeBid(bidData){
   return bidData;
 }
 function loadProjects(){
-  const saved=store.get('projects', null);
+  const saved=store.get('projects', null, value=>isStoredRecordList(value) && value.every(project=>
+    (project.bid == null || isStoredBid(project.bid)) && (project.invoices == null || isStoredInvoiceList(project.invoices))));
   if(Array.isArray(saved)&&saved.length)return saved.map(project=>({
     ...project,
     bid:normalizeBid(project.bid || cloneSampleBid()),
     invoices:Array.isArray(project.invoices) ? project.invoices : [],
   }));
-  return [makeProject(normalizeBid(store.get('bid', cloneSampleBid())), store.get('invoices', []))];
+  return [makeProject(normalizeBid(store.get('bid', cloneSampleBid(), isStoredBid)), store.get('invoices', [], isStoredInvoiceList))];
 }
 let projects = loadProjects();
 let activeProjectId = store.get('activeProjectId', projects[0].id);
@@ -2634,6 +2716,7 @@ function kindOptions(kind){
   return Object.entries(LINE_KINDS).map(([k,label])=>`<option value="${k}"${k===kind?' selected':''}>${label}</option>`).join('');
 }
 function setBidSaveStatus(text){
+  if(!store.persistent)text=store.warningMessage();
   const el=$('#bid-save-status');
   if(el) el.textContent=text;
   const projectEl=$('#project-save-status');
@@ -2843,7 +2926,7 @@ function renderBidAppShell(t){
   setText('app-project-title', title);
   setText('app-project-meta', `${client} · ${address} · ${model} · ${sqft || '0'} sf · next: ${nextAction}`);
   setText('app-bid-total', fmt0(t.total));
-  setChip('app-status-pill', `${bid.status || 'draft'} · autosaved`, hasSetup ? 'ready' : 'warn');
+  setChip('app-status-pill', store.persistent ? `${bid.status || 'draft'} · autosaved` : 'Changes only on this page', store.persistent && hasSetup ? 'ready' : 'warn');
   setChip('app-invoice-pill', hasInvoices ? `${invoices.length} invoices · ${fmt0(packet.balance)} open` : 'Invoices not built', hasInvoices ? 'money' : 'warn');
   setChip('app-readiness-pill', `${confidence.grade} · ${readinessLabel(primaryReadiness)}`, primaryReadiness==='ready to send' ? 'ready' : (primaryReadiness.includes('utility') ? 'info' : 'warn'));
 

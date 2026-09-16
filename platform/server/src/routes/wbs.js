@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const router = require('../asyncRouter')();
 const { pool } = require('../db');
 
 // GET all WBS nodes for a project
