@@ -15,6 +15,8 @@ function createApp({ env = process.env } = {}) {
   // Stripe authenticates this one public endpoint with a signature over the raw bytes.
   const billing = require('./routes/billing');
   app.post('/api/billing/stripe/webhook', express.raw({ type: 'application/json', limit: '1mb' }), billing.stripeWebhook);
+  const contractorDesk = require('./routes/contractorDesk');
+  app.post('/api/contractor-desk/sms/inbound', express.urlencoded({ extended: false, limit: '32kb', parameterLimit: 100 }), contractorDesk.createSmsInboundHandler({ env }));
   app.use('/api', auth.checkOrigin, cors({
     origin: auth.origins,
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -46,6 +48,7 @@ function createApp({ env = process.env } = {}) {
   app.use('/api/invoices',     require('./routes/invoices'));
   app.use('/api/invoice-engine', require('./routes/invoiceEngine'));
   app.use('/api/command-center', require('./routes/commandCenter'));
+  app.use('/api/contractor-desk', contractorDesk.createContractorDeskRouter({ env }));
   app.use('/api/integrations', require('./routes/productionIntegrations'));
   app.use('/api/weather', require('./routes/weather'));
 

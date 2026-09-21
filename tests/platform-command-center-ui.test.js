@@ -10,7 +10,7 @@ function contains(file, snippet) {
 }
 
 contains(app, "import CommandCenter from './pages/CommandCenter'");
-contains(app, "{ to: '/command-center', label: 'Command' }");
+contains(app, 'AppNavigation');
 contains(app, '<Route path="/command-center"');
 contains(page, "useCommandCenter()");
 contains(page, "runAction('/api/command-center/activity'");
@@ -22,8 +22,8 @@ contains(page, "runAction('/api/integrations/clerk/status')");
 contains(page, "runAction(`/api/weather/forecast?zip=");
 contains(page, "runAction('/api/weather/forecast/activity'");
 contains(page, "runAction(`/api/command-center/projects/");
-contains(page, 'Builder Operating System');
-contains(page, 'Version 10');
+contains(page, '<ContractorDesk');
+contains(page, 'Estimates, costs &amp; office tools');
 contains(page, "maxWidth: 1440");
 contains(page, "headerInner");
 contains(page, "gridTemplateColumns: 'minmax(0, 1.35fr) minmax(280px, .65fr)'");

@@ -1,0 +1,13 @@
+# Contractor field desk
+
+The contractor should be able to find the current job, request a trade quote, read replies, and decide whether weather changes the crew's next four days from a phone. Keep the existing office tools available, with the field work taking priority.
+
+The initial bid flow requests prices from subcontractors and collects their replies for staff review. Bid requests contain a scope, trade, due date, contact and reference. Creating a request saves a draft; opening a phone text composer never claims delivery. An incoming Twilio message enters the job inbox only after signature, account and receiving-number validation. Known bid references match a project only when the sender matches that request. Other messages remain unassigned. Duplicate provider deliveries are ignored. Texts do not authorize API access or accept quotes automatically.
+
+Apple Weather shows tomorrow and the next three local calendar dates, matching Tuesday–Friday when viewed on Monday. Four dated cards give concrete, roofing, excavation or general construction guidance. Unknown/incomplete wind coverage must not appear safe. Planning guidance can suggest a hold; an approved staff member must explicitly confirm a day off. No live forecasts are fabricated when Apple settings are missing, and Apple attribution stays next to forecasts.
+
+Use the current shared staff workspace. This change does not grant subcontractors access to internal costs. Twilio receives their texts without giving them a staff login. Live operation needs existing Clerk setup, WeatherKit credentials, a configured Twilio number and an HTTPS webhook endpoint.
+
+Visual direction: warm paper, deep green and restrained copper; existing Barlow/DM Sans typography; clear weather symbols and trade labels. Mobile has stacked sections and a two-by-two weather grid, readable labels, at least 44px touch targets, and no horizontal navigation overflow. Office calculations and setup panels move into a labeled expandable section.
+
+Implementation is split between four-day weather normalization, signed SMS/bid/hold endpoints, and the mobile field interface. Preserve all project data and existing print/payment behavior. Verify timezone/date and partial-data cases, signature forgery/retries/concurrency, staff authorization, explicit hold confirmation, bid save errors, project isolation, responsive screenshots, the full test suites and production build. Use isolated sample data for visual review while the live workspace awaits account configuration. No test sends a real message or changes a real job.

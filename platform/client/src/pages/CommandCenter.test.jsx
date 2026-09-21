@@ -197,11 +197,40 @@ test('Apple forecasts show attribution and planning estimates, then clear on a f
   expect(container.textContent).toContain('75°F');
   expect(container.textContent).toContain('ABQ ADU planning');
   expect(container.textContent).toContain('81° / 58°');
+  expect(container.textContent).not.toContain('day planning allowance');
   fails = true;
   await act(async()=>button('Check Weather').click());
   expect(container.querySelector('img[alt="Apple Weather"]')).toBeNull();
   expect(button('Log Weather Risk').disabled).toBe(true);
   expect(container.textContent).toContain('WeatherKit temporarily unavailable');
+});
+
+test.each([
+  ['unavailable', null, 'Wind unavailable'],
+  ['partial', 12, 'Available-hours wind up to 12 mph · incomplete coverage'],
+  ['complete', 12, 'Wind up to 12 mph'],
+])('office weather panel labels %s Apple wind coverage honestly', async (coverage, wind, expected) => {
+  const previous = fetch;
+  global.fetch = jest.fn((url, options) => url.startsWith('/api/weather/forecast?')
+    ? Promise.resolve({ ok: true, json: async () => ({ zip: '87106', source: 'Apple Weather', provider: 'weatherkit', location: 'Test site', days: [{ date: '2026-09-22', high_f: 80, low_f: 60, rain_chance: 10, wind_mph: wind, wind_coverage: coverage }], risk_level: coverage === 'complete' ? 'low' : 'unknown', delay_days: 7, crew_message: 'Schedule changes require contractor confirmation.' }) })
+    : previous(url, options));
+  await mount();
+  await act(async () => button('Check Weather').click());
+  expect(container.textContent).toContain(expected);
+  expect(container.textContent).not.toContain('Wind up to 0 mph');
+  expect(container.textContent).not.toContain('day planning allowance');
+});
+
+test('legacy forecasts retain their existing planning allowance without Apple attribution in the caption', async () => {
+  const previous = fetch;
+  global.fetch = jest.fn((url, options) => url.startsWith('/api/weather/forecast?')
+    ? Promise.resolve({ ok: true, json: async () => ({ zip: '87106', source: 'wttr.in', location: 'Earlier forecast', days: [{ date: '2026-09-22', high_f: 80, low_f: 60, rain_chance: 70, wind_mph: 15 }], risk_level: 'high', delay_days: 7, crew_message: 'Legacy planning summary.' }) })
+    : previous(url, options));
+  await mount();
+  await act(async () => button('Check Weather').click());
+  expect(container.textContent).toContain('Up to 7 day planning allowance');
+  expect(container.textContent).toContain('Wind up to 15 mph');
+  expect(container.textContent).not.toContain('delay allowances calculated from Apple Weather');
 });
 
 test('logging weather sends only selected project and ZIP rather than a browser forecast', async () => {

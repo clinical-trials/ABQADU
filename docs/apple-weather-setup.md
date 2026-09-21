@@ -1,6 +1,8 @@
 # Apple Weather for the private builder
 
-The Command Center weather panel now requests Apple WeatherKit forecasts through the authenticated server. It displays current conditions and three daily forecasts in Fahrenheit, miles per hour and inches. ABQ ADU derives construction-risk and delay allowances from those measurements; those allowances are application planning estimates.
+The Command Center weather panel requests Apple WeatherKit forecasts through the authenticated server. Current conditions remain separate from the planning window: the next four local calendar days, starting tomorrow, in Fahrenheit, miles per hour and inches. A check on Monday, September 21, 2026 covers Tuesday, September 22 through Friday, September 25. The window advances with the configured site's local date.
+
+Each day includes ABQ ADU planning guidance for concrete, roofing, excavation and general outdoor work. Guidance is `hold` (a weather hold candidate), `review`, `plan` or `unknown`. A hold is a candidate for postponement that requires contractor confirmation; it does not automatically cancel a shift or declare a day off. A plan result still requires site checks. These are application scheduling prompts, not Apple's recommendations or a concrete placement specification.
 
 Live acceptance requires your Apple Developer account configuration. Adding environment variables does not verify a working Apple connection. No Apple account or subscription is created by this change.
 
@@ -29,11 +31,11 @@ WEATHERKIT_LOCATIONS_JSON={"87106":{"latitude":35.08,"longitude":-106.62,"label"
 
 Unmapped ZIPs produce a setup message; the server does not substitute another city or provider. This release does not add automatic address geocoding.
 
-4. Restart the app server. Sign in with an approved Clerk account, open Command Center, select a project, and choose **Check Weather**. WeatherKit is also listed under **Set up services**; that status describes local configuration only.
+4. Restart the app server. Sign in with an approved Clerk account, open Command Center, select a project, and choose **Update forecast**. WeatherKit is also listed under **Set up services**; that status describes local configuration only.
 
 ## What to verify with the account
 
-- The location label, current temperature and three dates match the configured site/time zone. Confirm a forecast against Apple's response before relying on the integration.
+- The location label, current temperature and four dates match the configured site/time zone. Confirm a forecast against Apple's response before relying on the integration.
 - The official Apple Weather mark and **Weather data sources** link appear alongside the forecast and saved Apple weather records.
 - **Log Weather Risk** obtains a server forecast and creates local activity/crew drafts. Browser-supplied weather figures are ignored. No SMS is sent by checking or logging weather.
 - A failed refresh clears the current forecast and disables logging that stale display. Missing credentials, unmapped locations and provider errors show a message without inventing weather data.
@@ -43,12 +45,18 @@ Unmapped ZIPs produce a setup message; the server does not substitute another ci
 
 The official mark comes from `https://weatherkit.apple.com/attribution/en`. The legal link uses the weather response's attribution URL, with the supplied [Apple data-sources page](https://developer.apple.com/weatherkit/data-source-attribution/) as the fallback. Saved checks retain the provider and attribution. Any future report or PDF displaying Apple weather must carry that attribution forward.
 
-The forecast request uses Apple's [REST weather endpoint](https://developer.apple.com/documentation/weatherkitrestapi/get-api-v1-weather-_language_-_latitude_-_longitude_) with `currentWeather`, `forecastDaily`, `forecastHourly` and the configured time zone. Apple supplies metric measurements; the server converts them once for display and the existing planning rules. Hourly forecasts provide daily maximum winds; unavailable gusts are not invented as zero. Current precipitation intensity is a rate, separate from daily precipitation amount.
+The forecast request uses Apple's [REST weather endpoint](https://developer.apple.com/documentation/weatherkitrestapi/get-api-v1-weather-_language_-_latitude_-_longitude_) with `currentWeather`, `forecastDaily`, `forecastHourly` and the configured time zone. Apple's documented default daily horizon is ten days; its default hourly horizon is at least the requested daily horizon. The server selects exactly tomorrow through three days after tomorrow and rejects missing daily forecasts. Apple supplies metric measurements; the server converts them once for display and the existing planning rules. Current precipitation intensity is a rate, separate from daily precipitation amount.
+
+Hourly wind coverage is checked against each daily forecast's actual start and end timestamps, including 23-hour and 25-hour daylight-saving transitions. Duplicate hourly entries do not fill a gap. A day's `wind_coverage` is `complete`, `partial` or `unavailable`; partial maxima describe only available hours, and absent wind/gust measurements are `null`. Every trade is at least review/unknown when hourly coverage is incomplete, unless a known hazard already warrants a hold candidate. Overall risk cannot be low solely because hourly data is absent. Optional gust values are not invented as zero.
+
+The app's rain prompts begin at 60% chance or 0.10 in, with stronger concrete/excavation hold candidates at 75% or 0.15 in; roofing gets a hold candidate at the lower rain trigger. Winds of 25 mph or gusts of 35 mph prompt review and a roofing hold candidate. Lows of 35°F or less prompt review; 28°F or less make concrete a hold candidate. Highs of 100°F or more prompt review. These deliberately simple planning thresholds do not replace contractor instructions, soil/drainage inspection, equipment limits or current warnings. Daily or hourly thunderstorm condition codes produce an outdoor-work hold candidate; [NWS job-site lightning guidance](https://www.weather.gov/safety/lightning-job) informs the shelter and interruptible-work wording. Weather alerts are not yet part of the provider request, so a clear planning result is not an all-clear for site hazards.
+
+The response includes `window: {start_date, end_date, time_zone}` and `days[].trade_guidance.{concrete,roofing,excavation,general}`, each with `level`, `label`, `reasons` and `message`. Existing legacy `risk_level`, `risks` and `delay_days` fields remain for compatibility. The new trade guidance and dated crew summary do not infer a fixed number of delay days from rainfall.
 
 Official references: [server authentication](https://developer.apple.com/documentation/weatherkitrestapi/request-authentication-for-weatherkit-rest-api), [attribution endpoint](https://developer.apple.com/documentation/weatherkitrestapi/get-attribution-_language_), [WeatherKit attribution requirements](https://developer.apple.com/weatherkit/).
 
 ## Verification — September 21, 2026
 
-306 server tests (including isolated PostgreSQL billing checks), 142 client tests and 30 public/static checks pass; the production client build succeeds. WeatherKit tests verify ES256 signatures, coordinates/time zones, imperial conversion, freshness, missing measurements, attribution, safe errors and timeouts using fixtures. The official public attribution endpoint was checked directly, and the real attribution component was visually checked at 390 px with Apple's black wordmark on a light background. Authenticated live forecasts remain unverified until account settings are supplied.
+WeatherKit tests verify ES256 signatures, coordinates/time zones, the next-four-day window, daylight-saving transitions, hourly coverage gaps, trade guidance, thunderstorm conditions, imperial conversion, freshness, missing measurements, attribution, safe errors and timeouts using fixtures. The official public attribution endpoint and branding were checked previously. Authenticated live forecasts remain unverified until account settings are supplied.
 
 Weather logging appends against the latest Command Center state and publishes JSON atomically, preserving edits made while Apple responds. Its save queue assumes the current single server process; multiple app instances need shared transactional storage.

@@ -13,17 +13,17 @@ function fixture() {
   return {
     currentWeather: { metadata: metadata(), asOf: '2026-09-21T17:55:00Z', conditionCode: 'PartlyCloudy', temperature: 20, windSpeed: 16.09344, windDirection: 225, precipitationIntensity: 2.54 },
     forecastDaily: { metadata: metadata(), days: [
-      { forecastStart: '2026-09-21T06:00:00Z', forecastEnd: '2026-09-22T06:00:00Z', temperatureMax: 30, temperatureMin: 10, precipitationChance: 0.8, precipitationAmount: 5.08, conditionCode: 'Rain' },
-      { forecastStart: '2026-09-22T06:00:00Z', forecastEnd: '2026-09-23T06:00:00Z', temperatureMax: 25, temperatureMin: 5, precipitationChance: 0.1, precipitationAmount: 0, conditionCode: 'Clear' },
-      { forecastStart: '2026-09-23T06:00:00Z', forecastEnd: '2026-09-24T06:00:00Z', temperatureMax: 20, temperatureMin: -5, precipitationChance: 0.2, precipitationAmount: 0, conditionCode: 'Cloudy' },
+      { forecastStart: '2026-09-21T06:00:00Z', forecastEnd: '2026-09-22T06:00:00Z', temperatureMax: 22, temperatureMin: 10, precipitationChance: 0, precipitationAmount: 0, conditionCode: 'Clear' },
+      { forecastStart: '2026-09-22T06:00:00Z', forecastEnd: '2026-09-23T06:00:00Z', temperatureMax: 30, temperatureMin: 10, precipitationChance: 0.8, precipitationAmount: 5.08, conditionCode: 'Rain' },
+      { forecastStart: '2026-09-23T06:00:00Z', forecastEnd: '2026-09-24T06:00:00Z', temperatureMax: 25, temperatureMin: 5, precipitationChance: 0.1, precipitationAmount: 0, conditionCode: 'Clear' },
+      { forecastStart: '2026-09-24T06:00:00Z', forecastEnd: '2026-09-25T06:00:00Z', temperatureMax: 20, temperatureMin: -5, precipitationChance: 0.2, precipitationAmount: 0, conditionCode: 'Cloudy' },
+      { forecastStart: '2026-09-25T06:00:00Z', forecastEnd: '2026-09-26T06:00:00Z', temperatureMax: 25, temperatureMin: 10, precipitationChance: 0.4, precipitationAmount: 0, conditionCode: 'ScatteredThunderstorms' },
     ] },
-    forecastHourly: { metadata: metadata(), hours: [
-      { forecastStart: '2026-09-21T18:00:00Z', windSpeed: 16.09344, windGust: 24.14016 },
-      // Still September 21 in Denver: these maxima belong to day one.
-      { forecastStart: '2026-09-22T05:00:00Z', windSpeed: 48.28032, windGust: 72.42048 },
-      { forecastStart: '2026-09-22T06:00:00Z', windSpeed: 8.04672, windGust: 16.09344 },
-      { forecastStart: '2026-09-23T06:00:00Z', windSpeed: 3.218688 },
-    ] },
+    forecastHourly: { metadata: metadata(), hours: Array.from({ length: 96 }, (_, hour) => ({
+      forecastStart: new Date(Date.parse('2026-09-22T06:00:00Z') + hour * 3600000).toISOString(),
+      windSpeed: hour === 23 ? 48.28032 : 8.04672,
+      ...(hour >= 48 && hour < 72 ? {} : { windGust: hour === 23 ? 72.42048 : 16.09344 }),
+    })) },
   };
 }
 const attribution = { serviceName: 'Apple Weather', 'logoLight@2x': '/assets/branding/en/Apple_Weather_blk_en_2X_090122.png' };
@@ -85,11 +85,11 @@ it('converts units and local dates into honest imperial measurements and applica
   const result = normalizeWeatherKitForecast(fixture(), attribution, '87106', location, now);
   expect(result).toMatchObject({ zip: '87106', source: 'Apple Weather', location: 'Albuquerque, NM', checked_at: '2026-09-21T18:00:00.000Z', assessment_source: 'ABQ ADU planning rules' });
   expect(result.current).toMatchObject({ temp_f: 68, wind_mph: 10, wind_direction: 'SW', precip_inches: null, precip_inches_per_hour: 0.1, description: 'Partly Cloudy' });
-  expect(result.days[0]).toMatchObject({ date: '2026-09-21', high_f: 86, low_f: 50, rain_chance: 80, precip_inches: 0.2, wind_mph: 30, gust_mph: 45 });
-  expect(result.days[1]).toMatchObject({ date: '2026-09-22', high_f: 77, low_f: 41, wind_mph: 5, gust_mph: 10 });
-  expect(result.days[2]).toMatchObject({ date: '2026-09-23', low_f: 23, gust_mph: null });
+  expect(result.days[0]).toMatchObject({ date: '2026-09-22', high_f: 86, low_f: 50, rain_chance: 80, precip_inches: 0.2, wind_mph: 30, gust_mph: 45 });
+  expect(result.days[1]).toMatchObject({ date: '2026-09-23', high_f: 77, low_f: 41, wind_mph: 5, gust_mph: 10 });
+  expect(result.days[2]).toMatchObject({ date: '2026-09-24', low_f: 23, gust_mph: null });
   expect(result.risk_level).toBe('high'); expect(result.delay_days).toBe(7);
-  expect(result.risks.map(risk => risk.type)).toEqual(['rain', 'wind', 'freeze']);
+  expect(result.risks.map(risk => risk.type)).toEqual(expect.arrayContaining(['rain', 'wind', 'freeze', 'lightning']));
   expect(result.crew_message).toContain('ABQ ADU planning assessment derived from Apple Weather data.');
   expect(result.attribution).toEqual({ service_name: 'Apple Weather', mark_url: 'https://weatherkit.apple.com/assets/branding/en/Apple_Weather_blk_en_2X_090122.png', legal_url: 'https://weatherkit.apple.com/legal-attribution.html' });
 });
@@ -102,6 +102,82 @@ it('allows documented optional units/direction/gusts and falls back to the offic
   expect(result.risks.find(risk => risk.type === 'wind').note).toContain('gusts unavailable');
   expect(result.attribution.legal_url).toBe('https://developer.apple.com/weatherkit/data-source-attribution/');
 });
+it('assesses Tuesday through Friday when requested on Monday, retaining current conditions separately', () => {
+  const result = normalizeWeatherKitForecast(fixture(), attribution, '87106', location, now);
+  expect(result.window).toEqual({ start_date: '2026-09-22', end_date: '2026-09-25', time_zone: 'America/Denver' });
+  expect(result.days.map(day => day.date)).toEqual(['2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25']);
+  expect(result.days[0].trade_guidance.concrete).toMatchObject({ level: 'hold', label: 'Weather hold candidate' });
+  expect(result.days[1].trade_guidance.concrete.level).toBe('plan');
+  expect(result.days[2].trade_guidance.concrete.level).toBe('hold');
+  expect(result.days[3].trade_guidance.general.level).toBe('hold');
+  expect(result.days[3].trade_guidance.general.reasons.join(' ')).toMatch(/thunder|lightning/i);
+  expect(result.crew_message).toMatch(/2026-09-22.*2026-09-25/);
+  expect(result.crew_message).toMatch(/contractor confirmation/i);
+  expect(result.crew_message).not.toMatch(/7 day|schedule impact|day off/i);
+});
+it('uses the site local date rather than the UTC date to choose tomorrow', () => {
+  const localNow = new Date('2026-09-22T05:30:00Z');
+  const payload = fixture();
+  for (const data of Object.values(payload)) { data.metadata.readTime = '2026-09-22T05:25:00Z'; data.metadata.expireTime = '2026-09-22T06:30:00Z'; }
+  const result = normalizeWeatherKitForecast(payload, attribution, '87106', location, localNow);
+  expect(result.window.start_date).toBe('2026-09-22');
+});
+it('does not treat duplicate hourly entries as complete coverage or missing hours as low risk', () => {
+  const payload = fixture();
+  const omitted = payload.forecastHourly.hours.splice(24, 1)[0];
+  payload.forecastHourly.hours.push({ ...payload.forecastHourly.hours[24] });
+  const result = normalizeWeatherKitForecast(payload, attribution, '87106', location, now);
+  const day = result.days[1];
+  expect(omitted.forecastStart).toContain('2026-09-23');
+  expect(day).toMatchObject({ wind_coverage: 'partial', hourly_hours_expected: 24, hourly_hours_available: 23 });
+  expect(Object.values(day.trade_guidance).every(guidance => guidance.level === 'review')).toBe(true);
+  expect(day.trade_guidance.general.reasons.join(' ')).toMatch(/23 of 24/);
+});
+it('returns unknown wind and guidance when hourly forecasts are absent, while retaining known daily hazards', () => {
+  const payload = fixture(); payload.forecastHourly.hours = [];
+  const result = normalizeWeatherKitForecast(payload, attribution, '87106', location, now);
+  expect(result.days[1]).toMatchObject({ wind_mph: null, gust_mph: null, wind_coverage: 'unavailable' });
+  expect(Object.values(result.days[1].trade_guidance).every(guidance => guidance.level === 'unknown')).toBe(true);
+  expect(result.days[0].trade_guidance.concrete.level).toBe('hold');
+  expect(result.days[3].trade_guidance.general.level).toBe('hold');
+});
+it('never returns overall low risk when hourly coverage is incomplete', () => {
+  const payload = fixture();
+  for (const day of payload.forecastDaily.days) Object.assign(day, { temperatureMin: 10, precipitationChance: 0, precipitationAmount: 0, conditionCode: 'Clear' });
+  payload.forecastHourly.hours = [];
+  expect(normalizeWeatherKitForecast(payload, attribution, '87106', location, now).risk_level).toBe('unknown');
+});
+it.each([
+  ['moderate rain', { precipitationChance: 0.65 }, 'review', 'hold', 'review', 'review'],
+  ['heavy precipitation', { precipitationAmount: 5 }, 'hold', 'hold', 'hold', 'review'],
+  ['near-freezing temperatures', { temperatureMin: 1 }, 'review', 'review', 'review', 'review'],
+  ['hot conditions', { temperatureMax: 40 }, 'review', 'review', 'review', 'review'],
+  ['thunderstorms', { conditionCode: 'IsolatedThunderstorms' }, 'hold', 'hold', 'hold', 'hold'],
+  ['strong thunderstorms', { conditionCode: 'StrongStorms' }, 'hold', 'hold', 'hold', 'hold'],
+])('provides distinct trade recommendations for %s', (_label, changes, concrete, roofing, excavation, general) => {
+  const payload = fixture(); Object.assign(payload.forecastDaily.days[2], changes);
+  const guidance = normalizeWeatherKitForecast(payload, attribution, '87106', location, now).days[1].trade_guidance;
+  expect(Object.fromEntries(Object.entries(guidance).map(([trade, value]) => [trade, value.level]))).toEqual({ concrete, roofing, excavation, general });
+  for (const value of Object.values(guidance)) { expect(value.reasons.length).toBeGreaterThan(0); expect(value.message).toMatch(/contractor|site supervisor/i); }
+});
+it('uses hourly thunderstorm conditions even if the daily summary is clear', () => {
+  const payload = fixture(); payload.forecastHourly.hours[30].conditionCode = 'Thunderstorms';
+  const result = normalizeWeatherKitForecast(payload, attribution, '87106', location, now);
+  expect(result.days[1].trade_guidance.concrete.level).toBe('hold');
+  expect(result.risks).toContainEqual(expect.objectContaining({ type: 'lightning', date: '2026-09-23' }));
+});
+it.each([
+  ['fall back', '2026-10-31T18:00:00Z', ['2026-11-01T06:00:00Z', '2026-11-02T07:00:00Z', '2026-11-03T07:00:00Z', '2026-11-04T07:00:00Z', '2026-11-05T07:00:00Z'], 25],
+  ['spring forward', '2027-03-13T18:00:00Z', ['2027-03-14T07:00:00Z', '2027-03-15T06:00:00Z', '2027-03-16T06:00:00Z', '2027-03-17T06:00:00Z', '2027-03-18T06:00:00Z'], 23],
+])('recognizes a complete %s local day using actual forecast boundaries', (_label, checked, boundaries, expectedHours) => {
+  const payload = fixture();
+  for (const data of Object.values(payload)) { data.metadata.readTime = checked; data.metadata.expireTime = new Date(Date.parse(checked) + 3600000).toISOString(); }
+  payload.forecastDaily.days = boundaries.slice(0, 4).map((start, index) => ({ ...payload.forecastDaily.days[2], forecastStart: start, forecastEnd: boundaries[index + 1] }));
+  payload.forecastHourly.hours = Array.from({ length: (Date.parse(boundaries[4]) - Date.parse(boundaries[0])) / 3600000 }, (_, hour) => ({ forecastStart: new Date(Date.parse(boundaries[0]) + hour * 3600000).toISOString(), windSpeed: 8, windGust: 10 }));
+  const result = normalizeWeatherKitForecast(payload, attribution, '87106', location, new Date(checked));
+  expect(result.days[0]).toMatchObject({ wind_coverage: 'complete', hourly_hours_expected: expectedHours, hourly_hours_available: expectedHours });
+  expect(result.days[0].trade_guidance.concrete.level).toBe('plan');
+});
 it.each([
   ['missing current temperature', p => { delete p.currentWeather.temperature; }],
   ['null daily entry', p => { p.forecastDaily.days[0] = null; }],
@@ -109,10 +185,10 @@ it.each([
   ['null temperature', p => { p.currentWeather.temperature = null; }],
   ['string temperature', p => { p.currentWeather.temperature = '20'; }],
   ['missing precipitation rate', p => { delete p.currentWeather.precipitationIntensity; }],
-  ['invalid rain probability', p => { p.forecastDaily.days[0].precipitationChance = 80; }],
-  ['missing daily precipitation', p => { delete p.forecastDaily.days[0].precipitationAmount; }],
-  ['missing third day', p => { p.forecastDaily.days.pop(); }],
-  ['missing hourly coverage', p => { p.forecastHourly.hours.pop(); }],
+  ['invalid rain probability', p => { p.forecastDaily.days[1].precipitationChance = 80; }],
+  ['missing daily precipitation', p => { delete p.forecastDaily.days[1].precipitationAmount; }],
+  ['missing fourth planning day', p => { p.forecastDaily.days.pop(); }],
+  ['invalid daily end', p => { p.forecastDaily.days[1].forecastEnd = p.forecastDaily.days[1].forecastStart; }],
   ['missing hourly wind', p => { delete p.forecastHourly.hours[0].windSpeed; }],
   ['malformed optional gust', p => { p.forecastHourly.hours[0].windGust = 'unknown'; }],
   ['unexpected units', p => { p.forecastDaily.metadata.units = 'e'; }],

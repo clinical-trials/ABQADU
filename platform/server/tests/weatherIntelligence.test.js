@@ -108,6 +108,25 @@ test('weather risks create text-ready crew messages for Version 10 work categori
   expect(messages[0].body).toContain('roofing crew');
   expect(messages[4].body).toContain('inspection slot');
   expect(messages[6].body).toContain('air quality');
+  expect(messages[0].body).toContain('Plan for up to 7 day(s) of schedule impact.');
+});
+
+test.each([{ provider: 'weatherkit' }, { source: 'Apple Weather' }])('Apple crew drafts retain dated planning guidance without legacy delay allowances: %j', provenance => {
+  const { createCrewMessagesFromForecast } = require('../src/services/crewMessageEngine');
+  const summary = 'Weather planning for 87106, 2026-09-22 through 2026-09-25. 2026-09-22: hold candidates: concrete. Schedule changes require contractor confirmation. ABQ ADU planning assessment derived from Apple Weather data.';
+  const messages = createCrewMessagesFromForecast({ id: 'test-project', client: 'Test homeowner' }, {
+    ...provenance,
+    risk_level: 'high',
+    delay_days: 7,
+    crew_message: summary,
+    risks: [{ type: 'rain', impacted_work: ['concrete', 'roofing'], delay_days: 7 }],
+  });
+  expect(messages.map(message => message.trade)).toEqual(['concrete', 'roofing']);
+  for (const message of messages) {
+    expect(message.body).toContain(summary);
+    expect(message.body).not.toMatch(/7 day|schedule impact|day off/i);
+    expect(message.status).toBe('Draft');
+  }
 });
 
 test('weather activity stores crew message drafts with weather checks', async () => {

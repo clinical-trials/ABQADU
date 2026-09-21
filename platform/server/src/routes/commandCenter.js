@@ -1,5 +1,6 @@
 const router = require('../asyncRouter')();
 const { createClientPacketPdf } = require('../services/clientPacketPdf');
+const { OWNED_FIELDS } = require('../services/contractorDesk');
 const {
   loadCommandCenter,
   saveCommandCenter,
@@ -48,32 +49,36 @@ router.get('/supplier-bidout', async (req, res) => {
 });
 
 router.post('/supplier-bidout/send-to-cogs', async (req, res) => {
-  const state = await loadCommandCenter();
   try {
-    const nextState = sendSupplierPackageToCogs(state, {
+    const saved = await saveCommandCenter(current => sendSupplierPackageToCogs(current, {
       project_id: req.body?.project_id || req.body?.projectId,
       package_id: req.body?.package_id || req.body?.packageId || req.body?.quote_id || req.body?.quoteId,
-    });
-    res.status(201).json(await saveCommandCenter(nextState));
+    }));
+    res.status(201).json(saved);
   } catch (error) {
     res.status(error.status || 400).json({ error: error.message });
   }
 });
 
 router.post('/projects/:projectId/send-supplier-to-cogs', async (req, res) => {
-  const state = await loadCommandCenter();
   try {
-    const nextState = sendSupplierPackageToCogs(state, {
+    const saved = await saveCommandCenter(current => sendSupplierPackageToCogs(current, {
       project_id: req.params.projectId,
       package_id: req.body?.package_id || req.body?.packageId || req.body?.quote_id || req.body?.quoteId,
-    });
-    res.status(201).json(await saveCommandCenter(nextState));
+    }));
+    res.status(201).json(saved);
   } catch (error) {
     res.status(error.status || 400).json({ error: error.message });
   }
 });
 
 router.put('/', async (req, res) => {
+  if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+    return res.status(400).json({ error: 'Expected a command-center update object.' });
+  }
+  if (OWNED_FIELDS.some(key => Object.prototype.hasOwnProperty.call(req.body, key))) {
+    return res.status(400).json({ error: 'Bid requests, text replies, contact preferences, and weather holds must use their dedicated workflows.' });
+  }
   res.json(await saveCommandCenter(req.body || {}));
 });
 

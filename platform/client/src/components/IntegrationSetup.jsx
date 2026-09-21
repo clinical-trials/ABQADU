@@ -29,9 +29,9 @@ const services = [
   },
   {
     id: 'twilio', name: 'Twilio', purpose: 'Business text messages',
-    description: 'Send project updates directly from the builder app.',
-    available: 'Use your phone’s text app with the existing Text button.',
-    steps: ['Connect a Twilio account and an approved SMS sender number.', 'Complete the sender setup required by Twilio, then test with an authorized recipient.', 'Add delivery updates and reply handling before depending on texts for crew coordination.'],
+    description: 'Receive subcontractor quotes and job updates in the job inbox.',
+    available: 'Use your phone’s text app to prepare bid requests. Replies reach the platform only when sent to its configured business number.',
+    steps: ['Connect a Twilio account and an approved SMS sender number.', 'Set the public HTTPS inbound URL in Twilio and TWILIO_INBOUND_URL on the server, then restart.', 'Verify signed incoming messages and retry handling with an authorized test number before relying on crew coordination. Delivery tracking is not yet connected.'],
   },
   {
     id: 'ocr', name: 'OCR.space', purpose: 'Receipt photo scanning',

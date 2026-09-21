@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Portfolio from './pages/Portfolio';
 import Scheduler from './pages/Scheduler';
 import RiskRegister from './pages/RiskRegister';
@@ -10,47 +10,7 @@ import BidBuilder from './pages/BidBuilder';
 import Invoices from './pages/Invoices';
 import CommandCenter from './pages/CommandCenter';
 import ProjectWorkspace from './components/ProjectWorkspace';
-import { WorkspaceSignOut } from './components/AuthBoundary';
-
-function Nav() {
-  return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, height: 52, zIndex: 100,
-      background: 'rgba(28,25,23,.95)', backdropFilter: 'blur(10px)',
-      display: 'flex', alignItems: 'center', padding: '0 24px', gap: 18,
-      borderBottom: '1px solid rgba(255,255,255,.06)',
-      overflowX: 'auto',
-    }}>
-      <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900,
-        fontSize: 20, color: '#F0EBE1', letterSpacing: '.03em' }}>
-        ABQ <span style={{ color: '#C4954A' }}>ADU</span>
-      </span>
-      {[
-        { to: '/command-center', label: 'Command' },
-        { to: '/', label: 'Portfolio' },
-        { to: '/clients', label: 'Clients' },
-        { to: '/bids', label: 'Bids' },
-        { to: '/invoices', label: 'Invoices' },
-        { to: '/schedule', label: 'Schedule' },
-        { to: '/field', label: 'Field Ops' },
-        { to: '/risks', label: 'Risks' },
-        { to: '/design', label: 'Design' },
-      ].map(link => (
-        <Link key={link.to} to={link.to} style={{
-          fontSize: 12, fontWeight: 700, letterSpacing: '.04em',
-          textTransform: 'uppercase', color: '#A8A29E', textDecoration: 'none',
-          transition: 'color .15s',
-          whiteSpace: 'nowrap',
-        }}
-        onMouseEnter={e => e.target.style.color = '#C4954A'}
-        onMouseLeave={e => e.target.style.color = '#A8A29E'}>
-          {link.label}
-        </Link>
-      ))}
-      <WorkspaceSignOut />
-    </nav>
-  );
-}
+import AppNavigation from './components/AppNavigation';
 
 function SchedulerRoute() {
   return <ProjectWorkspace section="schedule">{id => <Scheduler projectId={id} />}</ProjectWorkspace>;
@@ -67,8 +27,8 @@ function RiskRoute() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Nav />
-      <div style={{ paddingTop: 52 }}>
+      <AppNavigation />
+      <div>
         <Routes>
           <Route path="/"               element={<Portfolio />} />
           <Route path="/command-center"  element={<CommandCenter />} />

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { assessConstructionWeather } = require('./weatherIntelligence');
+const { hasThunderstorm, tradeWeatherGuidance, planningCrewMessage } = require('./tradeWeatherPlanning');
 
 const ORIGIN = 'https://weatherkit.apple.com';
 const LEGAL_URL = 'https://developer.apple.com/weatherkit/data-source-attribution/';
@@ -137,41 +138,59 @@ function normalizeWeatherKitForecast(payload, branding, zip, location, now = new
     description: description(rawCurrent.conditionCode),
     observed_at: dateValue(rawCurrent.asOf).toISOString(),
   };
-  const today = localDate(now, location.timeZone);
+  const tomorrow = plusDays(localDate(now, location.timeZone), 1);
+  const window = { start_date: tomorrow, end_date: plusDays(tomorrow, 3), time_zone: location.timeZone };
   if (!Array.isArray(payload.forecastDaily.days) || !Array.isArray(payload.forecastHourly.hours)) throw invalidResponse();
   const rawDays = payload.forecastDaily.days.map(day => ({ ...day, date: localDate(dateValue(day?.forecastStart), location.timeZone) }))
-    .filter(day => day.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
-  if (rawDays.length !== 3 || rawDays.some((day, index) => day.date !== plusDays(today, index))) throw invalidResponse();
-  const hourly = new Map();
+    .filter(day => day.date >= tomorrow && day.date <= window.end_date).sort((a, b) => a.date.localeCompare(b.date));
+  if (rawDays.length !== 4 || rawDays.some((day, index) => day.date !== plusDays(tomorrow, index))) throw invalidResponse();
+  const hourly = [];
   for (const hour of payload.forecastHourly.hours) {
-    const day = localDate(dateValue(hour?.forecastStart), location.timeZone);
-    if (!rawDays.some(selected => selected.date === day)) continue;
-    const values = hourly.get(day) || [];
-    values.push({ wind: mph(hour.windSpeed), gust: hour.windGust == null ? null : mph(hour.windGust) });
-    hourly.set(day, values);
+    const start = dateValue(hour?.forecastStart);
+    const date = localDate(start, location.timeZone);
+    if (!rawDays.some(selected => selected.date === date)) continue;
+    hourly.push({ start: start.getTime(), wind: mph(hour.windSpeed), gust: hour.windGust == null ? null : mph(hour.windGust), thunderstorm: hasThunderstorm(hour.conditionCode) });
   }
   const days = rawDays.map(day => {
-    const hours = hourly.get(day.date);
-    if (!hours?.length) throw invalidResponse();
+    const start = dateValue(day.forecastStart).getTime();
+    const end = dateValue(day.forecastEnd).getTime();
+    const expectedHours = (end - start) / 3600000;
+    // Use actual local-day boundaries: a DST transition may contain 23 or 25 hours.
+    if (![23, 24, 25].includes(expectedHours) || localDate(new Date(end), location.timeZone) !== plusDays(day.date, 1)
+      || localDate(new Date(start - 1), location.timeZone) !== plusDays(day.date, -1)
+      || localDate(new Date(end - 1), location.timeZone) !== day.date) throw invalidResponse();
+    const hours = hourly.filter(hour => hour.start >= start && hour.start < end);
+    const covered = new Set(hours.filter(hour => (hour.start - start) % 3600000 === 0).map(hour => hour.start));
+    const coverage = covered.size === expectedHours ? 'complete' : hours.length ? 'partial' : 'unavailable';
     const high = fahrenheit(day.temperatureMax);
     const low = fahrenheit(day.temperatureMin);
     if (high < low) throw invalidResponse();
     const gusts = hours.map(hour => hour.gust).filter(value => value !== null);
-    return {
+    const normalized = {
       date: day.date, high_f: high, low_f: low,
       rain_chance: round(numeric(day.precipitationChance, 0, 1) * 100),
       precip_inches: inches(day.precipitationAmount),
-      wind_mph: Math.max(...hours.map(hour => hour.wind)),
+      wind_mph: hours.length ? Math.max(...hours.map(hour => hour.wind)) : null,
       gust_mph: gusts.length ? Math.max(...gusts) : null,
       description: description(day.conditionCode),
+      wind_coverage: coverage,
+      hourly_hours_expected: expectedHours,
+      hourly_hours_available: covered.size,
+      thunderstorm_possible: hasThunderstorm(day.conditionCode) || hours.some(hour => hour.thunderstorm),
     };
+    return { ...normalized, trade_guidance: tradeWeatherGuidance(normalized) };
   });
   const assessment = assessConstructionWeather(days, zip);
+  for (const day of days.filter(day => day.thunderstorm_possible)) {
+    assessment.risks.push({ type: 'lightning', severity: 'high', date: day.date, impacted_work: ['concrete', 'roofing', 'trenching', 'exterior work'], note: 'Thunderstorms are forecast; review lightning shelter and work-stop procedures.' });
+  }
+  if (assessment.risks.some(risk => risk.severity === 'high')) assessment.risk_level = 'high';
+  if (!assessment.risks.length && days.some(day => day.wind_coverage !== 'complete')) assessment.risk_level = 'unknown';
   return {
     zip, source: 'Apple Weather', provider: 'weatherkit', location: location.label.trim(),
     checked_at: now.toISOString(), expires_at: new Date(Math.min(...expires)).toISOString(),
-    current, days, ...assessment,
-    crew_message: `${assessment.crew_message} ABQ ADU planning assessment derived from Apple Weather data.`,
+    current, window, days, ...assessment,
+    crew_message: planningCrewMessage(days, zip, window),
     assessment_source: 'ABQ ADU planning rules', attribution,
   };
 }

@@ -5,6 +5,7 @@ import usePacketPdf from '../hooks/usePacketPdf';
 import IntegrationSetup, { SERVICE_IDS } from '../components/IntegrationSetup';
 import { apiFetch } from '../utils/authFetch';
 import WeatherAttribution from '../components/WeatherAttribution';
+import ContractorDesk from '../components/ContractorDesk';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
@@ -279,6 +280,7 @@ export default function CommandCenter() {
     }
   };
   const weatherMatches = !!weatherForecast && weatherForecast.project_id === activeProject?.id && weatherForecast.zip === weatherZip;
+  const appleWeather = weatherForecast?.provider === 'weatherkit' || weatherForecast?.source === 'Apple Weather';
   const logWeatherRisk = async () => {
     if (!activeProject || !weatherMatches) return;
     const request = weatherRequest.current;
@@ -321,15 +323,14 @@ export default function CommandCenter() {
 
   return (
     <div style={styles.page} className="command-center-workspace">
-      <header style={styles.header}>
+      <header style={{ ...styles.header, background: '#FAF7F2', color: '#243F33', paddingBottom: 0 }}>
         <div style={styles.headerInner}>
           <div>
-            <h1 style={styles.title}>Builder Operating System</h1>
-            <div style={{ color: '#CFC7BC', marginTop: 6 }}>Version 10 · Projects, estimates, suppliers, and crews</div>
+            <h1 style={{ ...styles.title, fontSize: 'clamp(26px, 5vw, 36px)' }}>Your job, at a glance.</h1>
+            <div style={{ color: '#58665D', marginTop: 6 }}>Projects, people &amp; the next four days.</div>
           </div>
-          <span style={styles.badge}>Version 10</span>
-          <button className="v10-header-action" style={{ ...styles.button, marginLeft: 'auto' }} disabled={!activeProject || saving} onClick={previewClient}>Preview Client View</button>
-          <button className="v10-header-action" style={styles.ghost} disabled={!activeProject || saving || packetPdf.loading} onClick={() => packetPdf.open(activeProject.id)}>{packetPdf.loading ? 'Preparing PDF…' : 'Print Client Packet'}</button>
+          <div className="field-packet-actions"><button style={styles.ghost} disabled={!activeProject || saving} onClick={previewClient}>Preview Client View</button>
+          <button style={styles.button} disabled={!activeProject || saving || packetPdf.loading} onClick={() => packetPdf.open(activeProject.id)}>{packetPdf.loading ? 'Preparing PDF…' : 'Print Client Packet'}</button></div>
         </div>
       </header>
 
@@ -341,7 +342,7 @@ export default function CommandCenter() {
               {state.projects.map(project => <option key={project.id} value={project.id}>{project.client} · {project.model}</option>)}
             </select>
           </label>
-          <div style={{ flex: '1 1 220px', fontSize: 13 }}><b>Working on {activeProject?.client || 'your next project'}</b><p style={{ margin: '6px 0 0', color: '#57534E' }}>Client packets, supplier costs, receipts, and weather use this project.</p></div>
+          <div className="field-project-help" style={{ flex: '1 1 220px', fontSize: 13 }}><b>Working on {activeProject?.client || 'your next project'}</b><p style={{ margin: '6px 0 0', color: '#57534E' }}>Client packets, supplier costs, receipts, and weather use this project.</p></div>
           <div style={{ display: 'grid', gap: 6 }}><span role="status" style={{ fontSize: 13 }}>{status}</span><button disabled={saving} style={styles.ghost} onClick={() => saveState({})}>{error ? 'Retry saving' : 'Save changes'}</button></div>
         </div>
         {error && <div role="alert" style={{ padding: 12, background: '#FEE2E2', color: '#991B1B', borderRadius: 8 }}>{error} Any unsaved edits remain in this tab. <button style={styles.ghost} onClick={clearError}>Dismiss error</button></div>}
@@ -349,6 +350,9 @@ export default function CommandCenter() {
         {liveStatus && <p role="status" style={{ padding: 12, background: '#E8EEE8', borderRadius: 8 }}>{liveStatus}</p>}
         <PacketPdfStatus pdf={packetPdf.projectId === activeProject?.id ? packetPdf : null} />
       </section>
+      <ContractorDesk project={activeProject} state={state} forecast={weatherMatches ? weatherForecast : null} busy={saving} onCheckWeather={checkWeather} runAction={runAction} onRefresh={load} />
+      <details className="field-office-tools">
+        <summary>Estimates, costs &amp; office tools</summary>
       <main className="v10-shell" style={styles.shell}>
         <section style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
           <div style={styles.grid}>
@@ -463,17 +467,22 @@ export default function CommandCenter() {
                     <b>{day.date}</b>
                     <div>{Math.round(day.high_f)}° / {Math.round(day.low_f)}°</div>
                     <div>{Math.round(day.rain_chance)}% precipitation</div>
-                    <div>Wind up to {Math.round(day.wind_mph)} mph</div>
+                    <div>{!Number.isFinite(day.wind_mph) ? 'Wind unavailable'
+                      : appleWeather && day.wind_coverage !== 'complete'
+                        ? day.wind_coverage === 'partial' ? `Available-hours wind up to ${Math.round(day.wind_mph)} mph · incomplete coverage` : 'Wind coverage unavailable'
+                        : `Wind up to ${Math.round(day.wind_mph)} mph`}</div>
                   </div>)}
                 </div>
                 <WeatherAttribution forecast={weatherForecast} />
-                <p style={{fontSize:12,color:'#57534e'}}>ABQ ADU planning estimates: construction risks and delay allowances calculated from Apple Weather data.</p>
+                <p style={{fontSize:12,color:'#57534e'}}>{appleWeather
+                  ? 'ABQ ADU planning guidance derived from Apple Weather. Schedule changes require contractor confirmation.'
+                  : 'ABQ ADU planning estimates based on the forecast shown.'}</p>
                 <div style={{ marginTop: 4 }}>{weatherForecast.crew_message}</div>
                 <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   <span style={{ ...styles.badge, background: weatherForecast.risk_level === 'high' ? '#F87171' : '#C4954A' }}>
                     {weatherForecast.risk_level} risk
                   </span>
-                  <span style={styles.badge}>Up to {weatherForecast.delay_days} day planning allowance</span>
+                  {!appleWeather && <span style={styles.badge}>Up to {weatherForecast.delay_days} day planning allowance</span>}
                 </div>
                 {weatherForecast.checked_at && <small>Checked {new Date(weatherForecast.checked_at).toLocaleString()}</small>}
               </div>
@@ -551,6 +560,7 @@ export default function CommandCenter() {
           </section>
         </aside>
       </main>
+      </details>
       {clientPreview && <ClientPacket preview={clientPreview} onClose={() => setClientPreview(null)} onPrint={() => packetPdf.open(clientPreview.project?.id)} pdf={packetPdf.projectId === clientPreview.project?.id ? packetPdf : null} />}
     </div>
   );

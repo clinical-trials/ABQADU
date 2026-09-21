@@ -1,0 +1,15 @@
+.app-navigation { position:sticky; top:0; z-index:100; background:#20392e; color:#fffdf3; border-bottom:1px solid #3c5544; font-family:'DM Sans',sans-serif; }
+.app-navigation-bar { display:flex; align-items:center; gap:.35rem; min-height:4rem; max-width:1440px; margin:auto; padding:0 .75rem; }
+.app-wordmark { flex-shrink:0; color:#fffdf3; font:800 1.45rem 'Barlow Condensed',sans-serif; text-decoration:none; letter-spacing:-.02em; margin-right:auto; min-height:2.75rem; display:flex; align-items:center; gap:.25rem; }
+.app-wordmark span { color:#e0bd85; }
+.app-primary-links { display:flex; align-items:center; gap:.1rem; }
+.app-primary-links a { display:flex; align-items:center; justify-content:center; min-height:2.75rem; padding:.5rem .55rem; color:#edf0e4; text-decoration:none; font-size:.875rem; font-weight:700; border-radius:.25rem; }
+.app-primary-links a[aria-current] { background:#395442; color:#fff6d7; }
+.app-menu-button { display:flex; align-items:center; gap:.5rem; justify-content:center; flex-shrink:0; min-width:2.75rem; min-height:2.75rem; padding:.5rem; border:1px solid #6a7a64; border-radius:.25rem; background:none; color:#fff7e3; cursor:pointer; font:inherit; }
+.app-menu-button>span:first-child { font-size:1.3rem; line-height:1; }
+.app-menu-label { display:none; }
+.app-workspace-menu { position:absolute; top:100%; right:0; left:0; padding:.75rem 1rem 1rem; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; background:#20392e; border-bottom:1px solid #6c7c65; box-shadow:0 .75rem 1.5rem #172d231c; }
+.app-workspace-menu>a { min-height:2.75rem; display:flex; align-items:center; padding:.65rem; color:#fff9e7; text-decoration:none; border:1px solid #49604e; border-radius:.2rem; font-size:.875rem; }
+.app-navigation button:focus-visible,.app-navigation a:focus-visible { outline:3px solid #efd08e; outline-offset:2px; }
+@media(min-width:768px) { .app-navigation-bar { padding:0 1.5rem; gap:1rem; } .app-wordmark { font-size:1.75rem; } .app-primary-links a { padding:.6rem 1.1rem; font-size:.9rem; } .app-menu-label { display:inline; font-size:.875rem; } .app-workspace-menu { left:auto; width:30rem; padding:1rem; } }
+@media(max-width:360px) { .app-navigation-bar { padding:0 .5rem; } .app-primary-links a { padding:.5rem .45rem; } }
