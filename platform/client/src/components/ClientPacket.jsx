@@ -13,7 +13,21 @@ function money(value) {
   return Number.isFinite(Number(value)) ? currency.format(Number(value)) : 'To be confirmed';
 }
 
-export default function ClientPacket({ preview, onClose }) {
+export function PacketPdfStatus({ pdf }) {
+  if (!pdf) return null;
+  if (pdf.loading) return <p role="status" className="client-packet-pdf-status">Preparing your ABQ ADU packet PDF…</p>;
+  if (pdf.error) return <p role="alert" className="client-packet-pdf-status">{pdf.error}</p>;
+  if (!pdf.url) return null;
+  return <div role="status" className="client-packet-pdf-status">
+    <p>{pdf.blocked ? 'The PDF tab was blocked or closed. Open or download your packet below.' : 'Your PDF is ready. Use its print controls, or download a copy.'}</p>
+    <div className="client-packet-pdf-links">
+      <a className="client-packet-button" href={pdf.url} target="_blank" rel="noopener noreferrer">Open PDF</a>
+      <a className="client-packet-button" href={pdf.url} download={pdf.filename}>Download PDF</a>
+    </div>
+  </div>;
+}
+
+export default function ClientPacket({ preview, onClose, onPrint, pdf }) {
   const overlayRef = useRef(null);
   const dialogRef = useRef(null);
   const closeRef = useRef(onClose);
@@ -105,8 +119,9 @@ export default function ClientPacket({ preview, onClose }) {
         <div className="client-packet-toolbar">
           <button className="client-packet-button client-packet-close" type="button" onClick={onClose}>Close preview</button>
           <p>Homeowner preview</p>
-          <button className="client-packet-button client-packet-print" type="button" onClick={() => window.print()}>Print packet</button>
+          <button className="client-packet-button client-packet-print" type="button" disabled={!onPrint || pdf?.loading} onClick={onPrint}>{pdf?.loading ? 'Preparing PDF…' : 'Print packet'}</button>
         </div>
+        <PacketPdfStatus pdf={pdf} />
         <article className="client-packet-document">
           <header className="client-packet-header">
             <div>

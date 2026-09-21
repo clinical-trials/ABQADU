@@ -38,13 +38,21 @@ export async function requestList(url, options) {
   return data;
 }
 
-export async function requestPdf(url, options, filename) {
+export async function requestPdfBlob(url, options) {
   const owner = options?.authSession || getAuthSession();
   const response = await checkedResponse(url, { ...options, authSession: owner });
   if (!response.headers.get('content-type')?.toLowerCase().includes('application/pdf')) {
     throw new Error('The server did not return a PDF. Please try again.');
   }
   const blob = await response.blob();
+  assertAuthSession(owner);
+  if (!blob.size) throw new Error('The server returned an empty PDF. Please try again.');
+  return blob;
+}
+
+export async function requestPdf(url, options, filename) {
+  const owner = options?.authSession || getAuthSession();
+  const blob = await requestPdfBlob(url, { ...options, authSession: owner });
   assertAuthSession(owner);
   const downloadUrl = URL.createObjectURL(blob);
   const link = document.createElement('a');

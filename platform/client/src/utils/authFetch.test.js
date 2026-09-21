@@ -82,3 +82,19 @@ test('a PDF finishing after sign-out is not downloaded', async () => {
   await expect(request).rejects.toMatchObject({ code: 'AUTH_SESSION_CHANGED' });
   expect(URL.createObjectURL).not.toHaveBeenCalled();
 });
+
+test('sign-out between the PDF blob helper and download continuation prevents the download', async () => {
+  identify();
+  let finish;
+  URL.createObjectURL = jest.fn(() => 'blob:private-pdf');
+  URL.revokeObjectURL = jest.fn();
+  jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+  fetch.mockResolvedValue({ ok: true, status: 200, headers: new Headers({ 'content-type': 'application/pdf' }), blob: () => new Promise(resolve => { finish = resolve; }) });
+  const request = requestPdf('/api/invoices/1/pdf', { method: 'POST' }, 'invoice.pdf');
+  while (!finish) await Promise.resolve();
+  finish(new Blob(['%PDF-private']));
+  queueMicrotask(() => clearAuthSession());
+  await expect(request).rejects.toMatchObject({ code: 'AUTH_SESSION_CHANGED' });
+  expect(URL.createObjectURL).not.toHaveBeenCalled();
+  jest.restoreAllMocks();
+});

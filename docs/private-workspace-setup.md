@@ -63,6 +63,18 @@ A failed/uncertain external creation leaves a durable reservation. Do not clear 
 
 ## Local database and deployment
 
+### Printing a client packet
+
+In Command Center, select the project and choose **Print Client Packet**, or choose **Print packet** inside its preview. The button immediately reserves a PDF tab, saves pending project edits, and requests a branded Letter-size PDF from the authenticated server. The PDF contains the estimate and payment stages; internal costs and profit figures are excluded. It remains a draft, not a payment request.
+
+The packet opens in the browser's PDF viewer for printing or saving. **Open PDF** and **Download PDF** remain available in the app, including when a pop-up is blocked. Failed saves or PDF generation show an error and can be retried. Signing out cancels pending exports and releases the packet URL.
+
+The server uses its installed Puppeteer Chromium. If that bundled browser cannot start, it tries installed stable Google Chrome. An explicitly configured `PUPPETEER_EXECUTABLE_PATH` takes precedence and does not fall back. Hosts need a working browser executable and its operating-system dependencies. No third-party document service receives project data.
+
+Verified September 21, 2026: both button paths, save-before-export, blocked pop-ups, failures, and session changes have regression coverage. A real sample PDF was generated and visually inspected as one Letter page. The browser automation tool blocks generated Blob URL navigation, so its native PDF viewer was not verified through automation. Real-account app testing still requires Clerk setup.
+
+### Preserving project data
+
 The additive `007_billing_ledger.sql` migration was applied locally after a PostgreSQL and Command Center backup. Existing clients, invoices, payments and project counts were unchanged. Backup directory: `backups/private-builder-2026-09-21T18-19-46-638Z/` (excluded from Git).
 
 On another existing database, back it up and apply **only** `007_billing_ledger.sql` in a transaction. Do not rerun the legacy migration runner: older migrations can duplicate initial designs. The server requires PostgreSQL and persistent Command Center file storage.

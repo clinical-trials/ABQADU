@@ -1,4 +1,5 @@
 const router = require('../asyncRouter')();
+const { createClientPacketPdf } = require('../services/clientPacketPdf');
 const {
   loadCommandCenter,
   saveCommandCenter,
@@ -135,6 +136,26 @@ router.get('/projects/:projectId/client-view-preview', async (req, res) => {
   if (!project) return res.status(404).json({ error: 'Project not found' });
 
   res.json(createClientViewPreview(project));
+});
+
+router.get('/projects/:projectId/client-packet.pdf', async (req, res) => {
+  const state = await loadCommandCenter();
+  const project = findProject(state, req.params.projectId);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+
+  try {
+    const pdf = await createClientPacketPdf(createClientViewPreview(project));
+    const filenameId = String(project.id || 'project').replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 80);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="abq-adu-${filenameId}-packet.pdf"`,
+      'Cache-Control': 'private, no-store',
+      'X-Content-Type-Options': 'nosniff',
+    });
+    res.send(pdf);
+  } catch {
+    res.status(503).json({ error: 'Packet PDF is temporarily unavailable. Try again; if this continues, check that the server has Puppeteer Chromium installed.' });
+  }
 });
 
 module.exports = router;

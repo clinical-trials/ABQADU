@@ -67,6 +67,12 @@ body.client-packet-open {
   color: #fff;
 }
 
+.client-packet-button:disabled { cursor: wait; opacity: 0.6; }
+.client-packet-pdf-status { margin: 0.75rem 0; padding: 0.75rem 1rem; background: #eef3ef; color: #253a2e; border-radius: 0.375rem; font-size: 0.875rem; }
+.client-packet-pdf-status p { margin: 0 0 0.75rem; }
+.client-packet-pdf-links { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.client-packet-pdf-links a { display: inline-flex; align-items: center; text-decoration: none; }
+
 .client-packet-button:hover {
   filter: brightness(0.94);
 }
@@ -315,7 +321,7 @@ body.client-packet-open {
   body.client-packet-open .command-center-workspace { display: none !important; }
   .client-packet-overlay { position: static; display: block; overflow: visible; padding: 0; background: #fff; color: #1c1917; }
   .client-packet-dialog { max-width: none; margin: 0; border-radius: 0; box-shadow: none; background: #fff; }
-  .client-packet-toolbar { display: none !important; }
+  .client-packet-toolbar, .client-packet-pdf-status { display: none !important; }
   .client-packet-document { padding: 0.2in 0 0; font-size: 10pt; }
   .client-packet-header { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; padding-bottom: 0.15in; }
   .client-packet-header address { max-width: 2.6in; justify-self: end; text-align: right; }

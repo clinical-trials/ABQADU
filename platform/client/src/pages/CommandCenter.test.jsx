@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Simulate } from 'react-dom/test-utils';
 import CommandCenter from './CommandCenter';
+import { clearAuthSession } from '../utils/authFetch';
 
 const project = (id, client) => ({ id, client, address: 'Albuquerque, NM 87106', model: 'Altura', sqft: 600, bid_total: 185000, cogs_low: 90000, cogs_high: 102000, confidence: 'A', status: 'Draft', next_action: 'Review site' });
 let container, root, state;
@@ -30,6 +31,97 @@ test('client preview opens the selected homeowner packet without inventing a cli
   expect(document.querySelector('[role="dialog"]').textContent).toContain('Second homeowner');
   expect(document.querySelector('[role="dialog"]').textContent).not.toContain('First homeowner');
   expect(fetch.mock.calls.some(([url]) => url.endsWith('/activity'))).toBe(false);
+});
+
+function packetPdfFixture(popup = true) {
+  const printWindow = popup ? { opener: window, closed: false, document: document.implementation.createHTMLDocument(), location: { replace: jest.fn() }, close: jest.fn() } : null;
+  jest.spyOn(window, 'open').mockReturnValue(printWindow);
+  URL.createObjectURL = jest.fn(() => 'blob:contractor-packet');
+  URL.revokeObjectURL = jest.fn();
+  const previous = fetch;
+  global.fetch = jest.fn((url, options) => url.endsWith('/client-packet.pdf')
+    ? Promise.resolve({ ok: true, status: 200, headers: new Headers({ 'content-type': 'application/pdf' }), blob: async () => new Blob(['%PDF-1.7 test packet'], { type: 'application/pdf' }) })
+    : previous(url, options));
+  return printWindow;
+}
+
+test('Print Client Packet reserves its tab immediately and opens the selected project PDF without a preview step', async () => {
+  const printWindow = packetPdfFixture();
+  await mount();
+  await act(async () => Simulate.change(container.querySelector('[aria-label="Active project"]'), { target: { value: 'two' } }));
+  await act(async () => {
+    button('Print Client Packet').click();
+    expect(window.open).toHaveBeenCalledTimes(1);
+    expect(printWindow.document.body.textContent).toContain('Preparing');
+  });
+  expect(fetch.mock.calls.some(([url]) => url === '/api/command-center/projects/two/client-packet.pdf')).toBe(true);
+  expect(printWindow.location.replace).toHaveBeenCalledWith('blob:contractor-packet');
+  expect(printWindow.opener).toBeNull();
+  expect(document.querySelector('[role="dialog"]')).toBeNull();
+  expect(container.querySelector('a[download]').href).toBe('blob:contractor-packet');
+});
+
+test('the preview Print packet button opens a PDF and does not depend on native window.print', async () => {
+  const printWindow = packetPdfFixture();
+  const print = jest.spyOn(window, 'print').mockImplementation(() => {});
+  await mount();
+  await act(async () => button('Preview Client View').click());
+  await act(async () => [...document.querySelector('[role="dialog"]').querySelectorAll('button')].find(el => el.textContent === 'Print packet').click());
+  expect(printWindow.location.replace).toHaveBeenCalledWith('blob:contractor-packet');
+  expect(print).not.toHaveBeenCalled();
+});
+
+test('a blocked print popup still offers an accessible PDF open and download link', async () => {
+  packetPdfFixture(false);
+  await mount();
+  await act(async () => button('Print Client Packet').click());
+  const link = container.querySelector('a[download]');
+  expect(link).not.toBeNull();
+  expect(link.download).toMatch(/\.pdf$/);
+  expect(container.textContent).toMatch(/blocked/i);
+  expect(container.querySelector('a[target="_blank"]').href).toBe('blob:contractor-packet');
+});
+
+test('PDF failure closes the loading tab, shows the error and permits retry', async () => {
+  const printWindow = packetPdfFixture();
+  const previous = fetch;
+  fetch = jest.fn((url, options) => url.endsWith('/client-packet.pdf')
+    ? Promise.resolve({ ok: false, status: 503, json: async () => ({ error: 'Packet PDF is temporarily unavailable.' }) })
+    : previous(url, options));
+  await mount();
+  await act(async () => button('Print Client Packet').click());
+  expect(printWindow.close).toHaveBeenCalled();
+  expect(container.textContent).toContain('Packet PDF is temporarily unavailable.');
+  expect(button('Print Client Packet').disabled).toBe(false);
+  expect(container.querySelector('a[download]')).toBeNull();
+});
+
+test('printing saves pending project edits before requesting the PDF', async () => {
+  packetPdfFixture();
+  await mount();
+  await act(async () => Simulate.change(container.querySelector('[aria-label="Project status"]'), { target: { value: 'Ready for review' } }));
+  await act(async () => button('Print Client Packet').click());
+  const saveIndex = fetch.mock.calls.findIndex(([, options]) => options?.method === 'PUT');
+  const pdfIndex = fetch.mock.calls.findIndex(([url]) => url.endsWith('/client-packet.pdf'));
+  expect(saveIndex).toBeGreaterThan(-1);
+  expect(pdfIndex).toBeGreaterThan(saveIndex);
+  expect(state.projects[0].status).toBe('Ready for review');
+});
+
+test('sign-out while a packet is rendering closes its tab and never exposes the late PDF', async () => {
+  const printWindow = packetPdfFixture();
+  const previous = fetch;
+  let finishPdf;
+  fetch = jest.fn((url, options) => url.endsWith('/client-packet.pdf')
+    ? Promise.resolve({ ok: true, headers: new Headers({ 'content-type': 'application/pdf' }), blob: () => new Promise(resolve => { finishPdf = resolve; }) })
+    : previous(url, options));
+  await mount();
+  await act(async () => button('Print Client Packet').click());
+  expect(finishPdf).toBeDefined();
+  await act(async () => { clearAuthSession(); finishPdf(new Blob(['%PDF-private'])); });
+  expect(printWindow.close).toHaveBeenCalled();
+  expect(URL.createObjectURL).not.toHaveBeenCalled();
+  expect(printWindow.location.replace).not.toHaveBeenCalled();
 });
 
 test('supplier imports target the explicitly selected project', async () => {

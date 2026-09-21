@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useCommandCenter from '../hooks/useCommandCenter';
-import ClientPacket from '../components/ClientPacket';
+import ClientPacket, { PacketPdfStatus } from '../components/ClientPacket';
+import usePacketPdf from '../hooks/usePacketPdf';
 import IntegrationSetup, { SERVICE_IDS } from '../components/IntegrationSetup';
 import { apiFetch } from '../utils/authFetch';
 import WeatherAttribution from '../components/WeatherAttribution';
@@ -130,6 +131,7 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
 export default function CommandCenter() {
   useMobilePatch();
   const { state, saving, error, status, load, saveState, updateList, runAction, clearError, legacyDraftNotice } = useCommandCenter();
+  const packetPdf = usePacketPdf(saveState);
   const [activeProjectId, setActiveProjectId] = useState('');
   const [clientPreview, setClientPreview] = useState(null);
   const activeProject = state?.projects?.find(project => project.id === activeProjectId) || state?.projects?.[0] || null;
@@ -327,7 +329,7 @@ export default function CommandCenter() {
           </div>
           <span style={styles.badge}>Version 10</span>
           <button className="v10-header-action" style={{ ...styles.button, marginLeft: 'auto' }} disabled={!activeProject || saving} onClick={previewClient}>Preview Client View</button>
-          <button className="v10-header-action" style={styles.ghost} disabled={!activeProject || saving} onClick={previewClient}>Print Client Packet</button>
+          <button className="v10-header-action" style={styles.ghost} disabled={!activeProject || saving || packetPdf.loading} onClick={() => packetPdf.open(activeProject.id)}>{packetPdf.loading ? 'Preparing PDF…' : 'Print Client Packet'}</button>
         </div>
       </header>
 
@@ -345,6 +347,7 @@ export default function CommandCenter() {
         {error && <div role="alert" style={{ padding: 12, background: '#FEE2E2', color: '#991B1B', borderRadius: 8 }}>{error} Any unsaved edits remain in this tab. <button style={styles.ghost} onClick={clearError}>Dismiss error</button></div>}
         {legacyDraftNotice && <p role="status" style={{padding:12,background:'#FFF4D8',borderRadius:8}}>{legacyDraftNotice}</p>}
         {liveStatus && <p role="status" style={{ padding: 12, background: '#E8EEE8', borderRadius: 8 }}>{liveStatus}</p>}
+        <PacketPdfStatus pdf={packetPdf.projectId === activeProject?.id ? packetPdf : null} />
       </section>
       <main className="v10-shell" style={styles.shell}>
         <section style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
@@ -548,7 +551,7 @@ export default function CommandCenter() {
           </section>
         </aside>
       </main>
-      {clientPreview && <ClientPacket preview={clientPreview} onClose={() => setClientPreview(null)} />}
+      {clientPreview && <ClientPacket preview={clientPreview} onClose={() => setClientPreview(null)} onPrint={() => packetPdf.open(clientPreview.project?.id)} pdf={packetPdf.projectId === clientPreview.project?.id ? packetPdf : null} />}
     </div>
   );
 }

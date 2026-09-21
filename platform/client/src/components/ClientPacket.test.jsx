@@ -59,10 +59,10 @@ afterEach(() => {
   delete global.IS_REACT_ACT_ENVIRONMENT;
 });
 
-function renderPacket(data = preview) {
+function renderPacket(data = preview, props = {}) {
   function PreviewOwner() {
     const [open, setOpen] = useState(true);
-    return open ? <ClientPacket preview={data} onClose={() => setOpen(false)} /> : null;
+    return open ? <ClientPacket preview={data} onClose={() => setOpen(false)} onPrint={() => {}} {...props} /> : null;
   }
   act(() => root.render(<PreviewOwner />));
   return document.querySelector('[role="dialog"]');
@@ -117,14 +117,14 @@ test('contains keyboard focus, closes with Escape, and restores the preview trig
   expect(document.body.classList.contains('client-packet-open')).toBe(false);
 });
 
-test('opens browser printing while keeping the packet in its isolated print container', () => {
-  const print = jest.spyOn(window, 'print').mockImplementation(() => {});
-  const dialog = renderPacket();
+test('requests the PDF export while keeping the preview in its isolated container', () => {
+  const onPrint = jest.fn();
+  const dialog = renderPacket(preview, { onPrint });
   expect(dialog).not.toBeNull();
   const printButton = [...dialog.querySelectorAll('button')].find(button => /print packet/i.test(button.textContent));
   expect(printButton).toBeDefined();
   act(() => printButton.click());
-  expect(print).toHaveBeenCalledTimes(1);
+  expect(onPrint).toHaveBeenCalledTimes(1);
   expect(document.body.classList.contains('client-packet-open')).toBe(true);
   expect(dialog.closest('.client-packet-overlay').parentElement).toBe(document.body);
 });
