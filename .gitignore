@@ -4,5 +4,6 @@ platform/server/data/
 !.env.example
 *.pem
 *.key
+*.p8
 backups/
 public-dist/

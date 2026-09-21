@@ -17,6 +17,7 @@ InvoiceShelf is optional for the local invoice/payment workflow and requires a r
 
 - **Twilio:** outbound SMS is implemented; account/sender configuration and an authorized recipient test are required. Delivery callbacks and incoming replies remain future work. The ordinary Text link still opens the device's messaging app.
 - **OCR.space:** pasted receipt text is parsed locally; manual entry works after builder sign-in. Photo selection, validation/upload and a review flow still need building for the existing backend image adapter.
+- **Apple Weather:** the weather panel uses server-side WeatherKit with the official mark and data-source link. Add private Apple signing credentials and ZIP-to-location settings, then perform a live forecast check. See [Apple Weather setup](apple-weather-setup.md). ABQ ADU calculates the construction planning estimates; earlier weather records retain their original provider.
 - **Hosting:** the full app needs Express, PostgreSQL and persistent Command Center file storage. GitHub Pages serves the homeowner site only. The public bundle now excludes server files, configuration, backups and the old static builder tool.
 
 Secrets belong only in private configuration, never in browser code, screenshots, chat or committed files. No public deployment or real provider acceptance test has been performed by this implementation.

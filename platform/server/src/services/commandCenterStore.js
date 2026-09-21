@@ -1,5 +1,6 @@
 const fs = require('fs/promises');
 const path = require('path');
+const { randomUUID } = require('crypto');
 const { MODEL_CATALOG, applyModelDefaults } = require('./modelCatalog');
 const { getReadinessLabel } = require('./estimateEngine');
 
@@ -169,16 +170,32 @@ async function loadCommandCenter() {
   return withProjectReadiness(JSON.parse(raw));
 }
 
-async function saveCommandCenter(nextState) {
-  const current = await loadCommandCenter();
-  const saved = withProjectReadiness({
-    ...current,
-    ...nextState,
-    version: 'Version 10',
-    updated_at: nowIso(),
+let pendingSave = Promise.resolve();
+
+function saveCommandCenter(nextState) {
+  const operation = pendingSave.then(async () => {
+    const current = await loadCommandCenter();
+    const patch = typeof nextState === 'function' ? await nextState(current) : nextState;
+    const saved = withProjectReadiness({
+      ...current,
+      ...patch,
+      version: 'Version 10',
+      updated_at: nowIso(),
+    });
+    // Publish complete JSON in one rename so concurrent readers never see a
+    // truncated or partly written file. The temporary file stays on this volume.
+    const temporaryPath = `${storePath}.${randomUUID()}.tmp`;
+    try {
+      await fs.writeFile(temporaryPath, JSON.stringify(saved, null, 2), { flag: 'wx', mode: 0o600 });
+      await fs.rename(temporaryPath, storePath);
+    } finally {
+      await fs.rm(temporaryPath, { force: true }).catch(() => {});
+    }
+    return saved;
   });
-  await fs.writeFile(storePath, JSON.stringify(saved, null, 2));
-  return saved;
+  // A rejected updater must not poison later saves.
+  pendingSave = operation.catch(() => {});
+  return operation;
 }
 
 async function resetCommandCenter() {

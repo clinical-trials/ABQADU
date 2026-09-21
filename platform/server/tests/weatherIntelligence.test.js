@@ -117,6 +117,8 @@ test('weather activity stores crew message drafts with weather checks', async ()
   process.env.COMMAND_CENTER_STORE_PATH = path.join(tmp, 'store.json');
   jest.resetModules();
 
+  jest.doMock('../src/services/weatherKit', () => ({fetchWeatherKitForecast: jest.fn(async()=>({zip:'87106',source:'Apple Weather',provider:'weatherkit',risk_level:'high',delay_days:7,crew_message:'Weather risk for 87106: HIGH risk.',risks:[{type:'rain',impacted_work:['trenching','concrete'],delay_days:7},{type:'wind',impacted_work:['material delivery'],delay_days:2}]}))}));
+
   const store = require('../src/services/commandCenterStore');
   const weatherRoute = require('../src/routes/weather');
   await store.resetCommandCenter();

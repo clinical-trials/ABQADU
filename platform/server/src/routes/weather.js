@@ -1,16 +1,16 @@
 const router = require('../asyncRouter')();
-const { fetchWttrForecast } = require('../services/weatherIntelligence');
+const { randomUUID } = require('crypto');
+const { fetchWeatherKitForecast } = require('../services/weatherKit');
 const { loadCommandCenter, saveCommandCenter } = require('../services/commandCenterStore');
 const { createCrewMessagesFromForecast } = require('../services/crewMessageEngine');
 
 router.get('/forecast', async (req, res) => {
   try {
-    const forecast = await fetchWttrForecast(req.query.zip || '87106');
+    const forecast = await fetchWeatherKitForecast(req.query.zip || '87106');
     res.json(forecast);
   } catch (error) {
     res.status(error.status || 502).json({
-      error: 'Weather forecast unavailable',
-      detail: error.message,
+      error: error.message || 'Apple Weather forecast unavailable',
     });
   }
 });
@@ -31,32 +31,37 @@ router.post('/forecast/activity', async (req, res) => {
         : projects[0];
     if (!projectRecord) return res.status(404).json({ error: 'Project not found' });
 
-    const forecast = req.body?.forecast || await fetchWttrForecast(req.body?.zip || '87106');
-    const crewMessages = createCrewMessagesFromForecast(projectRecord, forecast);
-    const check = {
-      ...forecast,
-      id: `weather-${Date.now()}`,
-      project_id: projectRecord.id,
-      project: projectRecord.client,
-    };
-    const activity = {
-      id: `activity-${Date.now()}`,
-      type: 'Weather delay',
-      project_id: projectRecord.id,
-      detail: `${projectRecord.client}: ${forecast.crew_message}`,
-      at: new Date().toISOString(),
-    };
-
-    const saved = await saveCommandCenter({
-      weather_checks: [check, ...(state.weather_checks || [])].slice(0, 20),
-      crew_messages: [...crewMessages, ...(state.crew_messages || [])].slice(0, 40),
-      activity: [activity, ...(state.activity || [])].slice(0, 40),
+    // Logging always obtains server-verified provider data. Browser-supplied
+    // figures, risk labels and attribution must never become an Apple record.
+    const forecast = await fetchWeatherKitForecast(req.body?.zip || req.body?.forecast?.zip || '87106');
+    const saved = await saveCommandCenter(current => {
+      const latestProject = current.projects?.find(project => project.id === projectRecord.id);
+      if (!latestProject) throw Object.assign(new Error('Project not found'), { status: 404 });
+      const crewMessages = createCrewMessagesFromForecast(latestProject, forecast)
+        .map(message => ({ ...message, id: `crew-${randomUUID()}` }));
+      const check = {
+        ...forecast,
+        id: `weather-${randomUUID()}`,
+        project_id: latestProject.id,
+        project: latestProject.client,
+      };
+      const activity = {
+        id: `activity-${randomUUID()}`,
+        type: 'Weather delay',
+        project_id: latestProject.id,
+        detail: `${latestProject.client}: ${forecast.crew_message}`,
+        at: new Date().toISOString(),
+      };
+      return {
+        weather_checks: [check, ...(current.weather_checks || [])].slice(0, 20),
+        crew_messages: [...crewMessages, ...(current.crew_messages || [])].slice(0, 40),
+        activity: [activity, ...(current.activity || [])].slice(0, 40),
+      };
     });
     res.status(201).json(saved);
   } catch (error) {
     res.status(error.status || 502).json({
-      error: 'Weather risk could not be logged',
-      detail: error.message,
+      error: error.message || 'Weather risk could not be logged',
     });
   }
 });

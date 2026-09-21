@@ -49,6 +49,18 @@ function normalizeWttrForecast(payload, zip) {
     };
   });
 
+  return {
+    zip,
+    source: 'wttr.in',
+    location,
+    checked_at: new Date().toISOString(),
+    current,
+    days,
+    ...assessConstructionWeather(days, zip),
+  };
+}
+
+function assessConstructionWeather(days, zip) {
   const risks = [];
   days.forEach(day => {
     if (day.rain_chance >= 60 || day.precip_inches >= 0.1) {
@@ -71,7 +83,9 @@ function normalizeWttrForecast(payload, zip) {
         date: day.date,
         delay_days: severity === 'high' ? 2 : 1,
         impacted_work: ['roofing', 'panel setting', 'material delivery'],
-        note: `Wind risk ${day.wind_mph} mph sustained with gusts to ${day.gust_mph} mph.`,
+        note: day.gust_mph == null
+          ? `Wind risk ${day.wind_mph} mph sustained; gusts unavailable.`
+          : `Wind risk ${day.wind_mph} mph sustained with gusts to ${day.gust_mph} mph.`,
       });
     }
 
@@ -109,18 +123,7 @@ function normalizeWttrForecast(payload, zip) {
     ? `Weather risk for ${zip}: ${riskLevel.toUpperCase()} risk. Plan up to ${delayDays} day(s) of schedule impact. Watch ${impacted.join(', ')}.`
     : `Weather risk for ${zip}: LOW risk. Keep crews on the current critical path.`;
 
-  return {
-    zip,
-    source: 'wttr.in',
-    location,
-    checked_at: new Date().toISOString(),
-    current,
-    days,
-    risks,
-    risk_level: riskLevel,
-    delay_days: delayDays,
-    crew_message: crewMessage,
-  };
+  return { risks, risk_level: riskLevel, delay_days: delayDays, crew_message: crewMessage };
 }
 
 async function fetchWttrForecast(zip, fetchImpl = global.fetch) {
@@ -140,6 +143,7 @@ async function fetchWttrForecast(zip, fetchImpl = global.fetch) {
 }
 
 module.exports = {
+  assessConstructionWeather,
   fetchWttrForecast,
   normalizeWttrForecast,
 };

@@ -3,6 +3,7 @@ import useCommandCenter from '../hooks/useCommandCenter';
 import ClientPacket from '../components/ClientPacket';
 import IntegrationSetup, { SERVICE_IDS } from '../components/IntegrationSetup';
 import { apiFetch } from '../utils/authFetch';
+import WeatherAttribution from '../components/WeatherAttribution';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
@@ -142,6 +143,7 @@ export default function CommandCenter() {
   const [importedInvoices, setImportedInvoices] = useState(null);
   const [weatherZip, setWeatherZip] = useState('87106');
   const [weatherForecast, setWeatherForecast] = useState(null);
+  const weatherRequest = useRef(0);
 
   const loadIntegrations = useCallback(async () => {
     const request = ++integrationRequest.current;
@@ -165,6 +167,7 @@ export default function CommandCenter() {
     return () => { integrationRequest.current += 1; };
   }, [loadIntegrations]);
   useEffect(() => {
+    weatherRequest.current += 1;
     setWeatherForecast(null);
     setImportedInvoices(null);
     setWeatherZip(activeProject?.zip || activeProject?.address?.match(/\b\d{5}\b/)?.[0] || '87106');
@@ -265,8 +268,10 @@ export default function CommandCenter() {
   };
   const checkWeather = async () => {
     if (!activeProject) return;
+    const request = ++weatherRequest.current;
+    setWeatherForecast(null);
     const payload = await runAction(`/api/weather/forecast?zip=${encodeURIComponent(weatherZip)}`);
-    if (payload) {
+    if (payload && request === weatherRequest.current) {
       setWeatherForecast({ ...payload, project_id: activeProject.id, zip: weatherZip });
       setLiveStatus(`Weather checked for ${payload.location}: ${payload.risk_level} risk`);
     }
@@ -274,11 +279,16 @@ export default function CommandCenter() {
   const weatherMatches = !!weatherForecast && weatherForecast.project_id === activeProject?.id && weatherForecast.zip === weatherZip;
   const logWeatherRisk = async () => {
     if (!activeProject || !weatherMatches) return;
+    const request = weatherRequest.current;
     const payload = await runAction('/api/weather/forecast/activity', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ zip: weatherZip, project_id: activeProject.id, forecast: weatherForecast }),
+      body: JSON.stringify({ zip: weatherZip, project_id: activeProject.id }),
     });
-    if (payload) setLiveStatus(`Weather risk logged for ${activeProject.client}.`);
+    if (payload) {
+      const checked = payload.weather_checks?.find(check => check.project_id === activeProject.id && check.zip === weatherZip);
+      if (checked && request === weatherRequest.current) setWeatherForecast(checked);
+      setLiveStatus(`Weather risk logged for ${activeProject.client}.`);
+    }
   };
 
   if (!state) {
@@ -422,11 +432,11 @@ export default function CommandCenter() {
           <section style={styles.card}>
             <div style={styles.kicker}>Weather Delay Assessor</div>
             <p style={{ fontSize: 13, color: '#78716C', margin: '0 0 10px' }}>
-              Check New Mexico ZIP codes for rain, wind, freeze, and heat risks that can move the critical path.
+              Apple Weather forecasts for your configured project locations. Review rain, wind, freeze, and heat before planning exposed work.
             </p>
             <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 900, color: '#57534E' }}>
               Project ZIP code
-              <input style={{ ...styles.input, minHeight: 44 }} value={weatherZip} inputMode="numeric" maxLength={5} onChange={e => { setWeatherZip(e.target.value); setWeatherForecast(null); }} />
+              <input style={{ ...styles.input, minHeight: 44 }} value={weatherZip} inputMode="numeric" maxLength={5} onChange={e => { weatherRequest.current += 1; setWeatherZip(e.target.value); setWeatherForecast(null); }} />
             </label>
             <div className="v10-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <button style={styles.button} disabled={!activeProject || saving || !/^\d{5}$/.test(weatherZip)} onClick={checkWeather}>Check Weather</button>
@@ -441,14 +451,28 @@ export default function CommandCenter() {
             {weatherMatches && (
               <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: weatherForecast.risk_level === 'high' ? '#FEF2F2' : '#F5F0E8', fontSize: 13 }}>
                 <b>{weatherForecast.location}</b>
+                {weatherForecast.current && <p style={{margin:'8px 0'}}>
+                  {Number.isFinite(weatherForecast.current.temp_f) ? `${Math.round(weatherForecast.current.temp_f)}°F` : 'Temperature unavailable'}
+                  {Number.isFinite(weatherForecast.current.wind_mph) && ` · Wind ${Math.round(weatherForecast.current.wind_mph)} mph`}
+                </p>}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))',gap:8,margin:'10px 0'}}>
+                  {(weatherForecast.days || []).map(day => <div key={day.date} style={{background:'#fff',padding:10,borderRadius:6}}>
+                    <b>{day.date}</b>
+                    <div>{Math.round(day.high_f)}° / {Math.round(day.low_f)}°</div>
+                    <div>{Math.round(day.rain_chance)}% precipitation</div>
+                    <div>Wind up to {Math.round(day.wind_mph)} mph</div>
+                  </div>)}
+                </div>
+                <WeatherAttribution forecast={weatherForecast} />
+                <p style={{fontSize:12,color:'#57534e'}}>ABQ ADU planning estimates: construction risks and delay allowances calculated from Apple Weather data.</p>
                 <div style={{ marginTop: 4 }}>{weatherForecast.crew_message}</div>
                 <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   <span style={{ ...styles.badge, background: weatherForecast.risk_level === 'high' ? '#F87171' : '#C4954A' }}>
                     {weatherForecast.risk_level} risk
                   </span>
-                  <span style={styles.badge}>{weatherForecast.delay_days} day delay</span>
-                  <span style={styles.badge}>{weatherForecast.source}</span>
+                  <span style={styles.badge}>Up to {weatherForecast.delay_days} day planning allowance</span>
                 </div>
+                {weatherForecast.checked_at && <small>Checked {new Date(weatherForecast.checked_at).toLocaleString()}</small>}
               </div>
             )}
             {!!projectWeatherChecks.length && (
@@ -456,6 +480,9 @@ export default function CommandCenter() {
                 {projectWeatherChecks.slice(0, 3).map(check => (
                   <div key={check.id} style={{ fontSize: 12, borderLeft: '3px solid #0F1F3D', paddingLeft: 9 }}>
                     <b>{check.project} · {check.zip}</b><br />{check.crew_message}
+                    <div>{check.checked_at ? `Saved ${new Date(check.checked_at).toLocaleString()}` : 'Saved weather check'} · ABQ ADU planning assessment</div>
+                    <WeatherAttribution forecast={check} />
+                    {check.provider !== 'weatherkit' && check.source !== 'Apple Weather' && <small>Source: {check.source || 'Earlier weather record'}</small>}
                   </div>
                 ))}
               </div>

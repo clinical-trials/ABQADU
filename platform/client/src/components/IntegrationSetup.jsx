@@ -1,7 +1,7 @@
 import React from 'react';
 import './IntegrationSetup.css';
 
-export const SERVICE_IDS = ['clerk', 'invoiceshelf', 'stripe', 'twilio', 'ocr'];
+export const SERVICE_IDS = ['clerk', 'invoiceshelf', 'stripe', 'weatherkit', 'twilio', 'ocr'];
 const services = [
   {
     id: 'clerk', name: 'Clerk', purpose: 'Private sign-in',
@@ -20,6 +20,12 @@ const services = [
     description: 'Create a checkout link for a saved invoice’s outstanding balance.',
     available: 'Estimate and invoice preparation do not require online payments.',
     steps: ['Connect your Stripe test account, return pages, and signed webhook endpoint.', 'Import saved Command Center invoice drafts, then create a payment link from Invoices.', 'Complete a test payment and confirm the invoice balance updates once before enabling live payments.'],
+  },
+  {
+    id: 'weatherkit', name: 'Apple Weather', purpose: 'Project weather forecasts',
+    description: 'Apple forecasts inform the project weather panel and ABQ ADU construction-risk estimates.',
+    available: 'Earlier weather records stay available with their original source. New forecasts require WeatherKit setup.',
+    steps: ['Enable WeatherKit in your Apple Developer account and create a Service ID and signing key.', 'Add the Team ID, Key ID, Service ID and private key to the server settings.', 'Map each project ZIP to its forecast coordinates and time zone, restart the server, then check weather.'],
   },
   {
     id: 'twilio', name: 'Twilio', purpose: 'Business text messages',

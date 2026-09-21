@@ -82,7 +82,7 @@ test('failed setup refresh clears stale settings and disables external actions',
   global.fetch = jest.fn((url, options) => {
     if (url === '/api/integrations/status') return statusFails
       ? Promise.reject(new TypeError('Failed to fetch'))
-      : Promise.resolve({ok:true,json:async()=>Object.fromEntries(['stripe','twilio','ocr','clerk','invoiceshelf'].map(name=>[name,{configured:true}]))});
+      : Promise.resolve({ok:true,json:async()=>Object.fromEntries(['stripe','twilio','ocr','clerk','invoiceshelf','weatherkit'].map(name=>[name,{configured:true}]))});
     return fallbackFetch(url, options);
   });
   await mount();
@@ -91,6 +91,51 @@ test('failed setup refresh clears stale settings and disables external actions',
   await act(async () => button('Refresh setup status').click());
   expect(button('Send Live SMS').disabled).toBe(true);
   expect(container.textContent).toContain('Status unavailable');
+});
+
+test('Apple forecasts show attribution and planning estimates, then clear on a failed refresh', async () => {
+  const previous = fetch;
+  let fails = false;
+  global.fetch = jest.fn((url, options) => url.startsWith('/api/weather/forecast?')
+    ? Promise.resolve({ok:!fails,json:async()=>fails ? {error:'WeatherKit temporarily unavailable'} : {zip:'87106',source:'Apple Weather',provider:'weatherkit',location:'Albuquerque site',checked_at:'2026-09-21T18:00:00Z',current:{temp_f:75,wind_mph:8},days:[{date:'2026-09-21',high_f:81,low_f:58,rain_chance:30,wind_mph:12}],risk_level:'moderate',delay_days:2,crew_message:'Review exposed work.',attribution:{mark_url:'https://weatherkit.apple.com/assets/branding/en/Apple_Weather_wht_en_2X.png',legal_url:'https://developer.apple.com/weatherkit/data-source-attribution/'}}})
+    : previous(url,options));
+  await mount();
+  await act(async()=>button('Check Weather').click());
+  expect(container.querySelector('img[alt="Apple Weather"]')).not.toBeNull();
+  expect(container.textContent).toContain('75°F');
+  expect(container.textContent).toContain('ABQ ADU planning');
+  expect(container.textContent).toContain('81° / 58°');
+  fails = true;
+  await act(async()=>button('Check Weather').click());
+  expect(container.querySelector('img[alt="Apple Weather"]')).toBeNull();
+  expect(button('Log Weather Risk').disabled).toBe(true);
+  expect(container.textContent).toContain('WeatherKit temporarily unavailable');
+});
+
+test('logging weather sends only selected project and ZIP rather than a browser forecast', async () => {
+  const previous = fetch;
+  global.fetch = jest.fn((url, options) => url.startsWith('/api/weather/forecast?')
+    ? Promise.resolve({ok:true,json:async()=>({zip:'87106',source:'Apple Weather',provider:'weatherkit',location:'Site',current:{},days:[],risk_level:'low',delay_days:0,crew_message:'Check site conditions.'})})
+    : previous(url,options));
+  await mount();
+  await act(async()=>button('Check Weather').click());
+  await act(async()=>button('Log Weather Risk').click());
+  const call = fetch.mock.calls.find(([url])=>url==='/api/weather/forecast/activity');
+  expect(JSON.parse(call[1].body)).toEqual({zip:'87106',project_id:'one'});
+});
+
+test('a weather response arriving after a project change cannot reappear as current weather', async () => {
+  const previous = fetch;
+  let resolveForecast;
+  global.fetch = jest.fn((url, options) => url.startsWith('/api/weather/forecast?')
+    ? new Promise(resolve=>{resolveForecast=resolve;}) : previous(url,options));
+  await mount();
+  await act(async()=>button('Check Weather').click());
+  await act(async()=>Simulate.change(container.querySelector('[aria-label="Active project"]'),{target:{value:'two'}}));
+  await act(async()=>resolveForecast({ok:true,json:async()=>({zip:'87106',source:'Apple Weather',provider:'weatherkit',location:'First site late result',current:{temp_f:75},days:[],risk_level:'low',delay_days:0})}));
+  await act(async()=>Simulate.change(container.querySelector('[aria-label="Active project"]'),{target:{value:'one'}}));
+  expect(container.textContent).not.toContain('First site late result');
+  expect(button('Log Weather Risk').disabled).toBe(true);
 });
 
 test('saved invoice drafts import for the selected project without a browser payment amount', async () => {
