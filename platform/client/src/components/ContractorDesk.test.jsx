@@ -24,8 +24,42 @@ test('shows four dated unknown weather cards without inventing a safe workday',a
   expect(host.querySelectorAll('[data-weather-day]').length).toBe(4);
   expect(host.textContent).toContain('Forecast needed');
   expect(host.textContent).not.toContain('Plan work');
+  expect(host.textContent).not.toContain('Connect Apple Weather');
   await act(async()=>button('Update forecast').click());
   expect(props.onCheckWeather).toHaveBeenCalledTimes(1);
+});
+
+test('shows NWS numerical weather with its source and treats missing values as unknown', async () => {
+  props.forecast = { ...forecast, provider: 'nws', source: 'National Weather Service', current: null,
+    source_updated_at: '2026-09-21T18:00:00Z', attribution: { source_url: 'https://www.weather.gov/abq/' },
+    days: forecast.days.map((day, index) => ({ ...day, ...(index === 0 ? { high_f: null, low_f: null, rain_chance: null, wind_mph: null, wind_coverage: 'unavailable' } : {}) })),
+  };
+  await render();
+  const unknown = host.querySelector('[data-weather-day]');
+  expect(unknown.textContent).toContain('Temperature unknown');
+  expect(unknown.textContent).toContain('Rain unknown');
+  expect(unknown.textContent).toContain('Wind unknown');
+  expect(unknown.textContent).not.toContain('0%');
+  expect(host.textContent).toContain('75°');
+  expect(host.textContent).toContain('Up to 20% rain');
+  expect(host.textContent).toContain('Wind up to 8 mph');
+  expect(host.textContent).toContain('guidance derived from National Weather Service');
+  expect(host.textContent).toContain('Forecast issued');
+  expect(host.querySelector('a[href="https://www.weather.gov/abq/"]')).not.toBeNull();
+  expect(host.querySelector('img[alt="Apple Weather"]')).toBeNull();
+  expect(host.textContent).not.toContain('Apple Weather');
+});
+
+test('NWS numbers without complete coverage are labeled as partial observations of the forecast', async () => {
+  props.forecast = { ...forecast, provider: 'nws', source: 'National Weather Service',
+    days: forecast.days.map(day => ({ ...day, wind_coverage: undefined, temperature_coverage: 'partial' })),
+  };
+  await render();
+  const day = host.querySelector('[data-weather-day]');
+  expect(day.textContent).toContain('Available wind up to 8 mph · incomplete data');
+  expect(day.textContent).not.toContain('Wind up to 8 mph');
+  expect(day.textContent).toContain('75°');
+  expect(day.textContent).toContain('Temperature data incomplete');
 });
 test('shows trade-specific guidance and only confirms a weather day off after an explicit action',async()=>{
   props.forecast=forecast;await render();

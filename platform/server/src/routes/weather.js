@@ -1,16 +1,16 @@
 const router = require('../asyncRouter')();
 const { randomUUID } = require('crypto');
-const { fetchWeatherKitForecast } = require('../services/weatherKit');
+const { fetchForecast } = require('../services/weatherProvider');
 const { loadCommandCenter, saveCommandCenter } = require('../services/commandCenterStore');
 const { createCrewMessagesFromForecast } = require('../services/crewMessageEngine');
 
 router.get('/forecast', async (req, res) => {
   try {
-    const forecast = await fetchWeatherKitForecast(req.query.zip || '87106');
+    const forecast = await fetchForecast(req.query.zip || '87106');
     res.json(forecast);
   } catch (error) {
     res.status(error.status || 502).json({
-      error: error.message || 'Apple Weather forecast unavailable',
+      error: error.message || 'Weather forecast unavailable',
     });
   }
 });
@@ -32,8 +32,8 @@ router.post('/forecast/activity', async (req, res) => {
     if (!projectRecord) return res.status(404).json({ error: 'Project not found' });
 
     // Logging always obtains server-verified provider data. Browser-supplied
-    // figures, risk labels and attribution must never become an Apple record.
-    const forecast = await fetchWeatherKitForecast(req.body?.zip || req.body?.forecast?.zip || '87106');
+    // figures, risk labels and attribution must never become a provider record.
+    const forecast = await fetchForecast(req.body?.zip || req.body?.forecast?.zip || '87106');
     const saved = await saveCommandCenter(current => {
       const latestProject = current.projects?.find(project => project.id === projectRecord.id);
       if (!latestProject) throw Object.assign(new Error('Project not found'), { status: 404 });

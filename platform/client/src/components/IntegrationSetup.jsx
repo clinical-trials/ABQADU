@@ -1,7 +1,7 @@
 import React from 'react';
 import './IntegrationSetup.css';
 
-export const SERVICE_IDS = ['clerk', 'invoiceshelf', 'stripe', 'weatherkit', 'twilio', 'ocr'];
+export const SERVICE_IDS = ['clerk', 'invoiceshelf', 'stripe', 'weather', 'twilio', 'ocr'];
 const services = [
   {
     id: 'clerk', name: 'Clerk', purpose: 'Private sign-in',
@@ -22,10 +22,10 @@ const services = [
     steps: ['Connect your Stripe test account, return pages, and signed webhook endpoint.', 'Import saved Command Center invoice drafts, then create a payment link from Invoices.', 'Complete a test payment and confirm the invoice balance updates once before enabling live payments.'],
   },
   {
-    id: 'weatherkit', name: 'Apple Weather', purpose: 'Project weather forecasts',
-    description: 'Apple forecasts inform the project weather panel and ABQ ADU construction-risk estimates.',
-    available: 'Earlier weather records stay available with their original source. New forecasts require WeatherKit setup.',
-    steps: ['Enable WeatherKit in your Apple Developer account and create a Service ID and signing key.', 'Add the Team ID, Key ID, Service ID and private key to the server settings.', 'Map each project ZIP to its forecast coordinates and time zone, restart the server, then check weather.'],
+    id: 'weather', name: 'National Weather Service', purpose: 'Project weather forecasts',
+    description: 'Numerical temperature, precipitation, and wind forecasts inform the project weather panel and ABQ ADU trade guidance.',
+    available: 'National Weather Service is the default weather source and requires no account or API credentials. Earlier records retain their original source.',
+    steps: ['Select the project and choose Update forecast to retrieve current forecast data.', 'Review the forecast location, issue time, and any unknown values before planning exposed work.', 'If another weather provider is needed, select it in the private server settings and complete its setup.'],
   },
   {
     id: 'twilio', name: 'Twilio', purpose: 'Business text messages',
@@ -48,10 +48,16 @@ export default function IntegrationSetup({ integrations, loading, error, onRefre
     <p className="integration-setup__intro">Continue estimates and receipt entry while these services are set up. Open a service below for its next steps.</p>
     <p className="integration-setup__notice">This checks server settings only. Credentials do not prove a working connection.</p>
     {error && <p className="integration-setup__error" role="alert">{error}</p>}
-    {services.map(service => {
+    {services.map(defaultService => {
+      const appleSelected = defaultService.id === 'weather' && integrations?.weather?.provider === 'weatherkit';
+      const service = appleSelected ? { ...defaultService, name: 'Apple Weather',
+        description: 'Apple forecasts inform the project weather panel and ABQ ADU trade guidance.',
+        available: 'Apple Weather is selected as the optional provider. Earlier records retain their original source.',
+        steps: ['Enable WeatherKit in your Apple Developer account and create a Service ID and signing key.', 'Add the Team ID, Key ID, Service ID and private key to the server settings.', 'Map each project ZIP to its forecast coordinates and time zone, restart the server, then check weather.'],
+      } : defaultService;
       const configured = integrations?.[service.id]?.configured;
       const status = error ? 'unavailable' : loading ? 'checking' : configured === true ? 'configured' : configured === false ? 'missing' : 'unavailable';
-      const label = {configured:'Credentials added · untested',missing:'Setup needed',checking:'Checking settings…',unavailable:'Status unavailable'}[status];
+      const label = {configured:service.id === 'weather' && !appleSelected ? 'No credentials required · check forecast' : 'Credentials added · untested',missing:'Setup needed',checking:'Checking settings…',unavailable:'Status unavailable'}[status];
       return <details key={service.id} className="integration-setup__service">
         <summary>
           <span className="integration-setup__service-title"><strong>{service.purpose}</strong><span>{service.name}</span></span>

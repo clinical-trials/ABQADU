@@ -1,6 +1,6 @@
 # Apple Weather for the private builder
 
-The Command Center weather panel requests Apple WeatherKit forecasts through the authenticated server. Current conditions remain separate from the planning window: the next four local calendar days, starting tomorrow, in Fahrenheit, miles per hour and inches. A check on Monday, September 21, 2026 covers Tuesday, September 22 through Friday, September 25. The window advances with the configured site's local date.
+National Weather Service is now the default; see [NWS setup](nws-weather-setup.md). To use Apple WeatherKit instead, set `WEATHER_PROVIDER=weatherkit`. The Command Center then requests Apple forecasts through the authenticated server. Current conditions remain separate from the planning window: the next four local calendar days, starting tomorrow, in Fahrenheit, miles per hour and inches. A check on Monday, September 21, 2026 covers Tuesday, September 22 through Friday, September 25. The window advances with the configured site's local date.
 
 Each day includes ABQ ADU planning guidance for concrete, roofing, excavation and general outdoor work. Guidance is `hold` (a weather hold candidate), `review`, `plan` or `unknown`. A hold is a candidate for postponement that requires contractor confirmation; it does not automatically cancel a shift or declare a day off. A plan result still requires site checks. These are application scheduling prompts, not Apple's recommendations or a concrete placement specification.
 
@@ -12,6 +12,7 @@ Live acceptance requires your Apple Developer account configuration. Adding envi
 2. Preserve existing database, Clerk and Stripe settings in `platform/server/.env`. Add:
 
 ```dotenv
+WEATHER_PROVIDER=weatherkit
 WEATHERKIT_TEAM_ID=your_team_id
 WEATHERKIT_KEY_ID=your_weatherkit_key_id
 WEATHERKIT_SERVICE_ID=your_services_identifier

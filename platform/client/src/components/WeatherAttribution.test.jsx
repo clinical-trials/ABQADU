@@ -83,3 +83,17 @@ test('a failed remote logo leaves readable attribution and the legal link', asyn
   expect(container.textContent).toContain('Apple Weather');
   expect(container.querySelector('a').href).toBe(legal);
 });
+
+test('NWS forecasts show their official named source link without an Apple mark', async () => {
+  const source = 'https://forecast.weather.gov/MapClick.php?lat=35.08&lon=-106.65';
+  await render({ provider: 'nws', source: 'National Weather Service', attribution: { source_url: source, mark_url: mark } });
+  expect(container.querySelector('a').textContent).toBe('National Weather Service');
+  expect(container.querySelector('a').href).toBe(source);
+  expect(container.querySelector('img')).toBeNull();
+  expect(container.textContent).not.toContain('Apple');
+});
+
+test.each([undefined, 'javascript:alert(1)', 'http://www.weather.gov/abq/', 'https://www.weather.gov.evil.example/', 'https://user@weather.gov/abq/', 'https://www.weather.gov:8443/abq/'])('NWS source URL %p falls back safely to its Albuquerque office', async source_url => {
+  await render({ provider: 'nws', attribution: { source_url } });
+  expect(container.querySelector('a').href).toBe('https://www.weather.gov/abq/');
+});

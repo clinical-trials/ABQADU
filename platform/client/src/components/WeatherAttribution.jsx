@@ -14,6 +14,10 @@ function trustedUrl(value, hosts) {
 
 export default function WeatherAttribution({ forecast }) {
   const [failedMark, setFailedMark] = useState(null);
+  if (forecast?.provider === 'nws' || (!forecast?.provider && forecast?.source === 'National Weather Service')) {
+    const source = trustedUrl(forecast.attribution?.source_url, ['weather.gov', 'www.weather.gov', 'forecast.weather.gov', 'api.weather.gov']) || 'https://www.weather.gov/abq/';
+    return <div className="weather-attribution"><a href={source} target="_blank" rel="noopener noreferrer">National Weather Service</a></div>;
+  }
   if (forecast?.provider !== 'weatherkit' && forecast?.source !== 'Apple Weather') return null;
 
   const mark = trustedUrl(forecast.attribution?.mark_url, ['weatherkit.apple.com']);

@@ -174,7 +174,7 @@ test('failed setup refresh clears stale settings and disables external actions',
   global.fetch = jest.fn((url, options) => {
     if (url === '/api/integrations/status') return statusFails
       ? Promise.reject(new TypeError('Failed to fetch'))
-      : Promise.resolve({ok:true,json:async()=>Object.fromEntries(['stripe','twilio','ocr','clerk','invoiceshelf','weatherkit'].map(name=>[name,{configured:true}]))});
+      : Promise.resolve({ok:true,json:async()=>Object.fromEntries(['stripe','twilio','ocr','clerk','invoiceshelf','weather'].map(name=>[name,{configured:true}]))});
     return fallbackFetch(url, options);
   });
   await mount();
@@ -231,6 +231,39 @@ test('legacy forecasts retain their existing planning allowance without Apple at
   expect(container.textContent).toContain('Up to 7 day planning allowance');
   expect(container.textContent).toContain('Wind up to 15 mph');
   expect(container.textContent).not.toContain('delay allowances calculated from Apple Weather');
+});
+
+test('NWS numbers and unknowns render without Apple attribution or invented delay days', async () => {
+  const previous = fetch;
+  global.fetch = jest.fn((url, options) => url.startsWith('/api/weather/forecast?')
+    ? Promise.resolve({ ok: true, json: async () => ({ zip: '87106', source: 'National Weather Service', provider: 'nws', location: 'Albuquerque site', current: null, source_updated_at: '2026-09-21T18:00:00Z', days: [{ date: '2026-09-22', high_f: null, low_f: null, rain_chance: null, wind_mph: null }, { date: '2026-09-23', high_f: 72, low_f: 56, rain_chance: 65, wind_mph: 14, wind_coverage: 'complete' }], risk_level: 'unknown', delay_days: 7, crew_message: 'Review the numerical forecast before confirming work.', attribution: { source_url: 'https://www.weather.gov/abq/' } }) })
+    : previous(url, options));
+  await mount();
+  await act(async () => button('Check Weather').click());
+  expect(container.textContent).toContain('High unknown / Low unknown');
+  expect(container.textContent).toContain('Precipitation chance unknown');
+  expect(container.textContent).toContain('Wind unavailable');
+  expect(container.textContent).toContain('72° / 56°');
+  expect(container.textContent).toContain('Up to 65% precipitation');
+  expect(container.textContent).toContain('Wind up to 14 mph');
+  expect(container.textContent).toContain('planning guidance derived from National Weather Service');
+  expect(container.textContent).not.toContain('day planning allowance');
+  expect(container.textContent).not.toContain('derived from Apple Weather');
+  expect(container.textContent).not.toContain('0% precipitation');
+  expect(container.querySelector('a[href="https://www.weather.gov/abq/"]')).not.toBeNull();
+});
+
+test('NWS office numbers require complete coverage before claiming a daily wind maximum', async () => {
+  const previous = fetch;
+  global.fetch = jest.fn((url, options) => url.startsWith('/api/weather/forecast?')
+    ? Promise.resolve({ ok: true, json: async () => ({ source: 'National Weather Service', provider: 'nws', location: 'Albuquerque site', current: null, days: [{ date: '2026-09-22', high_f: 75, low_f: 58, temperature_coverage: 'partial', rain_chance: 40, wind_mph: 12 }], risk_level: 'unknown' }) })
+    : previous(url, options));
+  await mount();
+  await act(async () => button('Check Weather').click());
+  expect(container.textContent).toContain('Available-hours wind up to 12 mph · incomplete coverage');
+  expect(container.textContent).not.toContain('Wind up to 12 mph');
+  expect(container.textContent).toContain('75° / 58°');
+  expect(container.textContent).toContain('Temperature data incomplete');
 });
 
 test('logging weather sends only selected project and ZIP rather than a browser forecast', async () => {

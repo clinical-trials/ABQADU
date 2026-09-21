@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import IntegrationSetup from './IntegrationSetup';
 
 let root, container;
-const services = ['clerk', 'invoiceshelf', 'stripe', 'twilio', 'ocr', 'weatherkit'];
+const services = ['clerk', 'invoiceshelf', 'stripe', 'twilio', 'ocr', 'weather'];
 const configuration = configured => Object.fromEntries(services.map(name => [name, {configured}]));
 beforeEach(() => {
   global.IS_REACT_ACT_ENVIRONMENT = true;
@@ -21,8 +21,8 @@ test('adding credentials never claims a verified connection or completed login',
   expect(container.textContent).toContain('verified Clerk session and an approved staff account');
 });
 
-test('missing credentials show useful next steps and working alternatives for all six services', async () => {
-  await render({integrations:configuration(false)});
+test('missing credentials show useful next steps when optional Apple Weather is selected', async () => {
+  await render({integrations:{...configuration(false),weather:{configured:false,provider:'weatherkit'}}});
   expect(container.querySelectorAll('details')).toHaveLength(6);
   expect(container.textContent).toContain('Use your phone’s text app');
   expect(container.textContent).toContain('Pasted receipt text works now');
@@ -30,6 +30,16 @@ test('missing credentials show useful next steps and working alternatives for al
   expect(container.textContent).toContain('Apple Weather');
   expect(container.textContent).toContain('Map each project ZIP');
   expect(container.querySelectorAll('[data-setup-status="missing"]')).toHaveLength(6);
+});
+
+test('default NWS weather works without credentials and does not claim a verified provider connection', async () => {
+  await render({ integrations: { ...configuration(false), weather: { configured: true, provider: 'nws', source: 'National Weather Service', required_env: [], missing: [] } } });
+  const weather = [...container.querySelectorAll('details')].find(item => item.textContent.includes('National Weather Service'));
+  expect(weather).toBeDefined();
+  expect(weather.textContent).toContain('No credentials required');
+  expect(weather.textContent).toContain('Update forecast');
+  expect(weather.textContent).not.toContain('Apple Developer');
+  expect(weather.textContent).not.toContain('Credentials added');
 });
 
 test('failed status checks do not display stale credentials as usable', async () => {

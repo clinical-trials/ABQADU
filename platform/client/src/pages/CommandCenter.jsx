@@ -281,6 +281,7 @@ export default function CommandCenter() {
   };
   const weatherMatches = !!weatherForecast && weatherForecast.project_id === activeProject?.id && weatherForecast.zip === weatherZip;
   const appleWeather = weatherForecast?.provider === 'weatherkit' || weatherForecast?.source === 'Apple Weather';
+  const nwsWeather = weatherForecast?.provider === 'nws' || weatherForecast?.source === 'National Weather Service';
   const logWeatherRisk = async () => {
     if (!activeProject || !weatherMatches) return;
     const request = weatherRequest.current;
@@ -439,7 +440,7 @@ export default function CommandCenter() {
           <section style={styles.card}>
             <div style={styles.kicker}>Weather Delay Assessor</div>
             <p style={{ fontSize: 13, color: '#78716C', margin: '0 0 10px' }}>
-              Apple Weather forecasts for your configured project locations. Review rain, wind, freeze, and heat before planning exposed work.
+              {weatherForecast?.source || integrations?.weather?.source || 'National Weather Service'} forecasts for your project locations. Review rain, wind, freeze, and heat before planning exposed work.
             </p>
             <label style={{ display: 'grid', gap: 5, fontSize: 12, fontWeight: 900, color: '#57534E' }}>
               Project ZIP code
@@ -465,26 +466,26 @@ export default function CommandCenter() {
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))',gap:8,margin:'10px 0'}}>
                   {(weatherForecast.days || []).map(day => <div key={day.date} style={{background:'#fff',padding:10,borderRadius:6}}>
                     <b>{day.date}</b>
-                    <div>{Math.round(day.high_f)}° / {Math.round(day.low_f)}°</div>
-                    <div>{Math.round(day.rain_chance)}% precipitation</div>
+                    <div>{Number.isFinite(day.high_f) ? `${Math.round(day.high_f)}°` : 'High unknown'} / {Number.isFinite(day.low_f) ? `${Math.round(day.low_f)}°` : 'Low unknown'}{(Number.isFinite(day.high_f) || Number.isFinite(day.low_f)) && ' F'}</div>
+                    {day.temperature_coverage === 'partial' && (Number.isFinite(day.high_f) || Number.isFinite(day.low_f)) && <div>Temperature data incomplete</div>}
+                    <div>{Number.isFinite(day.rain_chance) ? `${nwsWeather ? 'Up to ' : ''}${Math.round(day.rain_chance)}% precipitation${day.rain_coverage === 'partial' ? ' · incomplete data' : ''}` : 'Precipitation chance unknown'}</div>
+                    <div>{Number.isFinite(day.precip_inches) ? `${day.precip_inches.toFixed(2)} in precipitation${day.precip_coverage === 'partial' ? ' · available periods' : ''}` : 'Precipitation amount unknown'}</div>
                     <div>{!Number.isFinite(day.wind_mph) ? 'Wind unavailable'
-                      : appleWeather && day.wind_coverage !== 'complete'
-                        ? day.wind_coverage === 'partial' ? `Available-hours wind up to ${Math.round(day.wind_mph)} mph · incomplete coverage` : 'Wind coverage unavailable'
+                      : (appleWeather || nwsWeather) && day.wind_coverage !== 'complete'
+                        ? day.wind_coverage === 'partial' || !day.wind_coverage ? `Available-hours wind up to ${Math.round(day.wind_mph)} mph · incomplete coverage` : 'Wind coverage unavailable'
                         : `Wind up to ${Math.round(day.wind_mph)} mph`}</div>
                   </div>)}
                 </div>
                 <WeatherAttribution forecast={weatherForecast} />
-                <p style={{fontSize:12,color:'#57534e'}}>{appleWeather
-                  ? 'ABQ ADU planning guidance derived from Apple Weather. Schedule changes require contractor confirmation.'
-                  : 'ABQ ADU planning estimates based on the forecast shown.'}</p>
+                <p style={{fontSize:12,color:'#57534e'}}>ABQ ADU planning guidance derived from {weatherForecast.source || 'the forecast shown'}. Schedule changes require contractor confirmation.</p>
                 <div style={{ marginTop: 4 }}>{weatherForecast.crew_message}</div>
                 <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   <span style={{ ...styles.badge, background: weatherForecast.risk_level === 'high' ? '#F87171' : '#C4954A' }}>
                     {weatherForecast.risk_level} risk
                   </span>
-                  {!appleWeather && <span style={styles.badge}>Up to {weatherForecast.delay_days} day planning allowance</span>}
+                  {!appleWeather && !nwsWeather && Number.isFinite(weatherForecast.delay_days) && <span style={styles.badge}>Up to {weatherForecast.delay_days} day planning allowance</span>}
                 </div>
-                {weatherForecast.checked_at && <small>Checked {new Date(weatherForecast.checked_at).toLocaleString()}</small>}
+                {weatherForecast.source_updated_at && <small>Forecast issued {new Date(weatherForecast.source_updated_at).toLocaleString()} · </small>}{weatherForecast.checked_at && <small>Checked {new Date(weatherForecast.checked_at).toLocaleString()}</small>}
               </div>
             )}
             {!!projectWeatherChecks.length && (
@@ -494,7 +495,7 @@ export default function CommandCenter() {
                     <b>{check.project} · {check.zip}</b><br />{check.crew_message}
                     <div>{check.checked_at ? `Saved ${new Date(check.checked_at).toLocaleString()}` : 'Saved weather check'} · ABQ ADU planning assessment</div>
                     <WeatherAttribution forecast={check} />
-                    {check.provider !== 'weatherkit' && check.source !== 'Apple Weather' && <small>Source: {check.source || 'Earlier weather record'}</small>}
+                    {check.provider !== 'weatherkit' && check.source !== 'Apple Weather' && check.provider !== 'nws' && check.source !== 'National Weather Service' && <small>Source: {check.source || 'Earlier weather record'}</small>}
                   </div>
                 ))}
               </div>

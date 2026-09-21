@@ -80,8 +80,8 @@ function createBody(project, forecast, category, risk) {
   const name = projectName(project);
   const base = forecast.crew_message || `Weather risk for ${name}: ${String(forecast.risk_level || 'unknown').toUpperCase()} risk.`;
   const delayDays = Number(risk?.delay_days || forecast.delay_days || 0);
-  const applePlanning = forecast.provider === 'weatherkit' || forecast.source === 'Apple Weather';
-  const delayText = !applePlanning && delayDays > 0 ? ` Plan for up to ${delayDays} day(s) of schedule impact.` : '';
+  const datedPlanning = ['weatherkit', 'nws'].includes(forecast.provider) || ['Apple Weather', 'National Weather Service'].includes(forecast.source);
+  const delayText = !datedPlanning && delayDays > 0 ? ` Plan for up to ${delayDays} day(s) of schedule impact.` : '';
   const cause = risk?.type ? ` Trigger: ${String(risk.type).replace(/_/g, ' ')}.` : '';
   const crewLabel = category === 'inspections' ? 'inspection team' : `${category} crew`;
   return `${base} Project: ${name}. ${crewLabel} should ${ACTIONS[category] || 'confirm recovery plan and schedule impact.'}${delayText}${cause}`;

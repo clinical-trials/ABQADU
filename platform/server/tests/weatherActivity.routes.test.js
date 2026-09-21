@@ -21,7 +21,7 @@ describe('weather activity project attribution', () => {
     directory = fs.mkdtempSync(path.join(os.tmpdir(), 'abqadu-weather-project-'));
     process.env.COMMAND_CENTER_STORE_PATH = path.join(directory, 'store.json');
     jest.resetModules();
-    jest.doMock('../src/services/weatherKit', () => ({ fetchWeatherKitForecast: jest.fn(async () => ({...forecast, provider:'weatherkit', source:'Apple Weather', attribution:{legal_url:'https://developer.apple.com/weatherkit/data-source-attribution/'}})) }));
+    jest.doMock('../src/services/weatherProvider', () => ({ fetchForecast: jest.fn(async () => ({...forecast, provider:'weatherkit', source:'Apple Weather', attribution:{legal_url:'https://developer.apple.com/weatherkit/data-source-attribution/'}})) }));
     store = require('../src/services/commandCenterStore');
     await store.resetCommandCenter();
     const router = require('../src/routes/weather');
@@ -61,7 +61,7 @@ describe('weather activity project attribution', () => {
   test('an edit made while Apple weather is loading survives the weather append', async () => {
     const started = deferred();
     const release = deferred();
-    require('../src/services/weatherKit').fetchWeatherKitForecast.mockImplementationOnce(() => {
+    require('../src/services/weatherProvider').fetchForecast.mockImplementationOnce(() => {
       started.resolve();
       return release.promise;
     });
@@ -88,7 +88,7 @@ describe('weather activity project attribution', () => {
     const started = deferred();
     const release = deferred();
     let arrivals = 0;
-    require('../src/services/weatherKit').fetchWeatherKitForecast.mockImplementation(() => {
+    require('../src/services/weatherProvider').fetchForecast.mockImplementation(() => {
       if (++arrivals === 2) started.resolve();
       return release.promise;
     });
@@ -110,7 +110,7 @@ describe('weather activity project attribution', () => {
   test('deleting a project during its weather request prevents an orphaned log', async () => {
     const started = deferred();
     const release = deferred();
-    require('../src/services/weatherKit').fetchWeatherKitForecast.mockImplementationOnce(() => {
+    require('../src/services/weatherProvider').fetchForecast.mockImplementationOnce(() => {
       started.resolve();
       return release.promise;
     });
@@ -194,15 +194,27 @@ describe('weather activity project attribution', () => {
 
   test('logging uses a server forecast and ignores browser-supplied risks and attribution', async () => {
     const response = await postWeather({project_id:'mackland-altura', zip:'87108', forecast:{...forecast, crew_message:'Invented weather', risk_level:'low', source:'Forged provider', attribution:{legal_url:'https://evil.example'}}});
-    expect(require('../src/services/weatherKit').fetchWeatherKitForecast).toHaveBeenCalledWith('87108');
+    expect(require('../src/services/weatherProvider').fetchForecast).toHaveBeenCalledWith('87108');
     expect(response.status).toBe(201);
     expect(response.body.weather_checks[0]).toMatchObject({source:'Apple Weather', provider:'weatherkit', crew_message:forecast.crew_message});
     expect(response.body.weather_checks[0].attribution.legal_url).toBe('https://developer.apple.com/weatherkit/data-source-attribution/');
   });
 
+  test('NWS logging retains its source and never adopts browser-supplied Apple attribution', async () => {
+    require('../src/services/weatherProvider').fetchForecast.mockResolvedValueOnce({
+      ...forecast, provider:'nws', source:'National Weather Service',
+      attribution:{source_url:'https://www.weather.gov/abq/'},
+    });
+    const response = await postWeather({project_id:'mackland-altura', zip:'87106', forecast:{source:'Apple Weather', attribution:{mark_url:'https://weatherkit.apple.com/logo.png'}}});
+    expect(response.status).toBe(201);
+    expect(response.body.weather_checks[0]).toMatchObject({provider:'nws', source:'National Weather Service', attribution:{source_url:'https://www.weather.gov/abq/'}});
+    expect(response.body.weather_checks[0].attribution).not.toHaveProperty('mark_url');
+    expect(response.body.crew_messages[0].body).not.toMatch(/day\(s\) of schedule impact/);
+  });
+
   test('a failed Apple forecast cannot create a weather log or crew drafts', async () => {
     const before = await store.loadCommandCenter();
-    require('../src/services/weatherKit').fetchWeatherKitForecast.mockRejectedValueOnce(Object.assign(new Error('Configure WeatherKit before checking weather.'), {status:503}));
+    require('../src/services/weatherProvider').fetchForecast.mockRejectedValueOnce(Object.assign(new Error('Configure WeatherKit before checking weather.'), {status:503}));
     const response = await postWeather({project_id:'mackland-altura', zip:'87106', forecast});
     expect(response.status).toBe(503);
     expect(await store.loadCommandCenter()).toEqual(before);

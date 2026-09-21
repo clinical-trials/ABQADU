@@ -111,7 +111,7 @@ test('weather risks create text-ready crew messages for Version 10 work categori
   expect(messages[0].body).toContain('Plan for up to 7 day(s) of schedule impact.');
 });
 
-test.each([{ provider: 'weatherkit' }, { source: 'Apple Weather' }])('Apple crew drafts retain dated planning guidance without legacy delay allowances: %j', provenance => {
+test.each([{ provider: 'weatherkit' }, { source: 'Apple Weather' }, { provider: 'nws' }, { source: 'National Weather Service' }])('Provider crew drafts retain dated planning guidance without legacy delay allowances: %j', provenance => {
   const { createCrewMessagesFromForecast } = require('../src/services/crewMessageEngine');
   const summary = 'Weather planning for 87106, 2026-09-22 through 2026-09-25. 2026-09-22: hold candidates: concrete. Schedule changes require contractor confirmation. ABQ ADU planning assessment derived from Apple Weather data.';
   const messages = createCrewMessagesFromForecast({ id: 'test-project', client: 'Test homeowner' }, {
@@ -136,7 +136,7 @@ test('weather activity stores crew message drafts with weather checks', async ()
   process.env.COMMAND_CENTER_STORE_PATH = path.join(tmp, 'store.json');
   jest.resetModules();
 
-  jest.doMock('../src/services/weatherKit', () => ({fetchWeatherKitForecast: jest.fn(async()=>({zip:'87106',source:'Apple Weather',provider:'weatherkit',risk_level:'high',delay_days:7,crew_message:'Weather risk for 87106: HIGH risk.',risks:[{type:'rain',impacted_work:['trenching','concrete'],delay_days:7},{type:'wind',impacted_work:['material delivery'],delay_days:2}]}))}));
+  jest.doMock('../src/services/weatherProvider', () => ({fetchForecast: jest.fn(async()=>({zip:'87106',source:'Apple Weather',provider:'weatherkit',risk_level:'high',delay_days:7,crew_message:'Weather risk for 87106: HIGH risk.',risks:[{type:'rain',impacted_work:['trenching','concrete'],delay_days:7},{type:'wind',impacted_work:['material delivery'],delay_days:2}]}))}));
 
   const store = require('../src/services/commandCenterStore');
   const weatherRoute = require('../src/routes/weather');

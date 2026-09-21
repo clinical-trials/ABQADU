@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { getWeatherKitStatus } = require('./weatherKit');
+const { getWeatherStatus } = require('./weatherProvider');
 
 const REQUIRED = {
   stripe: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_SUCCESS_URL', 'STRIPE_CANCEL_URL'],
@@ -31,6 +32,7 @@ function getIntegrationStatus() {
     clerk: providerStatus('clerk'),
     invoiceshelf: providerStatus('invoiceshelf'),
     weatherkit: getWeatherKitStatus(),
+    weather: getWeatherStatus(),
   };
 }
 

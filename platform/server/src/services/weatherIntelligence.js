@@ -71,7 +71,7 @@ function assessConstructionWeather(days, zip) {
         date: day.date,
         delay_days: severity === 'high' ? 7 : 2,
         impacted_work: ['site work', 'trenching', 'concrete', 'exterior work'],
-        note: `Rain risk ${day.rain_chance}% with ${day.precip_inches}" forecast precipitation.`,
+        note: `Rain risk ${Number.isFinite(day.rain_chance) ? `${day.rain_chance}%` : 'probability unavailable'} with ${Number.isFinite(day.precip_inches) ? `${day.precip_inches}" forecast precipitation` : 'precipitation amount unavailable'}.`,
       });
     }
 
@@ -83,13 +83,11 @@ function assessConstructionWeather(days, zip) {
         date: day.date,
         delay_days: severity === 'high' ? 2 : 1,
         impacted_work: ['roofing', 'panel setting', 'material delivery'],
-        note: day.gust_mph == null
-          ? `Wind risk ${day.wind_mph} mph sustained; gusts unavailable.`
-          : `Wind risk ${day.wind_mph} mph sustained with gusts to ${day.gust_mph} mph.`,
+        note: `Wind risk: ${Number.isFinite(day.wind_mph) ? `${day.wind_mph} mph sustained` : 'sustained wind unavailable'}; ${Number.isFinite(day.gust_mph) ? `gusts to ${day.gust_mph} mph` : 'gusts unavailable'}.`,
       });
     }
 
-    if (day.low_f <= 35) {
+    if (Number.isFinite(day.low_f) && day.low_f <= 35) {
       risks.push({
         type: 'freeze',
         severity: day.low_f <= 28 ? 'high' : 'moderate',
