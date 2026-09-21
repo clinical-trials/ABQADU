@@ -28,10 +28,15 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Build public-only website
+        env:
+          BUILDER_APP_URL: ${{ vars.BUILDER_APP_URL }}
+        run: node scripts/build-public-site.js
+
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: public-dist
 
       - name: Deploy to GitHub Pages
         id: deployment

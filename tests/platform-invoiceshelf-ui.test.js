@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const bidBuilder = fs.readFileSync('platform/client/src/pages/BidBuilder.jsx', 'utf8');
-const invoices = fs.readFileSync('platform/client/src/pages/Invoices.jsx', 'utf8');
+const invoices = fs.readFileSync('platform/client/src/components/InvoiceBillingActions.jsx', 'utf8');
 
 function contains(content, text, file) {
   if (!content.includes(text)) throw new Error(`${file} missing ${text}`);

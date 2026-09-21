@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { requestJson } from '../../utils/api';
+import { getAuthSession } from '../../utils/authFetch';
 
 const CATEGORIES = ['Structure', 'Exterior', 'Interior', 'MEP', 'Plumbing', 'Bathroom', 'Kitchen'];
 
@@ -44,31 +46,40 @@ function fmt(n) {
 export default function BOMPanel({ rooms }) {
   const [bom, setBom] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const debounce = useRef(null);
 
   useEffect(() => {
-    if (!rooms || rooms.length === 0) { setBom(null); return; }
+    let cancelled = false;
+    const controller = new AbortController();
+    const owner = getAuthSession();
+    if (!rooms || rooms.length === 0) { setBom(null); setLoading(false); setError(''); return undefined; }
     clearTimeout(debounce.current);
     debounce.current = setTimeout(async () => {
-      setLoading(true);
+      setLoading(true); setError('');
       try {
-        const res = await fetch('/api/designs/bom', {
+        const data = await requestJson('/api/designs/bom', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rooms }),
+          signal: controller.signal,
+          authSession: owner,
         });
-        const data = await res.json();
-        setBom(data);
-      } catch { }
-      setLoading(false);
+        if (!cancelled) setBom(data);
+      } catch (failure) {
+        if (!cancelled) setError(failure.message || 'Estimate could not load.');
+      }
+      if (!cancelled) setLoading(false);
     }, 600);
+    return () => { cancelled = true; clearTimeout(debounce.current); controller.abort(); };
   }, [JSON.stringify(rooms)]);
 
-  if (!bom && !loading) return null;
+  if (!bom && !loading && !error) return null;
 
   return (
     <div style={S.panel}>
       <div style={S.heading}>Estimate {loading && <span style={{ color: '#4a6080' }}>updating…</span>}</div>
+      {error && <p role="alert" style={{ color: '#fca5a5', fontSize: 12 }}>{error}</p>}
 
       {bom && (
         <>

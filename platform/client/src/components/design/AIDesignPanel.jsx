@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { requestJson } from '../../utils/api';
 
 const S = {
   panel: {
@@ -54,15 +55,14 @@ export default function AIDesignPanel({ rooms, templateName }) {
     setText('');
     setLoading(true);
     try {
-      const res = await fetch(action.endpoint, {
+      const data = await requestJson(action.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rooms, template_name: templateName }),
       });
-      const data = await res.json();
       setText(data.text || data.analysis || '');
     } catch (e) {
-      setText('Error connecting to AI service.');
+      setText(e.message || 'Error connecting to AI service.');
     }
     setLoading(false);
   }

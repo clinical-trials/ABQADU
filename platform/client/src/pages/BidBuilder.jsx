@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { requestJson, requestList, requestPdf } from '../utils/api';
+import { requestJson as apiJson, requestList as apiList, requestPdf as apiPdf } from '../utils/api';
+import { assertAuthSession, getAuthSession } from '../utils/authFetch';
 import useApiList from '../hooks/useApiList';
 import useApiAction from '../hooks/useApiAction';
 import ApiError from '../components/ApiError';
@@ -25,6 +26,11 @@ function checkedBid(value) {
 }
 
 export default function BidBuilder() {
+  const [owner] = useState(getAuthSession);
+  // Every step of an action belongs to the session that opened this editor.
+  const requestJson = (url, options) => apiJson(url, { ...options, authSession: owner });
+  const requestList = (url, options) => apiList(url, { ...options, authSession: owner });
+  const requestPdf = (url, options, filename) => apiPdf(url, { ...options, authSession: owner }, filename);
   const bidList = useApiList('/api/bids');
   const clientList = useApiList('/api/clients');
   const bids = bidList.data;
@@ -69,6 +75,7 @@ export default function BidBuilder() {
     }));
     setActive(updated);
     await loadBids();
+    assertAuthSession(owner);
     return updated;
   };
   const save = () => runAction(async () => { await persistActive(); setNotice('Bid saved.'); });

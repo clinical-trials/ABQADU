@@ -18,6 +18,8 @@ const response = (payload, status = 200, type = 'application/json') => ({
 const unavailable = () => response({ error: 'Database unavailable. Please try again.' }, 503);
 let root, container;
 beforeEach(() => {
+  Object.defineProperty(window,'crypto',{configurable:true,value:require('crypto').webcrypto});
+  window.sessionStorage.clear();
   global.IS_REACT_ACT_ENVIRONMENT = true;
   global.fetch = jest.fn(async () => response([]));
   window.alert = jest.fn();
@@ -31,6 +33,23 @@ const button = text => [...container.querySelectorAll('button')].find(el => el.t
 const mount = async Component => { await act(async () => root.render(<Component projectId="one" />)); };
 const click = async text => { await act(async () => button(text).click()); };
 const change = async (element, value) => { await act(async () => Simulate.change(element, { target: { value } })); };
+
+test('client portal creation is explicit and becomes unavailable once linked', async () => {
+  let client = {id:8,name:'Billing client',status:'active'};
+  fetch.mockImplementation(async (url, options) => {
+    if (url === '/api/invoice-engine/customers/8/sync') {
+      client = {...client,invoiceshelf_customer_id:'remote-8'};
+      return response({ok:true});
+    }
+    return response([client]);
+  });
+  await mount(Clients);
+  expect(button('Create InvoiceShelf customer')).toBeDefined();
+  await click('Create InvoiceShelf customer');
+  expect(fetch.mock.calls.some(([url,options])=>url === '/api/invoice-engine/customers/8/sync' && options.method === 'POST')).toBe(true);
+  expect(button('Create InvoiceShelf customer')).toBeUndefined();
+  expect(container.textContent).toContain('InvoiceShelf customer linked');
+});
 
 test.each([Portfolio, Clients, Scheduler, FieldOperations, RiskRegister, BidBuilder, Invoices])(
   '%p displays API load failures and retries successfully', async Component => {
@@ -80,7 +99,7 @@ test('a failed payment keeps amount and method in the open payment form', async 
 });
 
 test('failed invoice PDF and external sync requests display errors without downloading', async () => {
-  fetch.mockImplementation(async () => response([invoice]));
+  fetch.mockImplementation(async () => response([{...invoice,invoiceshelf_invoice_id:'remote-1'}]));
   await mount(Invoices);
   fetch.mockImplementation(async () => unavailable());
   await click('PDF');
@@ -89,6 +108,106 @@ test('failed invoice PDF and external sync requests display errors without downl
   await click('Sync InvoiceShelf Status');
   expect(window.alert).not.toHaveBeenCalled();
   expect(container.querySelector('[role="alert"]').textContent).toContain('Database unavailable');
+});
+
+test('retrying a manual payment preserves its request identity', async()=>{
+  fetch.mockImplementation(async()=>response([invoice]));
+  await mount(Invoices);
+  await click('Record Payment');
+  fetch.mockImplementation(async()=>unavailable());
+  await click('Save Payment');
+  await click('Save Payment');
+  const attempts=fetch.mock.calls.filter(([url,options])=>url.endsWith('/payments') && options?.method==='POST').map(([,options])=>JSON.parse(options.body));
+  expect(attempts).toHaveLength(2);
+  expect(attempts[0].request_id).toMatch(/^[a-f0-9-]{36}$/);
+  expect(attempts[1].request_id).toBe(attempts[0].request_id);
+});
+
+test('a zero-dollar draft is not displayed as paid', async () => {
+  fetch.mockImplementation(async () => response([{ ...invoice, amount: 0, paid: 0, balance: 0 }]));
+  await mount(Invoices);
+  expect(container.querySelector('select').value).toBe('draft');
+  expect([...container.querySelector('select').options].map(option => option.value)).not.toContain('paid');
+});
+
+test('an unresolved partial payment keeps its exact identity and locked details after closing and remounting', async () => {
+  const attempts = [];
+  fetch.mockImplementation(async (url, options) => {
+    if (options?.method === 'POST' && url.endsWith('/payments')) {
+      attempts.push(JSON.parse(options.body));
+      throw new Error('Response lost after commit');
+    }
+    return response([invoice]);
+  });
+  await mount(Invoices); await click('Record Payment');
+  await change(container.querySelector('input[type="number"]'), '20');
+  await click('Save Payment'); await click('Cancel');
+  await act(async () => root.render(<div />));
+  await mount(Invoices); await click('Resume payment');
+  expect(container.querySelector('input[type="number"]').value).toBe('20');
+  expect(container.querySelector('input[type="number"]').disabled).toBe(true);
+  await click('Save Payment');
+  expect(attempts).toHaveLength(2);
+  expect(attempts[1]).toEqual(attempts[0]);
+  expect(container.textContent).toContain('may already have been recorded');
+});
+
+test('pending payment locks fields, cancel and backdrop until the request finishes', async () => {
+  let finish;
+  fetch.mockImplementation(async (url, options) => options?.method === 'POST' && url.endsWith('/payments')
+    ? new Promise(resolve => { finish = resolve; }) : response([invoice]));
+  await mount(Invoices); await click('Record Payment'); await click('Save Payment');
+  expect(container.querySelector('input[type="number"]').disabled).toBe(true);
+  expect([...container.querySelectorAll('select')].at(-1).disabled).toBe(true);
+  expect(button('Cancel').disabled).toBe(true);
+  const dialog = container.querySelector('[role="dialog"]');
+  await act(async () => dialog.parentElement.click());
+  expect(container.querySelector('[role="dialog"]')).toBe(dialog);
+  const submitted = JSON.parse(fetch.mock.calls.find(([url, options]) => url.endsWith('/payments') && options?.method === 'POST')[1].body);
+  await act(async () => finish(response({ id: 1, invoice_id: invoice.id, amount: submitted.amount, manual_request_key: submitted.request_id })));
+  expect(container.querySelector('[role="dialog"]')).toBeNull();
+  expect(button('Resume payment')).toBeUndefined();
+});
+
+test('starting a different payment requires reviewing the ledger and explicit confirmation', async () => {
+  const attempts = [];
+  fetch.mockImplementation(async (url, options) => {
+    if (options?.method === 'POST' && url.endsWith('/payments')) { attempts.push(JSON.parse(options.body)); return unavailable(); }
+    return response(url === '/api/invoices/inv' ? { ...invoice, payments: [] } : [invoice]);
+  });
+  await mount(Invoices); await click('Record Payment');
+  await change(container.querySelector('input[type="number"]'), '20');
+  await click('Save Payment');
+  await click('Start a different payment');
+  expect(container.textContent).toContain('Review the recorded payments');
+  expect(container.querySelector('input[type="number"]').disabled).toBe(true);
+  await click('I reviewed these payments; start a different payment');
+  expect(container.querySelector('input[type="number"]').disabled).toBe(false);
+  await change(container.querySelector('input[type="number"]'), '15');
+  await click('Save Payment');
+  expect(attempts[1].request_id).not.toBe(attempts[0].request_id);
+});
+
+test('an incomplete success response retains the request until payment confirmation', async () => {
+  fetch.mockImplementation(async (url, options) => response(options?.method === 'POST' ? {} : [invoice]));
+  await mount(Invoices); await click('Record Payment'); await click('Save Payment');
+  expect(container.querySelector('[role="dialog"]')).not.toBeNull();
+  expect(container.textContent).toContain('did not confirm this payment');
+  await click('Cancel');
+  expect(button('Resume payment')).toBeDefined();
+});
+
+test('reviewing the ledger acknowledges an already recorded retry instead of starting another payment', async () => {
+  let submitted;
+  fetch.mockImplementation(async (url, options) => {
+    if (url.endsWith('/payments') && options?.method === 'POST') { submitted = JSON.parse(options.body); throw new Error('Response lost'); }
+    if (url === '/api/invoices/inv') return response({ ...invoice, payments: [{ id: 10, amount: submitted.amount, manual_request_key: submitted.request_id }] });
+    return response([invoice]);
+  });
+  await mount(Invoices); await click('Record Payment'); await click('Save Payment');
+  await click('Start a different payment');
+  expect(container.querySelector('[role="dialog"]')).toBeNull();
+  expect(button('Resume payment')).toBeUndefined();
 });
 
 const bid = { id: 'bid', title: 'Existing bid', bid_number: 'BID-1', status: 'draft', markup_pct: 10, tax_pct: 0, contingency_pct: 0, items: [] };

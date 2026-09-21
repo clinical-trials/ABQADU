@@ -1,7 +1,8 @@
 const router = require('../asyncRouter')();
 const puppeteer = require('puppeteer');
 const { pool } = require('../db');
-const { computeBidTotals, buildDrawSchedule } = require('../services/bidCalc');
+const billing = require('../services/billing');
+const { billingHandler } = require('./billing');
 
 async function paidTotal(invoiceId) {
   const { rows } = await pool.query(
@@ -34,7 +35,7 @@ router.get('/', async (req, res) => {
      FROM invoices i LEFT JOIN clients c ON c.id=i.client_id
      ${where} ORDER BY i.created_at DESC`, params
   );
-  res.json(rows);
+  res.json(rows.map(row => billing.ledgerInvoice(row)));
 });
 
 router.get('/:id', async (req, res) => {
@@ -49,7 +50,7 @@ router.get('/:id', async (req, res) => {
   );
   const inv = rows[0];
   const paid = await paidTotal(inv.id);
-  res.json({ ...inv, payments: payRes.rows, paid, balance: parseFloat(inv.amount) - paid });
+  res.json({ ...billing.ledgerInvoice(inv, paid), payments: payRes.rows });
 });
 
 // Create a single invoice
@@ -68,65 +69,24 @@ router.post('/', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-// Generate the full draw schedule from an accepted bid
-router.post('/from-bid/:bidId', async (req, res) => {
-  const bidRes = await pool.query('SELECT * FROM bids WHERE id=$1', [req.params.bidId]);
-  if (!bidRes.rows.length) return res.status(404).json({ error: 'Bid not found' });
-  const bid = bidRes.rows[0];
-  const itemsRes = await pool.query('SELECT * FROM bid_line_items WHERE bid_id=$1', [bid.id]);
-  const { total } = computeBidTotals(itemsRes.rows, bid);
-  const draws = buildDrawSchedule(total);
+// Generate or retrieve the saved draw schedule under the bid's transaction lock.
+// BD-sequence numbers are separate from manual INV-* and Command Center CC-*.
+router.post('/from-bid/:bidId', billingHandler(async (req, res) => {
+  res.status(201).json(await billing.generateBidSchedule(req.params.bidId));
+}));
 
-  const created = [];
-  for (const d of draws) {
-    const invoice_number = await nextInvoiceNumber();
-    const { rows } = await pool.query(
-      `INSERT INTO invoices (bid_id, client_id, project_id, invoice_number,
-         draw_type, description, amount, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,'draft') RETURNING *`,
-      [bid.id, bid.client_id, bid.project_id, invoice_number,
-       d.draw_type, d.description, d.amount]
-    );
-    created.push(rows[0]);
-  }
-  res.status(201).json(created);
-});
+router.put('/:id', billingHandler(async (req, res) => {
+  res.json(await billing.updateInvoice(req.params.id, req.body));
+}));
 
-router.put('/:id', async (req, res) => {
-  const { draw_type, description, amount, status, issued_date, due_date } = req.body;
-  const { rows } = await pool.query(
-    `UPDATE invoices SET draw_type=COALESCE($1,draw_type), description=COALESCE($2,description),
-       amount=COALESCE($3,amount), status=COALESCE($4,status),
-       issued_date=$5, due_date=$6 WHERE id=$7 RETURNING *`,
-    [draw_type, description, amount, status, issued_date || null, due_date || null, req.params.id]
-  );
-  if (!rows.length) return res.status(404).json({ error: 'Not found' });
-  res.json(rows[0]);
-});
-
-router.delete('/:id', async (req, res) => {
-  await pool.query('DELETE FROM invoices WHERE id=$1', [req.params.id]);
+router.delete('/:id', billingHandler(async (req, res) => {
+  await billing.deleteInvoice(req.params.id);
   res.status(204).end();
-});
+}));
 
-// Record a payment; auto-marks invoice paid when balance hits zero
-router.post('/:id/payments', async (req, res) => {
-  const { amount, method, reference, paid_date } = req.body;
-  const invRes = await pool.query('SELECT * FROM invoices WHERE id=$1', [req.params.id]);
-  if (!invRes.rows.length) return res.status(404).json({ error: 'Invoice not found' });
-
-  const { rows } = await pool.query(
-    `INSERT INTO payments (invoice_id, amount, method, reference, paid_date)
-     VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-    [req.params.id, amount, method || null, reference || null, paid_date || new Date()]
-  );
-
-  const paid = await paidTotal(req.params.id);
-  if (paid >= parseFloat(invRes.rows[0].amount)) {
-    await pool.query("UPDATE invoices SET status='paid' WHERE id=$1", [req.params.id]);
-  }
-  res.status(201).json(rows[0]);
-});
+router.post('/:id/payments', billingHandler(async (req, res) => {
+  res.status(201).json(await billing.recordManualPayment(req.params.id, req.body));
+}));
 
 // Generate invoice PDF
 router.post('/:id/pdf', async (req, res) => {

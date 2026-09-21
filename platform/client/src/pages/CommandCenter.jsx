@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useCommandCenter from '../hooks/useCommandCenter';
 import ClientPacket from '../components/ClientPacket';
 import IntegrationSetup, { SERVICE_IDS } from '../components/IntegrationSetup';
+import { apiFetch } from '../utils/authFetch';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
@@ -127,7 +128,7 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
 
 export default function CommandCenter() {
   useMobilePatch();
-  const { state, saving, error, status, load, saveState, updateList, runAction, clearError } = useCommandCenter();
+  const { state, saving, error, status, load, saveState, updateList, runAction, clearError, legacyDraftNotice } = useCommandCenter();
   const [activeProjectId, setActiveProjectId] = useState('');
   const [clientPreview, setClientPreview] = useState(null);
   const activeProject = state?.projects?.find(project => project.id === activeProjectId) || state?.projects?.[0] || null;
@@ -138,7 +139,7 @@ export default function CommandCenter() {
   const [note, setNote] = useState('');
   const [receiptText, setReceiptText] = useState("LOWE'S HOME IMPROVEMENT\n08/03/2026\nDrywall mud and house wrap\nTOTAL $284.76");
   const [liveStatus, setLiveStatus] = useState('');
-  const [paymentLink, setPaymentLink] = useState(null);
+  const [importedInvoices, setImportedInvoices] = useState(null);
   const [weatherZip, setWeatherZip] = useState('87106');
   const [weatherForecast, setWeatherForecast] = useState(null);
 
@@ -148,7 +149,7 @@ export default function CommandCenter() {
     setIntegrationsError('');
     setIntegrations(null);
     try {
-      const response = await fetch('/api/integrations/status');
+      const response = await apiFetch('/api/integrations/status');
       if (!response.ok) throw new Error('Service settings are unavailable. Try refreshing the status.');
       const data = await response.json();
       if (!SERVICE_IDS.every(id => typeof data?.[id]?.configured === 'boolean')) throw new Error('Service settings could not be read. Try refreshing the status.');
@@ -165,7 +166,7 @@ export default function CommandCenter() {
   }, [loadIntegrations]);
   useEffect(() => {
     setWeatherForecast(null);
-    setPaymentLink(null);
+    setImportedInvoices(null);
     setWeatherZip(activeProject?.zip || activeProject?.address?.match(/\b\d{5}\b/)?.[0] || '87106');
   }, [activeProject?.id, activeProject?.zip, activeProject?.address]);
 
@@ -242,15 +243,12 @@ export default function CommandCenter() {
     });
     if (payload) { setLiveStatus(`Live SMS sent: ${payload.sid}`); await load(); }
   };
-  const createStripePaymentLink = async () => {
+  const importInvoiceDrafts = async () => {
     if (!activeProject) return;
-    const payload = await runAction('/api/integrations/stripe/checkout', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: 10000, description: `$10,000 preconstruction invoice - ${activeProject.client}`, client_email: activeProject.client_email || '', metadata: { project_id: activeProject.id, draw: 'preconstruction' } }),
-    });
-    if (payload) {
-      setPaymentLink(payload.url ? { url: payload.url, project_id: activeProject.id } : null);
-      setLiveStatus(payload.url ? `Payment link ready for ${activeProject.client}.` : 'Payment link could not be created.');
+    const projectId = activeProject.id;
+    const payload = await runAction(`/api/billing/command-center/${encodeURIComponent(projectId)}/import`, { method: 'POST' });
+    if (Array.isArray(payload?.invoices)) {
+      setImportedInvoices({ projectId, count: payload.invoices.length });
     }
   };
   const parseReceiptOcr = async () => {
@@ -263,7 +261,7 @@ export default function CommandCenter() {
   };
   const checkClerkLogin = async () => {
     const payload = await runAction('/api/integrations/clerk/status');
-    if (payload) setLiveStatus(payload.configured ? 'Clerk settings are present. Sign-in and access restrictions are not implemented yet.' : 'Clerk settings are missing. Sign-in and access restrictions still need to be built.');
+    if (payload) setLiveStatus(payload.authenticated ? 'Your session is verified and has workspace access.' : 'Sign-in could not be verified.');
   };
   const checkWeather = async () => {
     if (!activeProject) return;
@@ -335,6 +333,7 @@ export default function CommandCenter() {
           <div style={{ display: 'grid', gap: 6 }}><span role="status" style={{ fontSize: 13 }}>{status}</span><button disabled={saving} style={styles.ghost} onClick={() => saveState({})}>{error ? 'Retry saving' : 'Save changes'}</button></div>
         </div>
         {error && <div role="alert" style={{ padding: 12, background: '#FEE2E2', color: '#991B1B', borderRadius: 8 }}>{error} Any unsaved edits remain in this tab. <button style={styles.ghost} onClick={clearError}>Dismiss error</button></div>}
+        {legacyDraftNotice && <p role="status" style={{padding:12,background:'#FFF4D8',borderRadius:8}}>{legacyDraftNotice}</p>}
         {liveStatus && <p role="status" style={{ padding: 12, background: '#E8EEE8', borderRadius: 8 }}>{liveStatus}</p>}
       </section>
       <main className="v10-shell" style={styles.shell}>
@@ -464,11 +463,11 @@ export default function CommandCenter() {
           </section>
 
           <section style={styles.card}>
-            <div style={styles.kicker}>Payments</div>
-            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>$10,000 preconstruction payment link for {activeProject?.client || 'the active project'}.</p>
-            <button style={styles.button} disabled={!activeProject || saving || !integrations?.stripe?.configured} onClick={createStripePaymentLink}>Create Stripe Payment Link</button>
-            {paymentLink?.project_id === activeProject?.id && paymentLink?.url && <p><a href={paymentLink.url} target="_blank" rel="noopener noreferrer">Open payment link</a></p>}
-            {!integrations?.stripe?.configured && <p style={{ fontSize: 13, color: '#78716C' }}>Connect payments before creating a payment link.</p>}
+            <div style={styles.kicker}>Invoices & payments</div>
+            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Save the invoice drafts for {activeProject?.client || 'the active project'}, then create their invoice records. Repeating this step keeps the same invoices.</p>
+            <button style={styles.button} disabled={!activeProject || saving} onClick={importInvoiceDrafts}>Create invoices from saved drafts</button>
+            {importedInvoices && importedInvoices.projectId === activeProject?.id && <p role="status">{importedInvoices.count} invoice{importedInvoices.count === 1 ? '' : 's'} ready. Review amounts before creating payment links.</p>}
+            <p><a href="/invoices">Open invoices and payments</a></p>
           </section>
 
           <section style={styles.card}>
@@ -517,7 +516,7 @@ export default function CommandCenter() {
 
           <section style={styles.card}>
             <div style={styles.kicker}>Sign-in Setup</div>
-            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Sign-in and access restrictions still need to be built. This button only checks the saved Clerk settings.</p>
+            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Access requires a verified sign-in and an allowed staff account.</p>
             <button style={styles.button} onClick={checkClerkLogin}>Check Sign-in Settings</button>
           </section>
         </aside>

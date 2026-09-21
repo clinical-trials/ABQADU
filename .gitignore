@@ -1,1 +1,8 @@
 platform/server/data/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+backups/
+public-dist/

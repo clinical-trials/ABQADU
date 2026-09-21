@@ -10,6 +10,7 @@ import BidBuilder from './pages/BidBuilder';
 import Invoices from './pages/Invoices';
 import CommandCenter from './pages/CommandCenter';
 import ProjectWorkspace from './components/ProjectWorkspace';
+import { WorkspaceSignOut } from './components/AuthBoundary';
 
 function Nav() {
   return (
@@ -46,6 +47,7 @@ function Nav() {
           {link.label}
         </Link>
       ))}
+      <WorkspaceSignOut />
     </nav>
   );
 }

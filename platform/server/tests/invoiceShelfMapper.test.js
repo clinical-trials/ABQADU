@@ -16,7 +16,9 @@ function run() {
     email: 'julia@example.com',
     phone: '505-555-0100',
     address: '4027 Mackland Ave NE, Albuquerque, NM 87110',
+    invoiceshelf_customer_id: '91',
   };
+  const config = { currencyId: 7, templateName: 'invoice1', estimateTemplateName: 'estimate1' };
 
   const bid = {
     id: 9,
@@ -31,7 +33,7 @@ function run() {
     { category: 'Internal COGS', description: 'Muras SIP/PUR panel supplier comparison', qty: 1, unit: 'pkg', unit_cost: 16000, internal_only: true },
   ];
 
-  const customer = mapClientToInvoiceShelfCustomer(client);
+  const customer = mapClientToInvoiceShelfCustomer(client, config);
   assert(customer.name === 'Julia Blog', 'Customer name should map');
   assert(customer.email === 'julia@example.com', 'Customer email should map');
 
@@ -40,6 +42,7 @@ function run() {
     bid,
     items,
     totals: { total: 171000 },
+    config,
   });
 
   assert(estimate.estimate_number === 'BID-2026-0009', 'Estimate number should use bid number');
@@ -51,16 +54,17 @@ function run() {
   const inv = mapInvoiceToInvoiceShelfInvoice({
     client,
     invoice: { invoice_number: 'INV-2026-0001', description: '$10,000 Preconstruction Contract', amount: 10000, due_date: '2026-07-30' },
+    config,
   });
   assert(inv.invoice_number === 'INV-2026-0001', 'Invoice number should map');
-  assert(inv.items[0].price === 10000, 'Preconstruction amount should map');
+  assert(inv.items[0].price === 1000000, 'Preconstruction amount should map in cents');
 
   const payment = mapPaymentToInvoiceShelfPayment({
-    invoice: { invoiceshelf_invoice_id: 'remote-invoice-1' },
+    invoice: { invoiceshelf_invoice_id: '51' },
     payment: { amount: 10000, method: 'check', reference: 'check 1001', paid_date: '2026-07-20' },
   });
-  assert(payment.invoice_id === 'remote-invoice-1', 'Remote invoice id should map to payment');
-  assert(payment.amount === 10000, 'Payment amount should map');
+  assert(payment.invoice_id === 51, 'Remote invoice id should map to payment');
+  assert(payment.amount === 1000000, 'Payment amount should map in cents');
 
   console.log('InvoiceShelf mapper tests passed');
 }

@@ -1,10 +1,8 @@
 const router = require('../asyncRouter')();
 const {
   getIntegrationStatus,
-  postStripeCheckout,
   sendSms,
   ocrSpaceReceipt,
-  verifyClerkShape,
 } = require('../services/productionIntegrations');
 const { loadCommandCenter, saveCommandCenter } = require('../services/commandCenterStore');
 
@@ -20,13 +18,10 @@ router.get('/status', (_req, res) => {
 });
 
 router.get('/clerk/status', (req, res) => {
-  const bearer = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  const decoded = verifyClerkShape(bearer);
   res.json({
     ...getIntegrationStatus().clerk,
-    token_present: Boolean(bearer),
-    token_shape_valid: Boolean(decoded),
-    subject: decoded?.sub || null,
+    authenticated: true,
+    subject: req.workspaceAuth.userId,
   });
 });
 
@@ -48,18 +43,8 @@ router.post('/sms/send', async (req, res) => {
   }
 });
 
-router.post('/stripe/checkout', async (req, res) => {
-  try {
-    const session = await postStripeCheckout(req.body || {});
-    res.status(201).json({
-      ok: true,
-      id: session.id,
-      url: session.url,
-      payment_status: session.payment_status,
-    });
-  } catch (err) {
-    sendError(res, err);
-  }
+router.post('/stripe/checkout', (_req, res) => {
+  res.status(410).json({ error: 'Use the stored invoice payment action at /api/billing/invoices/:id/checkout. Arbitrary checkout amounts are no longer accepted.' });
 });
 
 router.post('/ocr/receipt', async (req, res) => {

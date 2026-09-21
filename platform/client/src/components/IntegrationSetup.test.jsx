@@ -18,7 +18,7 @@ test('adding credentials never claims a verified connection or completed login',
   expect(container.querySelectorAll('[data-setup-status="configured"]')).toHaveLength(5);
   expect(container.textContent).not.toMatch(/\bConnected\b/);
   expect(container.textContent).toContain('Credentials added · untested');
-  expect(container.textContent).toContain('Sign-in and access controls still need to be built');
+  expect(container.textContent).toContain('verified Clerk session and an approved staff account');
 });
 
 test('missing credentials show useful next steps and working alternatives for all five services', async () => {
@@ -26,7 +26,7 @@ test('missing credentials show useful next steps and working alternatives for al
   expect(container.querySelectorAll('details')).toHaveLength(5);
   expect(container.textContent).toContain('Use your phone’s text app');
   expect(container.textContent).toContain('Pasted receipt text works now');
-  expect(container.textContent).toContain('automatic payment recording');
+  expect(container.textContent).toContain('confirm the invoice balance updates once');
   expect(container.querySelectorAll('[data-setup-status="missing"]')).toHaveLength(5);
 });
 

@@ -1,0 +1,12 @@
+.auth-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; color: #1c1917; background: #faf7f2; font-family: 'DM Sans', sans-serif; }
+.auth-card { width: min(100%, 470px); box-sizing: border-box; padding: clamp(22px, 5vw, 42px); background: #fff; border: 1px solid #e7e0d5; border-radius: 12px; box-shadow: 0 14px 45px #1c19170a; }
+.auth-brand { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 30px; }
+.auth-brand span { color: #a8792d; }
+.auth-eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 10px; font-weight: 700; color: #78716c; margin-top: 24px; }
+.auth-card h1 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(27px, 6vw, 35px); line-height: 1.12; }
+.auth-card p { line-height: 1.6; }
+.auth-card button, .workspace-signout { min-height: 44px; border: 1px solid #3d5247; border-radius: 5px; padding: 9px 15px; background: #3d5247; color: white; cursor: pointer; font: inherit; }
+.auth-card button:focus-visible, .workspace-signout:focus-visible { outline: 3px solid #c4954a; outline-offset: 3px; }
+.auth-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.workspace-signout { margin-left: auto; white-space: nowrap; flex-shrink: 0; font-size: 12px; }
+.auth-card .cl-rootBox, .auth-card .cl-cardBox { width: 100%; max-width: 100%; }

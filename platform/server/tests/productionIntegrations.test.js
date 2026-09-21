@@ -34,6 +34,7 @@ TOTAL $284.76`);
 
 test('integration status reports configured and missing providers', () => {
   process.env.STRIPE_SECRET_KEY = 'sk_test_demo';
+  process.env.STRIPE_WEBHOOK_SECRET = 'whsec_demo';
   process.env.STRIPE_SUCCESS_URL = 'https://example.com/success';
   process.env.STRIPE_CANCEL_URL = 'https://example.com/cancel';
   delete process.env.TWILIO_ACCOUNT_SID;

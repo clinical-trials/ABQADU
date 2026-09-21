@@ -4,15 +4,96 @@ const { pool } = require('../db');
 const { computeBidTotals, bomToLineItems } = require('../services/bidCalc');
 const { generateBOM } = require('../services/bomGenerator');
 
-async function loadBid(id) {
-  const bidRes = await pool.query(
+async function transaction(work) {
+  const db = await pool.connect();
+  try {
+    await db.query('BEGIN');
+    const result = await work(db);
+    await db.query('COMMIT');
+    return result;
+  } catch (error) {
+    await db.query('ROLLBACK');
+    throw error;
+  } finally {
+    db.release();
+  }
+}
+
+function requestedTerms(body, bid) {
+  return {
+    title: body.title ?? bid.title,
+    status: body.status ?? bid.status,
+    markup_pct: body.markup_pct ?? bid.markup_pct,
+    tax_pct: body.tax_pct ?? bid.tax_pct,
+    contingency_pct: body.contingency_pct ?? bid.contingency_pct,
+    notes: body.notes === undefined ? bid.notes : body.notes,
+    valid_until: body.valid_until === undefined ? bid.valid_until : body.valid_until || null,
+    client_id: body.client_id ?? bid.client_id,
+  };
+}
+
+const nullable = value => value == null || value === '' ? null : value;
+const numeric = value => nullable(value) == null ? null : Number.isFinite(Number(value)) ? Number(value) : `invalid:${String(value)}`;
+const day = value => value ? (value instanceof Date ? value.toISOString() : String(value)).slice(0, 10) : null;
+function canonicalTerms(value) {
+  return [value.title, numeric(value.client_id), numeric(value.markup_pct), numeric(value.tax_pct),
+    numeric(value.contingency_pct), nullable(value.notes), day(value.valid_until)];
+}
+function canonicalItems(items) {
+  return items.map((item, index) => item && [nullable(item.category), item.description,
+    numeric(item.qty === undefined ? 1 : item.qty), nullable(item.unit === undefined ? 'ea' : item.unit),
+    numeric(item.unit_cost === undefined ? 0 : item.unit_cost), numeric(item.sort_order ?? index)]);
+}
+
+async function changeBid(req, res, change) {
+  const result = await transaction(async db => {
+    const { rows } = await db.query('SELECT * FROM bids WHERE id=$1 FOR UPDATE', [req.params.id]);
+    if (!rows.length) return { status: 404, body: { error: 'Not found' } };
+    const bid = rows[0];
+    if (bid.invoiceshelf_estimate_id || bid.invoiceshelf_sync_error != null) {
+      if (req.method === 'PUT') {
+        const body = req.body || {};
+        const next = requestedTerms(body, bid);
+        const items = (await db.query('SELECT * FROM bid_line_items WHERE bid_id=$1 ORDER BY sort_order, id', [bid.id])).rows;
+        const unchangedTerms = JSON.stringify(canonicalTerms(next)) === JSON.stringify(canonicalTerms(bid));
+        const unchangedItems = body.items === undefined || (Array.isArray(body.items)
+          && JSON.stringify(canonicalItems(body.items)) === JSON.stringify(canonicalItems(items)));
+        if (unchangedTerms && unchangedItems) {
+          // The editor saves before PDF/export actions. Preserve item identities
+          // and the export snapshot for a no-op; lifecycle status is local only.
+          if (next.status !== bid.status) await db.query('UPDATE bids SET status=$1,updated_at=NOW() WHERE id=$2', [next.status, bid.id]);
+          return { status: 200, body: await loadBid(bid.id, db) };
+        }
+      }
+      return { status: 409, body: { error: 'This bid has a pending or linked InvoiceShelf estimate. Reconcile it before editing or deleting.' } };
+    }
+    return { status: req.method === 'DELETE' ? 204 : 200, body: await change(db, bid) };
+  });
+  if (result.status === 204) return res.status(204).end();
+  return res.status(result.status).json(result.body);
+}
+
+async function insertItems(db, bidId, items) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    await db.query(
+      `INSERT INTO bid_line_items (bid_id, category, description, qty, unit, unit_cost, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [bidId, item.category || null, item.description, item.qty ?? 1,
+       item.unit || 'ea', item.unit_cost ?? 0, item.sort_order ?? i]
+    );
+  }
+}
+
+async function loadBid(id, db = pool) {
+  const bidRes = await db.query(
     `SELECT b.*, c.name AS client_name, c.email AS client_email,
             c.phone AS client_phone, c.address AS client_address
      FROM bids b LEFT JOIN clients c ON c.id=b.client_id WHERE b.id=$1`,
     [id]
   );
   if (!bidRes.rows.length) return null;
-  const itemsRes = await pool.query(
+  const itemsRes = await db.query(
     'SELECT * FROM bid_line_items WHERE bid_id=$1 ORDER BY sort_order, id', [id]
   );
   const bid = bidRes.rows[0];
@@ -20,8 +101,8 @@ async function loadBid(id) {
   return { ...bid, items, totals: computeBidTotals(items, bid) };
 }
 
-async function nextBidNumber() {
-  const { rows } = await pool.query("SELECT COUNT(*)::int AS n FROM bids");
+async function nextBidNumber(db = pool) {
+  const { rows } = await db.query("SELECT COUNT(*)::int AS n FROM bids");
   const seq = String(rows[0].n + 1).padStart(4, '0');
   return `BID-${new Date().getFullYear()}-${seq}`;
 }
@@ -50,30 +131,20 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const { client_id, project_id, design_id, title, markup_pct,
           tax_pct, contingency_pct, notes, valid_until, items } = req.body;
-  const bid_number = await nextBidNumber();
-
-  const { rows } = await pool.query(
-    `INSERT INTO bids (client_id, project_id, design_id, bid_number, title,
-       markup_pct, tax_pct, contingency_pct, notes, valid_until)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-    [client_id || null, project_id || null, design_id || null, bid_number,
-     title || 'ADU Estimate', markup_pct ?? 18.0, tax_pct ?? 7.625,
-     contingency_pct ?? 5.0, notes || null, valid_until || null]
-  );
-  const bid = rows[0];
-
-  if (Array.isArray(items) && items.length) {
-    for (let i = 0; i < items.length; i++) {
-      const it = items[i];
-      await pool.query(
-        `INSERT INTO bid_line_items (bid_id, category, description, qty, unit, unit_cost, sort_order)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-        [bid.id, it.category || null, it.description, it.qty ?? 1,
-         it.unit || 'ea', it.unit_cost ?? 0, it.sort_order ?? i]
-      );
-    }
-  }
-  res.status(201).json(await loadBid(bid.id));
+  const bid = await transaction(async db => {
+    const bid_number = await nextBidNumber(db);
+    const { rows } = await db.query(
+      `INSERT INTO bids (client_id, project_id, design_id, bid_number, title,
+         markup_pct, tax_pct, contingency_pct, notes, valid_until)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [client_id || null, project_id || null, design_id || null, bid_number,
+       title || 'ADU Estimate', markup_pct ?? 18.0, tax_pct ?? 7.625,
+       contingency_pct ?? 5.0, notes || null, valid_until || null]
+    );
+    if (Array.isArray(items)) await insertItems(db, rows[0].id, items);
+    return loadBid(rows[0].id, db);
+  });
+  res.status(201).json(bid);
 });
 
 // Create a bid from a design's BOM
@@ -83,61 +154,43 @@ router.post('/from-design/:designId', async (req, res) => {
   const design = designRes.rows[0];
   const bom = generateBOM(design.rooms);
   const items = bomToLineItems(bom);
-  const bid_number = await nextBidNumber();
-
   const { client_id, project_id } = req.body;
-  const { rows } = await pool.query(
-    `INSERT INTO bids (client_id, project_id, design_id, bid_number, title, notes)
-     VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-    [client_id || null, project_id || null, design.id, bid_number,
-     `${design.name} — Estimate`, `Auto-generated from floor plan (${bom.totalSf} sf)`]
-  );
-  const bid = rows[0];
-  for (let i = 0; i < items.length; i++) {
-    const it = items[i];
-    await pool.query(
-      `INSERT INTO bid_line_items (bid_id, category, description, qty, unit, unit_cost, sort_order)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [bid.id, it.category, it.description, it.qty, it.unit, it.unit_cost, it.sort_order]
+  const bid = await transaction(async db => {
+    const bid_number = await nextBidNumber(db);
+    const { rows } = await db.query(
+      `INSERT INTO bids (client_id, project_id, design_id, bid_number, title, notes)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [client_id || null, project_id || null, design.id, bid_number,
+       `${design.name} — Estimate`, `Auto-generated from floor plan (${bom.totalSf} sf)`]
     );
-  }
-  res.status(201).json(await loadBid(bid.id));
+    await insertItems(db, rows[0].id, items);
+    return loadBid(rows[0].id, db);
+  });
+  res.status(201).json(bid);
 });
 
 // Update bid (header fields + full line item replace)
 router.put('/:id', async (req, res) => {
-  const { title, status, markup_pct, tax_pct, contingency_pct,
-          notes, valid_until, client_id, items } = req.body;
-  await pool.query(
-    `UPDATE bids SET title=COALESCE($1,title), status=COALESCE($2,status),
-       markup_pct=COALESCE($3,markup_pct), tax_pct=COALESCE($4,tax_pct),
-       contingency_pct=COALESCE($5,contingency_pct), notes=$6,
-       valid_until=$7, client_id=COALESCE($8,client_id), updated_at=NOW()
-     WHERE id=$9`,
-    [title, status, markup_pct, tax_pct, contingency_pct, notes,
-     valid_until || null, client_id, req.params.id]
-  );
-
-  if (Array.isArray(items)) {
-    await pool.query('DELETE FROM bid_line_items WHERE bid_id=$1', [req.params.id]);
-    for (let i = 0; i < items.length; i++) {
-      const it = items[i];
-      await pool.query(
-        `INSERT INTO bid_line_items (bid_id, category, description, qty, unit, unit_cost, sort_order)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-        [req.params.id, it.category || null, it.description, it.qty ?? 1,
-         it.unit || 'ea', it.unit_cost ?? 0, it.sort_order ?? i]
-      );
+  return changeBid(req, res, async (db, bid) => {
+    const body = req.body || {};
+    const next = requestedTerms(body, bid);
+    await db.query(
+      `UPDATE bids SET title=$1, status=$2, markup_pct=$3, tax_pct=$4,
+         contingency_pct=$5, notes=$6, valid_until=$7, client_id=$8, updated_at=NOW()
+       WHERE id=$9`,
+      [next.title, next.status, next.markup_pct, next.tax_pct, next.contingency_pct,
+       next.notes, next.valid_until, next.client_id, bid.id]
+    );
+    if (Array.isArray(body.items)) {
+      await db.query('DELETE FROM bid_line_items WHERE bid_id=$1', [bid.id]);
+      await insertItems(db, bid.id, body.items);
     }
-  }
-  const bid = await loadBid(req.params.id);
-  if (!bid) return res.status(404).json({ error: 'Not found' });
-  res.json(bid);
+    return loadBid(bid.id, db);
+  });
 });
 
 router.delete('/:id', async (req, res) => {
-  await pool.query('DELETE FROM bids WHERE id=$1', [req.params.id]);
-  res.status(204).end();
+  return changeBid(req, res, (db, bid) => db.query('DELETE FROM bids WHERE id=$1', [bid.id]));
 });
 
 // Generate branded PDF proposal

@@ -1,11 +1,11 @@
 const crypto = require('crypto');
 
 const REQUIRED = {
-  stripe: ['STRIPE_SECRET_KEY', 'STRIPE_SUCCESS_URL', 'STRIPE_CANCEL_URL'],
+  stripe: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_SUCCESS_URL', 'STRIPE_CANCEL_URL'],
   twilio: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM_NUMBER'],
   ocr: ['OCR_SPACE_API_KEY'],
-  clerk: ['CLERK_PUBLISHABLE_KEY', 'CLERK_SECRET_KEY'],
-  invoiceshelf: ['INVOICESHELF_BASE_URL', 'INVOICESHELF_API_TOKEN', 'INVOICESHELF_COMPANY_ID'],
+  clerk: ['CLERK_PUBLISHABLE_KEY', 'CLERK_SECRET_KEY', 'CLERK_ALLOWED_USER_IDS', 'APP_ORIGINS'],
+  invoiceshelf: ['INVOICESHELF_BASE_URL', 'INVOICESHELF_API_TOKEN', 'INVOICESHELF_COMPANY_ID', 'INVOICESHELF_CURRENCY_ID', 'INVOICESHELF_TEMPLATE_NAME', 'INVOICESHELF_ESTIMATE_TEMPLATE_NAME'],
 };
 
 function configured(keys) {
@@ -72,47 +72,6 @@ function parseReceiptText(text) {
   };
 }
 
-async function postStripeCheckout({ amount, description, client_email, metadata = {} }, fetchImpl = global.fetch) {
-  if (!configured(REQUIRED.stripe)) {
-    const err = new Error('Stripe is not configured');
-    err.status = 409;
-    err.details = providerStatus('stripe');
-    throw err;
-  }
-  const cents = Math.round(Number(amount || 0) * 100);
-  if (!Number.isFinite(cents) || cents < 50) {
-    const err = new Error('Stripe checkout amount must be at least $0.50');
-    err.status = 400;
-    throw err;
-  }
-  const form = new URLSearchParams();
-  form.set('mode', 'payment');
-  form.set('success_url', process.env.STRIPE_SUCCESS_URL);
-  form.set('cancel_url', process.env.STRIPE_CANCEL_URL);
-  form.set('line_items[0][quantity]', '1');
-  form.set('line_items[0][price_data][currency]', 'usd');
-  form.set('line_items[0][price_data][unit_amount]', String(cents));
-  form.set('line_items[0][price_data][product_data][name]', description || 'ABQ ADU invoice payment');
-  if (client_email) form.set('customer_email', client_email);
-  Object.entries(metadata).forEach(([key, value]) => form.set(`metadata[${key}]`, String(value)));
-
-  const res = await fetchImpl('https://api.stripe.com/v1/checkout/sessions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: form,
-  });
-  const payload = await res.json();
-  if (!res.ok) {
-    const err = new Error(payload?.error?.message || `Stripe checkout failed with ${res.status}`);
-    err.status = 502;
-    err.details = payload;
-    throw err;
-  }
-  return payload;
-}
 
 async function sendSms({ to, body }) {
   if (!configured(REQUIRED.twilio)) {
@@ -192,7 +151,6 @@ module.exports = {
   REQUIRED,
   getIntegrationStatus,
   parseReceiptText,
-  postStripeCheckout,
   sendSms,
   ocrSpaceReceipt,
   verifyClerkShape,

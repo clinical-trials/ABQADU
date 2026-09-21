@@ -1,4 +1,6 @@
 const request = require('supertest');
+const { createAuthFixture } = require('./helpers/authFixture');
+process.env.CLERK_TELEMETRY_DISABLED = '1';
 
 jest.mock('../src/db', () => ({ pool: { query: jest.fn() } }));
 // This unrelated design-route module uses ESM syntax that Jest's CommonJS
@@ -6,7 +8,9 @@ jest.mock('../src/db', () => ({ pool: { query: jest.fn() } }));
 jest.mock('../src/services/bomGenerator', () => ({ generateBOM: jest.fn() }));
 
 const { pool } = require('../src/db');
-const app = require('../src/index');
+const fixture = createAuthFixture();
+const app = require('../src/index').createApp({ env: fixture.env });
+const agent = request.agent(app).set('Authorization', `Bearer ${fixture.token()}`);
 
 beforeEach(() => pool.query.mockReset());
 
@@ -21,7 +25,7 @@ test('creates a project with trimmed input and returns its database identity', a
   };
   pool.query.mockResolvedValue({ rows: [project] });
 
-  const response = await request(app).post('/api/projects').send({
+  const response = await agent.post('/api/projects').send({
     name: '  Maple ADU  ',
     description: '  Detached guest house  ',
     start_date: '2026-10-01',
@@ -39,7 +43,7 @@ test('accepts a 200-character name and keeps omitted optional fields null', asyn
   const name = 'a'.repeat(200);
   pool.query.mockResolvedValue({ rows: [{ id: 43, name, description: null, start_date: null, status: 'active' }] });
 
-  const response = await request(app).post('/api/projects').send({ name });
+  const response = await agent.post('/api/projects').send({ name });
 
   expect(response.status).toBe(201);
   expect(response.body.id).toBe(43);
@@ -48,7 +52,7 @@ test('accepts a 200-character name and keeps omitted optional fields null', asyn
 
 test.each([undefined, null, '', '   ', 'a'.repeat(201), 12, {}, []])(
   'rejects invalid project name %j without writing a project', async name => {
-    const response = await request(app).post('/api/projects').send({ name });
+    const response = await agent.post('/api/projects').send({ name });
 
     expect(response.status).toBe(400);
     expect(response.body.error).toMatch(/name/i);
@@ -58,7 +62,7 @@ test.each([undefined, null, '', '   ', 'a'.repeat(201), 12, {}, []])(
 
 test.each(['2026-02-30', '2026-13-01', '09/16/2026', '0000-01-01', 42])(
   'rejects invalid start date %j without writing a project', async start_date => {
-    const response = await request(app).post('/api/projects').send({ name: 'Maple ADU', start_date });
+    const response = await agent.post('/api/projects').send({ name: 'Maple ADU', start_date });
 
     expect(response.status).toBe(400);
     expect(response.body.error).toMatch(/start_date/i);
@@ -67,7 +71,7 @@ test.each(['2026-02-30', '2026-13-01', '09/16/2026', '0000-01-01', 42])(
 );
 
 test('rejects an object description instead of serializing it into the database', async () => {
-  const response = await request(app).post('/api/projects').send({ name: 'Maple ADU', description: {} });
+  const response = await agent.post('/api/projects').send({ name: 'Maple ADU', description: {} });
 
   expect(response.status).toBe(400);
   expect(response.body.error).toMatch(/description/i);
@@ -75,7 +79,7 @@ test('rejects an object description instead of serializing it into the database'
 });
 
 test('unknown API paths return JSON 404 while health remains available', async () => {
-  const response = await request(app).get('/api/no-such-endpoint');
+  const response = await agent.get('/api/no-such-endpoint');
 
   expect(response.status).toBe(404);
   expect(response.headers['content-type']).toMatch(/application\/json/);

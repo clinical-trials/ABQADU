@@ -41,6 +41,11 @@ export default function Clients() {
     await load();
   });
 
+  const createInvoiceShelfCustomer = id => run(async () => {
+    await requestJson(`/api/invoice-engine/customers/${id}/sync`, {method:'POST'});
+    await load();
+  });
+
   return (
     <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#FAF7F2', minHeight: '100vh' }}>
       <div style={{ background: '#1C1917', color: '#F0EBE1', padding: '20px 32px', display: 'flex', alignItems: 'center' }}>
@@ -92,6 +97,9 @@ export default function Clients() {
                 <td style={{ padding: '12px', color: '#57534E' }}>
                   {c.email && <div>{c.email}</div>}
                   {c.phone && <div style={{ fontSize: 12, color: '#A8A29E' }}>{c.phone}</div>}
+                  {c.invoiceshelf_customer_id ? <small>InvoiceShelf customer linked</small>
+                    : <button disabled={pending || Boolean(c.invoiceshelf_sync_error)} onClick={()=>createInvoiceShelfCustomer(c.id)} style={{minHeight:44,marginTop:8}}>Create InvoiceShelf customer</button>}
+                  {c.invoiceshelf_sync_error && <p role="status" style={{fontSize:12}}>InvoiceShelf needs review: {c.invoiceshelf_sync_error}</p>}
                 </td>
                 <td style={{ padding: '12px', color: '#78716C' }}>{c.lead_source || '—'}</td>
                 <td style={{ padding: '12px', color: '#78716C' }}>{c.bid_count || 0}</td>

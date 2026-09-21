@@ -87,10 +87,24 @@ test('failed setup refresh clears stale settings and disables external actions',
   });
   await mount();
   expect(container.textContent).toContain('Credentials added · untested');
-  expect(button('Create Stripe Payment Link').disabled).toBe(false);
   statusFails = true;
   await act(async () => button('Refresh setup status').click());
-  expect(button('Create Stripe Payment Link').disabled).toBe(true);
   expect(button('Send Live SMS').disabled).toBe(true);
   expect(container.textContent).toContain('Status unavailable');
+});
+
+test('saved invoice drafts import for the selected project without a browser payment amount', async () => {
+  const previous = fetch;
+  global.fetch = jest.fn((url, options) => url.startsWith('/api/billing/command-center/')
+    ? Promise.resolve({ok:true,json:async()=>({invoices:[{id:31}]})}) : previous(url,options));
+  await mount();
+  await act(async () => Simulate.change(container.querySelector('[aria-label="Active project"]'), {target:{value:'two'}}));
+  const importButton = button('Create invoices from saved drafts');
+  expect(importButton).toBeDefined();
+  await act(async()=>importButton.click());
+  const call = fetch.mock.calls.find(([url])=>url === '/api/billing/command-center/two/import');
+  expect(call[1]).toMatchObject({method:'POST'});
+  expect(call[1].body).toBeUndefined();
+  expect(container.textContent).toContain('1 invoice ready');
+  expect(fetch.mock.calls.some(([url])=>url === '/api/integrations/stripe/checkout')).toBe(false);
 });

@@ -7,17 +7,22 @@ const serverDirectory = path.join(__dirname, '..');
 // Only the external database boundary is replaced; requests use the real app.
 function requestWithDatabaseFailure(code) {
   const script = `
+    const { createAuthFixture } = require('./tests/helpers/authFixture');
+    const fixture = createAuthFixture();
+    process.env.CLERK_TELEMETRY_DISABLED = '1';
     const { pool } = require('./src/db');
     pool.query = async () => {
       throw Object.assign(new Error('private database connection details'), {
         code: ${JSON.stringify(code)},
       });
     };
-    const app = require('./src/index');
+    const app = require('./src/index').createApp({ env: fixture.env });
     const server = app.listen(0, '127.0.0.1', async () => {
       try {
         const origin = 'http://127.0.0.1:' + server.address().port;
-        const response = await fetch(origin + '/api/portfolio');
+        const response = await fetch(origin + '/api/portfolio', {
+          headers: { Authorization: 'Bearer ' + fixture.token() },
+        });
         const body = await response.json();
         const health = await fetch(origin + '/health');
         console.log('RESULT:' + JSON.stringify({
