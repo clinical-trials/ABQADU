@@ -75,3 +75,22 @@ test('changing a readiness check persists it before generating the client packet
   expect(previewIndex).toBeGreaterThan(putIndex);
   expect(state.projects[0].utility_review_status).toBe('Confirmed');
 });
+
+test('failed setup refresh clears stale settings and disables external actions', async () => {
+  const fallbackFetch = fetch;
+  let statusFails = false;
+  global.fetch = jest.fn((url, options) => {
+    if (url === '/api/integrations/status') return statusFails
+      ? Promise.reject(new TypeError('Failed to fetch'))
+      : Promise.resolve({ok:true,json:async()=>Object.fromEntries(['stripe','twilio','ocr','clerk','invoiceshelf'].map(name=>[name,{configured:true}]))});
+    return fallbackFetch(url, options);
+  });
+  await mount();
+  expect(container.textContent).toContain('Credentials added · untested');
+  expect(button('Create Stripe Payment Link').disabled).toBe(false);
+  statusFails = true;
+  await act(async () => button('Refresh setup status').click());
+  expect(button('Create Stripe Payment Link').disabled).toBe(true);
+  expect(button('Send Live SMS').disabled).toBe(true);
+  expect(container.textContent).toContain('Status unavailable');
+});

@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useCommandCenter from '../hooks/useCommandCenter';
 import ClientPacket from '../components/ClientPacket';
+import IntegrationSetup, { SERVICE_IDS } from '../components/IntegrationSetup';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
@@ -131,6 +132,9 @@ export default function CommandCenter() {
   const [clientPreview, setClientPreview] = useState(null);
   const activeProject = state?.projects?.find(project => project.id === activeProjectId) || state?.projects?.[0] || null;
   const [integrations, setIntegrations] = useState(null);
+  const [integrationsLoading, setIntegrationsLoading] = useState(true);
+  const [integrationsError, setIntegrationsError] = useState('');
+  const integrationRequest = useRef(0);
   const [note, setNote] = useState('');
   const [receiptText, setReceiptText] = useState("LOWE'S HOME IMPROVEMENT\n08/03/2026\nDrywall mud and house wrap\nTOTAL $284.76");
   const [liveStatus, setLiveStatus] = useState('');
@@ -138,14 +142,27 @@ export default function CommandCenter() {
   const [weatherZip, setWeatherZip] = useState('87106');
   const [weatherForecast, setWeatherForecast] = useState(null);
 
-  const loadIntegrations = async () => {
+  const loadIntegrations = useCallback(async () => {
+    const request = ++integrationRequest.current;
+    setIntegrationsLoading(true);
+    setIntegrationsError('');
+    setIntegrations(null);
     try {
       const response = await fetch('/api/integrations/status');
-      if (!response.ok) throw new Error('Integration status is unavailable.');
-      setIntegrations(await response.json());
-    } catch (err) { setLiveStatus(err.message); }
-  };
-  useEffect(() => { loadIntegrations(); }, []);
+      if (!response.ok) throw new Error('Service settings are unavailable. Try refreshing the status.');
+      const data = await response.json();
+      if (!SERVICE_IDS.every(id => typeof data?.[id]?.configured === 'boolean')) throw new Error('Service settings could not be read. Try refreshing the status.');
+      if (request === integrationRequest.current) setIntegrations(data);
+    } catch {
+      if (request === integrationRequest.current) setIntegrationsError('Unable to check service settings. Make sure the app server is running, then refresh.');
+    } finally {
+      if (request === integrationRequest.current) setIntegrationsLoading(false);
+    }
+  }, []);
+  useEffect(() => {
+    loadIntegrations();
+    return () => { integrationRequest.current += 1; };
+  }, [loadIntegrations]);
   useEffect(() => {
     setWeatherForecast(null);
     setPaymentLink(null);
@@ -246,7 +263,7 @@ export default function CommandCenter() {
   };
   const checkClerkLogin = async () => {
     const payload = await runAction('/api/integrations/clerk/status');
-    if (payload) setLiveStatus(payload.configured ? 'Login service is configured.' : 'Login service has not been connected yet.');
+    if (payload) setLiveStatus(payload.configured ? 'Clerk settings are present. Sign-in and access restrictions are not implemented yet.' : 'Clerk settings are missing. Sign-in and access restrictions still need to be built.');
   };
   const checkWeather = async () => {
     if (!activeProject) return;
@@ -377,20 +394,7 @@ export default function CommandCenter() {
         </section>
 
         <aside style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
-          <section style={styles.card}>
-            <div style={styles.kicker}>Live Integration Status</div>
-            <div style={{ display: 'grid', gap: 7 }}>
-              {Object.entries(integrations || {}).map(([name, info]) => (
-                <div key={name} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 13 }}>
-                  <b style={{ textTransform: 'capitalize' }}>{name}</b>
-                  <span style={{ color: info.configured ? '#065F46' : '#92400E', fontWeight: 900 }}>
-                    {info.configured ? 'Connected' : 'Not connected'}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <button style={{ ...styles.ghost, marginTop: 10 }} onClick={loadIntegrations}>Refresh status</button>
-          </section>
+          <IntegrationSetup integrations={integrations} loading={integrationsLoading} error={integrationsError} onRefresh={loadIntegrations} />
 
           <section style={styles.card}>
             <div style={styles.kicker}>Text Ian / Builder</div>
@@ -468,10 +472,11 @@ export default function CommandCenter() {
           </section>
 
           <section style={styles.card}>
-            <div style={styles.kicker}>Receipt Scanner Demo</div>
+            <div style={styles.kicker}>Receipt Text Entry</div>
+            <p style={{ fontSize: 13, lineHeight: 1.5, marginBottom: 8 }}>Paste receipt text to suggest the vendor and total, then review the saved receipt. Photo scanning still needs setup.</p>
             <textarea style={{ ...styles.input, minHeight: 92, marginBottom: 8 }} value={receiptText} onChange={e => setReceiptText(e.target.value)} />
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button style={styles.button} disabled={!activeProject || saving} onClick={parseReceiptOcr}>Parse Receipt OCR</button>
+              <button style={styles.button} disabled={!activeProject || saving} onClick={parseReceiptOcr}>Read Receipt Text</button>
               <button style={styles.ghost} disabled={!activeProject || saving} onClick={addReceipt}>Add receipt manually</button>
             </div>
             <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
@@ -511,9 +516,9 @@ export default function CommandCenter() {
           </section>
 
           <section style={styles.card}>
-            <div style={styles.kicker}>Clerk Login</div>
-            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Checks whether Clerk environment variables are configured on the server.</p>
-            <button style={styles.button} onClick={checkClerkLogin}>Check Clerk Login</button>
+            <div style={styles.kicker}>Sign-in Setup</div>
+            <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Sign-in and access restrictions still need to be built. This button only checks the saved Clerk settings.</p>
+            <button style={styles.button} onClick={checkClerkLogin}>Check Sign-in Settings</button>
           </section>
         </aside>
       </main>
