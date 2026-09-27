@@ -37,6 +37,8 @@ If doctor fails, follow its specific guidance: create the missing database, star
 
 ## Local test URL
 
+For continued development on this Mac without Clerk, use `npm run local` from `platform/server`. It opens the complete existing workspace with the existing data, bound only to `127.0.0.1`. See [Local workspace access](local-workspace.md). This mode cannot be used for LAN or public deployment; normal `npm start` keeps Clerk authentication.
+
 - `http://localhost:4000/` is the homeowner website. Models, local service categories, and request drafts need no sign-in.
 - Use `http://localhost:4000/command-center` for same-machine testing.
 - `/portfolio` is the private portfolio route; the workspace menu links there. `/platform.html` redirects to `/command-center` on the Express host.

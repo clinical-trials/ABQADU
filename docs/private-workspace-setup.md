@@ -2,6 +2,8 @@
 
 This release adds Clerk sign-in and server-enforced access, imported invoice records, invoice-specific Stripe checkout, verified payment recording, and explicit InvoiceShelf creation controls. Provider acceptance testing still requires your account configuration. Nothing is publicly deployed by this change.
 
+To continue developing the full existing app on this Mac before Clerk setup, use the explicit loopback-only `npm run local` workflow in [Local workspace](local-workspace.md). It uses the existing saved data and cannot be used as a public or production sign-in configuration.
+
 ## 1. Configure your existing Clerk application
 
 Edit `platform/server/.env` privately. Preserve its existing database and other settings; use `.env.example` for variable names, not as a replacement for the whole file.
@@ -11,7 +13,7 @@ Edit `platform/server/.env` privately. Preserve its existing database and other 
 - `APP_ORIGINS`: exact app origins, including scheme and port, without a path or trailing slash. Local defaults are `http://localhost:4000,http://127.0.0.1:4000`. A public host must use HTTPS.
 - Optional `CLERK_JWT_KEY`: your Clerk PEM public verification key. Leave it empty to use the SDK's normal key retrieval. This is not a secret key.
 
-Restart the server after changing configuration. The browser loads the publishable key from the server; no client secret or client rebuild is required for a key change. Open `/command-center`, sign in with an approved account, then test a signed-out window and an unapproved account. Neither should reveal project records. Missing/invalid configuration produces a locked setup screen; there is no development bypass.
+Restart the server after changing configuration. The browser loads the publishable key from the server; no client secret or client rebuild is required for a key change. Open `/command-center`, sign in with an approved account, then test a signed-out window and an unapproved account. Neither should reveal project records. Under normal `npm start`, missing/invalid configuration produces a locked setup screen. The separate local-development launcher is restricted to this Mac and does not relax hosted access.
 
 All approved staff currently share the same workspace permissions. Homeowner accounts, crew-specific permissions, and multiple isolated businesses are not implemented. Existing legacy drafts are preserved but not silently assigned to a signed-in account. Staff drafts and queued saves are isolated by identity; signing out locks the UI and invalidates pending work.
 

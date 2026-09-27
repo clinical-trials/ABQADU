@@ -21,3 +21,8 @@
 .auth-owner-setup { margin: 1rem 0; }
 .auth-owner-setup summary { display: list-item; cursor: pointer; min-height: 44px; padding: .7rem 0; box-sizing: border-box; color: #3d5247; font-weight: 700; }
 .auth-owner-setup p { font-size: .9rem; }
+.local-workspace-banner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; padding: .7rem 1rem; background: #f5ead5; color: #423322; border-bottom: 1px solid #d8c099; font-family: 'DM Sans', sans-serif; }
+.local-workspace-banner strong { display: block; font-size: .9rem; }
+.local-workspace-banner span { display: block; margin-top: .2rem; font-size: .8rem; line-height: 1.4; }
+.local-workspace-banner button { min-height: 44px; padding: .5rem .8rem; background: transparent; border: 1px solid #8b724b; border-radius: .25rem; font: inherit; font-size: .85rem; color: inherit; cursor: pointer; }
+.local-workspace-banner button:focus-visible { outline: 3px solid #3d5247; outline-offset: 3px; }

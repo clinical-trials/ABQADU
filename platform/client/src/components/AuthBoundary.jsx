@@ -26,6 +26,98 @@ export function WorkspaceSignOut() {
   return signOut ? <button className="workspace-signout" onClick={signOut}>Sign out</button> : null;
 }
 
+async function revokeLocalSession(token) {
+  try {
+    await fetch('/api/auth/local-session', {
+      method: 'DELETE', credentials: 'omit', redirect: 'error', mode: 'same-origin', keepalive: true,
+      headers: { Authorization: `Bearer ${token}`, 'X-ABQ-Local-Access': '1' },
+    });
+  } catch { /* The browser still closes immediately; server sessions also expire. */ }
+}
+
+function LocalWorkspace({ children }) {
+  const live = useSyncExternalStore(subscribeAuthSession, getAuthSession);
+  const [attempt, setAttempt] = useState(0);
+  const [closed, setClosed] = useState(false);
+  const [decision, setDecision] = useState({ kind: 'checking' });
+
+  useEffect(() => {
+    if (closed) return undefined;
+    let cancelled = false, owner, token, revoked = false;
+    const controller = new AbortController();
+    const revoke = () => {
+      if (token && !revoked) { revoked = true; void revokeLocalSession(token); }
+    };
+    const leavePage = () => {
+      cancelled = true;
+      controller.abort();
+      if (owner) clearAuthSession(owner);
+      revoke();
+      // A page restored from the back/forward cache must not reuse a revoked session.
+      setClosed(true);
+      setDecision({ kind: 'closed' });
+    };
+    window.addEventListener('pagehide', leavePage);
+    clearAuthSession();
+    setDecision({ kind: 'checking' });
+    (async () => {
+      try {
+        const response = await fetch('/api/auth/local-session', {
+          method: 'POST', credentials: 'omit', redirect: 'error', mode: 'same-origin',
+          headers: { 'Content-Type': 'application/json', 'X-ABQ-Local-Access': '1' },
+          body: '{}', signal: controller.signal,
+        });
+        if (!response.ok) throw new Error('Local session unavailable');
+        const payload = await response.json();
+        if (typeof payload.token === 'string' && payload.token.length >= 32) token = payload.token;
+        if (cancelled) { revoke(); return; }
+        if (!token || payload.userId !== 'local-owner' || typeof payload.sessionId !== 'string' || !payload.sessionId) {
+          throw new Error('Invalid local session');
+        }
+        owner = setAuthSession({
+          userId: payload.userId, sessionId: payload.sessionId, getToken: async () => token,
+          onUnauthorized: () => { if (!cancelled) setDecision({ kind: 'expired' }); },
+        });
+        const verified = await apiFetch('/api/auth/session', { authSession: owner });
+        if (!verified.ok) throw new Error('Local access unavailable');
+        const identity = await verified.json();
+        assertAuthSession(owner);
+        if (identity.userId !== payload.userId) throw new Error('Local identity mismatch');
+        if (!cancelled) setDecision({ kind: 'allowed', owner });
+      } catch {
+        if (owner) clearAuthSession(owner);
+        revoke();
+        if (!cancelled) setDecision({ kind: 'error' });
+      }
+    })();
+    return () => {
+      window.removeEventListener('pagehide', leavePage);
+      cancelled = true; controller.abort(); if (owner) clearAuthSession(owner); revoke();
+    };
+  }, [attempt, closed]);
+
+  const close = () => {
+    clearAuthSession(decision.owner);
+    setClosed(true);
+    setDecision({ kind: 'closed' });
+  };
+  const reopen = () => { setClosed(false); setAttempt(value => value + 1); };
+  if (decision.kind === 'allowed' && decision.owner.epoch === live.epoch) {
+    return <SignOutContext.Provider value={close}>
+      <aside className="local-workspace-banner" aria-label="Local development workspace">
+        <div><strong>Local workspace</strong><span>Saved project data · this Mac only</span></div>
+        <button onClick={close}>Close workspace</button>
+      </aside>
+      <React.Fragment key={live.epoch}>{children}</React.Fragment>
+    </SignOutContext.Provider>;
+  }
+  if (decision.kind === 'checking') return <AuthScreen title="Opening your local workspace…"><p role="status">Connecting to your saved projects on this Mac.</p></AuthScreen>;
+  return <AuthScreen title={decision.kind === 'error' ? 'Unable to open local workspace' : 'Local workspace closed'}>
+    <p>This development workspace trusts access from this Mac. Reopen it here to continue, or restart the local server if it is unavailable.</p>
+    <button onClick={reopen}>Reopen local workspace</button>
+  </AuthScreen>;
+}
+
 function AuthorizedWorkspace({ children }) {
   const { isLoaded, isSignedIn, userId, sessionId, getToken } = useAuth();
   const clerk = useClerk();
@@ -128,6 +220,7 @@ export default function AuthBoundary({ children }) {
 
   if (error) return <AuthScreen title="Unable to check workspace setup"><p>The server is unavailable. Your project data remains locked.</p><button onClick={() => setAttempt(value => value + 1)}>Retry</button></AuthScreen>;
   if (!config) return <AuthScreen title="Checking workspace setup…"><p role="status">Connecting to the server.</p></AuthScreen>;
+  if (config.configured === true && config.mode === 'local') return <LocalWorkspace>{children}</LocalWorkspace>;
   if (config.configured !== true || typeof config.publishableKey !== 'string' || !/^pk_(test|live)_/.test(config.publishableKey)) {
     return <AuthScreen title="Workspace setup required"><p>Builder sign-in is not ready on this server. The homeowner website is open; signing in is only needed for saved projects and billing.</p><details className="auth-owner-setup"><summary>Set up builder access</summary><p>The workspace owner needs to add the existing Clerk application keys and approved staff IDs to the private server configuration, then restart the app. Payment and texting setup can follow separately.</p></details><button onClick={() => setAttempt(value => value + 1)}>Retry setup check</button></AuthScreen>;
   }

@@ -17,6 +17,7 @@ function createApp({
 
   app.get('/health', (_, res) => res.json({ ok: true }));
   app.get('/api/auth/config', auth.publicConfig);
+  app.post('/api/auth/local-session', express.json({ limit: '4kb' }), auth.createLocalSession);
   // Stripe authenticates this one public endpoint with a signature over the raw bytes.
   const billing = require('./routes/billing');
   app.post('/api/billing/stripe/webhook', express.raw({ type: 'application/json', limit: '1mb' }), billing.stripeWebhook);
@@ -29,6 +30,7 @@ function createApp({
   }), auth.requireSession);
   app.use(express.json({ limit: '15mb' }));
   app.get('/api/auth/session', (req, res) => res.json({ userId: req.workspaceAuth.userId }));
+  app.delete('/api/auth/local-session', auth.revokeLocalSession);
 
   app.use('/api/billing', billing);
   app.use('/api/projects',     require('./routes/projects'));
