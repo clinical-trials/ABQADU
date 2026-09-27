@@ -9,13 +9,14 @@ if [ -z "$TARGET_HOST" ]; then
   exit 1
 fi
 
+node scripts/package-homeowner-site.js
 (cd platform/client && npm run build)
 
 ssh "$TARGET_HOST" "mkdir -p '$TARGET_DIR/platform/client' '$TARGET_DIR/platform/server'"
 rsync -az --delete platform/client/build/ "$TARGET_HOST:$TARGET_DIR/platform/client/build/"
 rsync -az --delete \
   --exclude='node_modules' \
-  --exclude='data' \
+  --exclude='/data/' \
   platform/server/ "$TARGET_HOST:$TARGET_DIR/platform/server/"
 
 ssh "$TARGET_HOST" "cd '$TARGET_DIR/platform/server' && npm install --omit=dev"

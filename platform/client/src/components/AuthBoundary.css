@@ -10,3 +10,14 @@
 .auth-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .workspace-signout { margin-left: auto; white-space: nowrap; flex-shrink: 0; font-size: 12px; }
 .auth-card .cl-rootBox, .auth-card .cl-cardBox { width: 100%; max-width: 100%; }
+.auth-public-access { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid #e7e0d5; }
+.auth-public-access h2 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; }
+.auth-public-access p { font-size: .95rem; }
+.auth-public-links { display: flex; flex-direction: column; gap: .5rem; }
+.auth-public-links a { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: .6rem .9rem; box-sizing: border-box; border-radius: 5px; color: #3d5247; text-align: center; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.auth-public-links .auth-home-link { background: #3d5247; color: #fff; text-decoration: none; }
+.auth-public-links a:hover { text-decoration: underline; }
+.auth-public-links a:focus-visible, .auth-owner-setup summary:focus-visible { outline: 3px solid #c4954a; outline-offset: 3px; }
+.auth-owner-setup { margin: 1rem 0; }
+.auth-owner-setup summary { display: list-item; cursor: pointer; min-height: 44px; padding: .7rem 0; box-sizing: border-box; color: #3d5247; font-weight: 700; }
+.auth-owner-setup p { font-size: .9rem; }

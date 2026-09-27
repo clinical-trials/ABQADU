@@ -48,6 +48,18 @@ test('signed-out users see sign-in without mounting private children', async () 
   await render(); expect(container.textContent).toContain('Clerk sign-in form'); expect(mounts).toBe(0);
 });
 
+test.each(['unconfigured', 'unavailable', 'signed-out'])('homeowners can leave the %s builder screen without authenticating', async state => {
+  if (state === 'unconfigured') fetch.mockResolvedValue(reply({ configured: false, publishableKey: null }));
+  if (state === 'unavailable') fetch.mockRejectedValue(new Error('offline'));
+  await render();
+  const links = [...container.querySelectorAll('a')];
+  expect(links.find(link => link.textContent === 'Open homeowner website')?.getAttribute('href')).toBe('/');
+  expect(links.find(link => link.textContent === 'Find a local trade')?.getAttribute('href')).toBe('/#contractors');
+  expect(container.textContent).toContain('No account needed');
+  expect(mounts).toBe(0);
+  expect(fetch.mock.calls.map(([url]) => url)).toEqual(['/api/auth/config']);
+});
+
 test('a Clerk session alone cannot mount children before server authorization', async () => {
   let finish;
   mockAuth = { ...mockAuth, isSignedIn: true, userId: 'staff-a', sessionId: 'a' };

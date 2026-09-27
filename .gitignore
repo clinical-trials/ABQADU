@@ -7,3 +7,5 @@ platform/server/data/
 *.p8
 backups/
 public-dist/
+platform/server/public-homeowner/
+platform/server/.public-homeowner-build-*/

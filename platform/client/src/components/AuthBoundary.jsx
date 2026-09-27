@@ -10,6 +10,14 @@ function AuthScreen({ title, children }) {
     <div className="auth-brand">ABQ <span>ADU</span></div>
     <p className="auth-eyebrow">Private builder workspace</p>
     <h1>{title}</h1>{children}
+    <aside className="auth-public-access" aria-label="Homeowner access">
+      <h2>Here for your home?</h2>
+      <p>No account needed to explore ADU models, find stucco, yardwork or house cleaning, and prepare a quote request.</p>
+      <nav className="auth-public-links" aria-label="Homeowner website">
+        <a className="auth-home-link" href="/">Open homeowner website</a>
+        <a href="/#contractors">Find a local trade</a>
+      </nav>
+    </aside>
   </section></main>;
 }
 
@@ -121,7 +129,7 @@ export default function AuthBoundary({ children }) {
   if (error) return <AuthScreen title="Unable to check workspace setup"><p>The server is unavailable. Your project data remains locked.</p><button onClick={() => setAttempt(value => value + 1)}>Retry</button></AuthScreen>;
   if (!config) return <AuthScreen title="Checking workspace setup…"><p role="status">Connecting to the server.</p></AuthScreen>;
   if (config.configured !== true || typeof config.publishableKey !== 'string' || !/^pk_(test|live)_/.test(config.publishableKey)) {
-    return <AuthScreen title="Workspace setup required"><p>Private sign-in is not configured on this server. The workspace owner must configure Clerk and approve staff accounts before project data is available.</p><button onClick={() => setAttempt(value => value + 1)}>Retry setup check</button></AuthScreen>;
+    return <AuthScreen title="Workspace setup required"><p>Builder sign-in is not ready on this server. The homeowner website is open; signing in is only needed for saved projects and billing.</p><details className="auth-owner-setup"><summary>Set up builder access</summary><p>The workspace owner needs to add the existing Clerk application keys and approved staff IDs to the private server configuration, then restart the app. Payment and texting setup can follow separately.</p></details><button onClick={() => setAttempt(value => value + 1)}>Retry setup check</button></AuthScreen>;
   }
   return <ProviderBoundary><ClerkProvider publishableKey={config.publishableKey}><AuthorizedWorkspace>{children}</AuthorizedWorkspace></ClerkProvider></ProviderBoundary>;
 }

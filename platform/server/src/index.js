@@ -5,8 +5,13 @@ const path = require('path');
 const fs = require('fs');
 const errorHandler = require('./errorHandler');
 const { createWorkspaceAuth } = require('./auth');
+const { createPublicHomeownerRouter } = require('./routes/publicHomeowner');
 
-function createApp({ env = process.env } = {}) {
+function createApp({
+  env = process.env,
+  publicHomeowner,
+  clientBuild = path.join(__dirname, '..', '..', 'client', 'build'),
+} = {}) {
   const app = express();
   const auth = createWorkspaceAuth(env);
 
@@ -54,9 +59,10 @@ function createApp({ env = process.env } = {}) {
 
   app.use('/api', (_req, res) => res.status(404).json({ error: 'API endpoint not found' }));
 
+  app.use(createPublicHomeownerRouter(publicHomeowner));
+
   // Serve the built React client so the whole platform runs on one port.
   // (Falls through when no build exists yet, e.g. API-only dev.)
-  const clientBuild = path.join(__dirname, '..', '..', 'client', 'build');
   if (fs.existsSync(clientBuild)) {
     app.use(express.static(clientBuild));
     app.get('*', (req, res, next) => {

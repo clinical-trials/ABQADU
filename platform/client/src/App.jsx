@@ -30,7 +30,7 @@ export default function App() {
       <AppNavigation />
       <div>
         <Routes>
-          <Route path="/"               element={<Portfolio />} />
+          <Route path="/portfolio"      element={<Portfolio />} />
           <Route path="/command-center"  element={<CommandCenter />} />
           <Route path="/clients"        element={<Clients />} />
           <Route path="/bids"           element={<BidBuilder />} />

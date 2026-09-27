@@ -37,7 +37,11 @@ If doctor fails, follow its specific guidance: create the missing database, star
 
 ## Local test URL
 
+- `http://localhost:4000/` is the homeowner website. Models, local service categories, and request drafts need no sign-in.
 - Use `http://localhost:4000/command-center` for same-machine testing.
+- `/portfolio` is the private portfolio route; the workspace menu links there. `/platform.html` redirects to `/command-center` on the Express host.
+- Sign-in screens include a link back to the homeowner website. They do not unlock saved project or billing records when Clerk is unconfigured.
+- For a deployment bundle, run `node scripts/package-homeowner-site.js` from the website root. It packages only homeowner assets into `platform/server/public-homeowner`. Re-run after homeowner edits. Local development can use the website source when no bundle exists.
 - From `platform/client`, run `npm run build`.
 - From `platform/server`, install dependencies, complete the database setup above, run `npm run doctor`, and then `npm start`.
 - Verify local routes before copying to a host:
@@ -67,9 +71,9 @@ The PostgreSQL list routes should return successful JSON responses; an empty arr
 
 ## Build And Deploy Sequence
 
-1. From `platform/client`, run `npm run build`.
+1. From the website root, run `node scripts/package-homeowner-site.js`, then from `platform/client` run `npm run build`.
 2. Copy `platform/client/build` to the target host.
-3. Copy `platform/server` to the target host, excluding `node_modules`.
+3. Copy `platform/server`, including its generated `public-homeowner` folder, to the target host, excluding `node_modules`. Preserve private server configuration and existing data.
 4. From the copied `platform/server`, run `npm install --omit=dev`.
 5. Configure the host's `DATABASE_URL`, provision PostgreSQL and a database if needed, and initialize a fresh database once as described above. Preserve existing data on subsequent releases.
 6. Run `npm run doctor` on the target host. Resolve any database/schema failures before starting the review.
