@@ -124,6 +124,37 @@ test('copy falls back to selecting the summary when clipboard access is unavaila
   assert.match(window.document.querySelector('#assessment-result').textContent, /not been sent/i);
 });
 
+for (const service of ['Stucco', 'Yardwork', 'House cleaning']) {
+  test(`${service} category prepares the selected service without unrelated ADU details`, t => {
+    const window = openHomeownerPage(t);
+    const form = assessmentForm(window);
+    enter(window, form, 'firstName', 'Sam');
+    enter(window, form, 'email', 'sam@example.com');
+    enter(window, form, 'notes', 'Please call about the work at my home.');
+    form.querySelector('[type="submit"]').click();
+    const card = window.document.querySelector(`[data-service-request="${service}"]`);
+    assert.ok(card, `Homeowners need a ${service} category`);
+    card.click();
+    assert.equal(form.elements.namedItem('service').value, service);
+    assert.equal(window.document.querySelector('#assessment-result').hidden, true, 'Selecting a trade invalidates the previous draft');
+    assert.equal(form.elements.namedItem('notes').value, 'Please call about the work at my home.');
+    assert.equal(form.elements.namedItem('model').disabled, true);
+    form.querySelector('[type="submit"]').click();
+    const summary = window.document.querySelector('#assessment-summary').value;
+    assert.ok(summary.includes(`Service: ${service}`));
+    assert.doesNotMatch(summary, /Model interest:|Intended use:/);
+    assert.ok(decodeURIComponent(window.document.querySelector('#assessment-text-link').href).includes(`Service: ${service}`));
+    assert.ok(decodeURIComponent(window.document.querySelector('#assessment-download-link').href).includes(`Service: ${service}`));
+    assert.match(window.document.querySelector('#assessment-result').textContent, /not been sent/i);
+
+    enter(window, form, 'service', 'ADU assessment');
+    assert.equal(form.elements.namedItem('model').disabled, false);
+    assert.equal(window.document.querySelector('#assessment-result').hidden, true);
+    form.querySelector('[type="submit"]').click();
+    assert.match(window.document.querySelector('#assessment-summary').value, /Model interest:/);
+  });
+}
+
 test('footer navigation reaches existing sections, model design, or builder tools', t => {
   const window = openHomeownerPage(t);
   const links = [...window.document.querySelectorAll('footer a')];

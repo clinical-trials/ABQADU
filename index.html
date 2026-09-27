@@ -4032,6 +4032,22 @@ h2 em { font-style: normal; color: var(--terra); }
 .contractor-section .section-eyebrow { color: var(--copper-l); }
 .contractor-section .section-eyebrow::before { background: var(--copper-l); }
 
+.home-services { padding-bottom: 3.5rem; margin-bottom: 3.5rem; border-bottom: 1px solid rgba(240,235,225,.25); }
+.home-services > p { max-width: 42rem; margin: 1rem 0 1.75rem; font-size: 1rem; line-height: 1.65; }
+.home-services h2 em { color: var(--copper-l); }
+#contractors, #assessment-form { scroll-margin-top: 5.5rem; }
+.home-service-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+.home-service-card { display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; padding: 1.5rem; background: var(--stucco); color: var(--blueprint); border: 2px solid transparent; border-radius: .25rem; text-decoration: none; min-width: 0; }
+.home-service-card:hover { background: var(--white); border-color: var(--copper); }
+.home-service-card:focus-visible { outline: 3px solid var(--copper-l); outline-offset: 4px; }
+.home-service-card svg { width: 2.5rem; height: 2.5rem; color: var(--terra); }
+.home-service-card h3 { font-family: var(--font-display); font-size: 1.75rem; line-height: 1.1; }
+.home-service-card p { font-size: 1rem; line-height: 1.6; margin: 0; }
+.home-service-card span { margin-top: auto; padding-top: .5rem; font-size: .875rem; font-weight: 700; }
+.contractor-preview-note { margin: 0 0 1rem; font-size: .875rem; line-height: 1.6; color: var(--stucco); }
+#assessment-adu-fields[hidden] { display: none; }
+@media (min-width: 768px) { .home-service-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
 .contractor-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -5489,7 +5505,7 @@ footer {
     <li><a href="#platform">Platform</a></li>
     <li><a href="#design">Design</a></li>
     <li><a href="#financing">Financing</a></li>
-    <li><a href="#contractors">For Contractors</a></li>
+    <li><a href="#contractors">Local Trades</a></li>
     <li><a href="#quote">Contact</a></li>
     <li><a href="platform.html" class="nav-cta nav-cta-desktop">Builder Platform</a></li>
   </ul>
@@ -5506,7 +5522,7 @@ footer {
     <li><a href="#platform" class="mobile-link">Platform</a></li>
     <li><a href="#design" class="mobile-link">Design</a></li>
     <li><a href="#financing" class="mobile-link">Financing</a></li>
-    <li><a href="#contractors" class="mobile-link">For Contractors</a></li>
+    <li><a href="#contractors" class="mobile-link">Local Trades</a></li>
     <li><a href="#quote" class="mobile-link">Contact</a></li>
     <li><a href="platform.html" class="mobile-link">Builder Platform</a></li>
   </ul>
@@ -8340,6 +8356,31 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
 <!-- ── Contractor Marketplace ─────────────────────────────── -->
 <section class="contractor-section" id="contractors" style="max-width:100%;padding:96px var(--gutter);">
   <div class="section-inner">
+    <div class="home-services" aria-labelledby="home-services-heading">
+      <div class="section-eyebrow">Featured contractor categories</div>
+      <h2 id="home-services-heading">Care for your <em>whole home.</em></h2>
+      <p>Building an ADU or taking care of the home you have? Choose a service and tell us what you need. We’ll confirm availability with you.</p>
+      <div class="home-service-grid">
+        <a class="home-service-card" href="#assessment-form" data-service-request="Stucco">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 34V15L20 4l15 11v19H5Z M10 19h20M10 25h20M10 31h20M16 19v6m9 0v6"/></svg>
+          <h3>Stucco</h3>
+          <p>Patch cracks, refresh exterior finishes, or plan stucco for a new addition.</p>
+          <span>Request stucco work <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="home-service-card" href="#assessment-form" data-service-request="Yardwork">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 35V17m0 10C8 27 5 19 5 10c10 0 15 5 15 17Zm0-7C20 9 26 5 35 5c0 10-5 15-15 15ZM6 35h28"/></svg>
+          <h3>Yardwork</h3>
+          <p>Get help with weeds, yard cleanup, seasonal upkeep, and planting.</p>
+          <span>Request yardwork <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="home-service-card" href="#assessment-form" data-service-request="House cleaning">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 19 15-12 15 12M9 16v19h22V16M16 35V24h8v11M31 2v8m-4-4h8M5 3v6m-3-3h6"/></svg>
+          <h3>House cleaning</h3>
+          <p>Ask about regular cleaning, a deep clean, or getting a home ready for move-in.</p>
+          <span>Request house cleaning <span aria-hidden="true">↗</span></span>
+        </a>
+      </div>
+    </div>
     <div class="contractor-layout">
       <div>
         <div class="section-eyebrow" style="color:var(--copper-l);">
@@ -8348,7 +8389,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         </div>
         <h2 style="color:var(--white);">Get <em style="color:var(--copper-l);">More<br>Work.</em></h2>
         <p class="contractor-desc">
-          Our homeowner clients are actively building ADUs — they need licensed electricians, plumbers, framers, concrete crews, and finish carpenters. Advertise your services to a highly qualified local audience that's already mid-project and ready to hire.
+          Homeowners need help from construction through everyday upkeep. We welcome electricians, plumbers, framers, concrete crews, finish carpenters, stucco contractors, yardwork providers, and house cleaners. Tell us your trade and the Albuquerque areas you serve.
         </p>
         <ul class="contractor-benefits">
           <li>
@@ -8357,7 +8398,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
           </li>
           <li>
             <div class="benefit-dot"></div>
-            <span>Trade-specific leads — framing, electrical, plumbing, HVAC, concrete, finish</span>
+            <span>Trade categories include stucco, yardwork, and house cleaning</span>
           </li>
           <li>
             <div class="benefit-dot"></div>
@@ -8365,17 +8406,18 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
           </li>
           <li>
             <div class="benefit-dot"></div>
-            <span>Verified license and insurance display for homeowner review</span>
+            <span>Share applicable license and insurance details for homeowner review</span>
           </li>
           <li>
             <div class="benefit-dot"></div>
-            <span>SMS job dispatch — assignments go straight to your phone</span>
+            <span>Text coordination planned; automatic job dispatch is not available yet</span>
           </li>
         </ul>
-        <a href="#quote" class="btn-primary" style="background:var(--copper);color:var(--blueprint);">Apply to Join the Network</a>
+        <a href="#assessment-form" data-service-request="Contractor network inquiry" class="btn-primary" style="background:var(--copper);color:var(--blueprint);">Ask About Joining the Network</a>
       </div>
 
       <div class="tier-cards">
+        <p class="contractor-preview-note">Membership preview · Paid plans, contractor accounts, and automatic text notifications are not available yet. No subscription is started here.</p>
         <div class="tier-card">
           <div class="tier-header">
             <div class="tier-name">Listed</div>
@@ -8392,11 +8434,12 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <div class="tier-card featured">
           <div class="tier-header">
             <div class="tier-name">Featured</div>
-            <div class="tier-badge">Most Popular</div>
+            <div class="tier-badge">Planned</div>
           </div>
           <div class="tier-price">$149 <small>/ month</small></div>
           <ul class="tier-features">
             <li>Top placement in trade category</li>
+            <li>Stucco, yardwork & house cleaning categories</li>
             <li>Priority SMS dispatch + confirmation</li>
             <li>Platform access — Gantt & schedule view</li>
             <li>Field task board for your crew</li>
@@ -8484,7 +8527,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
 
       <form class="qualifier-cta-box" id="assessment-form" aria-describedby="assessment-help">
         <h3>Get Your<br>Free Quote</h3>
-        <p>Tell us about your property and your goals. We'll respond within one business day with a preliminary assessment and cost range — no obligation.</p>
+        <p>Tell us about your ADU plans or the work you need around your home. Prepare a request below, then send it to ABQ ADU so we can discuss availability and next steps.</p>
         <p style="background:#F8F2E7;border:1px solid rgba(196,149,74,.32);border-radius:8px;color:#57534E;font-size:14px;line-height:1.5;margin:0 0 18px;padding:12px;">
           <b style="color:#1C1917;">Prefer the phone?</b> If you'd rather speak on the phone, give us a call. We're actual people who will pick up the phone or return your call to schedule a free site visit with the general contractor.
           <a href="tel:15059777659" style="color:#B85C38;font-weight:900;text-decoration:none;">Call the GC</a>
@@ -8516,6 +8559,19 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
           </div>
         </div>
         <div class="form-row">
+          <div class="form-field form-full">
+            <label for="assessment-service">What do you need?</label>
+            <select id="assessment-service" name="service">
+              <option>ADU assessment</option>
+              <option>Stucco</option>
+              <option>Yardwork</option>
+              <option>House cleaning</option>
+              <option>Other trade or home service</option>
+              <option>Contractor network inquiry</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row" id="assessment-adu-fields">
           <div class="form-field">
             <label for="assessment-model">Model Interest</label>
             <select id="assessment-model" name="model">
@@ -8541,14 +8597,14 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <div class="form-row">
           <div class="form-field form-full">
             <label for="assessment-notes">Anything else we should know?</label>
-            <textarea id="assessment-notes" name="notes" rows="3" placeholder="Lot size, existing structures, timeline, budget range..."></textarea>
+            <textarea id="assessment-notes" name="notes" rows="3" placeholder="Describe the work, your timeline, and your budget range..."></textarea>
           </div>
         </div>
         <p class="assessment-help" id="assessment-help">Enter a phone number or email. Prepare your request, then review and send it by text. You can also copy or download it to share.</p>
-        <button class="form-submit" type="submit">Prepare My Assessment Request</button>
+        <button class="form-submit" type="submit">Prepare My Request</button>
         <noscript><p>To request an assessment, call <a href="tel:15059777659">(505) 977-7659</a>.</p></noscript>
         <section class="assessment-result" id="assessment-result" aria-labelledby="assessment-result-heading" hidden>
-          <h4 id="assessment-result-heading" tabindex="-1">Review your assessment request</h4>
+          <h4 id="assessment-result-heading" tabindex="-1">Review your request</h4>
           <p role="status">Your request is ready. It has not been sent. Open a text draft below, review it in your messaging app, and send it to ABQ ADU.</p>
           <div class="form-field">
             <label for="assessment-summary">Your request</label>
@@ -8672,6 +8728,24 @@ const assessmentForm = document.getElementById('assessment-form');
 const assessmentResult = document.getElementById('assessment-result');
 const assessmentSummary = document.getElementById('assessment-summary');
 
+function updateAssessmentService() {
+  const isAdu = assessmentForm.elements.namedItem('service').value === 'ADU assessment';
+  document.getElementById('assessment-adu-fields').hidden = !isAdu;
+  assessmentForm.elements.namedItem('model').disabled = !isAdu;
+  assessmentForm.elements.namedItem('use').disabled = !isAdu;
+  assessmentResult.hidden = true;
+}
+
+document.querySelectorAll('[data-service-request]').forEach(link => {
+  link.addEventListener('click', () => {
+    assessmentForm.elements.namedItem('service').value = link.dataset.serviceRequest;
+    updateAssessmentService();
+  });
+});
+assessmentForm.elements.namedItem('service').addEventListener('input', updateAssessmentService);
+assessmentForm.elements.namedItem('service').addEventListener('change', updateAssessmentService);
+updateAssessmentService();
+
 function validateAssessmentContact() {
   const firstName = assessmentForm.elements.namedItem('firstName');
   const phone = assessmentForm.elements.namedItem('phone');
@@ -8695,14 +8769,14 @@ assessmentForm.addEventListener('submit', event => {
   const values = new FormData(assessmentForm);
   const field = name => String(values.get(name) || '').trim();
   const summary = [
-    'ABQ ADU — Free assessment request',
+    field('service') === 'ADU assessment' ? 'ABQ ADU — Free assessment request' : 'ABQ ADU — Service inquiry',
     '',
     `Name: ${[field('firstName'), field('lastName')].filter(Boolean).join(' ')}`,
     `Phone: ${field('phone') || 'Not provided'}`,
     `Email: ${field('email') || 'Not provided'}`,
     `Property address: ${field('address') || 'To be confirmed'}`,
-    `Model interest: ${field('model')}`,
-    `Intended use: ${field('use')}`,
+    `Service: ${field('service')}`,
+    ...(field('service') === 'ADU assessment' ? [`Model interest: ${field('model')}`, `Intended use: ${field('use')}`] : []),
     `Notes: ${field('notes') || 'None provided'}`,
   ].join('\n');
   assessmentSummary.value = summary;
