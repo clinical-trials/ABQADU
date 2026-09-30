@@ -4,9 +4,10 @@ import { Simulate } from 'react-dom/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import Preconstruction from './Preconstruction';
 import { requestJson, requestPdfBlob } from '../utils/api';
-import { setAuthSession } from '../utils/authFetch';
+import { apiFetch, setAuthSession } from '../utils/authFetch';
 
 jest.mock('../utils/api', () => ({ requestJson:jest.fn(),requestPdfBlob:jest.fn() }));
+jest.mock('../utils/authFetch', () => ({ ...jest.requireActual('../utils/authFetch'),apiFetch:jest.fn() }));
 const base = '/api/preconstruction';
 const version1 = '11111111-1111-4111-8111-111111111111', version2 = '22222222-2222-4222-8222-222222222222';
 const project = {id:'first',client:'First homeowner',address:'Example site',model:'Altura'};
@@ -16,18 +17,25 @@ const defaults = {
   fee:'10000.00',construction_estimate:'185000.00',fee_credit:'unconfirmed',tax_treatment:'unconfirmed',tax_amount:'',
   scope:'Proposed site review and concept planning.',exclusions:'Construction is excluded.',schedule:'',payment_terms:'',termination_terms:'',estimate_assumptions:'Subject to site review.',third_party_costs:'',notice_review:'unconfirmed',notice_details:'',
 };
+const identityFields = ['contractor_name','contractor_address','contractor_phone','contractor_email','license_number','license_classification','owner_name','owner_email','owner_phone','property_address'];
+const demoDefaults = {...defaults,owner_name:'Demo homeowner',property_address:'Demo property — Albuquerque, NM',scope:'Editable letter-agreement services.',construction_estimate:''};
+const demoPayload = {project:{id:'precon-demo',client:'Demo homeowner',address:demoDefaults.property_address},agreement:null,defaults:demoDefaults,history:[],demo:true};
+const templateTerms = {...defaults,...Object.fromEntries(identityFields.map(key=>[key,''])),scope:'Letter-agreement template services.',project_description:'Template description',construction_estimate:''};
 const record = (terms = defaults, version = version1, revision = 1, id = 'first') => ({
   id:'agreement-first',project_id:id,version,revision,saved_at:'2026-09-30T18:00:00.000Z',terms:{...terms},
   totals:{currency:'USD',fee_cents:Math.round(Number(terms.fee)*100),construction_estimate_cents:terms.construction_estimate ? Math.round(Number(terms.construction_estimate)*100) : null,tax_cents:terms.tax_treatment==='unconfirmed' || !terms.tax_amount ? null : Math.round(Number(terms.tax_amount)*100),
     invoice_total_cents:terms.tax_treatment==='included' ? Math.round(Number(terms.fee)*100) : terms.tax_treatment==='additional' && terms.tax_amount ? Math.round((Number(terms.fee)+Number(terms.tax_amount))*100) : null},
   review_items:['Confirm the contractor legal name and license.','Final business and legal review is required.'],
 });
-let host, root, saved, history, popup, saveOverride, loadOverride, originalUuid;
+let host, root, saved, history, popup, saveOverride, loadOverride, originalUuid, jobsReply, jobsError, demoOverride, templateOverride;
 beforeEach(() => {
   global.IS_REACT_ACT_ENVIRONMENT = true;
   saved = null; history = []; saveOverride = null; loadOverride = null;
+  jobsReply = [project,{id:'second',client:'Second homeowner',address:'Second site',model:'Altura'}]; jobsError = null; demoOverride = null; templateOverride = null;
   requestJson.mockReset().mockImplementation(async (url, options = {}) => {
-    if (url === base) return {projects:[project,{id:'second',client:'Second homeowner',address:'Second site',model:'Altura'}]};
+    if (url === base) { if (jobsError) throw new Error(jobsError); return {projects:jobsReply}; }
+    if (url === `${base}/demo`) return demoOverride ? demoOverride() : demoPayload;
+    if (url === `${base}/template`) return templateOverride ? templateOverride() : {template_id:'letter-agreement-v1',label:'Preconstruction letter agreement',terms:templateTerms};
     if (options.method === 'PUT') {
       if (saveOverride) return saveOverride(url,options);
       const body = JSON.parse(options.body);
@@ -38,6 +46,7 @@ beforeEach(() => {
     return {project,defaults:{...defaults},agreement:saved,history};
   });
   requestPdfBlob.mockReset().mockResolvedValue(new Blob(['%PDF-1.7 example'],{type:'application/pdf'}));
+  apiFetch.mockReset().mockResolvedValue({ok:true,headers:new Headers({'Content-Type':'application/pdf','X-Preconstruction-Demo':'true'}),blob:async()=>new Blob(['%PDF-1.7 demo'],{type:'application/pdf'})});
   popup = {opener:window,closed:false,document:document.implementation.createHTMLDocument(),location:{replace:jest.fn()},close:jest.fn()};
   jest.spyOn(window,'open').mockReturnValue(popup);
   URL.createObjectURL = jest.fn(() => 'blob:preconstruction');
@@ -54,6 +63,7 @@ const mount = (path = '/preconstruction?project=first') => act(async () => root.
 const button = label => [...host.querySelectorAll('button')].find(item => item.textContent === label);
 const change = (name,value) => act(async () => Simulate.change(host.querySelector(`#precon-${name}`),{target:{value}}));
 const click = label => act(async () => button(label).click());
+const clickLink = label => act(async () => [...host.querySelectorAll('a')].find(item=>item.textContent===label).click());
 const save = () => act(async () => Simulate.submit(host.querySelector('form')));
 
 test('requires choosing a saved job and never creates a draft just by opening the tool',async () => {
@@ -205,4 +215,151 @@ test('restoring an unsaved draft detects a newer server revision without overwri
   expect(host.querySelector('#precon-scope').value).toBe('Newer server wording');
   await act(async () => root.render(<div>Another workspace page</div>));
   await mount(); expect(host.querySelector('#precon-scope').value).toBe('Newer server wording');
+});
+
+test('demo opens the existing editable form without saved jobs or agreement writes',async () => {
+  jobsError = 'Saved jobs unavailable';
+  await mount('/preconstruction?demo=1');
+  expect(requestJson.mock.calls.map(([url])=>url)).toEqual([`${base}/demo`]);
+  expect(host.textContent).toContain('Demo · editable example');
+  expect(host.textContent).toMatch(/site inspection.*waiver.*lien.*indemnity/i);
+  expect(host.querySelector('#precon-owner_name').value).toBe('Demo homeowner');
+  expect(button('Save draft')).toBeUndefined();
+  await change('fee','12345.67'); await change('scope','Only the edited demo services.');
+  await click('Open demo PDF');
+  expect(apiFetch).toHaveBeenCalledWith(`${base}/demo/packet.pdf`,expect.objectContaining({method:'POST',authSession:expect.objectContaining({userId:'test-staff'}),signal:expect.any(AbortSignal)}));
+  expect(JSON.parse(apiFetch.mock.calls[0][1].body)).toEqual({terms:{...demoDefaults,fee:'12345.67',scope:'Only the edited demo services.'}});
+  expect(requestJson.mock.calls.some(([,options])=>options?.method)).toBe(false);
+  expect(requestPdfBlob).not.toHaveBeenCalled();
+  expect(host.querySelector('a[download]').download).toBe('ABQ-ADU-preconstruction-DEMO.pdf');
+});
+
+test.each(['empty','error'])('demo entry remains available when the job list is %s',async state => {
+  if(state==='empty')jobsReply=[]; else jobsError='Job list unavailable';
+  await mount('/preconstruction');
+  await clickLink('Open editable demo');
+  expect(host.querySelector('#precon-scope').value).toBe(demoDefaults.scope);
+  expect(button('Open demo PDF')).toBeDefined();
+});
+
+test('blocked demo PDF tab offers the same demo download and editing revokes it',async () => {
+  window.open.mockReturnValue(null);
+  await mount('/preconstruction?demo=1'); await click('Open demo PDF');
+  expect(host.textContent).toContain('PDF tab was blocked or closed');
+  expect(host.querySelector('a[download]').download).toContain('DEMO');
+  await change('scope','Changed demo services.');
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:preconstruction');
+  expect(host.querySelector('a[download]')).toBeNull();
+  expect(button('Open demo PDF').disabled).toBe(false);
+});
+
+test.each(['failure','missing marker'])('demo PDF %s keeps the draft and closes the reserved tab',async kind => {
+  if(kind==='failure')apiFetch.mockRejectedValue(new Error('PDF renderer unavailable'));
+  else apiFetch.mockResolvedValue({ok:true,headers:new Headers({'Content-Type':'application/pdf'}),blob:async()=>new Blob(['real?'])});
+  await mount('/preconstruction?demo=1'); await change('scope','Keep demo wording.'); await click('Open demo PDF');
+  expect(popup.close).toHaveBeenCalled(); expect(URL.createObjectURL).not.toHaveBeenCalled();
+  expect(host.querySelector('#precon-scope').value).toBe('Keep demo wording.');
+  expect(button('Open demo PDF').disabled).toBe(false);
+  expect(host.querySelector('[role="alert"]')).not.toBeNull();
+});
+
+test('editing while a demo PDF is pending aborts it and ignores the late response',async () => {
+  let finish;
+  apiFetch.mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
+  await mount('/preconstruction?demo=1'); await click('Open demo PDF');
+  const signal=apiFetch.mock.calls[0][1].signal;
+  await change('fee','14000');
+  expect(signal.aborted).toBe(true); expect(popup.close).toHaveBeenCalled();
+  await act(async()=>finish({ok:true,headers:new Headers({'Content-Type':'application/pdf','X-Preconstruction-Demo':'true'}),blob:async()=>new Blob(['%PDF-late'])}));
+  expect(URL.createObjectURL).not.toHaveBeenCalled(); expect(host.querySelector('a[download]')).toBeNull();
+  expect(host.querySelector('#precon-fee').value).toBe('14000');
+});
+
+test('demo navigation preserves separate real-job and demo drafts while releasing its PDF',async () => {
+  await mount(); await change('scope','Keep real-job services.');
+  await clickLink('Open editable demo'); await change('scope','Keep demo services.');
+  await click('Open demo PDF');
+  await clickLink('Return to selected job');
+  expect(host.querySelector('#precon-scope').value).toBe('Keep real-job services.');
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:preconstruction');
+  await clickLink('Open editable demo');
+  expect(host.querySelector('#precon-scope').value).toBe('Keep demo services.');
+  expect(requestJson.mock.calls.some(([,options])=>options?.method)).toBe(false);
+});
+
+test('session change removes demo terms and ignores a late PDF',async () => {
+  let finish; apiFetch.mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
+  await mount('/preconstruction?demo=1'); await change('scope','Private demo edits.'); await click('Open demo PDF');
+  const signal=apiFetch.mock.calls[0][1].signal;
+  await act(async()=>setAuthSession({userId:'other-staff',sessionId:'other',getToken:async()=>'other-token'}));
+  await act(async()=>finish({ok:true,headers:new Headers({'Content-Type':'application/pdf','X-Preconstruction-Demo':'true'}),blob:async()=>new Blob(['%PDF-late'])}));
+  expect(host.textContent).toBe(''); expect(signal.aborted).toBe(true); expect(URL.createObjectURL).not.toHaveBeenCalled();
+});
+
+test('template applies only to a clean new real-job draft and preserves parties, property and estimate',async () => {
+  await mount(); await click('Use letter-agreement template');
+  expect(host.querySelector('#precon-scope').value).toBe(templateTerms.scope);
+  for(const name of [...identityFields,'project_description','construction_estimate'])expect(host.querySelector(`#precon-${name}`).value).toBe(defaults[name]);
+  expect(button('Use letter-agreement template').disabled).toBe(true);
+  expect(requestJson.mock.calls.some(([,options])=>options?.method)).toBe(false);
+});
+
+test('existing saved agreements and uncertain saves cannot apply a template',async () => {
+  saved=record(); await mount(); expect(button('Use letter-agreement template')).toBeUndefined();
+  await act(async()=>root.render(<div>Leave</div>)); saved=null;
+  saveOverride=()=>{throw new Error('Unknown save outcome');};
+  await mount(); await save();
+  expect(button('Use letter-agreement template').disabled).toBe(true);
+});
+
+test('invalid demo identity cannot expose a saved agreement through the demo editor',async () => {
+  demoOverride=()=>({...demoPayload,project,agreement:record()});
+  await mount('/preconstruction?demo=1');
+  expect(host.querySelector('#precon-owner_name')).toBeNull();
+  expect(button('Open demo PDF')).toBeUndefined(); expect(button('Save draft')).toBeUndefined();
+  expect(host.querySelector('[role="alert"]')).not.toBeNull();
+  expect(apiFetch).not.toHaveBeenCalled();
+});
+
+test('leaving a loading demo aborts its request and ignores the late form',async () => {
+  let finish; demoOverride=()=>new Promise(resolve=>{finish=resolve;});
+  await mount('/preconstruction?demo=1&project=first');
+  const signal=requestJson.mock.calls.find(([url])=>url===`${base}/demo`)[1].signal;
+  await clickLink('Return to selected job');
+  expect(signal.aborted).toBe(true);
+  await act(async()=>finish(demoPayload));
+  expect(host.querySelector('#precon-owner_name').value).toBe('First homeowner');
+  expect(button('Open demo PDF')).toBeUndefined();
+});
+
+test('a pending template cannot replace terms after navigating to demo',async () => {
+  let finish; templateOverride=()=>new Promise(resolve=>{finish=resolve;});
+  await mount(); await click('Use letter-agreement template');
+  const signal=requestJson.mock.calls.find(([url])=>url===`${base}/template`)[1].signal;
+  await clickLink('Open editable demo');
+  await change('scope','Keep these demo edits.');
+  expect(signal.aborted).toBe(true);
+  await act(async()=>finish({template_id:'letter-agreement-v1',label:'Preconstruction letter agreement',terms:templateTerms}));
+  expect(host.querySelector('#precon-scope').value).toBe('Keep these demo edits.');
+  expect(requestJson.mock.calls.some(([,options])=>options?.method)).toBe(false);
+});
+
+test('an uncertain real-job save with unchanged defaults keeps its exact retry after a demo visit',async () => {
+  global.crypto.randomUUID.mockReturnValueOnce('33333333-3333-4333-8333-333333333333').mockReturnValue('44444444-4444-4444-8444-444444444444');
+  saveOverride=()=>{throw new Error('Save acknowledgement lost');};
+  await mount(); await save();
+  const original=requestJson.mock.calls.find(([,options])=>options?.method==='PUT')[1].body;
+  await clickLink('Open editable demo'); await clickLink('Return to selected job');
+  expect(button('Use letter-agreement template').disabled).toBe(true);
+  await save();
+  const writes=requestJson.mock.calls.filter(([,options])=>options?.method==='PUT');
+  expect(writes[1][1].body).toBe(original); expect(global.crypto.randomUUID).toHaveBeenCalledTimes(1);
+});
+
+test('template containing party information is rejected without replacing the real job details',async () => {
+  templateOverride=()=>({template_id:'letter-agreement-v1',label:'Preconstruction letter agreement',terms:{...templateTerms,owner_name:'Source document owner'}});
+  await mount(); await click('Use letter-agreement template');
+  expect(host.textContent).toContain('contains party details');
+  expect(host.querySelector('#precon-owner_name').value).toBe('First homeowner');
+  expect(host.querySelector('#precon-scope').value).toBe(defaults.scope);
 });

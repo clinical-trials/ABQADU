@@ -860,10 +860,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
   </div>
 
   <div class="builder-text-card no-print" style="border-left-color:#0F1F3D">
-    <b>Version 10 real demo path</b>
-    <span>The production-style builder app now includes a server-backed Command Center for projects, supplier quote comparison, receipt tracking, mileage, client-view activity, and text-ready builder messages. Run the Express platform server and open <code>/command-center</code> to use the working demo with saved server data.</span>
-    <button class="btn blue sm" type="button" onclick="alert('Run the platform server, then open /command-center. GitHub Pages can review the static website, but the Version 10 Command Center needs the Express app server.')">How to open</button>
+    <b>Preconstruction agreement demo</b>
+    <span>Try the supplied letter-agreement template with sample owner and property details, a proposed $10,000 fee, and an editable agreement, estimate and draft invoice. Open its PDF without creating a customer record. The saved app must be running.</span>
+    <a class="btn blue sm" id="precon-demo-link" href="/preconstruction?demo=1" target="_blank" rel="noopener noreferrer" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">Try precon agreement demo →</a>
   </div>
+  <script>if(location.protocol==='file:')document.getElementById('precon-demo-link').href='http://localhost:4000/preconstruction?demo=1';</script>
 
   <div class="estimate-app">
     <div class="estimate-hero no-print">

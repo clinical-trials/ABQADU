@@ -2,6 +2,22 @@
 
 This workflow prepares a reusable Albuquerque ADU packet for owner and professional review. It does not establish legal compliance, execute a contract, issue a payable invoice, or authorize construction. Keep **Draft · unsigned · no payment due** visible on the preview and PDF. Business and legal review remain necessary before client use.
 
+## Try the supplied letter-agreement demo
+
+Open `/preconstruction?demo=1` in the builder app, or choose **Try precon agreement demo** from the earlier Estimates page. A saved customer job is not required. The demo uses a sample owner and property; the supplied letter's business name is an editable example, not a verified license identity. The source owner's personal details and original PDF are not included in the repository or public bundle.
+
+The existing form lets you edit the $10,000 proposed fee, scope, parties and terms. **Open demo PDF** renders the current form without saving a project or agreement revision, creating an activity entry, issuing an invoice, or contacting a payment provider. The generated packet carries **Demo · unsigned · no payment due** on its document headings and a permanent demo footer. It has no invented save time, revision or signature. Edits invalidate the prior PDF; blocked popups retain an explicit download/open fallback. Demo edits remain in this tab/session during internal navigation and clear on sign-out or reload.
+
+The preset adapts the supplied letter into the existing editable fields: one-ADU planning and coordination, the owner's option to choose another contractor, replacement by a later executed construction contract, the whole preconstruction fee payable when the final signed **preconstruction** agreement is executed, seven days' written termination, delivery of work product, subcontract assignment, and the source site-inspection/waiver, lien and indemnity provisions. Sensitive provisions are labeled for review. Loading them does not record a completed inspection or execute a waiver. Missing expense limits, refund/accounting details, and the source's undefined “total sum” remain identified. The ordinary termination clause does not determine statutory cancellation requirements.
+
+Tax treatment, fee credit, construction price, license information and notice applicability stay unconfirmed. The payment timing refers to the fee field, so changing the amount does not leave an old $10,000 amount inside the clause. The draft invoice continues to show the whole fee; no installment or construction draw schedule is generated.
+
+For an untouched new real-job draft, **Use letter-agreement template** copies the proposed business terms while preserving that job's parties, property, description and construction estimate. It does not save automatically. Saved or already edited drafts cannot be overwritten by the preset. Existing immutable save and PDF revision behavior remains unchanged.
+
+Private GET `/api/preconstruction/template` returns the reusable preset; GET `/api/preconstruction/demo` returns sample form defaults. POST `/api/preconstruction/demo/packet.pdf` accepts only `{terms}` using the existing term validation, returns a PDF with `X-Preconstruction-Demo: true`, and does not read or write the workspace store. All routes retain the builder session/origin gates and private/no-store responses. PDF text is escaped and rendering does not execute scripts or load external resources.
+
+September 30 demo verification: 700 backend tests across 51 suites passed with PostgreSQL integrations enabled, and all 366 React tests across 26 suites passed. The 57 public checks passed after updating the old demo-card copy assertion. The production client built successfully. Focused demo/template/PDF tests passed again after the final print-layout changes. The five-page sample was rendered and reviewed; PDFium and extracted page coordinates were used to resolve inconsistent Poppler continuation-page rendering. The browser opened a demo PDF directly, withdrew its links after an amount edit, restored defaults on reset, and showed no overflow at 375/390/414/768/1024/1440px or console errors. No customer job or billing record was created. Independent backend/source and frontend reviews found no remaining actionable issue.
+
 ## Three separate documents
 
 | Document | Purpose | Financial effect |

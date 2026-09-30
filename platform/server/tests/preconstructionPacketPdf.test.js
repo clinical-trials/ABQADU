@@ -34,6 +34,20 @@ test('renders separately paged agreement, preliminary construction estimate and 
   expect(invoice).toContain('Entire preconstruction fee'); expect(invoice).toContain('Not issued');
 });
 
+test('demo packet is visibly unsaved without fabricated revision or signature metadata', async () => {
+  const {terms,totals,review_items}=record();
+  const input={demo:true,terms,totals,review_items};
+  const html=renderPreconstructionPacketHtml(input);
+  expect((html.match(/DEMO · UNSIGNED · NO PAYMENT DUE/g)||[])).toHaveLength(3);
+  expect(html).toContain('Sample packet · not saved to a job');
+  expect(html).not.toContain('revision To be confirmed');
+  expect(html).not.toContain('Saved To be confirmed');
+  expect(html).toContain('Editable demonstration');
+  await createPreconstructionPacketPdf(input);
+  expect(page.pdf.mock.calls[0][0].footerTemplate).toContain('DEMO');
+  expect(page.pdf.mock.calls[0][0].headerTemplate).toContain('DEMO');
+});
+
 test('keeps unknown license, credit, tax and notice decisions visible without inventing terms or balances', () => {
   const html = renderPreconstructionPacketHtml(record());
   expect(html).toContain('License number'); expect(html).toContain('To be confirmed');

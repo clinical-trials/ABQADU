@@ -8,6 +8,7 @@ const field = (label, value) => `<div class="field"><dt>${html(label)}</dt><dd>$
 const note = (label, value) => `<div class="note-block"><h3>${html(label)}</h3><p class="saved-text">${html(text(value))}</p></div>`;
 
 function renderPreconstructionPacketHtml(record = {}) {
+  const demo = record.demo === true;
   const terms = record.terms || {};
   const totals = record.totals?.currency === 'USD' ? record.totals : {};
   const saved = typeof record.saved_at === 'string' && Number.isFinite(Date.parse(record.saved_at))
@@ -28,13 +29,14 @@ function renderPreconstructionPacketHtml(record = {}) {
     not_applicable: 'The saved review marks notices as not applicable; confirm the factual and legal basis before execution.',
   })[terms.notice_review] || 'Applicability has not been determined.';
   const reviewItems = Array.isArray(record.review_items) ? record.review_items.filter(item => typeof item === 'string' && item.trim()) : [];
-  const sectionHeader = (number, title, subtitle) => `<header class="section-header"><div class="brand-row"><span class="brand">ABQ ADU</span><span class="section-number">REVIEW PACKET / ${number}</span></div><p class="draft-status">DRAFT · UNSIGNED · NO PAYMENT DUE</p><h1>${title}</h1><p class="subtitle">${subtitle}</p><div class="document-meta"><span>Draft ${html(text(record.id))} / revision ${html(revision)}</span><span>Saved ${html(saved)}</span></div></header>`;
+  const metadata = demo ? '<span>Sample packet · not saved to a job</span><span>Editable demonstration</span>' : `<span>Draft ${html(text(record.id))} / revision ${html(revision)}</span><span>Saved ${html(saved)}</span>`;
+  const sectionHeader = (number, title, subtitle) => `<header class="section-header"><div class="brand-row"><span class="brand">ABQ ADU</span><span class="section-number">${demo ? 'DEMO' : 'REVIEW'} PACKET / ${number}</span></div><p class="draft-status">${demo ? 'DEMO' : 'DRAFT'} · UNSIGNED · NO PAYMENT DUE</p><h1>${title}</h1><p class="subtitle">${subtitle}</p><div class="document-meta">${metadata}</div></header>`;
   const property = `<div class="property"><span class="label">Property</span><strong>${html(text(terms.property_address))}</strong></div>`;
 
   // Deliberately read a fixed set of client-facing fields. Other record keys are never serialized.
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'">
-  <title>ABQ ADU - Draft preconstruction review packet</title>
+  <title>ABQ ADU - ${demo ? 'Demo' : 'Draft'} preconstruction review packet</title>
   <style>
     @page { size: Letter; margin: .48in .58in .66in; }
     * { box-sizing: border-box; }
@@ -73,7 +75,7 @@ function renderPreconstructionPacketHtml(record = {}) {
     .signature-line span { float: right; }
     .callout { margin: 13px 0; padding: 10px 12px; border-left: 3px solid #a87b3e; background: #fcf5e6; }
     .callout h2 { font-size: 11pt; } .callout p + p { margin-top: 6px; }
-    .review-list { padding-left: 17px; margin: 6px 0 0; } .review-list li { margin: 4px 0; }
+    .review-list { padding-left: 17px; margin: 6px 0 0; ${demo ? 'columns: 2; column-gap: 24px;' : ''} } .review-list li { margin: 4px 0; break-inside: avoid; }
     .reference { margin-top: 10px; font-size: 7.5pt; color: #66715f; } a { color: #455d45; text-decoration: underline; }
     table { width: 100%; border-collapse: collapse; margin-top: 14px; table-layout: fixed; }
     th,td { padding: 10px 9px; text-align: left; border-bottom: 1px solid #d1d8c8; vertical-align: top; }
@@ -82,6 +84,14 @@ function renderPreconstructionPacketHtml(record = {}) {
     .invoice-description { display: block; font-size: 8pt; color: #63705d; margin-top: 4px; }
     .invoice-status { margin-top: 15px; padding: 14px; background: #283e32; color: #fffdf6; break-inside: avoid; }
     .invoice-status strong { display: block; font-size: 14pt; margin-bottom: 5px; } .invoice-status p { font-size: 9pt; }
+    ${demo ? `#construction-estimate .brand-row { padding-top: 6px; }
+    #construction-estimate .subtitle { margin: 6px 0; }
+    #construction-estimate .document-meta { padding: 6px 0 8px; }
+    #construction-estimate .property { margin: 10px 0 8px; }
+    #construction-estimate .amount-row { margin: 10px 0 6px; padding: 8px 10px; }
+    #construction-estimate .callout { margin: 10px 0; padding: 8px 10px; }
+    #construction-estimate .conditions { margin-top: 10px; padding-top: 8px; }
+    #construction-estimate .reference { margin-top: 6px; }` : ''}
   </style></head><body>
   <section class="packet-section" id="agreement">
     ${sectionHeader('01', 'Preconstruction agreement', 'Proposed planning services and terms for review. This is not an execution copy or authorization to start work.')}
@@ -118,10 +128,12 @@ function renderPreconstructionPacketHtml(record = {}) {
 }
 
 async function createPreconstructionPacketPdf(record) {
+  const mode = record?.demo === true ? 'DEMO' : 'DRAFT';
   return createPdfFromHtml(renderPreconstructionPacketHtml(record), {
     displayHeaderFooter: true,
-    headerTemplate: '<div style="width:100%;margin:0 42px;font-family:Arial,sans-serif;font-size:7px;color:#697363;">ABQ ADU / PRECONSTRUCTION REVIEW PACKET / DRAFT ONLY</div>',
-    footerTemplate: '<div style="width:100%;margin:0 42px;border-top:1px solid #d1d8c8;padding-top:7px;font-family:Arial,sans-serif;font-size:8px;color:#59664f;display:flex;justify-content:space-between;"><span>ABQ ADU / DRAFT / UNSIGNED / NO PAYMENT DUE</span><span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span></div>',
+    margin: { top: '.48in', right: '.58in', bottom: '.66in', left: '.58in' },
+    headerTemplate: `<div style="width:100%;margin:0 42px;font-family:Arial,sans-serif;font-size:7px;color:#697363;">ABQ ADU / PRECONSTRUCTION REVIEW PACKET / ${mode} ONLY</div>`,
+    footerTemplate: `<div style="width:100%;margin:0 42px;border-top:1px solid #d1d8c8;padding-top:7px;font-family:Arial,sans-serif;font-size:8px;color:#59664f;display:flex;justify-content:space-between;"><span>ABQ ADU / ${mode} / UNSIGNED / NO PAYMENT DUE</span><span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span></div>`,
   });
 }
 
