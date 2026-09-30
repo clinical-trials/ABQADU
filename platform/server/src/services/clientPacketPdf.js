@@ -100,7 +100,7 @@ async function closeBrowser(browser) {
   }
 }
 
-async function createClientPacketPdf(preview) {
+async function createPdfFromHtml(html, pdfOptions = {}) {
   let browser;
   let timer;
   try {
@@ -118,8 +118,8 @@ async function createClientPacketPdf(preview) {
       await page.setJavaScriptEnabled(false);
       await page.setRequestInterception(true);
       page.on('request', request => { request.abort().catch(() => {}); });
-      await page.setContent(renderClientPacketHtml(preview), { waitUntil: 'load', timeout: 10000 });
-      const bytes = Buffer.from(await page.pdf({ format: 'Letter', printBackground: true, preferCSSPageSize: true, timeout: 10000 }));
+      await page.setContent(html, { waitUntil: 'load', timeout: 10000 });
+      const bytes = Buffer.from(await page.pdf({ format: 'Letter', printBackground: true, preferCSSPageSize: true, ...pdfOptions, timeout: 10000 }));
       if (bytes.subarray(0, 5).toString() !== '%PDF-') throw new Error('Invalid PDF output');
       return bytes;
     };
@@ -133,4 +133,8 @@ async function createClientPacketPdf(preview) {
   }
 }
 
-module.exports = { renderClientPacketHtml, createClientPacketPdf };
+async function createClientPacketPdf(preview) {
+  return createPdfFromHtml(renderClientPacketHtml(preview));
+}
+
+module.exports = { renderClientPacketHtml, createClientPacketPdf, createPdfFromHtml };

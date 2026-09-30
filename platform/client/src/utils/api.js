@@ -11,7 +11,7 @@ async function checkedResponse(url, options) {
   if (!response.ok) {
     let payload;
     try { payload = await response.json(); } catch { /* The server may return an HTML error page. */ }
-    throw new Error(typeof payload?.error === 'string' ? payload.error : `Request failed (${response.status}). Please try again.`);
+    throw Object.assign(new Error(typeof payload?.error === 'string' ? payload.error : `Request failed (${response.status}). Please try again.`), { status: response.status });
   }
   return response;
 }

@@ -52,3 +52,10 @@ Use the [public release instructions](homeowner-services-release.md) and [platfo
 - Browser review: highlighted mobile Design menu, real Text Ian/call links, live NWS numbers, shared briefing/crew forecast, audio controls and notes preserved across project switches. Phone layout checked at 390 px without horizontal overflow. The continuation also verified editable crew drafts survive briefing refresh and saved-connection controls meet phone touch sizes. The CFO release also verified temporary cash calculations, stale-result withdrawal, blank inputs after reload, operations navigation after loading and the executive menu entry. No browser console errors were observed. Microphone and actual SMS/payment delivery were not invoked.
 
 These are local release checks. The live-host configuration and publishing requirements above remain outstanding. The GitHub release branch is `codex/version-10-workflows`; a push does not make the hosted application live.
+
+### Preconstruction continuation verification
+
+- Added the private `/preconstruction` agreement, preliminary estimate and draft fee invoice workflow, with saved revisions, conflict checks, safe retries, exact-version PDFs and activity events.
+- Full backend suite: **638 tests / 47 suites passed**. Full React suite: **309 tests / 25 suites passed**. Public website: **52 tests passed**. Production build succeeded.
+- Browser checks at **390 px and 1280 px** found no horizontal overflow or console errors. Job autofill, unresolved tax, included-tax preview, unsaved-state protection and discard/reload were checked without saving customer agreements. Save/conflict/auth/PDF behavior is covered by isolated fixtures.
+- The fictional four-page PDF was generated and visually inspected; no live customer packet, signature, payable invoice or payment was created. First job/fee confirmation and final business/legal details remain outstanding. See [the workflow and current source limitations](preconstruction-packet.md).

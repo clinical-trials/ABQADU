@@ -347,7 +347,7 @@ export default function CommandCenter() {
             <h1 style={{ ...styles.title, fontSize: 'clamp(26px, 5vw, 36px)' }}>Your job, at a glance.</h1>
             <div style={{ color: '#58665D', marginTop: 6 }}>Projects, people &amp; the next four days.</div>
           </div>
-          <div className="field-packet-actions"><button style={styles.ghost} disabled={!activeProject || saving} onClick={previewClient}>Preview Client View</button>
+          <div className="field-packet-actions"><button style={styles.ghost} disabled={!activeProject || saving} onClick={async () => { const id = activeProject.id; if (await saveState()) window.location.assign(`/preconstruction?project=${encodeURIComponent(id)}`); }}>Preconstruction agreement</button><button style={styles.ghost} disabled={!activeProject || saving} onClick={previewClient}>Preview Client View</button>
           <button style={styles.button} disabled={!activeProject || saving || packetPdf.loading} onClick={() => packetPdf.open(activeProject.id)}>{packetPdf.loading ? 'Preparing PDF…' : 'Print Client Packet'}</button></div>
         </div>
       </header>

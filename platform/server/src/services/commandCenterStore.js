@@ -173,9 +173,11 @@ async function loadCommandCenter() {
 
 let pendingSave = Promise.resolve();
 
-function saveCommandCenter(nextState, { events = [], scheduleLinks, replace = false } = {}) {
+function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstructionAgreements, requireExisting = false, replace = false } = {}) {
   const operation = pendingSave.then(async () => {
-    const current = await loadCommandCenter();
+    const current = requireExisting
+      ? withProjectReadiness(JSON.parse(await fs.readFile(storePath, 'utf8')))
+      : await loadCommandCenter();
     const patch = typeof nextState === 'function' ? await nextState(current) : nextState;
     // A validated idempotent retry may explicitly keep the existing file intact.
     if (patch === null) return current;
@@ -188,6 +190,10 @@ function saveCommandCenter(nextState, { events = [], scheduleLinks, replace = fa
     // Association versions survive stale full-state saves and workspace resets.
     // Only the dedicated server workflow can supply this internal option.
     saved.schedule_links = scheduleLinks ? scheduleLinks(current) : (Array.isArray(current.schedule_links) ? current.schedule_links : []);
+    // Reviewed agreement revisions are immutable snapshots, never generic job
+    // fields. Preserve them through stale saves and workspace resets.
+    saved.preconstruction_agreements = preconstructionAgreements ? preconstructionAgreements(current)
+      : (Array.isArray(current.preconstruction_agreements) ? current.preconstruction_agreements : []);
     // History is server owned: a stale or forged replacement in a state patch
     // cannot erase prior events. State and its new events publish atomically.
     saved.activity_events = [

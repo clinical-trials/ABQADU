@@ -10,6 +10,7 @@ import BidBuilder from './pages/BidBuilder';
 import Invoices from './pages/Invoices';
 import CommandCenter from './pages/CommandCenter';
 import ExecutiveTeam from './pages/ExecutiveTeam';
+import Preconstruction from './pages/Preconstruction';
 import ProjectWorkspace from './components/ProjectWorkspace';
 import AppNavigation from './components/AppNavigation';
 
@@ -32,6 +33,7 @@ export default function App() {
       <div>
         <Routes>
           <Route path="/executive" element={<ExecutiveTeam />} />
+          <Route path="/preconstruction" element={<Preconstruction />} />
           <Route path="/portfolio"      element={<Portfolio />} />
           <Route path="/command-center"  element={<CommandCenter />} />
           <Route path="/clients"        element={<Clients />} />

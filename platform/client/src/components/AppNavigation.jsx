@@ -25,7 +25,7 @@ export default function AppNavigation() {
       <button ref={menuButton} className="app-menu-button" aria-expanded={expanded} aria-controls="workspace-menu" onClick={() => setExpanded(value=>!value)} aria-label={expanded ? 'Close workspace menu' : 'Open workspace menu'}><span aria-hidden="true">{expanded ? '×' : '☰'}</span><span className="app-menu-label">Menu</span></button>
     </nav>
     {expanded && <nav id="workspace-menu" aria-label="More workspace tools" className="app-workspace-menu">
-      {[['/executive','Executive team & CFO'],['/command-center#project-helper','Weekly briefing'],['/command-center#document-activity','Document activity'],['/portfolio','Portfolio'],['/clients','Clients'],['/bids','Customer estimates'],['/invoices','Invoices & payments'],['/schedule','Schedule'],['/field','Field operations'],['/risks','Risks'],['/design','Design studio']].map(([to,label])=><Link key={to} to={to}>{label}</Link>)}
+      {[['/preconstruction','Preconstruction agreement'],['/executive','Executive team & CFO'],['/command-center#project-helper','Weekly briefing'],['/command-center#document-activity','Document activity'],['/portfolio','Portfolio'],['/clients','Clients'],['/bids','Customer estimates'],['/invoices','Invoices & payments'],['/schedule','Schedule'],['/field','Field operations'],['/risks','Risks'],['/design','Design studio']].map(([to,label])=><Link key={to} to={to}>{label}</Link>)}
       <a href="/">Homeowner website</a>
       <WorkspaceSignOut />
     </nav>}

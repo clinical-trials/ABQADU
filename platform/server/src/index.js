@@ -56,6 +56,7 @@ function createApp({
   app.use('/api/invoices',     require('./routes/invoices'));
   app.use('/api/invoice-engine', require('./routes/invoiceEngine'));
   app.use('/api/command-center', require('./routes/commandCenter'));
+  app.use('/api/preconstruction', require('./routes/preconstruction').createPreconstructionRouter());
   app.use('/api/contractor-desk', contractorDesk.createContractorDeskRouter({ env }));
   app.use('/api/integrations', require('./routes/productionIntegrations'));
   app.use('/api/weather', require('./routes/weather'));
