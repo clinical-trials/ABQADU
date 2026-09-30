@@ -5724,11 +5724,11 @@ footer {
         <div class="model-info">
           <div class="model-name">750 Series</div>
           <div class="model-specs">750 sq ft · 2 Bed or Lux 1 Bed · 20×37.5</div>
-          <div class="model-desc">The practical homeowner maximum ADU: two queen bedrooms or a larger luxury one-bedroom plan, with a full kitchen, laundry, living room, bath, back patio, and modern shed-roof elevations.</div>
+          <div class="model-desc">A 750-square-foot plan with two queen bedrooms or a larger luxury one-bedroom layout, full kitchen, laundry, living room, bath, back patio, and modern shed-roof elevations. Confirm the site's jurisdiction and overlay before choosing a final size.</div>
           <div class="model-tags">
             <span class="tag">750 sq ft</span>
             <span class="tag">2BR or Lux 1BR</span>
-            <span class="tag green">Typical max</span>
+            <span class="tag green">City size reference</span>
           </div>
           <div class="model-price">from $268,000 <small>turnkey est.</small></div>
           <div class="model-actions">
@@ -5810,6 +5810,7 @@ footer {
         <p class="city-desc" style="margin-bottom:0;">
           The plans range from 450 to 750 sq ft. A site plan, permit review, and trade permits are still required. Pitched-roof options need the supplier's truss details sealed by a New Mexico licensed structural engineer.
         </p>
+        <p class="city-note">City of Albuquerque general ADU limit: 750 sq ft gross floor area, with attached garages excluded. Confirm the property's overlay and other site rules; outside the City, confirm the local jurisdiction's rules. <a href="https://documents.cabq.gov/planning/IDO/2025_IDO_Update/IDO_2026_Effective-2026-05-06.pdf" target="_blank" rel="noopener noreferrer">City IDO §4-3(F)(6)(a), effective May 6, 2026</a>.</p>
         <p class="city-note" style="margin-top:16px;">
           Already have a city plan? Bring it with your property information so we can discuss site work, utility connections, and a construction estimate.
         </p>
@@ -5943,7 +5944,7 @@ footer {
       <div class="city-plan-group">
         <div class="plan-group-header">
           <div class="plan-group-sqft">750<span> sq ft</span></div>
-          <div class="plan-group-label">Typical Homeowner Max — 3 variants</div>
+          <div class="plan-group-label">750 sq ft City plans — 3 variants</div>
         </div>
         <div class="plan-group-variants">
           <div class="plan-variant">
@@ -6727,7 +6728,7 @@ const ADU_OPTIONS = {
     { id: 'hyder-hut', label: 'Netherwood House', sub: '440 sf · 1BR/1BA · ADU', price: 168000, sqft: 440, beds: '1BR', baths: '1BA', dimensions: '12.5 ft x 35 ft', use: 'Parent suite, guest house, or rental starter', detail: 'A compact, warm backyard home with enough room for a true bedroom, bath, kitchen, and small living area without overwhelming tighter Albuquerque lots. The site-plan visualization helps show parking, trees, privacy, utilities, sewer path, and yard access as part of the same Netherwood concept.', image: 'images/hyder-hut-sheet.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'hyder-hut-2br', label: 'Netherwood House 2BR', sub: '550 sf · 2BR/1BA · ADU', price: 198000, sqft: 550, beds: '2BR', baths: '1BA', dimensions: '12.5 ft x 44 ft', use: 'Multigenerational family, adult child, or guests', detail: 'The family-friendly Netherwood layout adds a second bedroom while keeping the footprint efficient for homeowners who want flexibility now and rental value later.', image: 'images/hyder-hut-2br-sheet.png', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'altura-24x24', label: 'Altura', sub: '576 sf · 1BR/1BA · ADU', price: 212000, sqft: 576, beds: '1BR', baths: '1BA', dimensions: '24 ft x 24 ft', use: 'Open living, accessible planning, and easy furniture layouts', detail: 'Altura is a single-bedroom ADU with a simple square plan that feels calm and efficient. Use this 576 sf path when the homeowner wants balanced living room, kitchen, bedroom, and patio connections.', image: 'images/altura-sheet.png', interiorImage: 'images/v5-site-photos/altura-interior-kitchen.png', includedHeads: 1, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
-    { id: 'series-750', label: '750 Series', sub: '750 sf · 2BR or luxury 1BR · typical max ADU', price: 268000, sqft: 750, beds: '2BR or Lux 1BR', baths: '1BA', dimensions: '20 ft x 37.5 ft', use: 'Multigenerational living, rental income, or larger guest suite', detail: 'The 750 Series is the practical maximum-size ADU path for many homeowners: two queen bedrooms or a larger luxury one-bedroom layout, with kitchen, bath, laundry, living room, and patio planning in one clear model.', image: 'images/750-series-sheet.jpg', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
+    { id: 'series-750', label: '750 Series', sub: '750 sf · 2BR or luxury 1BR · jurisdiction review', price: 268000, sqft: 750, beds: '2BR or Lux 1BR', baths: '1BA', dimensions: '20 ft x 37.5 ft', use: 'Multigenerational living, rental income, or larger guest suite', detail: 'The 750 Series offers two queen bedrooms or a larger luxury one-bedroom layout, with kitchen, bath, laundry, living room, and patio planning. Confirm gross floor area, jurisdiction and overlay limits for this property.', image: 'images/750-series-sheet.jpg', includedHeads: 2, includedDining: 'Dining island/bar to fit 4 or more with storage under' },
     { id: 'cromwell', label: 'Cromwell', sub: '1,280 sf · 2BR/1.5BA · single-family home', price: 385000, sqft: 1280, beds: '2BR', baths: '1.5BA', dimensions: 'Two-story custom plan', use: 'Expanded single-family home, large family suite, or custom project', detail: 'The Cromwell is a 1,280 sf single-family home concept with two bedrooms, 1.5 bathrooms, a powder room, storage loft, larger island, and more design review than a standard ADU.', image: 'images/cromwell-sheet.png', includedHeads: 4, includedDining: 'Dining island/bar to fit 5 or more with storage under', hasPowder: true, hasStorageLoft: true },
   ],
   color: [
@@ -6887,7 +6888,7 @@ const ADU_MATCHER_PROFILES = {
   'hyder-hut': { bestFor: ['guest', 'office', 'rental'], lots: ['small', 'medium', 'large'], beds: ['studio', '1br'], strengths: ['Compact 440 sf footprint', 'True 1BR privacy', 'Efficient rental or guest path'], cautions: ['Studio request maps to compact 1BR because no pure studio model is currently listed.'] },
   'hyder-hut-2br': { bestFor: ['family', 'rental', 'guest'], lots: ['medium', 'large'], beds: ['2br'], strengths: ['Two bedrooms under 600 sf', 'Strong multigenerational flexibility', 'Good rental bedroom count'], cautions: ['Tight yards need careful placement and setback review.'] },
   'altura-24x24': { bestFor: ['family', 'office', 'guest'], lots: ['medium', 'large'], beds: ['1br'], strengths: ['Balanced square plan', 'Feels open for one bedroom living', 'Good accessible-layout starting point'], cautions: ['Needs a decent yard because the 24 x 24 footprint is broader.'] },
-  'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], beds: ['1br', '2br'], strengths: ['Typical max-size ADU path', 'Can work as 2BR or luxury 1BR', 'Best when the homeowner wants room to grow'], cautions: ['At 750 sf, site placement and utility review matter more.'] },
+  'series-750': { bestFor: ['family', 'rental'], lots: ['medium', 'large'], beds: ['1br', '2br'], strengths: ['750 sf model with jurisdiction review', 'Can work as 2BR or luxury 1BR', 'Best when the homeowner wants room to grow'], cautions: ['Confirm gross floor area, overlay limits, site placement and utilities before choosing the 750 sf model.'] },
   'cromwell': { bestFor: ['family', 'rental'], lots: ['large'], beds: ['2br'], strengths: ['Full single-family home scale', 'Two bedrooms plus 1.5 baths', 'Good for larger family needs'], cautions: ['This is not a standard ADU path; it needs larger-project review.'] },
 };
 
@@ -7018,7 +7019,7 @@ function getAduMatchReasons(model) {
   reasons.push(...(profile.strengths || []).slice(0, 2));
   reasons.push(bedMap[ADU_MATCHER_STATE.beds] || 'Matches your bedroom preference.');
   reasons.push(budgetMap[ADU_MATCHER_STATE.budget] || 'Matches your budget range.');
-  if (model.sqft <= 750) reasons.push('Stays in the typical ADU planning range.');
+  if (model.sqft <= 750) reasons.push('Compare gross floor area with the confirmed jurisdiction and overlay rules.');
   if (model.sqft > 750) reasons.push('Belongs in a larger custom review conversation.');
   return reasons.slice(0, 4);
 }
@@ -7979,12 +7980,18 @@ function designSpecificModel(modelId) {
   openAduDesignModal();
 }
 
-function buildIntakeGisReview(address) {
+function buildIntakeGisReview(address, proposedAduSqft = null) {
   const intakeAddress = String(address || '').trim();
   if (!intakeAddress) return null;
   return {
     address: intakeAddress,
     status: 'pending',
+    sizingReview: {
+      status: 'pending', primaryHouseGrossFloorAreaSqft: null,
+      proposedAduGrossFloorAreaSqft: Number.isFinite(proposedAduSqft) && proposedAduSqft > 0 ? proposedAduSqft : null,
+      jurisdiction: 'unconfirmed', overlay: 'unconfirmed',
+      sourceUrl: 'https://documents.cabq.gov/planning/IDO/2025_IDO_Update/IDO_2026_Effective-2026-05-06.pdf',
+    },
     task: 'Review water, electric and sewer questions first, then parcel and aerial yard review before the site visit',
     utilityReviews: [
       { utility: 'water', label: 'Water', status: 'unknown', questions: ['Where are the water connection and meter, and what service capacity and route need review?'] },
@@ -8006,6 +8013,11 @@ function formatIntakeGisReview(review) {
     'Builder priorities — water, electric and sewer:',
     ...review.utilityReviews.map(item => `${item.label} — unknown: ${item.questions.join(' ')}`),
     'These are builder review questions; homeowners do not need technical answers to request a visit. Connection details and capacity need builder/provider and field review; GIS does not confirm them.',
+    'Sizing review — pending: primary house gross floor area, proposed ADU gross floor area, jurisdiction and overlay need confirmation.',
+    'Primary house gross floor area: unknown.',
+    `Proposed ADU gross floor area: ${review.sizingReview.proposedAduGrossFloorAreaSqft === null ? 'unknown' : `${review.sizingReview.proposedAduGrossFloorAreaSqft} sq ft (selected model; confirm gross floor area)`}.`,
+    'City of Albuquerque general ADU limit: 750 sq ft gross floor area, attached garages excluded. Confirm the property overlay and other site rules. Outside the City, confirm the local jurisdiction rules. This is not a size approval or a house-to-ADU ratio requirement.',
+    `Source: City IDO §4-3(F)(6)(a), effective May 6, 2026: ${review.sizingReview.sourceUrl}`,
     `${review.task}. Approximate yard dimensions, site access, easements, zoning/setbacks and utilities are unknown until reviewed and confirmed on site. Map measurements are not a survey.`,
     `City aerial / parcel viewer: ${review.aerialMapUrl}`,
     `City zoning map (address search): ${review.zoningMapUrl}`,
@@ -8038,7 +8050,7 @@ function buildDesignSummary() {
     phone: data.get('phone') || '',
     bestTime: data.get('bestTime') || '',
     address: data.get('address') || '',
-    gisReview: buildIntakeGisReview(data.get('address')),
+    gisReview: buildIntakeGisReview(data.get('address'), model.sqft),
     model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue, estimate, matcher, recommendation,
   };
 }
@@ -8046,7 +8058,7 @@ function buildDesignSummary() {
 function renderDesignResult(summary) {
   const body = document.getElementById('design-result-body');
   if (!body) return;
-  const gisReview = buildIntakeGisReview(summary.address);
+  const gisReview = buildIntakeGisReview(summary.address, summary.model.sqft);
   body.innerHTML = `
     <div class="design-result-grid">
       <div class="design-result-box"><b>${reportEscape(summary.model.label)}</b><span>${reportEscape(summary.model.sqft)} sq ft selected model</span></div>
@@ -8072,6 +8084,7 @@ function renderDesignResult(summary) {
           ${gisReview.utilityReviews.map(item => `<article><strong>${reportEscape(item.label)} — unknown</strong><p>${reportEscape(item.questions.join(' '))}</p></article>`).join('')}
         </div>
         <p>These are builder review questions; you don’t need technical answers to request a visit. Connection details and capacity need builder/provider and field review; GIS does not confirm them.</p>
+        <p><strong>Sizing review pending.</strong> Primary-house gross floor area is unknown; the selected model is ${reportEscape(summary.model.sqft)} sq ft. Confirm both gross floor areas, jurisdiction and overlay. The City of Albuquerque's general ADU limit is 750 sq ft gross floor area, excluding attached garages; overlays and other site rules need review. Outside the City, confirm local rules. <a href="${reportEscape(gisReview.sizingReview.sourceUrl)}" target="_blank" rel="noopener noreferrer">Read the City IDO size rule</a>.</p>
         <p>Parcel and aerial yard review before the site visit: approximate dimensions, access, easements, zoning/setbacks and utilities remain unknown. Preparing this handoff does not send it or complete GIS analysis.</p>
         <div class="assessment-actions">
           <a href="${reportEscape(gisReview.zoningMapUrl)}" target="_blank" rel="noopener noreferrer">Open address in City zoning map</a>
@@ -8184,7 +8197,7 @@ function buildDesignSummaryReportHtml(summary) {
     </section>
     <section>
       <h2>GIS Yard Review Handoff</h2>
-      <p style="white-space:pre-line;overflow-wrap:anywhere;">${reportEscape(formatIntakeGisReview(buildIntakeGisReview(summary.address)))}</p>
+      <p style="white-space:pre-line;overflow-wrap:anywhere;">${reportEscape(formatIntakeGisReview(buildIntakeGisReview(summary.address, summary.model.sqft)))}</p>
     </section>`;
 }
 
@@ -8210,7 +8223,7 @@ window.addEventListener('afterprint', () => {
 function buildDesignPayload(summary) {
   return {
     source: 'homeowner-tool',
-    gisReview: buildIntakeGisReview(summary.address),
+    gisReview: buildIntakeGisReview(summary.address, summary.model.sqft),
     contact: {
       name: summary.name,
       email: summary.email,
@@ -8893,7 +8906,8 @@ assessmentForm.addEventListener('submit', event => {
   const values = new FormData(assessmentForm);
   const field = name => String(values.get(name) || '').trim();
   const isAduAssessment = field('service') === 'ADU assessment';
-  const gisReview = isAduAssessment ? buildIntakeGisReview(field('address')) : null;
+  const selectedModel = isAduAssessment ? ADU_OPTIONS.model.find(model => field('model').startsWith(`${model.label} (`)) : null;
+  const gisReview = isAduAssessment ? buildIntakeGisReview(field('address'), selectedModel?.sqft) : null;
   const summary = [
     field('service') === 'ADU assessment' ? 'ABQ ADU — Free assessment request' : 'ABQ ADU — Service inquiry',
     '',

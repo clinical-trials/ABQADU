@@ -54,7 +54,7 @@ test('a queued review snapshots the saved address, authenticated actor and unkno
   const response = await staff('put', payload);
   expect(response.status).toBe(200);
   expect(response.body).toMatchObject({ replayed: false, stale: false, review: { project_id: project.id, address_snapshot: project.address, ...empty() } });
-  expect(Object.keys(response.body.review).sort()).toEqual(['project_id', 'version', 'address_snapshot', 'status', 'jurisdiction', 'parcel_id', 'width_ft', 'depth_ft', 'notes', 'checks', 'utility_reviews', 'updated_at'].sort());
+  expect(Object.keys(response.body.review).sort()).toEqual(['project_id', 'version', 'address_snapshot', 'status', 'jurisdiction', 'parcel_id', 'width_ft', 'depth_ft', 'notes', 'checks', 'utility_reviews', 'size_review', 'updated_at'].sort());
   const saved = JSON.parse(fs.readFileSync(store.storePath, 'utf8'));
   expect(saved.gis_reviews).toHaveLength(1);
   expect(saved.gis_reviews[0]).toMatchObject({ saved_by: 'user_allowed', request_id: payload.request_id });
@@ -295,4 +295,113 @@ test('the shared summary fails closed on malformed data and ignores client-suppl
   const summary = service.utilitySummary({ gis_reviews: [{ project_id: project.id, address_snapshot: project.address, utility_reviews }] }, project);
   expect(summary.status).toBe('needs_review');
   expect(summary.items.every(item => item.status === 'unknown' && item.notes === '')).toBe(true);
+});
+
+test('house and ADU sizes stay unknown when blank and canonical decimal values are saved without a ratio approval', async () => {
+  const first = await staff('put', input());
+  expect(first.body.review.size_review).toEqual({ primary_house_sqft: '', adu_sqft: '' });
+  const saved = await staff('put', input({ expected_version: first.body.review.version,
+    review: { ...empty(), size_review: { primary_house_sqft: ' 001200.5 ', adu_sqft: '900' } } }));
+  expect(saved.status).toBe(200);
+  expect(saved.body.review.size_review).toEqual({ primary_house_sqft: '1200.50', adu_sqft: '900.00' });
+  expect(saved.body.review.status).toBe('queued');
+  expect((await staff('get')).body.review.size_review).toEqual(saved.body.review.size_review);
+  const bounds = await staff('put', input({ expected_version: saved.body.review.version,
+    review: { ...empty(), size_review: { primary_house_sqft: '1000000.00', adu_sqft: '0.01' } } }));
+  expect(bounds.status).toBe(200);
+  expect(bounds.body.review.size_review).toEqual({ primary_house_sqft: '1000000.00', adu_sqft: '0.01' });
+});
+
+test('size measurements reject malformed fields, types and bounds before any publication', async () => {
+  const before = fs.readFileSync(store.storePath, 'utf8');
+  const blank = { primary_house_sqft: '', adu_sqft: '' };
+  for (const size_review of [null, [], {}, { primary_house_sqft: '1500' }, { ...blank, ratio: '2:1' },
+    ...[750, null, false, '0', '-1', '1e3', '1.001', '1000000.01', '10000000', 'NaN', 'Infinity', 'bad\u0000text']
+      .map(value => ({ ...blank, adu_sqft: value })),
+    { ...blank, primary_house_sqft: 1500 }, { ...blank, primary_house_sqft: '1000000.01' }]) {
+    const response = await staff('put', input({ review: { ...empty(), size_review } }));
+    expect(response.status).toBe(400);
+  }
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(before);
+});
+
+test('legacy size defaults do not rewrite history or change pre-size utility receipt fingerprints', async () => {
+  const utility_reviews = { ...unknownUtilities(), water: { status: 'in_review', notes: 'Water source is being checked.' } };
+  const payload = input({ review: { ...empty(), utility_reviews } }), version = randomUUID();
+  const fingerprint = createHash('sha256').update(JSON.stringify({ project_id: project.id, expected_version: null,
+    expected_address: project.address.toLowerCase(), review: { ...empty(), utility_reviews } })).digest('hex');
+  const legacy = { project_id: project.id, version, address_snapshot: project.address, ...empty(), utility_reviews,
+    updated_at: '2026-09-30T18:00:00.000Z', saved_by: 'user_allowed', request_id: payload.request_id,
+    request_fingerprint: fingerprint, expected_version: null };
+  fs.writeFileSync(store.storePath, JSON.stringify({ projects: [project], gis_reviews: [legacy], activity_events: [] }));
+  const before = fs.readFileSync(store.storePath, 'utf8');
+  expect((await staff('get')).body.review.size_review).toEqual({ primary_house_sqft: '', adu_sqft: '' });
+  expect((await staff('put', payload)).body).toMatchObject({ replayed: true, review: { version, size_review: { primary_house_sqft: '', adu_sqft: '' } } });
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(before);
+  const size_review = { primary_house_sqft: '1800.00', adu_sqft: '750.00' };
+  const current = await staff('put', input({ expected_version: version, review: { ...empty(), utility_reviews, size_review } }));
+  expect(current.status).toBe(200);
+  const currentBytes = fs.readFileSync(store.storePath, 'utf8');
+  expect((await staff('put', payload)).body).toMatchObject({ replayed: true, review: { version: current.body.review.version, size_review, utility_reviews } });
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(currentBytes);
+  expect(JSON.parse(currentBytes).gis_reviews[0]).toEqual(legacy);
+});
+
+test('size omission preserves current values while an explicit blank clears them', async () => {
+  const size_review = { primary_house_sqft: '1600.00', adu_sqft: '750.00' };
+  const first = await staff('put', input({ review: { ...empty(), size_review } }));
+  const legacyPayload = input({ expected_version: first.body.review.version, review: { ...empty(), notes: 'Updated site note from an older client.' } });
+  const second = await staff('put', legacyPayload);
+  expect(second.status).toBe(200);
+  expect(second.body.review.size_review).toEqual(size_review);
+  const cleared = await staff('put', input({ expected_version: second.body.review.version,
+    review: { ...empty(), size_review: { primary_house_sqft: '', adu_sqft: '' } } }));
+  expect(cleared.status).toBe(200);
+  expect(cleared.body.review.size_review).toEqual({ primary_house_sqft: '', adu_sqft: '' });
+  const beforeReplay = fs.readFileSync(store.storePath, 'utf8');
+  expect((await staff('put', legacyPayload)).body).toMatchObject({ replayed: true, review: { version: cleared.body.review.version, size_review: { primary_house_sqft: '', adu_sqft: '' } } });
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(beforeReplay);
+});
+
+test('an address restart clears sizes and retains the former site snapshot through an address round trip', async () => {
+  const size_review = { primary_house_sqft: '1600.00', adu_sqft: '750.00' };
+  const first = await staff('put', input({ review: { ...empty(), size_review } }));
+  for (const address of ['Changed fixture address', project.address]) {
+    await store.saveCommandCenter(current => ({ projects: current.projects.map(row => row.id === project.id ? { ...row, address } : row) }));
+  }
+  const prior = (await staff('get')).body;
+  expect(prior.stale).toBe(true);
+  expect(prior.review.size_review).toEqual(size_review);
+  const restart = input({ expected_version: prior.review.version });
+  const bytes = fs.readFileSync(store.storePath, 'utf8');
+  expect((await staff('put', { ...restart, review: { ...empty(), size_review } })).status).toBe(409);
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(bytes);
+  const cleared = await staff('put', restart);
+  expect(cleared.status).toBe(200);
+  expect(cleared.body).toMatchObject({ stale: false, review: { size_review: { primary_house_sqft: '', adu_sqft: '' } } });
+  const stored = JSON.parse(fs.readFileSync(store.storePath, 'utf8'));
+  expect(stored.gis_reviews[0]).toMatchObject({ version: first.body.review.version, size_review });
+  expect(stored.gis_reviews[1].size_review).toEqual(size_review);
+});
+
+test('concurrent size and older-client edits honor the version gate without replacing winning measurements', async () => {
+  const size_review = { primary_house_sqft: '1600.00', adu_sqft: '750.00' };
+  const initial = await staff('put', input({ review: { ...empty(), size_review } }));
+  const nextSizes = { primary_house_sqft: '1700.50', adu_sqft: '800.00' };
+  const sizePayload = input({ expected_version: initial.body.review.version, review: { ...empty(), size_review: nextSizes } });
+  const replies = await Promise.all([
+    staff('put', sizePayload),
+    staff('put', input({ expected_version: initial.body.review.version, review: { ...empty(), notes: 'Older client site note.' } })),
+  ]);
+  expect(replies.map(reply => reply.status).sort()).toEqual([200, 409]);
+  const current = (await staff('get')).body.review;
+  expect(current.size_review).toEqual(replies[0].status === 200 ? nextSizes : size_review);
+  const bytes = fs.readFileSync(store.storePath, 'utf8');
+  expect((await staff('put', input({ expected_version: initial.body.review.version, review: { ...empty(), size_review: nextSizes } }))).status).toBe(409);
+  if (replies[0].status === 200) {
+    expect((await staff('put', sizePayload)).body).toMatchObject({ replayed: true, review: { version: current.version, size_review: nextSizes } });
+    expect((await staff('put', { ...sizePayload, review: { ...sizePayload.review, size_review: { ...nextSizes, adu_sqft: '850' } } })).status).toBe(409);
+  }
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(bytes);
+  expect(JSON.parse(bytes).gis_reviews).toHaveLength(2);
 });

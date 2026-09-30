@@ -6,7 +6,8 @@ const UUID = /^[\da-f]{8}-[\da-f]{4}-[1-8][\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12
 const CHECKS = ['parcel', 'zoning', 'access', 'easements', 'utilities'];
 const UTILITIES = ['water', 'electric', 'sewer'];
 const UTILITY_STATUSES = ['unknown', 'in_review', 'needs_work', 'confirmed'];
-const FIELDS = ['status', 'jurisdiction', 'parcel_id', 'width_ft', 'depth_ft', 'notes', 'checks', 'utility_reviews'];
+const SIZE_FIELDS = ['primary_house_sqft', 'adu_sqft'];
+const FIELDS = ['status', 'jurisdiction', 'parcel_id', 'width_ft', 'depth_ft', 'notes', 'checks', 'utility_reviews', 'size_review'];
 const CONTROLS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 class GisReviewError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -26,6 +27,20 @@ function feet(value, field) {
   const hundredths = Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
   if (hundredths <= 0 || hundredths > 1000000) fail(400, `${field} must be greater than zero and at most 10,000 feet.`);
   return `${Math.floor(hundredths / 100)}.${String(hundredths % 100).padStart(2, '0')}`;
+}
+const unknownSizes = () => ({ primary_house_sqft: '', adu_sqft: '' });
+function normalizeSizes(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => !SIZE_FIELDS.includes(key))) fail(400, 'Provide only primary house and ADU square footage.');
+  return Object.fromEntries(SIZE_FIELDS.map(field => {
+    const label = field === 'primary_house_sqft' ? 'Primary house size' : 'ADU size';
+    const cleaned = text(input[field], label, 20);
+    if (!cleaned) return [field, ''];
+    if (!/^\d{1,7}(?:\.\d{1,2})?$/.test(cleaned)) fail(400, `${label} must be decimal square feet with at most two decimal places.`);
+    const [whole, fraction = ''] = cleaned.split('.');
+    const hundredths = Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
+    if (hundredths <= 0 || hundredths > 100000000) fail(400, `${label} must be greater than zero and at most 1,000,000 square feet.`);
+    return [field, `${Math.floor(hundredths / 100)}.${String(hundredths % 100).padStart(2, '0')}`];
+  }));
 }
 const unknownUtilities = () => Object.fromEntries(UTILITIES.map(id => [id, { status: 'unknown', notes: '' }]));
 function normalizeUtilities(input) {
@@ -69,6 +84,7 @@ function normalizeReview(input) {
   // Omission must retain the original fingerprint shape for legacy receipts.
   // Resolve preservation/defaulting against the latest record inside the queue.
   if (Object.prototype.hasOwnProperty.call(input, 'utility_reviews')) review.utility_reviews = normalizeUtilities(input.utility_reviews);
+  if (Object.prototype.hasOwnProperty.call(input, 'size_review')) review.size_review = normalizeSizes(input.size_review);
   if (review.status === 'reviewed' && (!review.checks.parcel || review.notes.length < 10)) fail(400, 'Confirm the parcel and enter at least 10 characters of review notes before marking the desktop review reviewed.');
   return review;
 }
@@ -89,7 +105,8 @@ function publicRecord(record) {
   if (!record) return null;
   const { project_id, version, address_snapshot, status, jurisdiction, parcel_id, width_ft, depth_ft, notes, checks, updated_at } = record;
   return { project_id, version, address_snapshot, status, jurisdiction, parcel_id, width_ft, depth_ft, notes, checks,
-    utility_reviews: record.utility_reviews === undefined ? unknownUtilities() : record.utility_reviews, updated_at };
+    utility_reviews: record.utility_reviews === undefined ? unknownUtilities() : record.utility_reviews,
+    size_review: record.size_review === undefined ? unknownSizes() : record.size_review, updated_at };
 }
 function describe(state, projectId) {
   const project = findProject(state, projectId), review = latest(state, projectId);
@@ -163,13 +180,15 @@ function createGisReviewService(options = {}) {
       if ((previous?.version || null) !== expectedVersion) fail(409, 'The GIS review changed. Reload it before saving again.');
       const isStale = stale(previous, project);
       const utilityReviews = review.utility_reviews || (isStale ? unknownUtilities() : previous?.utility_reviews || unknownUtilities());
+      const sizeReview = review.size_review || (isStale ? unknownSizes() : previous?.size_review || unknownSizes());
       if (isStale && (review.status !== 'queued' || review.jurisdiction !== 'unknown'
         || review.parcel_id || review.width_ft || review.depth_ft || review.notes || CHECKS.some(key => review.checks[key])
-        || UTILITIES.some(id => utilityReviews[id].status !== 'unknown' || utilityReviews[id].notes))) {
+        || UTILITIES.some(id => utilityReviews[id].status !== 'unknown' || utilityReviews[id].notes)
+        || SIZE_FIELDS.some(field => sizeReview[field]))) {
         fail(409, 'The prior review is stale. Start an empty queued review for the current address before adding findings.');
       }
       if (all.length >= 10000) fail(503, 'The saved GIS review revision limit has been reached. Preserve and review the history before adding more.');
-      nextRecord = { project_id: projectId, version: randomUUID(), address_snapshot: addressLabel(address), ...review, utility_reviews: utilityReviews,
+      nextRecord = { project_id: projectId, version: randomUUID(), address_snapshot: addressLabel(address), ...review, utility_reviews: utilityReviews, size_review: sizeReview,
         updated_at: now().toISOString(), saved_by: actorId, request_id: requestId, request_fingerprint: fingerprint, expected_version: expectedVersion };
       const type = review.status === 'queued' ? 'gis.review_queued' : review.status === 'reviewed' ? 'gis.reviewed' : 'gis.review_updated';
       const summary = review.status === 'queued' ? 'Queued GIS desktop review for the saved site address.'

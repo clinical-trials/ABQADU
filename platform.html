@@ -366,6 +366,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .estimate-gis .estimate-gis-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .estimate-gis .btn{min-height:44px;white-space:normal;text-align:center}
 .estimate-gis textarea{font-size:16px;line-height:1.5;min-height:220px;resize:vertical;width:100%}
+.estimate-area-input{font-size:16px;min-height:44px}
+.estimate-area-reference{font-size:14px;line-height:1.5;margin:12px 0 0;overflow-wrap:anywhere}
 .estimate-utility-priorities{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}
 .estimate-utility-priorities article{padding:12px;border:1px solid var(--stucco-d);border-radius:6px;background:var(--stucco)}
 .estimate-utility-priorities small{display:block;margin-top:4px;color:var(--ink60)}
@@ -904,12 +906,16 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <div><label class="fld">Model</label><select class="in" id="estimate-model">
               <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option>
             </select></div>
-            <div><label class="fld">Square feet</label><input class="in" id="estimate-sqft" type="number" min="1" value="440"></div>
+            <div><label class="fld" for="estimate-sqft">Proposed ADU gross floor area (sq ft)</label><input class="in estimate-area-input" id="estimate-sqft" type="number" min="1" value="440" oninput="renderEstimateAreaComparison()"></div>
+            <div><label class="fld" for="estimate-primary-home-sqft">Primary house gross floor area (sq ft, if known)</label><input class="in estimate-area-input" id="estimate-primary-home-sqft" inputmode="decimal" placeholder="Unknown" aria-describedby="estimate-area-help" oninput="renderEstimateAreaComparison()"></div>
             <div><label class="fld">Status</label><select class="in" id="estimate-status"><option>draft</option><option>sent</option><option>viewed</option><option>approved</option><option>declined</option></select></div>
             <div><label class="fld">Estimate #</label><input class="in" id="estimate-number"></div>
             <div><label class="fld">Expires</label><input class="in" id="estimate-expiry" type="date"></div>
             <div><label class="fld">Invoice due date</label><input class="in" id="estimate-due" type="date"></div>
           </div>
+          <p class="estimate-area-reference" id="estimate-area-help">Primary-house area is optional and saved with this estimate. Confirm both gross floor areas from plans or property records for the current address.</p>
+          <p class="estimate-area-reference" id="estimate-area-comparison" role="status">Primary-house gross floor area unknown.</p>
+          <p class="estimate-area-reference">City of Albuquerque general ADU limit: 750 sq ft gross floor area, attached garages excluded. Confirm overlays and other site rules; outside the City, confirm local jurisdiction rules. <a href="https://documents.cabq.gov/planning/IDO/2025_IDO_Update/IDO_2026_Effective-2026-05-06.pdf" target="_blank" rel="noopener noreferrer">City IDO §4-3(F)(6)(a), effective May 6, 2026</a>. A house-to-ADU ratio is a comparison only.</p>
         </div>
 
         <section class="estimate-card estimate-gis no-print" aria-labelledby="estimate-gis-heading">
@@ -1992,7 +1998,7 @@ const DEFAULT_CODE_ASSESSMENTS = [
     owner:'Steve',
     lastChecked:'2026-07-22',
     source:'https://www.cabq.gov/planning/building-safety-division/building-safety-division',
-    note:'Confirm IDO ADU standards, setbacks, 750 sf planning max, permit submittal requirements, and local amendments for the project address.'
+    note:'Confirm jurisdiction, overlay, gross floor area, setbacks and permit requirements for the address. City of Albuquerque general ADU limit is 750 sq ft gross floor area, attached garages excluded; do not apply it to other jurisdictions.'
   },
   {
     jurisdiction:'Santa Fe',
@@ -2135,7 +2141,7 @@ function defaultEstimateState(){
     expiry:expiry.toISOString().slice(0,10),
     due:due.toISOString().slice(0,10),
     client:'', phone:'', email:'', address:'',
-    model:'Netherwood House', sqft:440, customerId:'',
+    model:'Netherwood House', sqft:440, primaryHomeSqft:'', customerId:'',
     taxRate:7.625, discount:0, handling:0, insurance:0,
     paymentStatus:'unpaid', paidAmount:0, paidDate:'', lateFee:0,
     terms:'Estimate valid for 14 days. Approved estimate can convert to invoice. First preconstruction invoice is $10,000.',
@@ -2155,14 +2161,29 @@ let estimateState = store.get('estimateV9', defaultEstimateState(), value=>isSto
     && value.activity.every(item => item.at == null || typeof item.at === 'string'))));
 let estimateBound=false;
 let estimateGisPreparedAddress=null;
+let estimateGisPreparedSizing=null;
+function estimateFloorArea(value){
+  const text=String(value??'').trim();
+  if(!/^\d+(?:\.\d{1,2})?$/.test(text))return null;
+  const number=Number(text);return Number.isFinite(number)&&number>0?number:null;
+}
+function estimateSizingSignature(){return JSON.stringify([$('#estimate-primary-home-sqft')?.value||'',$('#estimate-sqft')?.value||'']);}
+function renderEstimateAreaComparison(){
+  const houseText=String($('#estimate-primary-home-sqft')?.value||'').trim(),aduText=String($('#estimate-sqft')?.value||'').trim();
+  const house=estimateFloorArea(houseText),adu=estimateFloorArea(aduText);
+  const format=value=>value.toLocaleString('en-US',{maximumFractionDigits:2});
+  setText('estimate-area-comparison',!houseText?'Primary-house gross floor area unknown. Add it if known to compare sizes.':!aduText?'Proposed ADU gross floor area unknown. Enter the proposed area to compare sizes.':house===null||adu===null?'Enter positive floor areas with at most two decimals, or leave unknown areas blank.':`House:ADU ${format(house/adu)}:1 · ADU is ${format(adu/house*100)}% of primary-house floor area. Comparison only; no required ratio or zoning approval is implied.`);
+  invalidateEstimateGisReview();
+}
 function invalidateEstimateGisReview(){
-  if(estimateGisPreparedAddress===null || estimateGisPreparedAddress===String($('#estimate-address')?.value||'').trim())return;
+  if(estimateGisPreparedAddress===null || (estimateGisPreparedAddress===String($('#estimate-address')?.value||'').trim() && estimateGisPreparedSizing===estimateSizingSignature()))return;
   estimateGisPreparedAddress=null;
+  estimateGisPreparedSizing=null;
   $('#estimate-gis-result').hidden=true;
   $('#estimate-gis-summary').value='';
   $('#estimate-gis-zoning').removeAttribute('href');
   $('#estimate-gis-aerial').removeAttribute('href');
-  setText('estimate-gis-status','Address changed. Prepare a new GIS review handoff for the current address.');
+  setText('estimate-gis-status','Address or floor area changed. Prepare a new GIS review handoff for the current intake.');
 }
 function validateEstimateGisReview(){
   invalidateEstimateGisReview();
@@ -2179,6 +2200,8 @@ function prepareEstimateGisReview(){
   const aerialMapUrl='https://geocortexweb.cabq.gov/Html5Viewer/index.html?viewer=PublicAMV';
   const zoningMapUrl=`https://cabq.maps.arcgis.com/apps/webappviewer/index.html?id=53bf716981b14d25a31e7a2549c2d61b&find=${encodeURIComponent(address)}`;
   estimateGisPreparedAddress=address;
+  estimateGisPreparedSizing=estimateSizingSignature();
+  const houseArea=estimateFloorArea($('#estimate-primary-home-sqft').value),aduArea=estimateFloorArea($('#estimate-sqft').value);
   $('#estimate-gis-summary').value=[
     'GIS yard review requested',
     `Intake address: ${address}`,
@@ -2186,6 +2209,11 @@ function prepareEstimateGisReview(){
     'Builder priorities — water, electric and sewer:',
     ...Array.from(document.querySelectorAll('[data-estimate-utility-review]'), card => `${card.querySelector('[data-utility-label]').textContent} — unknown: ${card.querySelector('[data-utility-question]').textContent}`),
     'These are builder review questions; homeowners do not need technical answers to request a visit. Connection details and capacity need builder/provider and field review; GIS does not confirm them.',
+    'Sizing review — pending: confirm primary-house and proposed ADU gross floor areas, jurisdiction and overlay for this address.',
+    `Primary house gross floor area: ${houseArea===null?'unknown':`${houseArea} sq ft (entered; confirm against plans or records)`}.`,
+    `Proposed ADU gross floor area: ${aduArea===null?'unknown':`${aduArea} sq ft (entered; confirm against plans)`}.`,
+    'City of Albuquerque general ADU limit: 750 sq ft gross floor area, attached garages excluded. Confirm overlay and other site rules; outside the City, confirm local jurisdiction rules. No size approval or house-to-ADU ratio requirement is implied.',
+    'Source: City IDO §4-3(F)(6)(a), effective May 6, 2026: https://documents.cabq.gov/planning/IDO/2025_IDO_Update/IDO_2026_Effective-2026-05-06.pdf',
     'Before the site visit: review the parcel and aerial yard image. Approximate yard dimensions, site access, easements, zoning/setbacks and utilities are unknown until reviewed and confirmed on site. Map measurements are not a survey.',
     `City aerial / parcel viewer: ${aerialMapUrl}`,
     `City zoning map (address search): ${zoningMapUrl}`,
@@ -2200,15 +2228,16 @@ function prepareEstimateGisReview(){
 async function copyEstimateGisReview(addressOnly=false){
   if(!validateEstimateGisReview())return;
   const preparedAddress=estimateGisPreparedAddress;
+  const preparedSizing=estimateGisPreparedSizing;
   const summary=$('#estimate-gis-summary');
   const text=addressOnly ? preparedAddress : summary.value;
   try{
     if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
     await navigator.clipboard.writeText(text);
-    if(!validateEstimateGisReview() || estimateGisPreparedAddress!==preparedAddress)return;
+    if(!validateEstimateGisReview() || estimateGisPreparedAddress!==preparedAddress || estimateGisPreparedSizing!==preparedSizing)return;
     setText('estimate-gis-status',addressOnly?'Address copied. Paste it into the official map and confirm the parcel.':'Review handoff copied. It has not been sent.');
   }catch{
-    if(!validateEstimateGisReview() || estimateGisPreparedAddress!==preparedAddress)return;
+    if(!validateEstimateGisReview() || estimateGisPreparedAddress!==preparedAddress || estimateGisPreparedSizing!==preparedSizing)return;
     summary.focus();
     if(addressOnly){const start=summary.value.indexOf(preparedAddress);summary.setSelectionRange(start,start+preparedAddress.length);}
     else summary.select();
@@ -2257,7 +2286,7 @@ function estimateTotals(){
   return {subtotal,taxable,discount,tax,handling,insurance,lateFee,total,paid,balance};
 }
 function syncEstimateFromInputs(){
-  const ids=['client','phone','email','address','model','sqft','status','number','expiry','due','terms','customer-id','notes','signature','tax-rate','discount','handling','insurance','payment-status','paid-amount','paid-date','late-fee'];
+  const ids=['client','phone','email','address','model','sqft','primary-home-sqft','status','number','expiry','due','terms','customer-id','notes','signature','tax-rate','discount','handling','insurance','payment-status','paid-amount','paid-date','late-fee'];
   ids.forEach(id=>{
     const el=$(`#estimate-${id}`);
     if(!el)return;
@@ -2307,14 +2336,14 @@ function renderEstimateTool(){
   }
   const values={
     client:estimateState.client, phone:estimateState.phone, email:estimateState.email, address:estimateState.address,
-    model:estimateState.model, sqft:estimateState.sqft, status:estimateState.status, number:estimateState.number,
+    model:estimateState.model, sqft:estimateState.sqft, 'primary-home-sqft':estimateState.primaryHomeSqft, status:estimateState.status, number:estimateState.number,
     expiry:estimateState.expiry, due:estimateState.due, terms:estimateState.terms, 'customer-id':estimateState.customerId,
     notes:estimateState.notes, signature:estimateState.signature, 'tax-rate':estimateState.taxRate,
     discount:estimateState.discount, handling:estimateState.handling, insurance:estimateState.insurance,
     'payment-status':estimateState.paymentStatus, 'paid-amount':estimateState.paidAmount, 'paid-date':estimateState.paidDate, 'late-fee':estimateState.lateFee,
   };
   Object.entries(values).forEach(([id,value])=>{const el=$(`#estimate-${id}`); if(el)el.value=value ?? '';});
-  invalidateEstimateGisReview();
+  renderEstimateAreaComparison();
   setText('estimate-subtotal', fmt(t.subtotal));
   setText('estimate-discount-out', fmt(t.discount));
   setText('estimate-tax-out', fmt(t.tax));
@@ -4103,7 +4132,6 @@ function updateBom(){
   renderDesignLedger();
   // zoning
   const z=[];const bedrooms=rooms.filter(r=>r.node._meta.type==='bedroom');
-  if(totalSf>750)z.push(['warn','Above typical 750 sf homeowner ADU planning max']);
   rooms.forEach(r=>{const m=r.node._meta,sf=m.wft*m.hft;
     if(m.type==='bedroom'&&sf<70)z.push(['err',`Bedroom ${sf}sf < 70sf min`]);
     if(['living','kitchen','dining'].includes(m.type)&&sf<120)z.push(['err',`${m.type} ${sf}sf < 120sf min`]);
@@ -4112,8 +4140,9 @@ function updateBom(){
   if(bedrooms.length&&!bath.length)z.push(['err','Bedrooms require a bathroom']);
   const zh=$('#d-zoning');
   if(!rooms.length){zh.innerHTML='<span class="muted" style="font-size:11px">—</span>';return}
-  if(!z.length){zh.innerHTML='<span style="color:#40b870">✓ Meets ABQ ADU requirements</span>';return}
-  zh.innerHTML=z.map(x=>`<span style="color:${x[0]==='err'?'#e06a5a':'#d4a020'}">${x[0]==='err'?'✗':'⚠'} ${x[1]}</span>`).join('');
+  const sizeReview='<span style="color:#8090a8">Layout checks only. Confirm gross floor area, jurisdiction and overlay; the City of Albuquerque general ADU limit is 750 sq ft, attached garages excluded. This is not zoning approval.</span>';
+  if(!z.length){zh.innerHTML=sizeReview;return}
+  zh.innerHTML=z.map(x=>`<span style="color:${x[0]==='err'?'#e06a5a':'#d4a020'}">${x[0]==='err'?'✗':'⚠'} ${x[1]}</span>`).join('')+sizeReview;
 }
 
 /* ── Homeowner design drafts + room removal ── */
@@ -4179,12 +4208,12 @@ const MODEL_CATALOG=[
   {id:'hyder-hut',name:'Netherwood House',sqft:440,variation:'HH1 · 12.5x35 · 1BR/1BA',img:'images/hyder-hut-sheet.png',source:'Version 10 verified',bed:1,bath:1,type:'builder-ready'},
   {id:'hyder-hut-2br',name:'Netherwood House 2BR',sqft:550,variation:'12.5x44 · 2BR/1BA',img:'images/hyder-hut-2br-sheet.png',source:'Version 10 verified',bed:2,bath:1,type:'builder-ready'},
   {id:'altura-24x24',name:'Altura',sqft:576,variation:'24x24 · 1BR/1BA · walk-in closet',img:'images/altura-sheet.png',source:'Version 10 verified',bed:1,bath:1,type:'builder-ready'},
-  {id:'series-750',name:'750 Series',sqft:750,variation:'20x37.5 · 2BR or Lux 1BR · typical homeowner max',img:'images/750-series-sheet.jpg',source:'Version 10 verified',bed:'1-2',bath:1,type:'builder-ready'},
+  {id:'series-750',name:'750 Series',sqft:750,variation:'20x37.5 · 2BR or Lux 1BR · jurisdiction and overlay review',img:'images/750-series-sheet.jpg',source:'Version 10 verified',bed:'1-2',bath:1,type:'builder-ready'},
   {id:'cromwell',name:'Cromwell',sqft:1280,variation:'2BR/1.5BA · single-family home · expanded custom project',img:'images/cromwell-sheet.png',source:'Version 10 verified',bed:2,bath:1.5,type:'expanded'},
   {id:'altura-source',name:'Altura',sqft:576,variation:'ABQADU source rendering · 1 or 2 bed option noted',img:'images/source-altura-render.png',source:'ABQADU designs',bed:'1-2',bath:1,type:'source'},
   {id:'burton',name:'Burton',sqft:null,variation:'ABQADU source model · square footage confirm',img:'images/source-burton-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
   {id:'townhouse',name:'Townhouse',sqft:null,variation:'ABQADU source model · tighter urban footprint',img:'images/source-townhouse-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
-  {id:'the-750',name:'The 750',sqft:750,variation:'Typical homeowner max ADU · flat, pitched, or 3D concrete print',img:'images/source-750-render.webp',source:'ABQADU/CABQ plan',bed:'confirm',bath:'confirm',type:'city-plan'},
+  {id:'the-750',name:'The 750',sqft:750,variation:'750 sq ft City plan · flat, pitched, or 3D concrete print',img:'images/source-750-render.webp',source:'ABQADU/CABQ plan',bed:'confirm',bath:'confirm',type:'city-plan'},
   {id:'flex-barn',name:'Flex Barn',sqft:null,variation:'ABQADU source model · flexible barn form',img:'images/source-flex-barn-render.webp',source:'ABQADU designs',bed:'confirm',bath:'confirm',type:'source'},
 ];
 
@@ -4192,7 +4221,7 @@ const CITY_PLAN_VARIATIONS=[
   {sqft:450,label:'Compact Studio',variants:['Flat roof','Pitched roof','3D concrete print']},
   {sqft:550,label:'1-Bedroom',variants:['Flat roof','Pitched roof','3D concrete print']},
   {sqft:650,label:'1-Bedroom',variants:['Flat roof','Pitched roof','3D concrete print']},
-  {sqft:750,label:'Typical Homeowner Max',variants:['Flat roof','Pitched roof','3D concrete print']},
+  {sqft:750,label:'750 sq ft City plans',variants:['Flat roof','Pitched roof','3D concrete print']},
 ];
 
 const BLUEPRINT_MATERIAL_GROUPS = [
@@ -4217,7 +4246,7 @@ const BLUEPRINT_REVIEW_FLAGS = [
   'Sewer confirmation study: verify route, tie-in, slope, and pump/equipment risk before final bid.',
   'Openings over 3 ft: engineering review before ordering windows, doors, or headers.',
   'Build method matters: stick framing needs RO, header, king studs, jack studs, cripple studs, sill plate, sill foam, zip sill tape, and fireblock review; PUR/SIP panel systems route to Muras/pre-cut panel shop drawings, cut list, connection details, delivery, installation checks, and reduced COGS review.',
-  'Typical homeowner ADU max: 750 sf; larger models route to custom review.',
+  'City of Albuquerque general ADU limit: 750 sq ft gross floor area, attached garages excluded. Confirm jurisdiction, overlay and site-specific rules.',
 ];
 
 let bpModel=MODEL_CATALOG[0], blueprintDone=false;
@@ -4278,7 +4307,7 @@ function renderBlueprint(force=false){
     'Build cart priority lines: lumber/2x4s, sheetrock, mud, house wrap, roofing nails, and the roughly $1,000 job-site fastener package.',
     'Pull finish subcontractor quotes for countertops, flooring, tile, and cabinets on every job.',
     'Import / compare final COGS: bring supplier and subcontractor quotes back into this bid file and recalc $/sf.',
-    'Review flags: extra meter/panel, sewer confirmation study, openings over 3 ft, and 750 sf homeowner max.',
+    'Review flags: extra meter/panel, sewer confirmation study, openings over 3 ft, plus gross floor area, jurisdiction and overlay rules.',
     city,
   ].map((txt,i)=>`<div class="lowes-step"><b>${i+1}</b><span>${txt}</span></div>`).join('');
   renderPlanPreview();
@@ -4902,7 +4931,7 @@ ISSUES:
 
 RECOMMENDATIONS:
 - Confirm each bedroom has an egress window with ≥5.7 sf clear opening, ≥20" width, ≥24" height, sill ≤44" AFF (IRC R310).
-- Total 440 sf is below the typical 750 sf homeowner ADU planning max.
+- Confirm gross floor area and the property jurisdiction/overlay. City of Albuquerque general ADU limit: 750 sq ft gross floor area, attached garages excluded; other jurisdictions have their own rules.
 
 NOTES: Verify rear/side setbacks of 5'/3' on the survey before submittal.`},
   {t:'Permit Narrative',ph:'Phase 3',svc:'permitNarrative.js',out:`PROJECT NARRATIVE — Accessory Dwelling Unit

@@ -83,7 +83,7 @@ test('design result displays contact fields literally without creating executabl
   const result = window.document.getElementById('design-result-body');
   for (const value of Object.values(values)) assert.ok(result.textContent.includes(value), value);
   assert.equal(result.querySelector('img, svg, script, a[href^="javascript:"], [onerror], [onload]'), null);
-  for (const link of result.querySelectorAll('a')) assert.ok(['cabq.maps.arcgis.com', 'geocortexweb.cabq.gov'].includes(new URL(link.href).host));
+  for (const link of result.querySelectorAll('a')) assert.ok(['cabq.maps.arcgis.com', 'geocortexweb.cabq.gov', 'documents.cabq.gov'].includes(new URL(link.href).host));
   assert.equal(window.injected, undefined);
 });
 
@@ -159,6 +159,15 @@ test('design summary, print report and payload carry only pending GIS review for
   const review = window.buildDesignPayload(summary).gisReview;
   assert.equal(review.address, address);
   assert.equal(review.status, 'pending');
+  assert.deepEqual(JSON.parse(JSON.stringify(review.sizingReview)), {
+    status: 'pending', primaryHouseGrossFloorAreaSqft: null, proposedAduGrossFloorAreaSqft: summary.model.sqft,
+    jurisdiction: 'unconfirmed', overlay: 'unconfirmed',
+    sourceUrl: 'https://documents.cabq.gov/planning/IDO/2025_IDO_Update/IDO_2026_Effective-2026-05-06.pdf',
+  });
+  assert.match(summary.text, /Primary house gross floor area: unknown/);
+  assert.match(summary.text, /City of Albuquerque.*750.*gross floor area.*attached garages excluded/i);
+  assert.match(summary.text, /jurisdiction.*overlay.*confirm/i);
+  assert.doesNotMatch(summary.text, /2:1.*(?:required|limit)|metro.*750/i);
   assert.deepEqual(Array.from(review.utilityReviews, item => item.utility), ['water', 'electric', 'sewer']);
   for (const item of review.utilityReviews) {
     assert.equal(item.status, 'unknown');

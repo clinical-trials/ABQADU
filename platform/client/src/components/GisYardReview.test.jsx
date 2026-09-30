@@ -10,11 +10,12 @@ const version = '11111111-1111-4111-8111-111111111111';
 const nextVersion = '22222222-2222-4222-8222-222222222222';
 const first = { id: 'yard-one', client: 'Fixture owner', address: '100 Fixture Ave #2 & Rear, Albuquerque, NM' };
 const second = { id: 'yard-two', client: 'Second fixture', address: '200 Other Fixture Lane, Albuquerque, NM' };
-const empty = () => ({ status: 'queued', jurisdiction: 'unknown', parcel_id: '', width_ft: '', depth_ft: '', notes: '', checks: { parcel: false, zoning: false, access: false, easements: false, utilities: false }, utility_reviews:unknownUtilities() });
+const empty = () => ({ status: 'queued', jurisdiction: 'unknown', parcel_id: '', width_ft: '', depth_ft: '', notes: '', checks: { parcel: false, zoning: false, access: false, easements: false, utilities: false }, utility_reviews:unknownUtilities(),size_review:emptySize() });
 const record = (patch = {}, project = first) => ({ project_id: project.id, version, address_snapshot: project.address, updated_at: '2026-09-30T18:00:00.000Z', ...empty(), ...patch });
 const deferred = () => { let resolve, reject; const promise = new Promise((done, fail) => { resolve = done; reject = fail; }); return { promise, resolve, reject }; };
 const endpoint = id => `/api/project-helper/projects/${encodeURIComponent(id)}/gis-review`;
 const unknownUtilities = () => Object.fromEntries(['water','electric','sewer'].map(key=>[key,{status:'unknown',notes:''}]));
+const emptySize = () => ({primary_house_sqft:'',adu_sqft:''});
 let host, root, saveChanges, onSaved, projects, records, staleProjects, loadOverride, saveOverride, originalCrypto;
 const response = id => ({ project: projects[id], review: records[id] || null, stale: staleProjects.has(id) });
 const writes = () => requestJson.mock.calls.filter(([, options]) => options?.method === 'PUT');
@@ -80,6 +81,84 @@ test('legacy utility checkbox never confirms water, electric or sewer independen
   expect(overview?.textContent).toContain('Sewer');
   expect(overview?.textContent.match(/Not checked/g)).toHaveLength(3);
   expect(writes()).toHaveLength(0);
+});
+
+test('house-to-ADU comparison uses entered floor areas without imposing an unverified two-to-one rule', async () => {
+  await render();
+  expect(field('Main house gross floor area (sq ft)')).toBeDefined();
+  expect(host.querySelector('[aria-label="House to ADU area ratio"]').textContent).toContain('Not measured');
+  await change('Main house gross floor area (sq ft)','1500'); await change('Proposed ADU gross floor area (sq ft)','750');
+  expect(host.querySelector('[aria-label="House to ADU area ratio"]').textContent).toContain('2:1');
+  await change('Main house gross floor area (sq ft)','1000');
+  expect(host.querySelector('[aria-label="House to ADU area ratio"]').textContent).toContain('1.33:1');
+  expect(host.textContent).not.toMatch(/meets.*zoning|2:1 required|maximum allowed ADU: 500/i);
+  await click('Queue GIS review');
+  expect(JSON.parse(writes()[0][1].body).review.size_review).toEqual({primary_house_sqft:'1000.00',adu_sqft:'750.00'});
+});
+
+test('City cap guidance follows the chosen jurisdiction and does not approve a parcel', async () => {
+  await render(); expect(field('Proposed ADU gross floor area (sq ft)')).toBeDefined();
+  await change('Proposed ADU gross floor area (sq ft)','751');
+  const guide=()=>host.querySelector('[aria-label="Jurisdiction size reference"]');
+  expect(guide().textContent).toContain('Confirm the jurisdiction');
+  await change('Property jurisdiction','albuquerque');
+  expect(guide().textContent).toContain('Exceeds the general 750 sq ft cap');
+  await change('Proposed ADU gross floor area (sq ft)','750');
+  expect(guide().textContent).toContain('At or below the general 750 sq ft cap');
+  expect(guide().textContent).toContain('650');
+  expect(guide().textContent).toContain('not zoning approval');
+  await change('Property jurisdiction','bernalillo_county');
+  expect(guide().textContent).not.toContain('At or below');
+  expect(guide().textContent).not.toContain('Exceeds');
+});
+
+test('legacy records keep unknown areas until the contractor explicitly reuses the job size', async () => {
+  records[first.id]=record(); delete records[first.id].size_review;
+  await render({project:{...first,sqft:750}});
+  expect(field('Main house gross floor area (sq ft)').value).toBe('');
+  expect(field('Proposed ADU gross floor area (sq ft)').value).toBe('');
+  expect(writes()).toHaveLength(0);
+  await click('Use job’s 750 sq ft for ADU');
+  expect(field('Proposed ADU gross floor area (sq ft)').value).toBe('750.00');
+  expect(field('Main house gross floor area (sq ft)').value).toBe('');
+  expect(writes()).toHaveLength(0);
+  await click('Save GIS review');
+  expect(JSON.parse(writes()[0][1].body).review.size_review).toEqual({primary_house_sqft:'',adu_sqft:'750.00'});
+});
+
+test('a receipt with different sizes preserves the entered areas and exact retry', async () => {
+  await render();
+  await change('Main house gross floor area (sq ft)','1500'); await change('Proposed ADU gross floor area (sq ft)','750');
+  saveOverride=async()=>({...response(first.id),review:record({version:nextVersion,size_review:{primary_house_sqft:'1500.00',adu_sqft:'650.00'}}),replayed:false});
+  await click('Queue GIS review');
+  expect(host.textContent).toContain('could not be verified');
+  expect(field('Proposed ADU gross floor area (sq ft)').value).toBe('750');
+  const original=writes()[0][1].body;
+  saveOverride=null; await click('Queue GIS review');
+  expect(writes()[1][1].body).toBe(original);
+  expect(field('Proposed ADU gross floor area (sq ft)').value).toBe('750.00');
+});
+
+test('size-only drafts survive project switching, remain copyable when stale, and clear on restart', async () => {
+  await render(); expect(field('Main house gross floor area (sq ft)')).toBeDefined();
+  await change('Main house gross floor area (sq ft)','1500'); await change('Proposed ADU gross floor area (sq ft)','750');
+  await render({project:second}); await render();
+  expect(field('Main house gross floor area (sq ft)').value).toBe('1500');
+  await render({project:{...first,address:'Different address'}});
+  expect(field('Unsaved GIS findings').value).toContain('1500');
+  await render({project:second});
+  records[first.id]=record({address_snapshot:'Old address',size_review:{primary_house_sqft:'1800.00',adu_sqft:'750.00'}});
+  staleProjects.add(first.id); await render();
+  await click('Discard GIS edits and reload'); await click('Start review for updated address');
+  expect(JSON.parse(writes()[0][1].body).review.size_review).toEqual(emptySize());
+});
+
+test.each(['0','-1','1e3','1000000.01','100.001'])('invalid floor area %s cannot be saved or calculated', async value => {
+  await render(); expect(field('Main house gross floor area (sq ft)')).toBeDefined();
+  await change('Main house gross floor area (sq ft)',value); await change('Proposed ADU gross floor area (sq ft)','750');
+  expect(host.querySelector('[aria-label="House to ADU area ratio"]').textContent).toContain('Not measured');
+  await click('Queue GIS review'); expect(writes()).toHaveLength(0);
+  expect(host.textContent).toContain('Enter positive floor areas');
 });
 
 test('separate utility findings require evidence for confirmation and round-trip independently', async () => {

@@ -121,6 +121,7 @@ test('ADU intake prepares pending GIS review for the exact current address and i
   assert.ok(summary.value.includes(`Intake address: ${address}`));
   assert.match(summary.value, /GIS yard review requested[\s\S]*pending[\s\S]*does not send/i);
   assert.match(summary.value, /Water — unknown:[\s\S]*Electric — unknown:[\s\S]*Sewer — unknown:/);
+  assert.match(summary.value, /Proposed ADU gross floor area: unknown/);
   assert.match(summary.value, /approximate.*dimensions[\s\S]*access[\s\S]*easements[\s\S]*zoning[\s\S]*utilities/i);
   const zoning = window.document.querySelector('#assessment-gis-zoning');
   assert.equal(new URL(zoning.href).searchParams.get('find'), address);
@@ -131,6 +132,9 @@ test('ADU intake prepares pending GIS review for the exact current address and i
   form.querySelector('[type="submit"]').click();
   assert.equal(new URL(zoning.href).searchParams.get('find'), '456 Different Road');
   assert.ok(!summary.value.includes(address));
+  enter(window, form, 'model', 'Altura (576 sq ft)');
+  form.querySelector('[type="submit"]').click();
+  assert.match(summary.value, /Proposed ADU gross floor area: 576 sq ft/);
   enter(window, form, 'address', '');
   form.querySelector('[type="submit"]').click();
   assert.match(summary.value, /address needed.*no GIS.*prepared/i);

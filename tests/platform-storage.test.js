@@ -59,6 +59,44 @@ function readBlob(window, blob) {
   });
 }
 
+test('legacy house-to-ADU comparison is arithmetic only and preserves optional area with the estimate draft', t => {
+  const page = openBuilder(t, { hash: '#estimates' });
+  const { window, document } = page;
+  const house = document.getElementById('estimate-primary-home-sqft');
+  const adu = document.getElementById('estimate-sqft');
+  const comparison = document.getElementById('estimate-area-comparison');
+  assert.ok(house);
+  assert.equal(house.value, '');
+  assert.match(comparison.textContent, /unknown/i);
+  house.value = '1500'; adu.value = '750';
+  house.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert.match(comparison.textContent, /House:ADU 2:1/);
+  assert.match(comparison.textContent, /50%/);
+  assert.match(comparison.textContent, /comparison only/i);
+  assert.doesNotMatch(comparison.textContent, /approved|eligible|passes|meets.*requirements/i);
+  document.getElementById('estimate-address').value = '123 Example Property';
+  document.getElementById('estimate-gis-prepare').click();
+  assert.match(document.getElementById('estimate-gis-summary').value, /Primary house gross floor area: 1500 sq ft/);
+  adu.value = '900';
+  adu.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert.equal(document.getElementById('estimate-gis-result').hidden, true, 'Changed areas invalidate the prepared handoff');
+  assert.match(comparison.textContent, /1\.67:1/);
+  window.saveEstimateDraft();
+  const saved = JSON.parse(window.localStorage.getItem('abqadu_estimateV9'));
+  assert.equal(saved.primaryHomeSqft, '1500');
+  const reloaded = openBuilder(t, { entries: { abqadu_estimateV9: JSON.stringify(saved) }, hash: '#estimates' });
+  assert.equal(reloaded.document.getElementById('estimate-primary-home-sqft').value, '1500');
+  assert.equal(reloaded.document.getElementById('estimate-sqft').value, '900');
+  house.value = ''; house.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert.match(comparison.textContent, /unknown/i);
+  window.saveEstimateDraft();
+  assert.equal(JSON.parse(window.localStorage.getItem('abqadu_estimateV9')).primaryHomeSqft, '');
+  house.value = '-5'; house.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert.match(comparison.textContent, /positive/i);
+  assert.doesNotMatch(comparison.textContent, /NaN|Infinity|House:ADU/);
+  assert.deepEqual(page.errors, []);
+});
+
 test('legacy GIS handoff uses current input, keeps drafts intact, and invalidates changed addresses', async t => {
   const page = openBuilder(t, { hash: '#estimates' });
   const { window, document } = page;
@@ -118,6 +156,22 @@ test('legacy GIS handoff uses current input, keeps drafts intact, and invalidate
   assert.equal(result.hidden, true);
   assert.match(document.getElementById('estimate-gis-status').textContent, /address needed.*no GIS.*prepared/i);
   assert.deepEqual(page.errors, []);
+});
+
+test('late copy completion cannot label a newly prepared floor-area handoff as copied', async t => {
+  const { window, document } = openBuilder(t, { hash: '#estimates' });
+  document.getElementById('estimate-address').value = '123 Example Property';
+  document.getElementById('estimate-gis-prepare').click();
+  let finishCopy;
+  Object.defineProperty(window.navigator, 'clipboard', { value: { writeText: () => new Promise(resolve => { finishCopy = resolve; }) } });
+  document.getElementById('estimate-gis-copy').click();
+  const adu = document.getElementById('estimate-sqft');
+  adu.value = '750'; adu.dispatchEvent(new window.Event('input', { bubbles: true }));
+  document.getElementById('estimate-gis-prepare').click();
+  finishCopy();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.match(document.getElementById('estimate-gis-summary').value, /Proposed ADU gross floor area: 750 sq ft/);
+  assert.equal(document.getElementById('estimate-gis-status').textContent, 'Review handoff prepared. It has not been sent.');
 });
 
 test('invalid saved activity dates cannot stop builder startup or overwrite the original', t => {
