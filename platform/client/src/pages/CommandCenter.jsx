@@ -8,6 +8,7 @@ import WeatherAttribution from '../components/WeatherAttribution';
 import ContractorDesk from '../components/ContractorDesk';
 import ProjectHelper from '../components/ProjectHelper';
 import DocumentActivity from '../components/DocumentActivity';
+import GisYardReview from '../components/GisYardReview';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
@@ -368,6 +369,7 @@ export default function CommandCenter() {
         {liveStatus && <p role="status" style={{ padding: 12, background: '#E8EEE8', borderRadius: 8 }}>{liveStatus}</p>}
         <PacketPdfStatus pdf={packetPdf.projectId === activeProject?.id ? packetPdf : null} />
       </section>
+      <GisYardReview project={activeProject} revision={state.updated_at} saveChanges={saveState} onSaved={load}/>
       <ProjectHelper project={activeProject} revision={state.updated_at} onForecast={setBriefingWeather} onScheduleSaved={load} />
       {activeProject && <DocumentActivity projectId={activeProject.id} revision={state.updated_at} />}
       <ContractorDesk project={activeProject} state={state} forecast={sharedWeather} busy={saving} onCheckWeather={checkWeather} runAction={runAction} onRefresh={load} />

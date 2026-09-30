@@ -4,6 +4,7 @@ const { randomUUID } = require('crypto');
 const { MODEL_CATALOG, applyModelDefaults } = require('./modelCatalog');
 const { getReadinessLabel } = require('./estimateEngine');
 const { deriveActivityEvents } = require('./activityEvents');
+const { invalidateGisReviews } = require('./gisReview');
 
 const storePath = process.env.COMMAND_CENTER_STORE_PATH ||
   path.join(__dirname, '..', '..', 'data', 'version10-command-center.json');
@@ -173,7 +174,7 @@ async function loadCommandCenter() {
 
 let pendingSave = Promise.resolve();
 
-function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstructionAgreements, requireExisting = false, replace = false } = {}) {
+function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstructionAgreements, gisReviews, requireExisting = false, replace = false } = {}) {
   const operation = pendingSave.then(async () => {
     const current = requireExisting
       ? withProjectReadiness(JSON.parse(await fs.readFile(storePath, 'utf8')))
@@ -194,11 +195,18 @@ function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstruct
     // fields. Preserve them through stale saves and workspace resets.
     saved.preconstruction_agreements = preconstructionAgreements ? preconstructionAgreements(current)
       : (Array.isArray(current.preconstruction_agreements) ? current.preconstruction_agreements : []);
+    // GIS history is server owned. Address edits atomically invalidate the
+    // prior review, including edits later reverted to the original address.
+    const gisHistory = gisReviews ? gisReviews(current) : current.gis_reviews;
+    const gis = Array.isArray(gisHistory) ? invalidateGisReviews(current, saved, gisHistory) : { records: gisHistory, events: [] };
+    if (gis.records !== undefined) saved.gis_reviews = gis.records;
+    else delete saved.gis_reviews;
     // History is server owned: a stale or forged replacement in a state patch
     // cannot erase prior events. State and its new events publish atomically.
     saved.activity_events = [
       ...(Array.isArray(current.activity_events) ? current.activity_events : []),
       ...deriveActivityEvents(current, saved),
+      ...gis.events,
       ...(typeof events === 'function' ? events(current, saved) : events),
     ];
     // Publish complete JSON in one rename so concurrent readers never see a

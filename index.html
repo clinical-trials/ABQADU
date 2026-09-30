@@ -7975,6 +7975,32 @@ function designSpecificModel(modelId) {
   openAduDesignModal();
 }
 
+function buildIntakeGisReview(address) {
+  const intakeAddress = String(address || '').trim();
+  if (!intakeAddress) return null;
+  return {
+    address: intakeAddress,
+    status: 'pending',
+    task: 'Parcel and aerial yard review before the site visit',
+    checks: ['Approximate yard dimensions', 'Site access', 'Easements', 'Zoning and setbacks', 'Utilities'],
+    aerialMapUrl: 'https://geocortexweb.cabq.gov/Html5Viewer/index.html?viewer=PublicAMV',
+    zoningMapUrl: `https://cabq.maps.arcgis.com/apps/webappviewer/index.html?id=53bf716981b14d25a31e7a2549c2d61b&find=${encodeURIComponent(intakeAddress)}`,
+  };
+}
+
+function formatIntakeGisReview(review) {
+  if (!review) return 'GIS yard review: address needed; no GIS request prepared.';
+  return [
+    'GIS yard review requested',
+    `Intake address: ${review.address}`,
+    'Status: pending review. Preparing this handoff does not send it or complete GIS analysis.',
+    `${review.task}. Approximate yard dimensions, site access, easements, zoning/setbacks and utilities are unknown until reviewed and confirmed on site. Map measurements are not a survey.`,
+    `City aerial / parcel viewer: ${review.aerialMapUrl}`,
+    `City zoning map (address search): ${review.zoningMapUrl}`,
+    'Confirm the address and parcel visually; the map may select a closest match. The address is sent to the City map only when you open its address-search link.',
+  ].join('\n');
+}
+
 function buildDesignSummary() {
   const model = getOption('model');
   const color = getOption('color');
@@ -8000,6 +8026,7 @@ function buildDesignSummary() {
     phone: data.get('phone') || '',
     bestTime: data.get('bestTime') || '',
     address: data.get('address') || '',
+    gisReview: buildIntakeGisReview(data.get('address')),
     model, color, siding, roof, windows, orientation, outdoor, features, interior, kitchen, bath, utilities, revenue, estimate, matcher, recommendation,
   };
 }
@@ -8007,6 +8034,7 @@ function buildDesignSummary() {
 function renderDesignResult(summary) {
   const body = document.getElementById('design-result-body');
   if (!body) return;
+  const gisReview = buildIntakeGisReview(summary.address);
   body.innerHTML = `
     <div class="design-result-grid">
       <div class="design-result-box"><b>${reportEscape(summary.model.label)}</b><span>${reportEscape(summary.model.sqft)} sq ft selected model</span></div>
@@ -8024,6 +8052,18 @@ function renderDesignResult(summary) {
         <div class="design-result-box"><b>${reportEscape(signal.label)}</b><span>${reportEscape(signal.copy)}</span></div>
       `).join('')}
     </div>
+    <div class="design-result-box" style="margin-top:10px;overflow-wrap:anywhere;">
+      ${gisReview ? `
+        <b>GIS yard review requested · pending</b>
+        <span>Intake address: ${reportEscape(gisReview.address)}</span>
+        <p>Parcel and aerial yard review before the site visit: approximate dimensions, access, easements, zoning/setbacks and utilities remain unknown. Preparing this handoff does not send it or complete GIS analysis.</p>
+        <div class="assessment-actions">
+          <a href="${reportEscape(gisReview.zoningMapUrl)}" target="_blank" rel="noopener noreferrer">Open address in City zoning map</a>
+          <a href="${reportEscape(gisReview.aerialMapUrl)}" target="_blank" rel="noopener noreferrer">Open City aerial / parcel viewer</a>
+        </div>
+        <p>Opening the zoning map sends this address to the City map. Confirm the address and parcel visually; search may select a closest match. Copy the intake address into the aerial viewer. Map measurements are approximate, not a survey.</p>
+      ` : '<b>GIS yard review: address needed; no GIS request prepared.</b>'}
+    </div>
     <p style="color:rgba(28,25,23,.72);line-height:1.55;">
       Contact: <b>${reportEscape(summary.name)}</b>${summary.email ? ` · ${reportEscape(summary.email)}` : ''}${summary.phone ? ` · ${reportEscape(summary.phone)}` : ''}${summary.bestTime ? ` · best time: ${reportEscape(summary.bestTime)}` : ''}<br>
       ${summary.address ? `Property: ${reportEscape(summary.address)}<br>` : ''}
@@ -8035,10 +8075,11 @@ function renderDesignResult(summary) {
   `;
   const signalText = (summary.recommendation?.signals || []).map(signal => `${signal.label}: ${signal.copy}`).join('; ');
   const text = `ABQ ADU homeowner design: ${summary.model.label}, ${summary.model.sqft} sf, ${summary.color.label}, ${summary.siding.label}, ${summary.roof.label}, ${summary.windows.label}, ${summary.orientation.label}, ${summary.outdoor.label}, ${summary.features.label}, ${summary.interior.label}, ${summary.kitchen.label}, ${summary.bath.label}, ${summary.utilities.label}, ${summary.revenue.label}. Estimate ${moneyShort(summary.estimate)}. Recommendation ${summary.recommendation?.score || 'review'}% fit. Signals: ${signalText}. Match answers: ${summary.matcher?.purpose || ''}; ${summary.matcher?.lot || ''}; ${summary.matcher?.beds || ''}; ${summary.matcher?.budget || ''}. Preference: ${summary.matcher?.priority || ''}. Timeline: ${summary.matcher?.timeline || ''}. Contact ${summary.name} ${summary.email} ${summary.phone} best time ${summary.bestTime}${summary.address ? ', property ' + summary.address : ''}.`;
-  const encoded = encodeURIComponent(text);
+  const handoffText = `${text}\n\n${formatIntakeGisReview(gisReview)}`;
+  const encoded = encodeURIComponent(handoffText);
   const builderLink = document.getElementById('design-builder-link');
   if (builderLink) builderLink.href = `platform.html#bids?concept=${encoded}`;
-  window.ABQ_ADU_LAST_DESIGN_SUMMARY = { ...summary, text };
+  window.ABQ_ADU_LAST_DESIGN_SUMMARY = { ...summary, gisReview, text: handoffText };
 }
 
 function openDesignResult() {
@@ -8124,6 +8165,10 @@ function buildDesignSummaryReportHtml(summary) {
         <div class="card"><b>Property</b><span>${reportEscape(summary.address || 'Not provided')}</span></div>
       </div>
       <div class="note">ABQ ADU targets a site visit within 24–72 hours of your inquiry, at a time confirmed with you. Final price and schedule depend on setbacks, utility review, electrical capacity or extra meter needs, sewer confirmation, permitting, and any engineering review.</div>
+    </section>
+    <section>
+      <h2>GIS Yard Review Handoff</h2>
+      <p style="white-space:pre-line;overflow-wrap:anywhere;">${reportEscape(formatIntakeGisReview(buildIntakeGisReview(summary.address)))}</p>
     </section>`;
 }
 
@@ -8149,6 +8194,7 @@ window.addEventListener('afterprint', () => {
 function buildDesignPayload(summary) {
   return {
     source: 'homeowner-tool',
+    gisReview: buildIntakeGisReview(summary.address),
     contact: {
       name: summary.name,
       email: summary.email,
@@ -8717,6 +8763,13 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
             <a id="assessment-download-link" download="abq-adu-assessment-request.txt">Download Request</a>
             <a href="tel:15059777659">Call the GC</a>
           </div>
+          <div id="assessment-gis-links" hidden>
+            <div class="assessment-actions">
+              <a id="assessment-gis-zoning" target="_blank" rel="noopener noreferrer">Open address in City zoning map</a>
+              <a id="assessment-gis-aerial" target="_blank" rel="noopener noreferrer">Open City aerial / parcel viewer</a>
+            </div>
+            <p class="assessment-help">Opening the zoning map sends this address to the City map. Confirm the address and parcel visually; search may select a closest match. Copy the intake address from your request into the aerial viewer.</p>
+          </div>
           <p class="assessment-help" id="assessment-copy-status" role="status"></p>
           <p class="assessment-help">If your device cannot open a text draft, copy or download the request, or call (505) 977-7659.</p>
         </section>
@@ -8823,6 +8876,8 @@ assessmentForm.addEventListener('submit', event => {
   if (!assessmentForm.reportValidity()) return;
   const values = new FormData(assessmentForm);
   const field = name => String(values.get(name) || '').trim();
+  const isAduAssessment = field('service') === 'ADU assessment';
+  const gisReview = isAduAssessment ? buildIntakeGisReview(field('address')) : null;
   const summary = [
     field('service') === 'ADU assessment' ? 'ABQ ADU — Free assessment request' : 'ABQ ADU — Service inquiry',
     '',
@@ -8833,8 +8888,15 @@ assessmentForm.addEventListener('submit', event => {
     `Service: ${field('service')}`,
     ...(field('service') === 'ADU assessment' ? [`Model interest: ${field('model')}`, `Intended use: ${field('use')}`] : []),
     `Notes: ${field('notes') || 'None provided'}`,
+    ...(isAduAssessment ? ['', formatIntakeGisReview(gisReview)] : []),
   ].join('\n');
   assessmentSummary.value = summary;
+  document.getElementById('assessment-gis-links').hidden = !gisReview;
+  for (const [id, url] of [['assessment-gis-zoning', gisReview?.zoningMapUrl], ['assessment-gis-aerial', gisReview?.aerialMapUrl]]) {
+    const link = document.getElementById(id);
+    if (url) link.href = url;
+    else link.removeAttribute('href');
+  }
   document.getElementById('assessment-text-link').href = `sms:15059777659?&body=${encodeURIComponent(summary)}`;
   document.getElementById('assessment-download-link').href = `data:text/plain;charset=utf-8,${encodeURIComponent(summary)}`;
   document.getElementById('assessment-copy-status').textContent = '';

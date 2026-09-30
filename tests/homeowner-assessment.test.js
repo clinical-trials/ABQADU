@@ -108,6 +108,34 @@ test('phone-only requests can be downloaded and edits require a fresh review', t
   assert.match(window.document.querySelector('#assessment-summary').value, /Samantha/);
 });
 
+test('ADU intake prepares pending GIS review for the exact current address and invalidates it on edits', t => {
+  const window = openHomeownerPage(t);
+  const form = assessmentForm(window);
+  window.fetch = () => assert.fail('Preparing GIS review must not send or geocode the intake');
+  enter(window, form, 'firstName', 'Example');
+  enter(window, form, 'email', 'example@example.com');
+  const address = '123 <Main> & First, Albuquerque NM';
+  enter(window, form, 'address', address);
+  form.querySelector('[type="submit"]').click();
+  const summary = window.document.querySelector('#assessment-summary');
+  assert.ok(summary.value.includes(`Intake address: ${address}`));
+  assert.match(summary.value, /GIS yard review requested[\s\S]*pending[\s\S]*does not send/i);
+  assert.match(summary.value, /approximate.*dimensions[\s\S]*access[\s\S]*easements[\s\S]*zoning[\s\S]*utilities/i);
+  const zoning = window.document.querySelector('#assessment-gis-zoning');
+  assert.equal(new URL(zoning.href).searchParams.get('find'), address);
+  assert.equal(window.document.querySelector('#assessment-gis-aerial').href, 'https://geocortexweb.cabq.gov/Html5Viewer/index.html?viewer=PublicAMV');
+  assert.match(window.document.querySelector('#assessment-gis-links').textContent, /confirm.*parcel/i);
+  enter(window, form, 'address', '456 Different Road');
+  assert.equal(window.document.querySelector('#assessment-result').hidden, true);
+  form.querySelector('[type="submit"]').click();
+  assert.equal(new URL(zoning.href).searchParams.get('find'), '456 Different Road');
+  assert.ok(!summary.value.includes(address));
+  enter(window, form, 'address', '');
+  form.querySelector('[type="submit"]').click();
+  assert.match(summary.value, /address needed.*no GIS.*prepared/i);
+  assert.equal(window.document.querySelector('#assessment-gis-links').hidden, true);
+});
+
 test('copy falls back to selecting the summary when clipboard access is unavailable', async t => {
   const window = openHomeownerPage(t);
   const form = assessmentForm(window);
@@ -130,6 +158,7 @@ for (const service of ['Stucco', 'Yardwork', 'House cleaning']) {
     const form = assessmentForm(window);
     enter(window, form, 'firstName', 'Sam');
     enter(window, form, 'email', 'sam@example.com');
+    enter(window, form, 'address', '123 Example Street');
     enter(window, form, 'notes', 'Please call about the work at my home.');
     form.querySelector('[type="submit"]').click();
     const card = window.document.querySelector(`[data-service-request="${service}"]`);
@@ -142,7 +171,7 @@ for (const service of ['Stucco', 'Yardwork', 'House cleaning']) {
     form.querySelector('[type="submit"]').click();
     const summary = window.document.querySelector('#assessment-summary').value;
     assert.ok(summary.includes(`Service: ${service}`));
-    assert.doesNotMatch(summary, /Model interest:|Intended use:/);
+    assert.doesNotMatch(summary, /Model interest:|Intended use:|GIS yard review|City zoning map/);
     assert.ok(decodeURIComponent(window.document.querySelector('#assessment-text-link').href).includes(`Service: ${service}`));
     assert.ok(decodeURIComponent(window.document.querySelector('#assessment-download-link').href).includes(`Service: ${service}`));
     assert.match(window.document.querySelector('#assessment-result').textContent, /not been sent/i);

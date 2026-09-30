@@ -59,6 +59,59 @@ function readBlob(window, blob) {
   });
 }
 
+test('legacy GIS handoff uses current input, keeps drafts intact, and invalidates changed addresses', async t => {
+  const page = openBuilder(t, { hash: '#estimates' });
+  const { window, document } = page;
+  window.fetch = () => assert.fail('Preparing GIS must not send or geocode the intake');
+  const stored = window.localStorage.getItem('abqadu_estimateV9');
+  const address = document.getElementById('estimate-address');
+  address.value = '<img src=x onerror="window.injected=true"> 123 Current & First';
+  document.getElementById('estimate-gis-prepare').click();
+  const result = document.getElementById('estimate-gis-result');
+  const summary = document.getElementById('estimate-gis-summary');
+  assert.equal(result.hidden, false);
+  assert.ok(summary.value.includes(`Intake address: ${address.value}`));
+  assert.match(summary.value, /pending[\s\S]*not been sent/i);
+  assert.equal(new URL(document.getElementById('estimate-gis-zoning').href).searchParams.get('find'), address.value);
+  assert.equal(result.querySelector('img,script,[onerror]'), null);
+  assert.equal(window.injected, undefined);
+  assert.equal(window.localStorage.getItem('abqadu_estimateV9'), stored, 'GIS preparation cannot persist or replace a legacy draft');
+  document.getElementById('estimate-gis-copy').click();
+  await Promise.resolve();
+  assert.equal(document.activeElement, summary);
+  assert.equal(summary.selectionEnd, summary.value.length);
+  assert.match(document.getElementById('estimate-gis-status').textContent, /select|copy/i);
+  address.value = '456 Replacement Road';
+  address.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert.equal(result.hidden, true);
+  document.getElementById('estimate-gis-prepare').click();
+  assert.ok(summary.value.includes(address.value));
+  assert.ok(!summary.value.includes('123 Current'));
+  // Even a programmatic change without an input event must not copy the old address.
+  address.value = '789 Last Road';
+  const copied = [];
+  Object.defineProperty(window.navigator, 'clipboard', { value: { writeText: async text => copied.push(text) } });
+  document.getElementById('estimate-gis-copy').click();
+  await Promise.resolve();
+  assert.deepEqual(copied, []);
+  assert.equal(result.hidden, true);
+  document.getElementById('estimate-gis-prepare').click();
+  document.getElementById('estimate-gis-copy-address').click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.deepEqual(copied, ['789 Last Road']);
+  assert.match(document.getElementById('estimate-gis-status').textContent, /address copied/i);
+  address.value = '890 Changed Without Event';
+  const openMap = new window.MouseEvent('click', { bubbles: true, cancelable: true });
+  document.getElementById('estimate-gis-zoning').dispatchEvent(openMap);
+  assert.equal(openMap.defaultPrevented, true, 'Stale map links cannot open the previous address');
+  assert.equal(result.hidden, true);
+  address.value = '';
+  document.getElementById('estimate-gis-prepare').click();
+  assert.equal(result.hidden, true);
+  assert.match(document.getElementById('estimate-gis-status').textContent, /address needed.*no GIS.*prepared/i);
+  assert.deepEqual(page.errors, []);
+});
+
 test('invalid saved activity dates cannot stop builder startup or overwrite the original', t => {
   const original = JSON.stringify({client:'Existing client',lines:[],activity:[{type:'Created',at:12}]});
   const page = openBuilder(t, {entries:{'abqadu_estimateV9':original}});

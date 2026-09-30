@@ -59,3 +59,10 @@ These are local release checks. The live-host configuration and publishing requi
 - Full backend suite: **638 tests / 47 suites passed**. Full React suite: **309 tests / 25 suites passed**. Public website: **52 tests passed**. Production build succeeded.
 - Browser checks at **390 px and 1280 px** found no horizontal overflow or console errors. Job autofill, unresolved tax, included-tax preview, unsaved-state protection and discard/reload were checked without saving customer agreements. Save/conflict/auth/PDF behavior is covered by isolated fixtures.
 - The fictional four-page PDF was generated and visually inspected; no live customer packet, signature, payable invoice or payment was created. First job/fee confirmation and final business/legal details remain outstanding. See [the workflow and current source limitations](preconstruction-packet.md).
+
+### GIS yard-review continuation verification
+
+- Address-based public/legacy handoff and the private saved review are implemented; see [GIS workflow](gis-yard-review.md). External maps open only on deliberate navigation. Public draft preparation does not deliver a request, and desktop measurements do not establish buildability.
+- **649 backend tests / 48 suites, 335 React tests / 26 suites, and 55 public checks passed.** Production build and public packaging succeeded. Backend saves, history, address invalidation and retries were tested using isolated fixtures.
+- Browser acceptance checked private layouts at 390/1280 px, unknown versus calculated yard rectangle, public mobile pending handoff and address-edit invalidation, without overflow or console errors. No real customer records or external address searches were used. Direct file-page navigation was blocked by browser policy; legacy handoff has automated DOM coverage.
+- Local app restarted with the new API and assets. GitHub source updates are separate from public publishing and hosted provider acceptance; existing launch requirements remain.

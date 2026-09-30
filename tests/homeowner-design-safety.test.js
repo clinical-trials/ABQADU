@@ -82,7 +82,8 @@ test('design result displays contact fields literally without creating executabl
   window.renderDesignResult(window.buildDesignSummary());
   const result = window.document.getElementById('design-result-body');
   for (const value of Object.values(values)) assert.ok(result.textContent.includes(value), value);
-  assert.equal(result.querySelector('img, svg, script, a, [onerror], [onload]'), null);
+  assert.equal(result.querySelector('img, svg, script, a[href^="javascript:"], [onerror], [onload]'), null);
+  for (const link of result.querySelectorAll('a')) assert.ok(['cabq.maps.arcgis.com', 'geocortexweb.cabq.gov'].includes(new URL(link.href).host));
   assert.equal(window.injected, undefined);
 });
 
@@ -146,6 +147,33 @@ test('unconfigured intake explains that manual sharing has not sent the design',
   assert.match(status.textContent, /not been sent/i);
   assert.match(status.textContent, /Text Builder Copy/);
   assert.match(window.document.querySelector('.design-result-actions .email').textContent, /me a copy/i);
+});
+
+test('design summary, print report and payload carry only pending GIS review for the intake address', t => {
+  const { window } = openPage(t);
+  const form = window.document.getElementById('design-contact-form');
+  const address = '<img src=x onerror="window.injected=true"> 123 Example & First';
+  form.elements.namedItem('address').value = address;
+  window.renderDesignResult(window.buildDesignSummary());
+  const summary = window.ABQ_ADU_LAST_DESIGN_SUMMARY;
+  const review = window.buildDesignPayload(summary).gisReview;
+  assert.equal(review.address, address);
+  assert.equal(review.status, 'pending');
+  assert.equal(new URL(review.zoningMapUrl).searchParams.get('find'), address);
+  assert.match(summary.text, /GIS yard review requested/);
+  assert.ok(summary.text.includes(address));
+  assert.ok(decodeURIComponent(window.document.getElementById('design-builder-link').href).includes(summary.text));
+  const report = window.document.createElement('div');
+  report.innerHTML = window.buildDesignSummaryReportHtml(summary);
+  assert.match(report.textContent, /GIS yard review requested[\s\S]*pending/i);
+  assert.ok(report.textContent.includes(address));
+  assert.equal(report.querySelector('[onerror]'), null);
+  assert.equal(window.injected, undefined);
+  form.elements.namedItem('address').value = '';
+  const blank = window.buildDesignSummary();
+  assert.equal(window.buildDesignPayload(blank).gisReview, null);
+  window.renderDesignResult(blank);
+  assert.match(window.ABQ_ADU_LAST_DESIGN_SUMMARY.text, /address needed.*no GIS.*prepared/i);
 });
 
 test('a late receipt for an older design cannot confirm delivery of the current design', async t => {

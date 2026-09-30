@@ -362,6 +362,10 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .estimate-grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) 330px;align-items:start}
 .estimate-card{background:#fff;border:1px solid var(--stucco-d);border-radius:8px;padding:15px}
 .estimate-card h3{font-size:18px;line-height:1;margin-bottom:4px;text-transform:uppercase}
+.estimate-gis p{font-size:14px;line-height:1.5;margin:10px 0;overflow-wrap:anywhere}
+.estimate-gis .estimate-gis-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.estimate-gis .btn{min-height:44px;white-space:normal;text-align:center}
+.estimate-gis textarea{font-size:16px;line-height:1.5;min-height:220px;resize:vertical;width:100%}
 .estimate-form-grid{display:grid;gap:10px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .estimate-form-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .estimate-form-grid .wide{grid-column:1/-1}
@@ -891,7 +895,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <div><label class="fld">Client name</label><input class="in" id="estimate-client" placeholder="Homeowner name"></div>
             <div><label class="fld">Phone</label><input class="in" id="estimate-phone" placeholder="505-977-7659"></div>
             <div><label class="fld">Email</label><input class="in" id="estimate-email" placeholder="client@example.com"></div>
-            <div class="wide"><label class="fld">Job site address</label><input class="in" id="estimate-address" placeholder="Street address, Albuquerque NM"></div>
+            <div class="wide"><label class="fld" for="estimate-address">Job site address</label><input class="in" id="estimate-address" placeholder="Street address, Albuquerque NM" oninput="invalidateEstimateGisReview()"></div>
             <div><label class="fld">Model</label><select class="in" id="estimate-model">
               <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option>
             </select></div>
@@ -902,6 +906,24 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <div><label class="fld">Invoice due date</label><input class="in" id="estimate-due" type="date"></div>
           </div>
         </div>
+
+        <section class="estimate-card estimate-gis no-print" aria-labelledby="estimate-gis-heading">
+          <h3 id="estimate-gis-heading">GIS yard review</h3>
+          <p>Prepare a parcel and aerial review handoff from the job site address above before arranging the site visit. This creates a draft only; it does not send a request or analyze the yard.</p>
+          <button class="btn copper" id="estimate-gis-prepare" type="button" onclick="prepareEstimateGisReview()">Prepare GIS yard review</button>
+          <p id="estimate-gis-status" role="status"></p>
+          <div id="estimate-gis-result" hidden>
+            <label class="fld" for="estimate-gis-summary">Review handoff · pending</label>
+            <textarea class="in" id="estimate-gis-summary" rows="10" readonly></textarea>
+            <div class="estimate-gis-actions">
+              <button class="btn copper" id="estimate-gis-copy" type="button" onclick="copyEstimateGisReview()">Copy review handoff</button>
+              <button class="btn ghost" id="estimate-gis-copy-address" type="button" onclick="copyEstimateGisReview(true)">Copy address</button>
+              <a class="btn ghost" id="estimate-gis-zoning" target="_blank" rel="noopener noreferrer" onclick="return validateEstimateGisReview()">Open address in City zoning map</a>
+              <a class="btn ghost" id="estimate-gis-aerial" target="_blank" rel="noopener noreferrer" onclick="return validateEstimateGisReview()">Open City aerial / parcel viewer</a>
+            </div>
+            <p>Opening the zoning map sends this address to the City map. Confirm the address and parcel visually; search may select a closest match. Paste the copied address into the aerial viewer. Map measurements are approximate, not a survey.</p>
+          </div>
+        </section>
 
         <div class="estimate-card">
           <h3>One-Tap Line Item Library</h3>
@@ -2119,6 +2141,64 @@ let estimateState = store.get('estimateV9', defaultEstimateState(), value=>isSto
   && (value.activity == null || (isStoredRecordList(value.activity)
     && value.activity.every(item => item.at == null || typeof item.at === 'string'))));
 let estimateBound=false;
+let estimateGisPreparedAddress=null;
+function invalidateEstimateGisReview(){
+  if(estimateGisPreparedAddress===null || estimateGisPreparedAddress===String($('#estimate-address')?.value||'').trim())return;
+  estimateGisPreparedAddress=null;
+  $('#estimate-gis-result').hidden=true;
+  $('#estimate-gis-summary').value='';
+  $('#estimate-gis-zoning').removeAttribute('href');
+  $('#estimate-gis-aerial').removeAttribute('href');
+  setText('estimate-gis-status','Address changed. Prepare a new GIS review handoff for the current address.');
+}
+function validateEstimateGisReview(){
+  invalidateEstimateGisReview();
+  return estimateGisPreparedAddress!==null;
+}
+function prepareEstimateGisReview(){
+  const address=String($('#estimate-address')?.value||'').trim();
+  invalidateEstimateGisReview();
+  if(!address){
+    setText('estimate-gis-status','Address needed; no GIS request prepared. Enter the job site address above.');
+    $('#estimate-address')?.focus();
+    return;
+  }
+  const aerialMapUrl='https://geocortexweb.cabq.gov/Html5Viewer/index.html?viewer=PublicAMV';
+  const zoningMapUrl=`https://cabq.maps.arcgis.com/apps/webappviewer/index.html?id=53bf716981b14d25a31e7a2549c2d61b&find=${encodeURIComponent(address)}`;
+  estimateGisPreparedAddress=address;
+  $('#estimate-gis-summary').value=[
+    'GIS yard review requested',
+    `Intake address: ${address}`,
+    'Status: pending review. This draft has not been sent; no GIS analysis has been completed.',
+    'Before the site visit: review the parcel and aerial yard image. Approximate yard dimensions, site access, easements, zoning/setbacks and utilities are unknown until reviewed and confirmed on site. Map measurements are not a survey.',
+    `City aerial / parcel viewer: ${aerialMapUrl}`,
+    `City zoning map (address search): ${zoningMapUrl}`,
+    'Confirm the address and parcel visually; the map may select a closest match.',
+  ].join('\n');
+  $('#estimate-gis-zoning').href=zoningMapUrl;
+  $('#estimate-gis-aerial').href=aerialMapUrl;
+  $('#estimate-gis-result').hidden=false;
+  setText('estimate-gis-status','Review handoff prepared. It has not been sent.');
+  $('#estimate-gis-summary').focus();
+}
+async function copyEstimateGisReview(addressOnly=false){
+  if(!validateEstimateGisReview())return;
+  const preparedAddress=estimateGisPreparedAddress;
+  const summary=$('#estimate-gis-summary');
+  const text=addressOnly ? preparedAddress : summary.value;
+  try{
+    if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(text);
+    if(!validateEstimateGisReview() || estimateGisPreparedAddress!==preparedAddress)return;
+    setText('estimate-gis-status',addressOnly?'Address copied. Paste it into the official map and confirm the parcel.':'Review handoff copied. It has not been sent.');
+  }catch{
+    if(!validateEstimateGisReview() || estimateGisPreparedAddress!==preparedAddress)return;
+    summary.focus();
+    if(addressOnly){const start=summary.value.indexOf(preparedAddress);summary.setSelectionRange(start,start+preparedAddress.length);}
+    else summary.select();
+    setText('estimate-gis-status',`${addressOnly?'Address':'Review handoff'} selected. Use your device's Copy command. Nothing has been sent.`);
+  }
+}
 function normalizeEstimateState(){
   estimateState.lines = Array.isArray(estimateState.lines) ? estimateState.lines : [];
   estimateState.activity = Array.isArray(estimateState.activity) ? estimateState.activity : [];
@@ -2217,6 +2297,7 @@ function renderEstimateTool(){
     'payment-status':estimateState.paymentStatus, 'paid-amount':estimateState.paidAmount, 'paid-date':estimateState.paidDate, 'late-fee':estimateState.lateFee,
   };
   Object.entries(values).forEach(([id,value])=>{const el=$(`#estimate-${id}`); if(el)el.value=value ?? '';});
+  invalidateEstimateGisReview();
   setText('estimate-subtotal', fmt(t.subtotal));
   setText('estimate-discount-out', fmt(t.discount));
   setText('estimate-tax-out', fmt(t.tax));
