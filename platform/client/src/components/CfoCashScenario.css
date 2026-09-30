@@ -1,0 +1,71 @@
+.cfo-cash {
+  --cash-ink: #243f33;
+  --cash-gold: #ab7733;
+  --cash-line: #d7d9c9;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: #fffdf6;
+  color: var(--cash-ink);
+  border: 1px solid var(--cash-line);
+  border-top: 5px solid var(--cash-gold);
+  border-radius: 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  scroll-margin-top: 6rem;
+  overflow-wrap: anywhere;
+}
+.cfo-cash *, .cfo-cash *::before, .cfo-cash *::after { box-sizing: border-box; min-width: 0; }
+.cfo-cash p { margin: .5rem 0; }
+.cfo-cash__heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: .8rem; }
+.cfo-cash .cfo-cash__eyebrow { margin: 0 0 .4rem; font-size: .875rem; text-transform: uppercase; letter-spacing: .09em; font-weight: 800; color: #756039; }
+.cfo-cash h2 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 500; line-height: 1.12; letter-spacing: -.035em; }
+.cfo-cash__badge { border: 1px solid #d5c4a2; border-radius: 2rem; padding: .35rem .7rem; font-size: .875rem; color: #73572d; white-space: nowrap; }
+.cfo-cash .cfo-cash__intro { max-width: 65ch; margin: 1rem 0 1.5rem; }
+.cfo-cash__fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; }
+.cfo-cash__field label { display: block; font-weight: 750; margin-bottom: .45rem; }
+.cfo-cash__field label span { font-weight: 400; color: #586358; }
+.cfo-cash__field input, .cfo-cash__field select {
+  width: 100%; min-height: 48px; padding: .75rem .85rem; border: 1px solid #aeb9a9; border-radius: .55rem;
+  background: #fff; color: var(--cash-ink); font: inherit; font-size: 1rem; font-variant-numeric: tabular-nums;
+}
+.cfo-cash__field input[aria-invalid="true"] { border-color: #9e432a; }
+.cfo-cash__field p, .cfo-cash__calculate p, .cfo-cash__muted, .cfo-cash__basis { color: #546153; font-size: .9375rem; }
+.cfo-cash__calculate { display: flex; flex-direction: column; align-items: stretch; gap: .7rem; margin-top: 1.5rem; }
+.cfo-cash button { min-height: 48px; padding: .8rem 1.15rem; border: 1px solid #244c38; border-radius: .6rem; background: #244c38; color: #fffdf6; font: inherit; font-size: 1rem; font-weight: 750; cursor: pointer; }
+.cfo-cash button:disabled { opacity: .65; cursor: wait; }
+.cfo-cash :focus-visible { outline: 3px solid var(--cash-gold); outline-offset: 3px; }
+.cfo-cash__error { padding: .9rem 1rem; background: #ffede5; color: #813922; border-left: 3px solid #9e432a; }
+.cfo-cash__results { margin-top: 1.8rem; padding-top: 1.5rem; border-top: 1px solid var(--cash-line); }
+.cfo-cash__risk { border-left: 4px solid #4e7350; background: #edf3e8; padding: 1rem; }
+.cfo-cash__risk strong { font-size: 1.15rem; }
+.cfo-cash__risk--negative { border-color: #9e432a; background: #ffede5; color: #783b2a; }
+.cfo-cash__totals { display: grid; grid-template-columns: minmax(0, 1fr); margin: 1.2rem 0; gap: 1rem; }
+.cfo-cash__totals div { border-bottom: 1px solid var(--cash-line); padding-bottom: 1rem; }
+.cfo-cash__totals dt { color: #546153; font-size: .9375rem; }
+.cfo-cash__totals dd { margin: .2rem 0 0; font-size: clamp(1.4rem, 3vw, 2rem); font-family: Georgia, 'Times New Roman', serif; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.cfo-cash__chart { margin: 1.5rem 0; }
+.cfo-cash__chart figcaption { font-weight: 750; }
+.cfo-cash__chart svg { display: block; width: 100%; height: auto; margin-top: .5rem; overflow: visible; }
+.cfo-cash__negative-area { fill: #f8e6da; }
+.cfo-cash__zero { stroke: #846b4b; stroke-width: 1; stroke-dasharray: 5 5; }
+.cfo-cash__line { fill: none; stroke: #315c40; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.cfo-cash__point { fill: #315c40; stroke: #fffdf6; stroke-width: 1; }
+.cfo-cash__point--negative { fill: #a34329; }
+.cfo-cash__chart-labels { display: flex; justify-content: space-between; gap: 1rem; }
+.cfo-cash__weekly { border-top: 1px solid var(--cash-line); border-bottom: 1px solid var(--cash-line); }
+.cfo-cash__weekly summary { min-height: 48px; padding: .85rem .2rem; font-weight: 750; cursor: pointer; }
+.cfo-cash__table-scroll { width: 100%; max-width: 100%; overflow-x: auto; margin-bottom: 1rem; }
+.cfo-cash table { width: 100%; min-width: 40rem; border-collapse: collapse; font-size: 1rem; font-variant-numeric: tabular-nums; }
+.cfo-cash caption { text-align: left; padding: .5rem; color: #546153; }
+.cfo-cash th, .cfo-cash td { padding: .75rem .6rem; border-bottom: 1px solid #e0e2d5; text-align: right; white-space: nowrap; }
+.cfo-cash th:first-child, .cfo-cash td:nth-child(2), .cfo-cash th:nth-child(2) { text-align: left; }
+.cfo-cash thead { background: #edf1e5; }
+.cfo-cash__negative-row td:last-child { color: #8d3e29; font-weight: 750; }
+.cfo-cash .cfo-cash__basis { margin-top: 1rem; max-width: 85ch; }
+@media (min-width: 768px) {
+  .cfo-cash__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; }
+  .cfo-cash__calculate { flex-direction: row; align-items: center; }
+  .cfo-cash__totals { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

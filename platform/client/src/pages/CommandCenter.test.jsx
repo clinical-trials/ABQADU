@@ -22,6 +22,24 @@ afterEach(async () => { await act(async () => root.unmount()); container.remove(
 const button = text => [...container.querySelectorAll('button')].find(el => el.textContent === text);
 const mount = async () => { await act(async () => root.render(<CommandCenter />)); };
 
+test('a CFO office-tools link opens the saved cost tools after the job data loads', async () => {
+  const previous=window.location.href;
+  window.history.replaceState({},'', '/command-center#office-tools');
+  try {
+    await mount();
+    expect(container.querySelector('#office-tools').open).toBe(true);
+    expect(container.querySelector('#office-tools').textContent).toContain('Estimated cost');
+  } finally { window.history.replaceState({},'',previous); }
+});
+test('the operations link scrolls to Project Helper after the saved workspace loads',async()=>{
+  const previous=window.location.href, previousScroll=Element.prototype.scrollIntoView;
+  const scroll=jest.fn();Element.prototype.scrollIntoView=scroll;
+  window.history.replaceState({},'', '/command-center#project-helper');
+  try {
+    await mount();expect(scroll.mock.instances.some(element=>element.id==='project-helper')).toBe(true);
+  } finally { window.history.replaceState({},'',previous);Element.prototype.scrollIntoView=previousScroll; }
+});
+
 test('client preview opens the selected homeowner packet without inventing a client open', async () => {
   await mount();
   const selector = container.querySelector('[aria-label="Active project"]');

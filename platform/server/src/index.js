@@ -59,6 +59,7 @@ function createApp({
   app.use('/api/contractor-desk', contractorDesk.createContractorDeskRouter({ env }));
   app.use('/api/integrations', require('./routes/productionIntegrations'));
   app.use('/api/weather', require('./routes/weather'));
+  app.use('/api/executive', require('./routes/executive').createExecutiveRouter({ env }));
   app.use('/api/project-helper', require('./routes/projectActivity'));
   app.use('/api/project-helper', require('./routes/projectBriefing').createProjectBriefingRouter({ env }));
   app.use('/api/project-helper', require('./routes/projectScheduleLink').createProjectScheduleLinkRouter({ env }));

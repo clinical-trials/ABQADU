@@ -23,6 +23,8 @@ The City-plan copy now links to the [official construction-plan guidance](https:
 
 The real app now has a weekly Project Helper with short audio playback, four-day weather guidance, a persistent connection to the matching construction schedule, risk review and labeled weather/float exposure scenarios. An editable crew-update draft includes four dated forecast entries and attribution; refreshes preserve the contractor’s edits until deliberately replaced. Durable project activity records the latest five saved actions and provides older history, reviewed notes, dictation and prompt templates. Expired weather is withdrawn; notes are not sent automatically. Payment evidence remains in the SQL billing ledger.
 
+The new `/executive` company workspace adds the first virtual CFO review: issued invoice balances, collection exceptions, estimated job margins, accounting gaps, spoken briefing and a temporary thirteen-week cash scenario. Stripe test/unresolved payment histories are separated, missing sources stay unknown and recorded payments do not establish bank cash. The operations and sales roles open existing tools; dedicated autonomous executive agents, bank reconciliation, payables/payroll ledgers and retained cash plans remain future work.
+
 These tools are authenticated backend features. The earlier static `platform.html` file preserves its browser drafts and links to the working app; it is not the production backend. In-app alerts do not establish automatic scheduled SMS delivery.
 
 ## Required before public application launch
@@ -43,10 +45,10 @@ Use the [public release instructions](homeowner-services-release.md) and [platfo
 
 ## Verification checkpoint — September 30
 
-- Full backend suite: **546 tests, 41 suites passed**, including isolated billing and portfolio fixtures, private access, activity/link concurrency and retries, database lookup deadlines, forecast staleness and schedule exposure.
-- Full React suite: **246 tests, 22 suites passed**. Production build succeeded.
+- Full backend suite: **614 tests, 45 suites passed**, including isolated billing and portfolio fixtures, private access, activity/link concurrency and retries, database lookup deadlines, forecast staleness, schedule exposure, CFO payment provenance and exact-cent cash scenarios.
+- Full React suite: **286 tests, 24 suites passed**. Production build succeeded.
 - Public website suite: **52 tests passed**; packaged public-asset exclusion checks passed.
 - Database doctor: all **24 required tables and 28 billing columns** present locally. No migration/reset was run.
-- Browser review: highlighted mobile Design menu, real Text Ian/call links, live NWS numbers, shared briefing/crew forecast, audio controls and notes preserved across project switches. Phone layout checked at 390 px without horizontal overflow. The continuation also verified editable crew drafts survive briefing refresh and saved-connection controls meet phone touch sizes. No browser console errors were observed. Microphone and actual SMS/payment delivery were not invoked.
+- Browser review: highlighted mobile Design menu, real Text Ian/call links, live NWS numbers, shared briefing/crew forecast, audio controls and notes preserved across project switches. Phone layout checked at 390 px without horizontal overflow. The continuation also verified editable crew drafts survive briefing refresh and saved-connection controls meet phone touch sizes. The CFO release also verified temporary cash calculations, stale-result withdrawal, blank inputs after reload, operations navigation after loading and the executive menu entry. No browser console errors were observed. Microphone and actual SMS/payment delivery were not invoked.
 
 These are local release checks. The live-host configuration and publishing requirements above remain outstanding. The GitHub release branch is `codex/version-10-workflows`; a push does not make the hosted application live.

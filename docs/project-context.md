@@ -121,3 +121,10 @@ Final September 30 local verification: 527 backend tests (39 suites), 214 React 
 - Prepare crew update creates an editable, dated four-day draft with source and check time. Forecast refreshes preserve edits and offer deliberate replacement. Copying never claims sending; drafts are temporary and the UI asks contractors to copy them before switching projects.
 - The portfolio aggregates activities and risks separately, fixing multiplied counts when a project has several of each. Stored health thresholds remain unchanged.
 - Continuation verification: **546 backend tests / 41 suites, 246 React tests / 22 suites, and 52 public tests passed**. Production build succeeded. Browser review checked live NWS data, draft retention after refresh, and phone controls at 390 px without overflow or console errors. Persistence, concurrent writers and inactive schedule navigation were verified with isolated fixtures; no customer records were created or edited.
+
+
+### Virtual executive team — September 30 CFO release
+
+The owner requested a virtual CFO as the start of a company executive team. The private `/executive` workspace now provides a CFO financial review and spoken briefing, with operations and sales cards leading to existing tools. It uses recorded invoice/payment evidence, estimates job gross margins, highlights data gaps and offers a temporary thirteen-week cash scenario. These are advisory workspaces; there is no autonomous executive agent or new granular staff role. See [the role and data design](virtual-executive-team.md).
+
+Known Stripe test payments and uncertain payment provenance do not support collection recommendations. Source outages stay unknown, draft invoices are separate from issued balances, and gross profit estimates are before overhead/tax. Bank cash, payables and payroll are not connected. The cash scenario requires explicit opening cash and weekly flows; collection delays move receipts later while outflows retain their timing. Inputs/results are temporary, and edits invalidate earlier projections. No actual payments, account connections or financial-record writes were made for acceptance.

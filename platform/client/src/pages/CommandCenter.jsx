@@ -150,6 +150,18 @@ export default function CommandCenter() {
   const [weatherForecast, setWeatherForecast] = useState(null);
   const [briefingWeather, setBriefingWeather] = useState(null);
   const weatherRequest = useRef(0);
+  const officeTools = useRef(null);
+  const initialReviewOpened = useRef(false);
+  useEffect(() => {
+    const hash=window.location.hash;
+    if (state && !initialReviewOpened.current && ['#office-tools','#project-helper','#document-activity','#trade-bids','#messages'].includes(hash)) {
+      const target=document.getElementById(hash.slice(1));
+      if(!target)return;
+      initialReviewOpened.current = true;
+      if(hash==='#office-tools' && officeTools.current)officeTools.current.open=true;
+      target.scrollIntoView?.({ block: 'start' });
+    }
+  }, [state]);
 
   const loadIntegrations = useCallback(async () => {
     const request = ++integrationRequest.current;
@@ -359,7 +371,7 @@ export default function CommandCenter() {
       <ProjectHelper project={activeProject} revision={state.updated_at} onForecast={setBriefingWeather} onScheduleSaved={load} />
       {activeProject && <DocumentActivity projectId={activeProject.id} revision={state.updated_at} />}
       <ContractorDesk project={activeProject} state={state} forecast={sharedWeather} busy={saving} onCheckWeather={checkWeather} runAction={runAction} onRefresh={load} />
-      <details className="field-office-tools">
+      <details className="field-office-tools" id="office-tools" ref={officeTools} style={{scrollMarginTop:'6rem'}}>
         <summary>Estimates, costs &amp; office tools</summary>
       <main className="v10-shell" style={styles.shell}>
         <section style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
