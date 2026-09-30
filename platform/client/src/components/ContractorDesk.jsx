@@ -120,7 +120,7 @@ export default function ContractorDesk({ project, state, forecast, busy, onCheck
     </section>
     {notice && <p className="field-notice" role="status">{notice}</p>}
 
-    <section className="field-panel field-weather" aria-labelledby="field-weather-heading">
+    <section className="field-panel field-weather" id="trade-weather" aria-labelledby="field-weather-heading">
       <div className="field-section-heading"><div><span className="field-eyebrow">PLAN THE NEXT FOUR DAYS</span><h2 id="field-weather-heading">Weather &amp; your crew</h2><p>{fresh ? forecast.location : 'Albuquerque, New Mexico'} · {dateLabel(days[0].date, { weekday: undefined })}–{dateLabel(days[3].date, { weekday: undefined })}</p></div><button className="field-button field-button-outline" disabled={locked} onClick={onCheckWeather}>Update forecast</button></div>
       <div className="field-weather-controls"><label>Planning for<select aria-label="Weather trade" value={trade} onChange={event => setTrade(event.target.value)}>{trades.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label><p>Forecast guidance first. The contractor confirms any change to the workday.</p></div>
       <div className="field-weather-grid">{days.map(day => {

@@ -1,6 +1,7 @@
 const router = require('../asyncRouter')();
 const {
   getIntegrationStatus,
+  validateSms,
   sendSms,
   ocrSpaceReceipt,
 } = require('../services/productionIntegrations');
@@ -27,16 +28,20 @@ router.get('/clerk/status', (req, res) => {
 
 router.post('/sms/send', async (req, res) => {
   try {
-    const result = await sendSms(req.body || {});
+    const input = validateSms(req.body || {});
     const state = await loadCommandCenter();
-    await saveCommandCenter({
+    if ((state.sms_contact_preferences || []).some(row => row.phone === input.to && row.opted_out)) {
+      return res.status(409).json({ error: 'This contact has opted out of text messages. Use another contact method.' });
+    }
+    const result = await sendSms(input);
+    await saveCommandCenter(current => ({
       activity: [{
         id: `activity-${Date.now()}`,
         type: 'SMS sent',
-        detail: `SMS sent to ${req.body.to}`,
+        detail: `SMS sent to ${input.to}`,
         at: new Date().toISOString(),
-      }, ...(state.activity || [])].slice(0, 40),
-    });
+      }, ...(current.activity || [])].slice(0, 40),
+    }));
     res.status(201).json({ ok: true, sid: result.sid, status: result.status });
   } catch (err) {
     sendError(res, err);

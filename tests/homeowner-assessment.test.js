@@ -170,3 +170,36 @@ test('footer navigation reaches existing sections, model design, or builder tool
   assert.ok(links.some(link => link.getAttribute('href') === 'platform.html#schedule'));
   assert.ok(links.some(link => link.getAttribute('href') === 'platform.html#bids'));
 });
+
+test('mobile navigation starts with Design and Contact reaches direct text and call choices', t => {
+  const window = openHomeownerPage(t);
+  const menu = window.document.getElementById('mobileMenu');
+  const design = menu.querySelector('a');
+  assert.equal(design.getAttribute('href'), '#design');
+  assert.match(design.textContent, /start here/i);
+  window.document.getElementById('hamburger').click();
+  assert.equal(menu.getAttribute('aria-hidden'), 'false');
+  design.click();
+  assert.equal(menu.getAttribute('aria-hidden'), 'true');
+  const contactLinks = [...window.document.querySelectorAll('a')].filter(link => link.textContent.trim() === 'Contact');
+  assert.ok(contactLinks.length >= 2);
+  for (const link of contactLinks) assert.equal(link.getAttribute('href'), '#contact');
+  const contact = window.document.getElementById('contact');
+  assert.ok(contact);
+  const text = contact.querySelector('a[href="sms:15059777659"]');
+  assert.ok(text);
+  assert.equal(text.textContent.trim(), 'Text Ian');
+  assert.ok(contact.querySelector('a[href="tel:15059777659"]'));
+  assert.ok(contact.querySelector('a[href="#assessment-form"]'), 'A written request remains optional');
+  assert.equal(assessmentForm(window).checkValidity(), false, 'Contact options must remain available without filling the form');
+});
+
+test('the financing example links to the lender and makes its regional limit visible', t => {
+  const window = openHomeownerPage(t);
+  const link = window.document.querySelector('#financing a[href="https://lighthousecu.org/loans/home-loans/adu-home-renovation-loans/"]');
+  assert.ok(link);
+  assert.match(link.textContent, /explore adu loan example/i);
+  const card = link.closest('.lender-card');
+  assert.match(card.textContent, /NH, MA, ME and VT/);
+  assert.match(card.textContent, /ask your lender about New Mexico options/i);
+});

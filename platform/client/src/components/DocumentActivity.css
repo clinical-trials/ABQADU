@@ -1,0 +1,22 @@
+.project-activity { background: #fff; border: 1px solid #ded7cb; border-radius: 12px; box-sizing: border-box; color: #1c1917; font-size: 16px; line-height: 1.55; margin: clamp(14px, 4vw, 28px); max-width: 1384px; padding: clamp(16px, 3vw, 28px); min-width: 0; scroll-margin-top: 88px; }
+.project-activity h3 { font-size: 1.35rem; line-height: 1.2; margin: 0 0 .4rem; }
+.project-activity p { font-size: 16px; margin: .45rem 0 .85rem; overflow-wrap: anywhere; }
+.project-activity__heading { align-items: flex-start; display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; justify-content: space-between; }
+.project-activity button { background: #f8f5ef; border: 1px solid #cfc5b6; border-radius: 6px; color: #243d32; cursor: pointer; font: inherit; font-size: 16px; line-height: 1.35; min-height: 44px; padding: .7rem 1rem; }
+.project-activity button:hover:not(:disabled) { background: #eee8dd; }
+.project-activity button:disabled { cursor: default; opacity: .6; }
+.project-activity button:focus-visible, .project-activity textarea:focus-visible { outline: 3px solid #9e642d; outline-offset: 3px; }
+.project-activity__events { list-style: none; margin: 1rem 0; padding: 0; }
+.project-activity__events li { border-top: 1px solid #e8e2d8; padding: 1rem 0 .3rem; }
+.project-activity__events p { white-space: pre-wrap; }
+.project-activity__event-meta { display: flex; flex-wrap: wrap; gap: .25rem 1rem; justify-content: space-between; }
+.project-activity__event-meta time { color: #625c53; font-size: 16px; }
+.project-activity__note { border-top: 1px solid #ded7cb; margin-top: 1.5rem; padding-top: 1.5rem; }
+.project-activity__note label { display: block; font-size: 1.1rem; font-weight: 700; }
+.project-activity__templates, .project-activity__actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: .8rem 0; }
+.project-activity textarea { background: #fffefa; border: 1px solid #b5a997; border-radius: 6px; box-sizing: border-box; color: #1c1917; font: inherit; font-size: 16px; line-height: 1.55; min-height: 140px; padding: .9rem; resize: vertical; width: 100%; }
+.project-activity__count { color: #625c53; }
+.project-activity .project-activity__save { background: #3d5247; border-color: #3d5247; color: #fff; }
+.project-activity .project-activity__save:hover:not(:disabled) { background: #283c31; }
+.project-activity [role="alert"] { color: #8b3324; }
+@media (max-width: 480px) { .project-activity__actions button { flex: 1 1 100%; } .project-activity__heading > button { width: 100%; } }

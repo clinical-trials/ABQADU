@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { getWeatherKitStatus } = require('./weatherKit');
 const { getWeatherStatus } = require('./weatherProvider');
+const { normalizePhone } = require('./contractorDesk');
 
 const REQUIRED = {
   stripe: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_SUCCESS_URL', 'STRIPE_CANCEL_URL'],
@@ -77,16 +78,21 @@ function parseReceiptText(text) {
 }
 
 
-async function sendSms({ to, body }) {
+function validateSms({ to, body } = {}) {
+  const recipient = normalizePhone(to);
+  if (typeof body !== 'string' || !body.trim() || body.length > 1600
+    || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(body)) {
+    throw Object.assign(new Error('SMS body must contain 1 to 1600 characters without control characters.'), { status: 400 });
+  }
+  return { to: recipient, body: body.trim() };
+}
+
+async function sendSms(input) {
+  const { to, body } = validateSms(input);
   if (!configured(REQUIRED.twilio)) {
     const err = new Error('Twilio SMS is not configured');
     err.status = 409;
     err.details = providerStatus('twilio');
-    throw err;
-  }
-  if (!to || !body) {
-    const err = new Error('SMS requires both to and body');
-    err.status = 400;
     throw err;
   }
   const twilio = require('twilio');
@@ -155,6 +161,7 @@ module.exports = {
   REQUIRED,
   getIntegrationStatus,
   parseReceiptText,
+  validateSms,
   sendSms,
   ocrSpaceReceipt,
   verifyClerkShape,

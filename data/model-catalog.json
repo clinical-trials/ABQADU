@@ -2,117 +2,192 @@
   "builderReadyModels": [
     {
       "id": "hyder-hut",
-      "name": "Netherwood House",
+      "modelId": "netherwood-440",
+      "name": "Netherwood 440",
       "squareFeet": 440,
-      "variation": "HH1, 12.5x35, 1 bed, 1 bath, covered deck",
-      "orientationOptions": ["left-hand", "right-hand"],
-      "source": "v1 website confirmed"
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "type": "ADU",
+      "variation": "1 bedroom, 1 bath; confirm final dimensions against approved plans",
+      "orientationOptions": [
+        "left-hand",
+        "right-hand"
+      ],
+      "source": "Current ABQ ADU project catalog"
     },
     {
       "id": "hyder-hut-2br",
-      "name": "Netherwood House 2BR",
+      "modelId": "netherwood-550",
+      "name": "Netherwood 550",
       "squareFeet": 550,
-      "variation": "12.5x44, 2 bed, 1 bath, central great room",
-      "orientationOptions": ["left-hand", "right-hand"],
-      "source": "v1 website confirmed"
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "type": "ADU",
+      "variation": "2 bedroom, 1 bath; confirm final dimensions against approved plans",
+      "orientationOptions": [
+        "left-hand",
+        "right-hand"
+      ],
+      "source": "Current ABQ ADU project catalog"
     },
     {
       "id": "altura-24x24",
-      "name": "Altura 24x24",
+      "modelId": "altura-576",
+      "name": "Altura 576",
       "squareFeet": 576,
-      "variation": "24x24, 1 bed, 1 bath, walk-in closet, patio",
-      "orientationOptions": ["left-hand", "right-hand"],
-      "source": "v1 website confirmed"
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "type": "ADU",
+      "variation": "1 bedroom, 1 bath; confirm final dimensions against approved plans",
+      "orientationOptions": [
+        "left-hand",
+        "right-hand"
+      ],
+      "source": "Current ABQ ADU project catalog"
     },
     {
-      "id": "casita-portal",
-      "name": "Casita Portal",
-      "squareFeet": 640,
-      "variation": "L-shaped, 2 bed, 1 bath, covered portal porch",
-      "orientationOptions": ["left-hand", "right-hand"],
-      "source": "v1 website confirmed"
-    },
-    {
-      "id": "tierra-grande",
-      "name": "Tierra Grande",
-      "squareFeet": 780,
-      "variation": "2 bed, 2 bath, flex room, income-property layout",
-      "orientationOptions": ["left-hand", "right-hand"],
-      "source": "v1 website confirmed"
+      "id": "altura-650",
+      "modelId": "altura-650",
+      "name": "Altura 650",
+      "squareFeet": 650,
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "type": "ADU",
+      "variation": "2 bedroom, 1 bath; confirm final dimensions against approved plans",
+      "orientationOptions": [
+        "left-hand",
+        "right-hand"
+      ],
+      "source": "Current ABQ ADU project catalog"
     },
     {
       "id": "cromwell",
-      "name": "Cromwell",
+      "modelId": "cromwell-1280",
+      "name": "Cromwell 1280",
       "squareFeet": 1280,
-      "variation": "2 bed, 1.5 bath, two-story, porch, rear deck, storage loft",
-      "orientationOptions": ["confirm"],
-      "source": "v1 website confirmed"
+      "bedrooms": 2,
+      "bathrooms": 1.5,
+      "type": "Single Family",
+      "variation": "2 bedroom, 1.5 bath; confirm final dimensions against approved plans",
+      "orientationOptions": [
+        "confirm"
+      ],
+      "source": "Current ABQ ADU project catalog"
+    },
+    {
+      "id": "series-750",
+      "modelId": "series-750",
+      "name": "750 Series",
+      "squareFeet": 750,
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "type": "ADU",
+      "variation": "2 bedroom, 1 bath; confirm final dimensions against approved plans",
+      "orientationOptions": [
+        "left-hand",
+        "right-hand"
+      ],
+      "source": "Current ABQ ADU project catalog"
     }
   ],
   "abqaduSourceModels": [
     {
-      "id": "altura-source",
-      "name": "Altura",
+      "id": "hyder-hut",
+      "modelId": "netherwood-440",
+      "name": "Netherwood 440",
+      "squareFeet": 440,
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "type": "ADU",
+      "source": "Current ABQ ADU project catalog"
+    },
+    {
+      "id": "hyder-hut-2br",
+      "modelId": "netherwood-550",
+      "name": "Netherwood 550",
+      "squareFeet": 550,
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "type": "ADU",
+      "source": "Current ABQ ADU project catalog"
+    },
+    {
+      "id": "altura-24x24",
+      "modelId": "altura-576",
+      "name": "Altura 576",
       "squareFeet": 576,
-      "variation": "ABQADU source page notes Altura 1 or 2 bed; v1 confirms 24x24 at 576 sf",
-      "source": "ABQADU designs page plus v1 website"
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "type": "ADU",
+      "source": "Current ABQ ADU project catalog"
     },
     {
-      "id": "netherwood",
-      "name": "Netherwood",
-      "squareFeet": null,
-      "variation": "ABQADU source model; square footage and bedroom/bath count need confirmation",
-      "source": "ABQADU designs page"
+      "id": "altura-650",
+      "modelId": "altura-650",
+      "name": "Altura 650",
+      "squareFeet": 650,
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "type": "ADU",
+      "source": "Current ABQ ADU project catalog"
     },
     {
-      "id": "burton",
-      "name": "Burton",
-      "squareFeet": null,
-      "variation": "ABQADU source model; square footage and bedroom/bath count need confirmation",
-      "source": "ABQADU designs page"
+      "id": "cromwell",
+      "modelId": "cromwell-1280",
+      "name": "Cromwell 1280",
+      "squareFeet": 1280,
+      "bedrooms": 2,
+      "bathrooms": 1.5,
+      "type": "Single Family",
+      "source": "Current ABQ ADU project catalog"
     },
     {
-      "id": "townhouse",
-      "name": "Townhouse",
-      "squareFeet": null,
-      "variation": "ABQADU source model; square footage and bedroom/bath count need confirmation",
-      "source": "ABQADU designs page"
-    },
-    {
-      "id": "the-750",
-      "name": "The 750",
+      "id": "series-750",
+      "modelId": "series-750",
+      "name": "750 Series",
       "squareFeet": 750,
-      "variation": "750 sf city-plan size; use flat, pitched, or 3D concrete-print variant",
-      "source": "ABQADU designs page and CABQ plan set"
-    },
-    {
-      "id": "flex-barn",
-      "name": "Flex Barn",
-      "squareFeet": null,
-      "variation": "ABQADU source model; square footage and bedroom/bath count need confirmation",
-      "source": "ABQADU designs page"
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "type": "ADU",
+      "source": "Current ABQ ADU project catalog"
     }
   ],
   "cityPlanVariations": [
     {
       "squareFeet": 450,
       "label": "Compact Studio",
-      "variants": ["flat roof", "pitched roof", "3D concrete print"]
+      "variants": [
+        "flat roof",
+        "pitched roof",
+        "3D concrete print"
+      ]
     },
     {
       "squareFeet": 550,
       "label": "1-Bedroom",
-      "variants": ["flat roof", "pitched roof", "3D concrete print"]
+      "variants": [
+        "flat roof",
+        "pitched roof",
+        "3D concrete print"
+      ]
     },
     {
       "squareFeet": 650,
       "label": "1-Bedroom",
-      "variants": ["flat roof", "pitched roof", "3D concrete print"]
+      "variants": [
+        "flat roof",
+        "pitched roof",
+        "3D concrete print"
+      ]
     },
     {
       "squareFeet": 750,
       "label": "Largest City Plan",
-      "variants": ["flat roof", "pitched roof", "3D concrete print"]
+      "variants": [
+        "flat roof",
+        "pitched roof",
+        "3D concrete print"
+      ]
     }
   ]
 }

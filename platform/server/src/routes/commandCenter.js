@@ -1,6 +1,8 @@
 const router = require('../asyncRouter')();
+const { randomUUID } = require('node:crypto');
 const { createClientPacketPdf } = require('../services/clientPacketPdf');
 const { OWNED_FIELDS } = require('../services/contractorDesk');
+const { createActivityEvent } = require('../services/activityEvents');
 const {
   loadCommandCenter,
   saveCommandCenter,
@@ -87,17 +89,48 @@ router.post('/reset', async (_req, res) => {
 });
 
 router.post('/activity', async (req, res) => {
-  const state = await loadCommandCenter();
-  const activity = Array.isArray(state.activity) ? state.activity : [];
-  const item = {
-    id: `activity-${Date.now()}`,
-    type: req.body?.type || 'Builder note',
-    detail: req.body?.detail || 'Version 10 builder activity logged.',
-    at: new Date().toISOString(),
-  };
-  res.status(201).json(await saveCommandCenter({
-    activity: [item, ...activity].slice(0, 40),
-  }));
+  const body = req.body === undefined ? {} : req.body;
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return res.status(400).json({ error: 'Expected an activity object.' });
+  }
+  const type = body.type === undefined ? 'Builder note' : body.type;
+  const detail = body.detail === undefined ? 'Version 10 builder activity logged.' : body.detail;
+  const scoped = Object.prototype.hasOwnProperty.call(body, 'project_id');
+  if (typeof type !== 'string' || !type.trim() || type.length > 80 || /[\u0000-\u001f\u007f]/.test(type)) {
+    return res.status(400).json({ error: 'Activity type must contain 1 to 80 characters without control characters.' });
+  }
+  if (typeof detail !== 'string' || !detail.trim() || detail.length > 2000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(detail)) {
+    return res.status(400).json({ error: 'Activity detail must contain 1 to 2000 characters without control characters.' });
+  }
+  if (scoped && (typeof body.project_id !== 'string' || !body.project_id.trim() || body.project_id.length > 120 || /[\u0000-\u001f\u007f]/.test(body.project_id))) {
+    return res.status(400).json({ error: 'Invalid project ID.' });
+  }
+  let event;
+  try {
+    const saved = await saveCommandCenter(current => {
+      if (scoped && !findProject(current, body.project_id)) {
+        throw Object.assign(new Error('Project not found.'), { status: 404 });
+      }
+      const item = {
+        id: `activity-${randomUUID()}`, type: type.trim(), detail: detail.trim(), at: new Date().toISOString(),
+        ...(scoped ? { project_id: body.project_id } : {}),
+      };
+      if (scoped) {
+        const textDraft = item.type === 'Builder text';
+        event = createActivityEvent({
+          project_id: body.project_id, actor_id: req.workspaceAuth.userId,
+          type: textDraft ? 'text.draft_logged' : 'note.logged',
+          summary: textDraft ? 'Saved text draft for review.' : 'Saved project note.', text: item.detail,
+        });
+      }
+      return { activity: [item, ...(Array.isArray(current.activity) ? current.activity : [])].slice(0, 40) };
+    }, { events: () => event ? [event] : [] });
+    res.set('Cache-Control', 'private, no-store');
+    return res.status(201).json(saved);
+  } catch (error) {
+    if (error.status === 404) return res.status(404).json({ error: error.message });
+    throw error;
+  }
 });
 
 router.post('/projects/:projectId/apply-model', async (req, res) => {
@@ -150,6 +183,10 @@ router.get('/projects/:projectId/client-packet.pdf', async (req, res) => {
 
   try {
     const pdf = await createClientPacketPdf(createClientViewPreview(project));
+    await saveCommandCenter(() => ({}), { events: [createActivityEvent({
+      project_id: project.id, type: 'document.generated', summary: 'Generated client packet PDF.',
+      actor_id: req.workspaceAuth.userId,
+    })] });
     const filenameId = String(project.id || 'project').replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 80);
     res.set({
       'Content-Type': 'application/pdf',

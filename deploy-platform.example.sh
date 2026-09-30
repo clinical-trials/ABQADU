@@ -16,7 +16,14 @@ ssh "$TARGET_HOST" "mkdir -p '$TARGET_DIR/platform/client' '$TARGET_DIR/platform
 rsync -az --delete platform/client/build/ "$TARGET_HOST:$TARGET_DIR/platform/client/build/"
 rsync -az --delete \
   --exclude='node_modules' \
+  --exclude='/.env' \
+  --exclude='/.env.*' \
+  --exclude='/config/' \
+  --exclude='/backups/' \
   --exclude='/data/' \
+  --exclude='*.pem' \
+  --exclude='*.key' \
+  --exclude='*.p8' \
   platform/server/ "$TARGET_HOST:$TARGET_DIR/platform/server/"
 
 ssh "$TARGET_HOST" "cd '$TARGET_DIR/platform/server' && npm install --omit=dev"

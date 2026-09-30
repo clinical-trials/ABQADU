@@ -28,6 +28,7 @@ function createApp({
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Authorization', 'Content-Type'],
   }), auth.requireSession);
+  app.use('/api', require('./services/activityEvents').activityContextMiddleware);
   app.use(express.json({ limit: '15mb' }));
   app.get('/api/auth/session', (req, res) => res.json({ userId: req.workspaceAuth.userId }));
   app.delete('/api/auth/local-session', auth.revokeLocalSession);
@@ -58,6 +59,8 @@ function createApp({
   app.use('/api/contractor-desk', contractorDesk.createContractorDeskRouter({ env }));
   app.use('/api/integrations', require('./routes/productionIntegrations'));
   app.use('/api/weather', require('./routes/weather'));
+  app.use('/api/project-helper', require('./routes/projectActivity'));
+  app.use('/api/project-helper', require('./routes/projectBriefing').createProjectBriefingRouter({ env }));
 
   app.use('/api', (_req, res) => res.status(404).json({ error: 'API endpoint not found' }));
 

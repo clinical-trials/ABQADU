@@ -1,11 +1,15 @@
 const { runDoctor, REQUIRED_TABLES } = require('../scripts/doctor');
 
-function database({ missing = [], failure } = {}) {
+function database({ missing = [], missingColumns = [], failure } = {}) {
   const statements = [];
   const client = {
     query: jest.fn(async (sql, values) => {
       statements.push(sql);
       if (sql.startsWith('SELECT')) {
+        if (values.length === 2) return { rows: values[0].map((table, index) => ({
+          table_name: table, column_name: values[1][index],
+          present: !missing.includes(table) && !missingColumns.includes(`${table}.${values[1][index]}`),
+        })) };
         return { rows: values[0].map(name => ({ table_name: name, present: !missing.includes(name) })) };
       }
       return { rows: [] };
@@ -31,7 +35,7 @@ test('healthy database returns success after a read-only required-table check', 
   const db = database();
   const report = output();
   expect(await runDoctor({ pool: db.pool, log: report.log })).toBe(0);
-  expect(report.lines.join('\n')).toMatch(/22 required tables/i);
+  expect(report.lines.join('\n')).toMatch(/24 required tables/i);
   expect(report.lines.join('\n')).toMatch(/Command Center.*separate/i);
   expect(db.statements[0]).toBe('BEGIN READ ONLY');
   expect(db.statements.at(-1)).toBe('ROLLBACK');
@@ -39,6 +43,34 @@ test('healthy database returns success after a read-only required-table check', 
   expect(db.client.release).toHaveBeenCalledTimes(1);
   expect(db.pool.end).toHaveBeenCalledTimes(1);
   expect(REQUIRED_TABLES).toEqual(expect.arrayContaining(['projects', 'clients', 'invoices', 'design_templates', 'invoice_engine_events']));
+});
+
+test('an older database without Stripe ledger tables fails with additive migration guidance', async () => {
+  const db = database({ missing: ['stripe_checkout_attempts', 'stripe_webhook_events'] });
+  const report = output();
+  expect(await runDoctor({ pool: db.pool, log: report.log })).toBe(1);
+  const text = report.lines.join('\n');
+  expect(text).toMatch(/stripe_checkout_attempts.*stripe_webhook_events/);
+  expect(text).toMatch(/007_billing_ledger\.sql/);
+  expect(text).toMatch(/do not replay/i);
+  expect(text).not.toMatch(/^READY:/m);
+});
+
+test.each([
+  'clients.command_center_source_key',
+  'invoices.source_snapshot',
+  'invoices.invoiceshelf_remote_status',
+  'payments.manual_request_key',
+  'payments.stripe_checkout_session_id',
+  'stripe_checkout_attempts.request_payload',
+  'stripe_webhook_events.event_id',
+])('a partially applied billing migration missing %s is not ready', async column => {
+  const db = database({ missingColumns: [column] });
+  const report = output();
+  expect(await runDoctor({ pool: db.pool, log: report.log })).toBe(1);
+  expect(report.lines.join('\n')).toContain(column);
+  expect(report.lines.join('\n')).toMatch(/007_billing_ledger\.sql/);
+  expect(report.lines.join('\n')).not.toMatch(/^READY:/m);
 });
 
 test('missing tables return failure with safe fresh-database and existing-database instructions', async () => {

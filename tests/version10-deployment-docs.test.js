@@ -23,6 +23,7 @@ contains(guide, 'COMMAND_CENTER_STORE_PATH');
 contains(script, 'TARGET_HOST');
 contains(script, 'platform/client/build');
 contains(script, 'platform/server');
-contains(index, 'Version 10 Homeowner Design Experience');
+contains(index, 'id="assessment-form"');
+contains(index, 'href="platform.html"');
 
 console.log('Version 10 deployment docs checks passed');

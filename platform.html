@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ABQ ADU — Platform (Version 10)</title>
-<link rel="icon" type="image/png" href="favicon.png?v=7-builder">
-<link rel="apple-touch-icon" href="favicon.png?v=7-builder">
+<link rel="icon" type="image/png" href="favicon.png?v=adobe-20260930">
+<link rel="apple-touch-icon" href="favicon.png?v=adobe-20260930">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
@@ -806,6 +806,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 </style>
 </head>
 <body>
+<aside class="no-print" style="padding:16px clamp(16px,4vw,32px);background:#edf3eb;color:#243f33;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:16px;line-height:1.5" aria-label="Saved workspace">
+  <div style="flex:1 1 260px"><strong>This is the earlier browser prototype.</strong><br>Open the working app for saved project activity, weather briefings and voice notes. Drafts in this file stay here.</div>
+  <a id="saved-workspace-link" href="/command-center" style="padding:12px 18px;min-height:44px;border-radius:8px;background:#254e3b;color:#fff;text-decoration:none;font-weight:700">Open saved workspace →</a>
+</aside>
+<script>if(location.protocol==='file:')document.getElementById('saved-workspace-link').href='http://localhost:4000/command-center';</script>
 
 <header class="topbar">
   <div class="logo">ABQ <span>ADU</span></div>
@@ -986,7 +991,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         </div>
         <div class="estimate-card">
           <h3>Document Activity</h3>
-          <div class="muted" style="font-size:12px">Prototype activity log. Real notifications need backend delivery.</div>
+          <div class="muted" style="font-size:12px">Earlier browser-only history. Open the saved workspace above for durable activity and reviewed voice notes.</div>
           <div class="estimate-activity" id="estimate-activity"></div>
         </div>
         <div class="estimate-card">

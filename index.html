@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ABQ ADU — Albuquerque's Tiny Home Builders</title>
-<link rel="icon" type="image/png" href="favicon.png?v=7-abqadu-live">
-<link rel="apple-touch-icon" href="favicon.png?v=7-abqadu-live">
+<link rel="icon" type="image/png" href="favicon.png?v=adobe-20260930">
+<link rel="apple-touch-icon" href="favicon.png?v=adobe-20260930">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
@@ -460,14 +460,15 @@ h1 em {
 .hero-trust-inner {
   display: grid;
   gap: 18px;
-  grid-template-columns: minmax(0, 1.3fr) minmax(280px, .7fr);
+  grid-template-columns: minmax(0, 1fr);
   margin: 0 auto;
   max-width: var(--max);
 }
 
-.hero-trust-inner .credential-ribbon,
 .hero-trust-inner .hero-phone-card {
   margin-top: 0;
+  max-width: none;
+  justify-content: space-between;
 }
 
 /* ─── Section base ────────────────────────────────────────── */
@@ -3773,6 +3774,11 @@ h2 em { font-style: normal; color: var(--terra); }
   line-height: 1.6;
 }
 
+.lender-example-link { display: inline-flex; align-items: center; min-height: 48px; padding: .75rem 1rem; margin-top: 1rem; background: var(--sage); border-radius: 4px; color: var(--white); font-size: .875rem; font-weight: 700; line-height: 1.4; text-decoration: none; }
+.lender-example-link:hover { text-decoration: underline; }
+.lender-card .lender-example-note { margin-top: .75rem; font-size: .875rem; }
+.lender-example-link:focus-visible { outline: 3px solid var(--terra); outline-offset: 3px; }
+
 .lender-tag {
   background: rgba(196,149,74,.14);
   border-radius: 999px;
@@ -4035,7 +4041,7 @@ h2 em { font-style: normal; color: var(--terra); }
 .home-services { padding-bottom: 3.5rem; margin-bottom: 3.5rem; border-bottom: 1px solid rgba(240,235,225,.25); }
 .home-services > p { max-width: 42rem; margin: 1rem 0 1.75rem; font-size: 1rem; line-height: 1.65; }
 .home-services h2 em { color: var(--copper-l); }
-#contractors, #assessment-form { scroll-margin-top: 5.5rem; }
+#contractors, #contact, #assessment-form { scroll-margin-top: 5.5rem; }
 .home-service-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
 .home-service-card { display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; padding: 1.5rem; background: var(--stucco); color: var(--blueprint); border: 2px solid transparent; border-radius: .25rem; text-decoration: none; min-width: 0; }
 .home-service-card:hover { background: var(--white); border-color: var(--copper); }
@@ -4183,6 +4189,17 @@ h2 em { font-style: normal; color: var(--terra); }
 
 /* ─── ADU Qualifier ───────────────────────────────────────── */
 .qualifier-section { background: var(--stucco-d); }
+.contact-panel { padding: clamp(1.5rem, 4vw, 3rem); margin-bottom: 3.5rem; border-radius: 8px; background: var(--blueprint); color: var(--stucco); }
+.contact-panel .section-eyebrow { color: var(--copper-l); }
+.contact-panel h2 { color: var(--white); font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 1rem; }
+.contact-panel > p { max-width: 42rem; font-size: 1rem; line-height: 1.6; }
+.contact-actions { display: flex; flex-direction: column; gap: .75rem; margin: 1.5rem 0 1rem; }
+.contact-actions a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .875rem 1.25rem; border: 1px solid var(--copper-l); border-radius: 4px; color: var(--white); font-size: 1rem; font-weight: 700; text-decoration: none; }
+.contact-actions .contact-text { color: var(--blueprint); background: var(--copper-l); }
+.contact-panel a:focus-visible { outline: 3px solid var(--copper-l); outline-offset: 4px; }
+.contact-actions a:hover { text-decoration: underline; }
+.contact-panel .contact-form-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: .5rem; color: var(--copper-l); text-underline-offset: 3px; }
+@media (min-width: 768px) { .contact-actions { flex-direction: row; } }
 
 .qualifier-layout {
   display: grid;
@@ -4521,6 +4538,7 @@ footer {
   border-bottom: 1px solid rgba(255,255,255,.08);
 }
 .mobile-menu.open { display: block; }
+.mobile-menu { max-height: calc(100dvh - 62px); overflow-y: auto; }
 .mobile-menu ul { list-style: none; display: flex; flex-direction: column; gap: 0; }
 .mobile-menu ul li a {
   display: block;
@@ -4534,6 +4552,11 @@ footer {
 }
 .mobile-menu ul li:last-child a { border-bottom: none; }
 .mobile-menu ul li a:hover { color: var(--copper); }
+.mobile-menu ul li a.mobile-design-start { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 76px; padding: 1rem 1.25rem; margin-bottom: .75rem; border: 0; border-radius: 5px; background: var(--copper-l); color: var(--blueprint); }
+.mobile-design-start .mobile-start-hint { display: block; font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.mobile-design-start strong { display: block; margin-top: .2rem; font-size: 1.25rem; line-height: 1.25; }
+.mobile-design-start > span:last-child { font-size: 1.75rem; }
+.mobile-menu a:focus-visible { outline: 3px solid var(--copper-l); outline-offset: 3px; }
 .mobile-menu .mobile-cta {
   display: block;
   margin-top: 20px;
@@ -5169,14 +5192,16 @@ footer {
 }
 
 @media print {
+  body.adu-match-report-print,
+  body.design-summary-print { overflow: visible !important; }
   body.adu-match-report-print > *:not(#design) { display: none !important; }
   body.adu-match-report-print #design {
     background: #fff !important;
     color: #1C1917 !important;
     padding: 0 !important;
   }
-  body.adu-match-report-print #design > *:not(.design-experience) { display: none !important; }
-  body.adu-match-report-print .design-experience > *:not(.design-entry-stage) { display: none !important; }
+  body.adu-match-report-print #design > *:not(.section-inner) { display: none !important; }
+  body.adu-match-report-print #design > .section-inner > *:not(.design-entry-stage) { display: none !important; }
   body.adu-match-report-print .design-entry-stage {
     display: block !important;
     max-width: none !important;
@@ -5498,7 +5523,7 @@ footer {
     </div>
     ABQ ADU
   </a>
-  <span class="version-pill">Version 10</span>
+  <span class="version-pill">Albuquerque</span>
   <ul class="nav-links">
     <li><a href="#models">Models</a></li>
     <li><a href="#process">Process</a></li>
@@ -5506,7 +5531,7 @@ footer {
     <li><a href="#design">Design</a></li>
     <li><a href="#financing">Financing</a></li>
     <li><a href="#contractors">Local Trades</a></li>
-    <li><a href="#quote">Contact</a></li>
+    <li><a href="#contact">Contact</a></li>
     <li><a href="platform.html" class="nav-cta nav-cta-desktop">Builder Platform</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
@@ -5517,13 +5542,13 @@ footer {
 <!-- Mobile menu -->
 <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
   <ul>
+    <li><a href="#design" class="mobile-link mobile-design-start"><span><span class="mobile-start-hint">Start here</span><strong>Design your ADU</strong></span><span aria-hidden="true">→</span></a></li>
     <li><a href="#models" class="mobile-link">Models</a></li>
     <li><a href="#process" class="mobile-link">Process</a></li>
     <li><a href="#platform" class="mobile-link">Platform</a></li>
-    <li><a href="#design" class="mobile-link">Design</a></li>
     <li><a href="#financing" class="mobile-link">Financing</a></li>
     <li><a href="#contractors" class="mobile-link">Local Trades</a></li>
-    <li><a href="#quote" class="mobile-link">Contact</a></li>
+    <li><a href="#contact" class="mobile-link">Contact</a></li>
     <li><a href="platform.html" class="mobile-link">Builder Platform</a></li>
   </ul>
   <a href="platform.html" class="mobile-cta mobile-link">Builder Platform</a>
@@ -5532,11 +5557,11 @@ footer {
 <!-- ── Hero ─────────────────────────────────────────────── -->
 <section class="hero" style="max-width:100%;padding-top:120px;">
   <div class="hero-content">
-    <div class="hero-version-pill">Version 10 Homeowner Design Experience</div>
+    <div class="hero-version-pill">Find your backyard home</div>
     <div class="hero-eyebrow">Albuquerque, New Mexico</div>
     <h1>We Build<br><em>ADUs</em><br>That Last.</h1>
     <p class="hero-desc">
-      Seven proven models. Local licensed contractors.
+      Five starting designs. A local team.
       From design to final inspection — we manage every phase
       of your accessory dwelling unit, from a compact studio
       to a full two-bedroom guesthouse.
@@ -5547,16 +5572,16 @@ footer {
     </div>
     <div class="hero-stats">
       <div>
-        <div class="stat-num">7</div>
-        <div class="stat-label">Proven Designs</div>
+        <div class="stat-num">5</div>
+        <div class="stat-label">Starting Designs</div>
       </div>
       <div>
-        <div class="stat-num">47</div>
-        <div class="stat-label">ADUs Built</div>
+        <div class="stat-num">1–2</div>
+        <div class="stat-label">Bedroom Options</div>
       </div>
       <div>
-        <div class="stat-num">NM<span>–</span>GC</div>
-        <div class="stat-label">Licensed & Bonded</div>
+        <div class="stat-num">ABQ</div>
+        <div class="stat-label">Local Site Review</div>
       </div>
     </div>
   </div>
@@ -5568,15 +5593,8 @@ footer {
   </div>
 </section>
 
-<section class="hero-trust-strip" aria-label="ABQ ADU credentials and phone contact">
+<section class="hero-trust-strip" aria-label="ABQ ADU phone contact">
   <div class="hero-trust-inner">
-    <div class="credential-ribbon" aria-label="ADU Specialist directory listing">
-      <div class="credential-seal"><img src="images/adu-specialist-logo.png" alt="ADU Specialist logo"></div>
-      <div>
-        <div class="credential-title">We are an accredited <a href="https://www.aduspecialist.org/" target="_blank" rel="noopener">ADU specialist</a>.</div>
-        <div class="credential-copy">Our team is listed in the ADU Specialist directory as an Architect / Designer / Builder, and we are the only one in New Mexico with this designation. <a class="credential-link" href="https://www.aduspecialist.org/directory" target="_blank" rel="noopener">Click here to see the directory</a>.</div>
-      </div>
-    </div>
     <div class="hero-phone-card">
       <div>
         <b>Prefer the phone?</b>
@@ -5593,9 +5611,9 @@ footer {
     <div class="models-header">
       <div>
         <div class="section-eyebrow">Our Portfolio</div>
-        <h2>Seven Proven<br><em>Designs</em></h2>
+        <h2>Five Starting<br><em>Designs</em></h2>
       </div>
-      <p class="section-sub" style="max-width:360px;">Each model is permitted-ready for Bernalillo County. Click a model to open the Version 10 design tool and customize that exact ADU.</p>
+      <p class="section-sub" style="max-width:360px;">Choose a starting design and explore the finishes. Site fit, utilities, pricing, and permits are confirmed for your property before construction.</p>
     </div>
 
     <!-- Row 1: 3 cards -->
@@ -5610,7 +5628,7 @@ footer {
         <div class="model-info">
           <div class="model-name">Netherwood House</div>
           <div class="model-specs">HH1 · 1 Bed · 1 Bath · 440 sq ft · 12.5×35</div>
-          <div class="model-desc">Open-plan living with a queen bedroom, walk-in closet, full bath, and laundry. Low-profile standing seam metal roof with a covered deck — our most popular compact model.</div>
+          <div class="model-desc">Open-plan living with a queen bedroom, walk-in closet, full bath, and laundry. Low-profile standing seam metal roof with a covered deck.</div>
           <div class="model-tags">
             <span class="tag">1 Bedroom</span>
             <span class="tag">Covered deck</span>
@@ -5625,7 +5643,7 @@ footer {
           <div class="model-price">from $168,000 <small>turnkey est.</small></div>
           <div class="model-actions">
             <button class="model-design-btn" type="button" onclick="designSpecificModel('hyder-hut')">Design This Model</button>
-            <div class="model-design-note">Opens Version 10 customization for the Netherwood House.</div>
+            <div class="model-design-note">Customize the Netherwood House layout and finishes.</div>
           </div>
         </div>
       </div>
@@ -5662,7 +5680,7 @@ footer {
         <div class="model-info">
           <div class="model-name">Altura</div>
           <div class="model-specs">1 Bed · 1 Bath · 576 sq ft · Walk-in Closet</div>
-          <div class="model-desc">The square classic. Walk-in closet, patio, full kitchen with island, and an open living area with clerestory windows. Our highest resale-value model.</div>
+          <div class="model-desc">The square classic. Walk-in closet, patio, full kitchen with island, and an open living area with clerestory windows.</div>
           <div class="model-tags">
             <span class="tag">Walk-in closet</span>
             <span class="tag">Patio</span>
@@ -5783,13 +5801,13 @@ footer {
       </div>
       <div>
         <p class="city-desc">
-          The City of Albuquerque offers 12 pre-approved ADU construction plans — donated by local architects and already meeting current building codes. Download any plan free of charge and bring it straight to us for a build quote.
+          The City of Albuquerque offers free casita construction plans in four sizes, with flat-roof, pitched-roof, and 3D-printable options. Bring a plan you like to your site review.
         </p>
         <p class="city-desc" style="margin-bottom:0;">
-          Plans come in four sizes (450–750 sq ft), three roof styles, and include a 3D-printable concrete option for each size. For a typical homeowner ADU, 750 sq ft is the practical maximum planning size. Flat-roof plans are permit-ready as-is; pitched-roof plans require a stamped structural drawing from a licensed NM engineer — which we can arrange.
+          The plans range from 450 to 750 sq ft. A site plan, permit review, and trade permits are still required. Pitched-roof options need the supplier's truss details sealed by a New Mexico licensed structural engineer.
         </p>
         <p class="city-note" style="margin-top:16px;">
-          Already have one of these plans? Skip the design phase entirely — bring us your city plan and we'll provide a fixed-price construction bid within 48 hours.
+          Already have a city plan? Bring it with your property information so we can discuss site work, utility connections, and a construction estimate.
         </p>
       </div>
     </div>
@@ -5980,7 +5998,7 @@ footer {
         </div>
         <h2 style="color:var(--stucco);">From Lot to<br><em style="color:var(--copper);">Move-In.</em></h2>
       </div>
-      <p class="process-sub">We manage every phase — design, permits, site prep, construction, and final inspection. Most ABQ ADUs complete in 90 days from signed contract.</p>
+      <p class="process-sub">Plan the path from design and permits to site prep, construction, and final inspection. Your project schedule is confirmed after site and permit review.</p>
     </div>
 
     <div class="process-grid">
@@ -6036,7 +6054,7 @@ footer {
           </div>
           <div class="step-num">03</div>
           <div class="step-title">Permitting</div>
-          <div class="step-desc">We submit the permit application to Albuquerque Development Services on your behalf and track approval. Typical approval: 4–8 weeks. We handle all revisions.</div>
+          <div class="step-desc">We prepare the site-specific permit package and coordinate review and revisions. Approval dates depend on the property, engineering, and the reviewing authority.</div>
         </div>
       </div>
 
@@ -6058,7 +6076,7 @@ footer {
           </div>
           <div class="step-num">04</div>
           <div class="step-title">Construction</div>
-          <div class="step-desc">Licensed trade crews handle every phase — foundation, framing, MEP, insulation, drywall, and finish. Weekly updates. Weather-managed scheduling via SMS.</div>
+          <div class="step-desc">Coordinate foundation, framing, electrical, plumbing, insulation, and finishes. Review progress and weather with the contractor before changing a workday.</div>
         </div>
       </div>
     </div>
@@ -6075,8 +6093,8 @@ footer {
         Built-In Project Control
         <span style="display:block;width:24px;height:1px;background:var(--copper);"></span>
       </div>
-      <h2>Every project runs<br><em style="color:var(--copper);">on the schedule.</em></h2>
-      <p>We run every ABQ ADU on a professional construction management platform — the same tools used by commercial general contractors, purpose-built for ADU timelines.</p>
+      <h2>A clearer view<br><em style="color:var(--copper);">of the work ahead.</em></h2>
+      <p>Our builder workspace brings project plans, estimates, and weather guidance together. Your contractor confirms the schedule and how updates will be shared with you.</p>
     </div>
 
     <!-- Feature cards -->
@@ -6084,22 +6102,22 @@ footer {
       <div class="pf-card">
         <div class="pf-icon">📐</div>
         <div class="pf-title">CPM Scheduling</div>
-        <div class="pf-desc">Every activity sequenced with finish-to-start, start-to-start, and finish-to-finish logic. The critical path updates automatically when anything shifts — no manual recalculation.</div>
+        <div class="pf-desc">Plan activities in the order work needs to happen. Review dependencies and the critical path when the project schedule changes.</div>
       </div>
       <div class="pf-card">
         <div class="pf-icon">📊</div>
-        <div class="pf-title">Live Gantt Chart</div>
-        <div class="pf-desc">Visual timeline showing every phase from permit submission to final inspection. Drag-to-reschedule when conditions change. Baseline comparison shows planned vs. actual at a glance.</div>
+        <div class="pf-title">Project Timeline</div>
+        <div class="pf-desc">See the planned phases from site preparation to inspection, with dates and progress recorded by the project team.</div>
       </div>
       <div class="pf-card">
         <div class="pf-icon">👷</div>
-        <div class="pf-title">Crew Dispatch</div>
-        <div class="pf-desc">Field tasks assigned daily to each trade. Crews confirm via SMS — no app needed. Weather-aware scheduling means your concrete pour doesn't land on a 35°F morning.</div>
+        <div class="pf-title">Crew Coordination</div>
+        <div class="pf-desc">Prepare a clear bid scope and text draft for the right trade. The contractor reviews replies and confirms each workday.</div>
       </div>
       <div class="pf-card">
         <div class="pf-icon">⚡</div>
         <div class="pf-title">Resource Loading</div>
-        <div class="pf-desc">Every framer, electrician, plumber, and concrete crew tracked against availability. Overallocation flagged before it becomes a delay. Leveling resolves conflicts within float automatically.</div>
+        <div class="pf-desc">Review crew assignments alongside the schedule so overlapping work and availability can be discussed before the next phase.</div>
       </div>
       <div class="pf-card">
         <div class="pf-icon">🛡</div>
@@ -6109,7 +6127,7 @@ footer {
       <div class="pf-card">
         <div class="pf-icon">📈</div>
         <div class="pf-title">Forecasting</div>
-        <div class="pf-desc">We read the schedule every week and flag delay risks, write client briefings, and recommend recovery actions — before you have to ask.</div>
+        <div class="pf-desc">Check the next four days of weather and review conditions for concrete, roofing, excavation, and general construction.</div>
       </div>
     </div>
 
@@ -6119,7 +6137,7 @@ footer {
         <div class="gm-dot" style="background:#B85C38;"></div>
         <div class="gm-dot" style="background:#C4954A;"></div>
         <div class="gm-dot" style="background:#3D5247;"></div>
-        <span class="gantt-mockup-title">ABQ ADU — 147 Paseo Del Norte — Schedule View</span>
+        <span class="gantt-mockup-title">Example project schedule · illustrative preview</span>
         <span style="margin-left:auto;font-size:10px;color:rgba(196,149,74,.6);letter-spacing:.08em;">● CRITICAL PATH ACTIVE · 14 ACTIVITIES · 78% COMPLETE</span>
       </div>
       <div class="gantt-mockup-body">
@@ -6214,11 +6232,11 @@ footer {
     <!-- Project control feature badges -->
     <div class="control-badge-strip">
       <div class="control-badge">Critical path auto-identified</div>
-      <div class="control-badge">Delay forecast updated daily</div>
+      <div class="control-badge">Four-day weather review</div>
       <div class="control-badge">Planned vs. actual tracked</div>
-      <div class="control-badge">Crew SMS confirmation</div>
+      <div class="control-badge">Reviewed crew text drafts</div>
       <div class="control-badge">Risk register with scoring</div>
-      <div class="control-badge">Weekly client briefings</div>
+      <div class="control-badge">Weekly project briefings</div>
       <div class="control-badge">Executive PDF reports</div>
     </div>
 
@@ -6257,7 +6275,7 @@ footer {
                 <span>One question per screen. The last step shows the best one or two models to review with ABQ ADU.</span>
               </div>
             </div>
-            <div class="adu-match-step-note">Version 10</div>
+            <div class="adu-match-step-note">Your preferences</div>
           </div>
           <div id="adu-matchmaker-questions"></div>
           <div class="adu-match-result" id="adu-matchmaker-result"></div>
@@ -6631,7 +6649,7 @@ footer {
     <div class="design-result-actions">
       <button class="print" type="button" onclick="printDesignSummary()">Print / Save PDF</button>
       <button class="text" type="button" onclick="textDesignSummary()">Text Me a Copy</button>
-      <button class="email" type="button" onclick="emailDesignSummary()">Email Summary</button>
+      <button class="email" type="button" onclick="emailDesignSummary()">Email Me a Copy</button>
       <button class="builder-text" type="button" onclick="textBuilderDesignSummary()">Text Builder Copy</button>
       <a class="builder" id="design-builder-link" href="platform.html#bids" target="_blank" rel="noopener">Builder Review</a>
     </div>
@@ -7233,17 +7251,19 @@ function buildHomeownerReportShell(title, bodyHtml) {
 
 function openHomeownerPrintReport(title, bodyHtml) {
   const doc = buildHomeownerReportShell(title, bodyHtml);
-  const printWindow = window.open('', '_blank');
-  if (!printWindow || !printWindow.document) {
-    document.open();
-    document.write(doc);
-    document.close();
+  let printWindow;
+  try {
+    printWindow = window.open('', '_blank');
+    if (!printWindow || !printWindow.document) return false;
+    printWindow.document.open();
+    printWindow.document.write(doc);
+    printWindow.document.close();
     return true;
+  } catch {
+    // Keep the current page and every unsent form intact; callers can print in place.
+    try { printWindow?.close(); } catch {}
+    return false;
   }
-  printWindow.document.open();
-  printWindow.document.write(doc);
-  printWindow.document.close();
-  return true;
 }
 
 function buildAduMatchReportHtml() {
@@ -7761,14 +7781,81 @@ function resetAduDraft() {
   updateAduDraftStatus(ADU_DRAFT_STORAGE_ISSUE ? `Draft reset. ${temporaryAduDraftMessage()}` : 'Draft reset and saved');
 }
 
+let homeownerDialogState = null;
+
+function homeownerDialogControls(modal) {
+  return [...modal.querySelectorAll('a[href], button, input, select, textarea, [tabindex]')].filter(control => {
+    if (control.disabled || control.tabIndex < 0) return false;
+    for (let element = control; element && element !== modal; element = element.parentElement) {
+      const style = window.getComputedStyle(element);
+      if (element.hidden || style.display === 'none' || style.visibility === 'hidden') return false;
+    }
+    return true;
+  });
+}
+
+function openHomeownerDialog(modal) {
+  if (!homeownerDialogState) {
+    const returnFocus = document.activeElement;
+    const inertElements = [];
+    // Keep the dialog's ancestors available while removing every other page branch from interaction.
+    for (let branch = modal; branch.parentElement; branch = branch.parentElement) {
+      for (const sibling of branch.parentElement.children) {
+        if (sibling === branch || ['SCRIPT', 'STYLE', 'LINK'].includes(sibling.tagName)) continue;
+        inertElements.push([sibling, sibling.inert === true]);
+        sibling.inert = true;
+      }
+      if (branch.parentElement === document.body) break;
+    }
+    homeownerDialogState = { modal, returnFocus, overflow: document.body.style.overflow, inertElements };
+  }
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('.design-modal-close, .design-result-close')?.focus();
+}
+
+function closeHomeownerDialog(modal) {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (homeownerDialogState?.modal !== modal) return;
+  const state = homeownerDialogState;
+  homeownerDialogState = null;
+  for (const [element, wasInert] of state.inertElements) element.inert = wasInert;
+  document.body.style.overflow = state.overflow;
+  if (state.returnFocus?.isConnected) state.returnFocus.focus();
+}
+
+document.addEventListener('keydown', event => {
+  const modal = homeownerDialogState?.modal;
+  if (!modal) return;
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    event.stopPropagation();
+    if (modal.id === 'design-modal') closeAduDesignModal();
+    else closeDesignResult();
+    return;
+  }
+  if (event.key !== 'Tab') return;
+  const controls = homeownerDialogControls(modal);
+  const first = controls[0];
+  const last = controls[controls.length - 1];
+  if (!first) return;
+  if (event.shiftKey && (document.activeElement === first || !modal.contains(document.activeElement))) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (document.activeElement === last || !modal.contains(document.activeElement))) {
+    event.preventDefault();
+    first.focus();
+  }
+}, true);
+
 function openAduDesignModal(restoreDraft = false) {
   if (restoreDraft) restoreAduDraft();
   renderAduConfigurator();
   const modal = document.getElementById('design-modal');
   if (!modal) return;
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
+  openHomeownerDialog(modal);
   scrollAduModalToTop();
 }
 
@@ -7776,9 +7863,7 @@ function closeAduDesignModal() {
   saveAduDraft();
   const modal = document.getElementById('design-modal');
   if (!modal) return;
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
+  closeHomeownerDialog(modal);
 }
 
 function renderAduConfigurator({ saveDraft = true } = {}) {
@@ -7924,25 +8009,26 @@ function renderDesignResult(summary) {
   if (!body) return;
   body.innerHTML = `
     <div class="design-result-grid">
-      <div class="design-result-box"><b>${summary.model.label}</b><span>${summary.model.sqft} sq ft selected model</span></div>
+      <div class="design-result-box"><b>${reportEscape(summary.model.label)}</b><span>${reportEscape(summary.model.sqft)} sq ft selected model</span></div>
       <div class="design-result-box"><b>${moneyShort(summary.estimate)}</b><span>Planning estimate before 24-hour site visit</span></div>
-      <div class="design-result-box"><b>${summary.siding.label}</b><span>Exterior finish</span></div>
-      <div class="design-result-box"><b>${summary.windows.label}</b><span>Door and window package</span></div>
-      <div class="design-result-box"><b>${summary.interior.label}</b><span>Interior finish</span></div>
-      <div class="design-result-box"><b>${summary.utilities.label}</b><span>Utility review</span></div>
-      <div class="design-result-box"><b>${summary.matcher?.purpose || 'Purpose saved'}</b><span>Why the homeowner wants the ADU</span></div>
-      <div class="design-result-box"><b>${summary.matcher?.timeline || 'Timeline saved'}</b><span>Sales follow-up timing</span></div>
-      <div class="design-result-box"><b>${summary.recommendation?.score || 'Fit'}%</b><span>Recommendation confidence</span></div>
+      <div class="design-result-box"><b>${reportEscape(summary.siding.label)}</b><span>Exterior finish</span></div>
+      <div class="design-result-box"><b>${reportEscape(summary.windows.label)}</b><span>Door and window package</span></div>
+      <div class="design-result-box"><b>${reportEscape(summary.interior.label)}</b><span>Interior finish</span></div>
+      <div class="design-result-box"><b>${reportEscape(summary.utilities.label)}</b><span>Utility review</span></div>
+      <div class="design-result-box"><b>${reportEscape(summary.matcher?.purpose || 'Purpose saved')}</b><span>Why the homeowner wants the ADU</span></div>
+      <div class="design-result-box"><b>${reportEscape(summary.matcher?.timeline || 'Timeline saved')}</b><span>Sales follow-up timing</span></div>
+      <div class="design-result-box"><b>${reportEscape(summary.recommendation?.score || 'Fit')}%</b><span>Recommendation confidence</span></div>
     </div>
     <div class="design-result-grid" style="margin-top:10px;">
       ${(summary.recommendation?.signals || []).map(signal => `
-        <div class="design-result-box"><b>${signal.label}</b><span>${signal.copy}</span></div>
+        <div class="design-result-box"><b>${reportEscape(signal.label)}</b><span>${reportEscape(signal.copy)}</span></div>
       `).join('')}
     </div>
     <p style="color:rgba(28,25,23,.72);line-height:1.55;">
-      Contact: <b>${summary.name}</b>${summary.email ? ` · ${summary.email}` : ''}${summary.phone ? ` · ${summary.phone}` : ''}${summary.bestTime ? ` · best time: ${summary.bestTime}` : ''}<br>
-      Match answers: ${summary.matcher?.purpose || 'Purpose not captured'} · ${summary.matcher?.lot || 'Lot not captured'} · ${summary.matcher?.beds || 'Beds not captured'} · ${summary.matcher?.budget || 'Budget not captured'}<br>
-      Saved preference: ${summary.matcher?.priority || 'Preference not captured'} · ${summary.matcher?.timeline || 'Timeline not captured'}<br>
+      Contact: <b>${reportEscape(summary.name)}</b>${summary.email ? ` · ${reportEscape(summary.email)}` : ''}${summary.phone ? ` · ${reportEscape(summary.phone)}` : ''}${summary.bestTime ? ` · best time: ${reportEscape(summary.bestTime)}` : ''}<br>
+      ${summary.address ? `Property: ${reportEscape(summary.address)}<br>` : ''}
+      Match answers: ${reportEscape(summary.matcher?.purpose || 'Purpose not captured')} · ${reportEscape(summary.matcher?.lot || 'Lot not captured')} · ${reportEscape(summary.matcher?.beds || 'Beds not captured')} · ${reportEscape(summary.matcher?.budget || 'Budget not captured')}<br>
+      Saved preference: ${reportEscape(summary.matcher?.priority || 'Preference not captured')} · ${reportEscape(summary.matcher?.timeline || 'Timeline not captured')}<br>
       ABQ ADU · Albuquerque, New Mexico · abqadu.com<br>
       This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24 hours of the customer call. Site utilities, extra meter needs, sewer confirmation study, setbacks, permitting, and engineering review can affect final price and schedule.
     </p>
@@ -7958,15 +8044,13 @@ function renderDesignResult(summary) {
 function openDesignResult() {
   const modal = document.getElementById('design-result-modal');
   if (!modal) return;
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
+  openHomeownerDialog(modal);
 }
 
 function closeDesignResult() {
   const modal = document.getElementById('design-result-modal');
   if (!modal) return;
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
+  closeHomeownerDialog(modal);
   document.body.classList.remove('design-summary-print');
 }
 
@@ -8110,11 +8194,11 @@ function setDesignSendStatus(state) {
   if (state === 'sending') {
     el.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Sending your design to ABQ ADU…</span>';
   } else if (state === 'sent') {
-    el.innerHTML = '<span>✓ Sent to ABQ ADU — we have your design and will reach out within one business day.</span>';
+    el.innerHTML = '<span>✓ ABQ ADU confirmed receipt of your design request.</span>';
   } else if (state === 'manual') {
-    el.innerHTML = '<span>Builder backend is not connected on this static preview yet. Use “Text Builder Copy,” print, or email so the design reaches Ian and ABQ ADU.</span>';
+    el.innerHTML = '<span>Your design has not been sent. Use “Text Builder Copy,” review the draft in your messaging app, and send it to ABQ ADU, or call (505) 977-7659. Print or email a copy for your own records.</span>';
   } else if (state === 'error') {
-    el.innerHTML = '<span>We could not reach ABQ ADU right now. Your copy is saved below — please print, text, or email it so nothing is lost.</span><button class="retry" type="button" onclick="sendDesignToBuilder()">Retry send</button>';
+    el.innerHTML = '<span>Delivery has not been confirmed. Use “Text Builder Copy” to review and send the request yourself, or call (505) 977-7659. You can also print or email a copy for your records.</span><button class="retry" type="button" onclick="sendDesignToBuilder()">Retry send</button>';
   }
 }
 
@@ -8133,10 +8217,13 @@ async function sendDesignToBuilder() {
       body: JSON.stringify(buildDesignPayload(summary)),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    await res.json().catch(() => ({}));
-    setDesignSendStatus('sent');
+    const receipt = await res.json();
+    if (receipt?.accepted !== true || typeof receipt.requestId !== 'string' || !receipt.requestId.trim()) {
+      throw new Error('The intake service did not confirm acceptance.');
+    }
+    if (window.ABQ_ADU_LAST_DESIGN_SUMMARY === summary) setDesignSendStatus('sent');
   } catch (err) {
-    setDesignSendStatus('error');
+    if (window.ABQ_ADU_LAST_DESIGN_SUMMARY === summary) setDesignSendStatus('error');
   }
 }
 
@@ -8325,28 +8412,30 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <div class="section-eyebrow">Financing Partners</div>
         <h2>Make the ADU<br><em>Feel Possible.</em></h2>
         <p>
-          Many homeowners need lending options before they can say yes. We are working to create a clean path for banks, credit unions, and specialty lenders to support homeowner prequalification workflows, advertise ADU lending options, and help families compare financing before the site visit.
+          Start with a project budget you feel comfortable discussing. Your bank or credit union can explain available financing, eligibility, rates, and repayment terms.
         </p>
         <p>
-          Lenders should contact ABQ ADU for homeowner prequalification workflows. We are always looking for good prices and good lenders to assist New Mexicans and their families.
+          Bring your budget range to the site visit. We can discuss the construction scope while your lender confirms financing. This website does not issue loans or approve credit.
         </p>
       </div>
 
       <div class="lender-cards">
         <div class="lender-card">
           <span class="lender-tag">Bank / Credit Union</span>
-          <h3>ADU Loan Placement</h3>
-          <p>Sponsored local lender cards for construction loans, HELOCs, and renovation financing. Start with education, then add referral tracking.</p>
+          <h3>Talk with your lender</h3>
+          <p>Ask which financing options fit your property and plans, and what documents the lender needs from your builder.</p>
+          <a class="lender-example-link" href="https://lighthousecu.org/loans/home-loans/adu-home-renovation-loans/" target="_blank" rel="noopener" aria-label="Explore ADU loan example at Lighthouse Credit Union (opens in a new tab)">Explore ADU loan example <span aria-hidden="true">&nbsp;↗</span></a>
+          <p class="lender-example-note">Financing example · available in NH, MA, ME and VT; ask your lender about New Mexico options.</p>
         </div>
         <div class="lender-card">
-          <span class="lender-tag">Homeowner Tool</span>
-          <h3>Payment Estimate</h3>
-          <p>Show rough monthly payment ranges alongside the dynamic ADU price so homeowners can understand budget before giving contact info.</p>
+          <span class="lender-tag">Project Budget</span>
+          <h3>Compare the full cost</h3>
+          <p>Discuss construction, site work, utility connections, permits, and a contingency before agreeing to a project budget.</p>
         </div>
         <div class="lender-card">
-          <span class="lender-tag">Revenue Angle</span>
-          <h3>Income Offset</h3>
-          <p>Let families compare multigenerational use, long-term rental, and event rental scenarios such as Balloon Fiesta and Zozobra.</p>
+          <span class="lender-tag">Your Plans</span>
+          <h3>Plan for everyday use</h3>
+          <p>Tell us whether the space is for family, guests, work, or a rental. That helps shape the layout, privacy, and finish choices.</p>
         </div>
       </div>
     </div>
@@ -8469,10 +8558,21 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
 <!-- ── ADU Qualifier / Quote Form ────────────────────────── -->
 <section class="qualifier-section" id="quote" style="max-width:100%;padding:96px var(--gutter);">
   <div class="section-inner">
+    <section class="contact-panel" id="contact" aria-labelledby="contact-heading">
+      <div class="section-eyebrow">Contact</div>
+      <h2 id="contact-heading">Talk with Ian.</h2>
+      <p>Have a question about an ADU, stucco, yardwork, or house cleaning? Text or call Ian at (505) 977-7659 to discuss your project.</p>
+      <div class="contact-actions">
+        <a class="contact-text" href="sms:15059777659">Text Ian</a>
+        <a href="tel:15059777659">Call Ian · (505) 977-7659</a>
+      </div>
+      <p>Text Ian opens your messaging app. Review your message there and send it when you’re ready.</p>
+      <a class="contact-form-link" href="#assessment-form">Prefer to write it down? Use the optional request form.</a>
+    </section>
     <div class="qualifier-layout">
       <div>
         <div class="section-eyebrow">Is an ADU Right For You?</div>
-        <h2>What You<br>Need to<br><em>Qualify.</em></h2>
+        <h2>Start With<br>Your<br><em>Property.</em></h2>
         <div class="qualifier-list">
           <div class="qualifier-item">
             <div class="q-icon">
@@ -8481,8 +8581,8 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
               </svg>
             </div>
             <div>
-              <div class="q-title">Lot Size ≥ 5,000 sq ft</div>
-              <div class="q-desc">Albuquerque requires a minimum lot size for ADU eligibility. We verify this on our first visit — no charge.</div>
+              <div class="q-title">Zoning and Lot Layout</div>
+              <div class="q-desc">Review your property's zoning, lot coverage, existing structures, and access before choosing a final design.</div>
             </div>
           </div>
           <div class="qualifier-item">
@@ -8493,8 +8593,8 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
               </svg>
             </div>
             <div>
-              <div class="q-title">Owner-Occupied Primary Home</div>
-              <div class="q-desc">You must live in the primary residence on the lot under current Albuquerque ADU rules.</div>
+              <div class="q-title">Your Intended Use</div>
+              <div class="q-desc">Tell us how you plan to use the space. Confirm the rules that apply to your address and use with the local planning authority.</div>
             </div>
           </div>
           <div class="qualifier-item">
@@ -8506,8 +8606,8 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
               </svg>
             </div>
             <div>
-              <div class="q-title">Adequate Setbacks Available</div>
-              <div class="q-desc">ADUs require 3 ft rear and side setbacks in most zones. Our site visit confirms placement options before you commit.</div>
+              <div class="q-title">Setbacks and Utilities</div>
+              <div class="q-desc">A site plan needs to account for property lines, easements, drainage, and utility connections. Requirements vary by location.</div>
             </div>
           </div>
           <div class="qualifier-item">
@@ -8518,16 +8618,16 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
               </svg>
             </div>
             <div>
-              <div class="q-title">Clear Title & No HOA Prohibition</div>
-              <div class="q-desc">We help you verify HOA CC&Rs and title conditions before any costs are incurred.</div>
+              <div class="q-title">Site and Permit Review</div>
+              <div class="q-desc">Bring available surveys and property documents. Review the <a href="https://www.cabq.gov/planning/accessory-dwelling-unit" target="_blank" rel="noopener">City of Albuquerque's ADU guidance</a> with your design team.</div>
             </div>
           </div>
         </div>
       </div>
 
       <form class="qualifier-cta-box" id="assessment-form" aria-describedby="assessment-help">
-        <h3>Get Your<br>Free Quote</h3>
-        <p>Tell us about your ADU plans or the work you need around your home. Prepare a request below, then send it to ABQ ADU so we can discuss availability and next steps.</p>
+        <h3>Optional<br>Request Form</h3>
+        <p>Write down your ADU plans or the work you need around your home. Prepare a request below, then send it to Ian so we can discuss availability and next steps.</p>
         <p style="background:#F8F2E7;border:1px solid rgba(196,149,74,.32);border-radius:8px;color:#57534E;font-size:14px;line-height:1.5;margin:0 0 18px;padding:12px;">
           <b style="color:#1C1917;">Prefer the phone?</b> If you'd rather speak on the phone, give us a call. We're actual people who will pick up the phone or return your call to schedule a free site visit with the general contractor.
           <a href="tel:15059777659" style="color:#B85C38;font-weight:900;text-decoration:none;">Call the GC</a>
@@ -8624,57 +8724,11 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
   </div>
 </section>
 
-<!-- ── Testimonials ────────────────────────────────────────── -->
-<section class="testimonials-section" style="max-width:100%;padding:80px var(--gutter);">
-  <div class="section-inner">
-    <div class="section-eyebrow">What Clients Say</div>
-    <h2>Built on<br><em>Trust.</em></h2>
-    <div class="testimonials-grid">
-      <div class="testimonial-card">
-        <div class="stars">★★★★★</div>
-        <div class="testimonial-quote">"</div>
-        <div class="testimonial-text">We wanted a private space for my mother-in-law and got exactly that — on time, on budget, and it looks better than anything we saw online. The Altura model was perfect.</div>
-        <div class="testimonial-author">
-          <div class="author-avatar">RC</div>
-          <div>
-            <div class="author-name">Roberto & Carmen V.</div>
-            <div class="author-location">North Valley, Albuquerque</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars">★★★★★</div>
-        <div class="testimonial-quote">"</div>
-        <div class="testimonial-text">The text message scheduling was a game changer. I always knew which crew was on site and when. Our Netherwood House is now renting for $1,600/month — paid for itself faster than expected.</div>
-        <div class="testimonial-author">
-          <div class="author-avatar">PL</div>
-          <div>
-            <div class="author-name">Patricia L.</div>
-            <div class="author-location">Nob Hill, Albuquerque</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars">★★★★★</div>
-        <div class="testimonial-quote">"</div>
-        <div class="testimonial-text">I've hired contractors before and it's usually stressful. This was completely different — the portal on our Casita is now our favorite spot in the evening. Totally worth it.</div>
-        <div class="testimonial-author">
-          <div class="author-avatar">DM</div>
-          <div>
-            <div class="author-name">David M.</div>
-            <div class="author-location">Corrales, NM</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ── Final CTA ───────────────────────────────────────────── -->
 <div class="final-cta">
   <h2>Your ADU Starts<br>With One Conversation.</h2>
   <p class="cta-sub">Free site assessment. Fixed-price bid. No surprises from foundation to final walk-through.</p>
-  <a href="#quote" class="btn-white">Talk to Us Today</a>
+  <a href="#contact" class="btn-white">Talk to Us Today</a>
 </div>
 
 <!-- ── Footer ─────────────────────────────────────────────── -->
@@ -8682,8 +8736,8 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
   <div class="footer-inner">
     <div class="footer-brand">
       <div class="footer-logo-text">ABQ ADU</div>
-      <p>Albuquerque's trusted accessory dwelling unit builder. Licensed, bonded, listed in the ADU Specialist directory, and backed by a network of local 1099 trade specialists.</p>
-      <p style="margin-top:12px;font-size:12px;">NM General Contractor License #NM-GC-XXXXX<br>Steven Miller · Architect / Designer / Builder · <a href="https://www.aduspecialist.org/directory" target="_blank" rel="noopener" style="color:var(--copper-l);text-decoration:none;">ADU Specialist directory</a><br>Bernalillo County · Rio Rancho · Corrales · Edgewood</p>
+      <p>Accessory dwelling unit design and construction in Albuquerque. Explore a starting model, discuss your property, and plan the next step with our team.</p>
+      <p style="margin-top:12px;font-size:12px;">Albuquerque and surrounding areas · Confirm service availability when you contact us.</p>
     </div>
     <div class="footer-col">
       <h4>Models</h4>
@@ -8702,7 +8756,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
         <li><a href="#process">Process</a></li>
         <li><a href="#design">Design Studio</a></li>
         <li><a href="#financing">Financing</a></li>
-        <li><a href="#quote">Contact</a></li>
+        <li><a href="#contact">Contact</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -8719,7 +8773,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
   <div class="footer-bottom">
     <span class="footer-lic">© 2026 ABQ ADU LLC · All rights reserved</span>
     <span class="footer-lic">Serving Albuquerque, NM and surrounding areas</span>
-    <span class="footer-lic">Privacy · Terms</span>
+    <span class="footer-lic"><a href="#assessment-help">How request drafts work</a></span>
   </div>
 </footer>
 

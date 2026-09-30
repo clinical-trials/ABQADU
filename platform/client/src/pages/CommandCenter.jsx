@@ -6,6 +6,8 @@ import IntegrationSetup, { SERVICE_IDS } from '../components/IntegrationSetup';
 import { apiFetch } from '../utils/authFetch';
 import WeatherAttribution from '../components/WeatherAttribution';
 import ContractorDesk from '../components/ContractorDesk';
+import ProjectHelper from '../components/ProjectHelper';
+import DocumentActivity from '../components/DocumentActivity';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
@@ -146,6 +148,7 @@ export default function CommandCenter() {
   const [importedInvoices, setImportedInvoices] = useState(null);
   const [weatherZip, setWeatherZip] = useState('87106');
   const [weatherForecast, setWeatherForecast] = useState(null);
+  const [briefingWeather, setBriefingWeather] = useState(null);
   const weatherRequest = useRef(0);
 
   const loadIntegrations = useCallback(async () => {
@@ -172,6 +175,7 @@ export default function CommandCenter() {
   useEffect(() => {
     weatherRequest.current += 1;
     setWeatherForecast(null);
+    setBriefingWeather(null);
     setImportedInvoices(null);
     setWeatherZip(activeProject?.zip || activeProject?.address?.match(/\b\d{5}\b/)?.[0] || '87106');
   }, [activeProject?.id, activeProject?.zip, activeProject?.address]);
@@ -186,7 +190,7 @@ export default function CommandCenter() {
   }, [state]);
 
   const addActivity = (type, detail) => runAction('/api/command-center/activity', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, detail }),
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, detail, project_id: activeProject?.id }),
   });
 
   const previewClient = async () => {
@@ -280,6 +284,7 @@ export default function CommandCenter() {
     }
   };
   const weatherMatches = !!weatherForecast && weatherForecast.project_id === activeProject?.id && weatherForecast.zip === weatherZip;
+  const sharedWeather = [weatherMatches ? weatherForecast : null, briefingWeather?.project_id === activeProject?.id && briefingWeather?.zip === weatherZip ? briefingWeather.forecast : null].filter(Boolean).sort((a,b)=>Date.parse(b.checked_at)-Date.parse(a.checked_at))[0] || null;
   const appleWeather = weatherForecast?.provider === 'weatherkit' || weatherForecast?.source === 'Apple Weather';
   const nwsWeather = weatherForecast?.provider === 'nws' || weatherForecast?.source === 'National Weather Service';
   const logWeatherRisk = async () => {
@@ -351,7 +356,9 @@ export default function CommandCenter() {
         {liveStatus && <p role="status" style={{ padding: 12, background: '#E8EEE8', borderRadius: 8 }}>{liveStatus}</p>}
         <PacketPdfStatus pdf={packetPdf.projectId === activeProject?.id ? packetPdf : null} />
       </section>
-      <ContractorDesk project={activeProject} state={state} forecast={weatherMatches ? weatherForecast : null} busy={saving} onCheckWeather={checkWeather} runAction={runAction} onRefresh={load} />
+      <ProjectHelper project={activeProject} revision={state.updated_at} onForecast={setBriefingWeather} />
+      {activeProject && <DocumentActivity projectId={activeProject.id} revision={state.updated_at} />}
+      <ContractorDesk project={activeProject} state={state} forecast={sharedWeather} busy={saving} onCheckWeather={checkWeather} runAction={runAction} onRefresh={load} />
       <details className="field-office-tools">
         <summary>Estimates, costs &amp; office tools</summary>
       <main className="v10-shell" style={styles.shell}>
@@ -419,7 +426,7 @@ export default function CommandCenter() {
             <div className="v10-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <a style={{ ...styles.button, textDecoration: 'none' }} href={`sms:${state.builder.phone}?&body=${encodeURIComponent(note || primaryMessage)}`}>Text {state.builder.phone}</a>
               <button style={styles.button} disabled={saving || !integrations?.twilio?.configured} onClick={sendLiveSms}>Send Live SMS</button>
-              <button style={styles.ghost} onClick={() => addActivity('Builder text', note || primaryMessage)}>Log text</button>
+              <button style={styles.ghost} disabled={saving || !activeProject} onClick={() => addActivity('Builder text', note || primaryMessage)}>Log text</button>
             </div>
           </section>
 
@@ -544,11 +551,11 @@ export default function CommandCenter() {
           </section>
 
           <section style={styles.card}>
-            <div style={styles.kicker}>Activity / Open Tracking</div>
+            <div style={styles.kicker}>Earlier workspace log</div>
             <div style={{ display: 'grid', gap: 8 }}>
-              {state.activity.slice(0, 8).map(a => (
+              {state.activity.filter(a => !a.project_id || a.project_id === activeProject?.id).slice(0, 8).map(a => (
                 <div key={a.id} style={{ fontSize: 12, borderLeft: '3px solid #C4954A', paddingLeft: 9 }}>
-                  <b>{a.type}</b><br />{a.detail}
+                  <b>{a.type}</b>{!a.project_id && <span> · Earlier workspace entry</span>}<br />{a.detail}
                 </div>
               ))}
             </div>

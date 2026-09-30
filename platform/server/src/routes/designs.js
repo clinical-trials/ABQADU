@@ -1,13 +1,20 @@
 const router = require('../asyncRouter')();
 const { pool } = require('../db');
 const { generateBOM } = require('../services/bomGenerator');
+const { MODEL_CATALOG } = require('../services/modelCatalog');
+const retiredTemplateSlugs = new Set(['casita-portal', 'tierra-grande', 'bryn-mawr']);
+const currentTemplateModels = { 'hyder-hut': 'netherwood-440', 'hyder-hut-2br': 'netherwood-550', 'altura-24x24': 'altura-576' };
 
 // GET /api/designs/templates
 router.get('/templates', async (req, res) => {
   const result = await pool.query(
     'SELECT * FROM design_templates ORDER BY sqft'
   );
-  res.json(result.rows);
+  // Only new-design choices change. Legacy template IDs and saved rooms remain readable.
+  res.json(result.rows.filter(template => !retiredTemplateSlugs.has(template.slug)).map(template => {
+    const model = MODEL_CATALOG.find(row => row.id === currentTemplateModels[template.slug]);
+    return model ? { ...template, name: model.name, description: `${model.bedrooms} bedroom, ${model.bathrooms} bath ${model.type}; existing saved layout.` } : template;
+  }));
 });
 
 // GET /api/designs/templates/:id

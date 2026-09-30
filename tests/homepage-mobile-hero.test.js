@@ -9,10 +9,14 @@ function contains(snippet) {
 
 contains('hero-trust-strip');
 contains('hero-trust-inner');
-contains('ABQ ADU credentials and phone contact');
+contains('ABQ ADU phone contact');
 contains('height: clamp(220px, 58vw, 340px);');
 contains('max-width: 760px');
-contains('We are an accredited <a href="https://www.aduspecialist.org/"');
+contains('class="hero-phone-card"');
+contains('href="tel:15059777659"');
+for (const removedCredential of ['We are an accredited', 'Steven Miller', 'www.aduspecialist.org', 'images/adu-specialist-logo.png']) {
+  assert(!html.includes(removedCredential), `Removed accreditation content should not be present: ${removedCredential}`);
+}
 
 assert(
   !html.includes('.hero-photo { display: none; }'),

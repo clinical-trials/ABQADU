@@ -3,6 +3,7 @@ const path = require('path');
 const { randomUUID } = require('crypto');
 const { MODEL_CATALOG, applyModelDefaults } = require('./modelCatalog');
 const { getReadinessLabel } = require('./estimateEngine');
+const { deriveActivityEvents } = require('./activityEvents');
 
 const storePath = process.env.COMMAND_CENTER_STORE_PATH ||
   path.join(__dirname, '..', '..', 'data', 'version10-command-center.json');
@@ -172,16 +173,23 @@ async function loadCommandCenter() {
 
 let pendingSave = Promise.resolve();
 
-function saveCommandCenter(nextState) {
+function saveCommandCenter(nextState, { events = [], replace = false } = {}) {
   const operation = pendingSave.then(async () => {
     const current = await loadCommandCenter();
     const patch = typeof nextState === 'function' ? await nextState(current) : nextState;
     const saved = withProjectReadiness({
-      ...current,
+      ...(replace ? {} : current),
       ...patch,
       version: 'Version 10',
       updated_at: nowIso(),
     });
+    // History is server owned: a stale or forged replacement in a state patch
+    // cannot erase prior events. State and its new events publish atomically.
+    saved.activity_events = [
+      ...(Array.isArray(current.activity_events) ? current.activity_events : []),
+      ...deriveActivityEvents(current, saved),
+      ...(typeof events === 'function' ? events(current, saved) : events),
+    ];
     // Publish complete JSON in one rename so concurrent readers never see a
     // truncated or partly written file. The temporary file stays on this volume.
     const temporaryPath = `${storePath}.${randomUUID()}.tmp`;
@@ -199,10 +207,7 @@ function saveCommandCenter(nextState) {
 }
 
 async function resetCommandCenter() {
-  const reset = withProjectReadiness(starterState());
-  await fs.mkdir(path.dirname(storePath), { recursive: true });
-  await fs.writeFile(storePath, JSON.stringify(reset, null, 2));
-  return reset;
+  return saveCommandCenter(() => starterState(), { replace: true });
 }
 
 module.exports = {

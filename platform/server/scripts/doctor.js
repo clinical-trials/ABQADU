@@ -6,7 +6,18 @@ const REQUIRED_TABLES = [
   'field_tasks', 'risks', 'comments', 'notifications',
   'design_templates', 'designs',
   'clients', 'bids', 'bid_line_items', 'invoices', 'payments', 'invoice_engine_events',
+  'stripe_checkout_attempts', 'stripe_webhook_events',
 ];
+
+// These additive fields are required even when all legacy tables already exist.
+const BILLING_COLUMNS = {
+  clients: ['command_center_source_key'],
+  invoices: ['source_key', 'source_snapshot', 'source_fingerprint', 'invoiceshelf_remote_status'],
+  payments: ['provider', 'provider_payment_id', 'stripe_checkout_session_id', 'manual_request_key', 'manual_request_fingerprint'],
+  stripe_checkout_attempts: ['id', 'invoice_id', 'amount_cents', 'currency', 'livemode', 'idempotency_key', 'request_payload', 'stripe_session_id', 'checkout_url', 'state', 'expires_at', 'created_at', 'updated_at'],
+  stripe_webhook_events: ['event_id', 'event_type', 'stripe_session_id', 'livemode', 'processed_at'],
+};
+const requiredColumns = Object.entries(BILLING_COLUMNS).flatMap(([table, columns]) => columns.map(column => [table, column]));
 
 function connectionGuidance(error) {
   switch (error?.code) {
@@ -39,17 +50,33 @@ async function runDoctor({ pool, log = console.log }) {
       'SELECT expected.name AS table_name, to_regclass(expected.name) IS NOT NULL AS present FROM unnest($1::text[]) AS expected(name)',
       [REQUIRED_TABLES],
     );
+    const columnResult = await client.query(
+      `SELECT expected.table_name, expected.column_name, EXISTS (
+        SELECT 1 FROM pg_attribute
+        WHERE attrelid = to_regclass(expected.table_name) AND attname = expected.column_name
+          AND attnum > 0 AND NOT attisdropped
+      ) AS present
+      FROM unnest($1::text[], $2::text[]) AS expected(table_name, column_name)`,
+      [requiredColumns.map(([table]) => table), requiredColumns.map(([, column]) => column)],
+    );
     await client.query('ROLLBACK');
     const present = new Set(result.rows.filter(row => row.present === true).map(row => row.table_name));
     const missing = REQUIRED_TABLES.filter(name => !present.has(name));
-    if (missing.length) {
-      messages.push(`NOT READY: Missing required tables: ${missing.join(', ')}.`);
+    const presentColumns = new Set(columnResult.rows.filter(row => row.present === true).map(row => `${row.table_name}.${row.column_name}`));
+    const missingColumns = requiredColumns.filter(([table, column]) => present.has(table) && !presentColumns.has(`${table}.${column}`))
+      .map(([table, column]) => `${table}.${column}`);
+    if (missing.length || missingColumns.length) {
+      if (missing.length) messages.push(`NOT READY: Missing required tables: ${missing.join(', ')}.`);
+      if (missingColumns.length) messages.push(`NOT READY: Missing required billing columns: ${missingColumns.join(', ')}.`);
       messages.push('For a fresh, empty database, run npm run migrate once from platform/server, then npm run doctor.');
       messages.push('For an existing or partially migrated database, back it up and inspect the migrations first. The current runner replays every SQL file; rerunning it can duplicate default design layouts.');
+      if (missing.some(name => name.startsWith('stripe_')) || missingColumns.length) {
+        messages.push('Billing schema is incomplete. After a backup, review and apply only src/migrations/007_billing_ledger.sql in one transaction to an existing database whose earlier migrations are present. Do not replay npm run migrate on an existing database. Then rerun npm run doctor.');
+      }
     } else {
       exitCode = 0;
-      messages.push(`READY: PostgreSQL is reachable and all ${REQUIRED_TABLES.length} required tables are visible to the application role.`);
-      messages.push('This checks connectivity and table presence; it does not verify every column, write permission, external integration, or backup.');
+      messages.push(`READY: PostgreSQL is reachable and all ${REQUIRED_TABLES.length} required tables and ${requiredColumns.length} required billing columns are present in the application search path.`);
+      messages.push('This checks connectivity, table presence, and billing column presence; it does not verify column types, every other column, indexes, constraints, write permissions, external integrations, or backups.');
     }
   } catch (error) {
     messages.push(`NOT READY: ${connectionGuidance(error)}`);

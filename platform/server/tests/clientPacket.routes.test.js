@@ -56,7 +56,9 @@ test('opens an inline, private PDF from the saved project with the complete clie
   expect(html).toContain('not a request for payment');
   expect(html).not.toMatch(/123456|112233|PRIVATE BUILDER MEMO|PRIVATE MARGIN/);
   expect(browser.close).toHaveBeenCalledTimes(1);
-  expect(store.saveCommandCenter).not.toHaveBeenCalled();
+  expect(store.saveCommandCenter).toHaveBeenCalledWith(expect.any(Function), {
+    events: [expect.objectContaining({ project_id: 'packet-fixture', actor_id: 'user_allowed', type: 'document.generated', summary: 'Generated client packet PDF.' })],
+  });
 });
 
 test('treats project strings as text and prevents renderer network access and scripts', async () => {
