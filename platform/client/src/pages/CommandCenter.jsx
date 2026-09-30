@@ -356,7 +356,7 @@ export default function CommandCenter() {
         {liveStatus && <p role="status" style={{ padding: 12, background: '#E8EEE8', borderRadius: 8 }}>{liveStatus}</p>}
         <PacketPdfStatus pdf={packetPdf.projectId === activeProject?.id ? packetPdf : null} />
       </section>
-      <ProjectHelper project={activeProject} revision={state.updated_at} onForecast={setBriefingWeather} />
+      <ProjectHelper project={activeProject} revision={state.updated_at} onForecast={setBriefingWeather} onScheduleSaved={load} />
       {activeProject && <DocumentActivity projectId={activeProject.id} revision={state.updated_at} />}
       <ContractorDesk project={activeProject} state={state} forecast={sharedWeather} busy={saving} onCheckWeather={checkWeather} runAction={runAction} onRefresh={load} />
       <details className="field-office-tools">

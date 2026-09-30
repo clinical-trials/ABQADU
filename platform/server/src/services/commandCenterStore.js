@@ -173,16 +173,21 @@ async function loadCommandCenter() {
 
 let pendingSave = Promise.resolve();
 
-function saveCommandCenter(nextState, { events = [], replace = false } = {}) {
+function saveCommandCenter(nextState, { events = [], scheduleLinks, replace = false } = {}) {
   const operation = pendingSave.then(async () => {
     const current = await loadCommandCenter();
     const patch = typeof nextState === 'function' ? await nextState(current) : nextState;
+    // A validated idempotent retry may explicitly keep the existing file intact.
+    if (patch === null) return current;
     const saved = withProjectReadiness({
       ...(replace ? {} : current),
       ...patch,
       version: 'Version 10',
       updated_at: nowIso(),
     });
+    // Association versions survive stale full-state saves and workspace resets.
+    // Only the dedicated server workflow can supply this internal option.
+    saved.schedule_links = scheduleLinks ? scheduleLinks(current) : (Array.isArray(current.schedule_links) ? current.schedule_links : []);
     // History is server owned: a stale or forged replacement in a state patch
     // cannot erase prior events. State and its new events publish atomically.
     saved.activity_events = [

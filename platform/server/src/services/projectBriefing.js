@@ -93,7 +93,7 @@ function projectControls(project) {
   };
 }
 
-async function linkedSchedule(scheduleProjectId, now, query) {
+async function linkedSchedule(scheduleProjectId, now, query, savedLink = false) {
   const base = { status: 'unlinked', project_id: null, project_name: null, critical: [], late: [], upcoming: [], recommendations: [], planned_finish: null, forecast_finish: null, weather_exposure: [], weather_exposure_basis: 'Potential exposure only: confirm whether the selected trade applies to each activity. Candidate hold dates are calendar days; working calendars are not known. Any comparison with recorded float is a scenario, not a forecast delay.', basis: 'Stored activity dates and float; no schedule recalculation or automatic change.' };
   const unknownRisks = { status: 'unlinked', open_count: null, items: [] };
   if (scheduleProjectId === undefined || scheduleProjectId === null || scheduleProjectId === '') return { schedule: { ...base, recommendations: ['Select the matching schedule project to review its critical path and risk register.'] }, risks: unknownRisks };
@@ -126,8 +126,11 @@ async function linkedSchedule(scheduleProjectId, now, query) {
     }).sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
     return { activities, schedule: { ...base, status: 'available', project_id: id, project_name: text(project.name), critical, late, upcoming, recommendations, planned_finish: finishes.at(-1) || null }, risks: { status: 'available', open_count: items.length, items } };
   } catch (error) {
-    if (error.status === 404) throw error;
-    return { schedule: { ...base, status: 'unavailable', project_id: id, recommendations: ['Schedule data is temporarily unavailable. Check the saved schedule before committing dates.'] }, risks: { ...unknownRisks, status: 'unavailable' } };
+    if (error.status === 404 && !savedLink) throw error;
+    const recommendation = error.status === 404
+      ? 'The linked schedule project no longer exists. Review the saved association before choosing another schedule.'
+      : 'Schedule data is temporarily unavailable. Check the saved schedule before committing dates.';
+    return { schedule: { ...base, status: 'unavailable', project_id: id, recommendations: [recommendation] }, risks: { ...unknownRisks, status: 'unavailable' } };
   }
 }
 
@@ -164,7 +167,10 @@ function createProjectBriefingService({
     const project = state.projects?.find(row => row.id === projectId);
     if (!project) fail(404, 'The saved project does not exist.');
     const generated = now();
-    const linked = await linkedSchedule(scheduleProjectId, generated, query);
+    const savedLink = scheduleProjectId === undefined
+      ? (Array.isArray(state.schedule_links) ? state.schedule_links : []).find(link => link.project_id === projectId) : null;
+    const selectedSchedule = scheduleProjectId === undefined ? savedLink?.schedule_project_id : scheduleProjectId;
+    const linked = await linkedSchedule(selectedSchedule, generated, query, Boolean(savedLink));
     const weather = await weatherBriefing(project, trade, generated, fetchForecast, env);
     addWeatherExposure(linked, weather, trade);
     const controls = projectControls(project), next_actions = [];

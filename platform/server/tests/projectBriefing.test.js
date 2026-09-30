@@ -128,6 +128,39 @@ function linkedQueries(activities) {
   return jest.fn(async sql => ({ rows: /FROM projects/.test(sql) ? [{ id: 7, name: 'Schedule' }] : /FROM activities/.test(sql) ? activities : [] }));
 }
 
+test('saved job schedule links become the briefing default while explicit selection remains a preview', async () => {
+  const saved = { ...state(), schedule_links: [{ project_id: 'job-a', schedule_project_id: 7, version: 'fixture-version' }] };
+  const query = linkedQueries([]);
+  const { service } = setup({ readState: async () => saved, query });
+  expect((await service('job-a')).schedule).toMatchObject({ project_id: 7, status: 'available' });
+  expect((await service('job-a', { scheduleProjectId: '8' })).schedule.project_id).toBe(8);
+  query.mockClear();
+  expect((await service('job-a', { scheduleProjectId: '' })).schedule.status).toBe('unlinked');
+  expect(query).not.toHaveBeenCalled();
+  expect(saved.schedule_links[0].schedule_project_id).toBe(7);
+});
+
+test('a saved link with a deleted or unavailable SQL schedule cannot fall back to another schedule', async () => {
+  const saved = { ...state(), schedule_links: [{ project_id: 'job-a', schedule_project_id: 7 }] };
+  const query = jest.fn(async () => ({ rows: [] }));
+  const { service } = setup({ readState: async () => saved, query });
+  const missing = await service('job-a');
+  expect(missing.schedule).toMatchObject({ project_id: 7, status: 'unavailable' });
+  expect(missing.schedule.recommendations.join(' ')).toMatch(/linked schedule.*no longer exists/i);
+  expect(query.mock.calls).toHaveLength(1);
+  await expect(service('job-a', { scheduleProjectId: '7' })).rejects.toMatchObject({ status: 404 });
+  query.mockRejectedValue(new Error('private database host'));
+  const unavailable = await service('job-a');
+  expect(unavailable.schedule).toMatchObject({ project_id: 7, status: 'unavailable' });
+  expect(JSON.stringify(unavailable)).not.toContain('private database host');
+});
+
+test('an unlinked tombstone does not cause schedule queries in the briefing', async () => {
+  const { service, query } = setup({ readState: async () => ({ ...state(), schedule_links: [{ project_id: 'job-a', schedule_project_id: null, version: 'fixture-version' }] }) });
+  expect((await service('job-a')).schedule.status).toBe('unlinked');
+  expect(query).not.toHaveBeenCalled();
+});
+
 test('weather exposure checks overlapping unfinished dates and labels the float comparison as a scenario', async () => {
   const wet = forecast();
   wet.days[0].rain_chance = 90;

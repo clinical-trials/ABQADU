@@ -2,9 +2,11 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Simulate } from 'react-dom/test-utils';
 import ProjectHelper from './ProjectHelper';
-import { requestJson, requestList } from '../utils/api';
+import { requestJson } from '../utils/api';
 
-jest.mock('../utils/api', () => ({ requestJson: jest.fn(), requestList: jest.fn() }));
+jest.mock('../utils/api', () => ({ requestJson: jest.fn() }));
+jest.mock('./ScheduleConnection',()=>({onSaved,onReload,refreshKey})=><div data-schedule-refresh={refreshKey}><button onClick={()=>onSaved()}>Mock save schedule connection</button><button onClick={onReload}>Mock reload connection</button></div>);
+jest.mock('./CrewWeatherBrief',()=>()=>null);
 let host, root;
 const report = {
   generated_at:'2026-09-30T16:00:00Z', project:{id:'one',name:'First job'},
@@ -17,7 +19,7 @@ const report = {
 beforeEach(()=>{
   jest.useFakeTimers('modern');jest.setSystemTime(new Date('2026-09-30T16:00:00Z'));
   global.IS_REACT_ACT_ENVIRONMENT=true;
-  requestJson.mockReset().mockResolvedValue(report);requestList.mockReset().mockResolvedValue([{id:7,name:'Named construction schedule'}]);
+  requestJson.mockReset().mockResolvedValue(report);
   window.speechSynthesis={speak:jest.fn(),cancel:jest.fn(),pause:jest.fn(),resume:jest.fn()};
   window.SpeechSynthesisUtterance=function(text){this.text=text;};
   host=document.createElement('div');document.body.appendChild(host);root=createRoot(host);
@@ -29,7 +31,7 @@ const button=name=>[...host.querySelectorAll('button')].find(el=>el.textContent=
 test('shows weather warnings and unknown numbers without declaring payments or safe work',async()=>{
   await render();expect(host.textContent).toContain('Review Thursday before the pour.');
   expect(host.textContent).toContain('Wind unknown');expect(host.textContent).toContain('Weather hold candidate');
-  expect(host.textContent).toContain('Choose a schedule');expect(host.textContent).toContain('Payment status is not included');
+  expect(host.textContent).toContain('Connect this job');expect(host.textContent).toContain('Payment status is not included');
   expect(window.speechSynthesis.speak).not.toHaveBeenCalled();
   expect(host.querySelector('a[href="https://www.weather.gov/abq/"]')).not.toBeNull();
 });
@@ -42,10 +44,19 @@ test('plays only on request, supports pause/resume and cancels on project change
   requestJson.mockResolvedValue({...report,project:{id:'two',name:'Second job'},narration:'Second job only.'});
   await render({project:{id:'two',client:'Second job'}});expect(window.speechSynthesis.cancel.mock.calls.length).toBeGreaterThan(before);
 });
-test('uses explicit schedule selection and trade for the briefing request',async()=>{
-  await render();await act(async()=>Simulate.change(host.querySelector('[aria-label="Schedule for briefing"]'),{target:{value:'7'}}));
-  expect(requestJson.mock.calls.at(-1)[0]).toBe('/api/project-helper/projects/one/briefing?trade=concrete&schedule_project_id=7');
+test('uses the saved schedule and selected trade, refreshing only after a confirmed link save',async()=>{
+  const onScheduleSaved=jest.fn();await render({onScheduleSaved});
+  expect(requestJson.mock.calls.at(-1)[0]).toBe('/api/project-helper/projects/one/briefing?trade=concrete');
+  await act(async()=>button('Mock save schedule connection').click());expect(onScheduleSaved).toHaveBeenCalledTimes(1);
+  expect(requestJson).toHaveBeenCalledTimes(2);
   await act(async()=>Simulate.change(host.querySelector('[aria-label="Trade for briefing"]'),{target:{value:'roofing'}}));expect(requestJson.mock.calls.at(-1)[0]).toContain('trade=roofing');
+});
+test('refreshing either the briefing or its saved connection refreshes both views',async()=>{
+ await render();expect(host.querySelector('[data-schedule-refresh]').dataset.scheduleRefresh).toBe('0');
+ await act(async()=>button('Refresh briefing').click());
+ expect(host.querySelector('[data-schedule-refresh]').dataset.scheduleRefresh).toBe('1');expect(requestJson).toHaveBeenCalledTimes(2);
+ await act(async()=>button('Mock reload connection').click());
+ expect(host.querySelector('[data-schedule-refresh]').dataset.scheduleRefresh).toBe('2');expect(requestJson).toHaveBeenCalledTimes(3);
 });
 test('late response from an old project cannot replace or share the new forecast',async()=>{
   const onForecast=jest.fn();let finish;requestJson.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));

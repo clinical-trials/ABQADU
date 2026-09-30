@@ -9,6 +9,7 @@ const initialState = {
   receipts: [{ id: 'receipt-1', vendor: 'Supply store', amount: 25 }],
   mileage: [],
   activity: [],
+  schedule_links: [{project_id:'project-1',schedule_project_id:7,version:'2e402faf-cd17-48c2-994e-ab869a9a65a0'}],
 };
 
 const response = (payload, ok = true) => Promise.resolve({
@@ -96,6 +97,8 @@ describe('Command Center persistence', () => {
     expect(putRequests()).toHaveLength(1);
     expect(Object.keys(putRequests()[0].body).sort()).toEqual(['projects', 'receipts']);
     expect(server.projects[0]).toMatchObject({ client: 'Alice', address: '123 Main Street' });
+    expect(server.schedule_links).toEqual(initialState.schedule_links);
+    expect(putRequests()[0].body).not.toHaveProperty('schedule_links');
     expect(current.saving).toBe(false);
     expect(current.status).toMatch(/all changes saved/i);
   });

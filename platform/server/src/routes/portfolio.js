@@ -4,30 +4,42 @@ const { pool } = require('../db');
 // GET portfolio — all projects with health indicators
 router.get('/', async (req, res) => {
   const { rows } = await pool.query(`
+    WITH activity_summary AS (
+      SELECT project_id,
+        COUNT(*) AS total_activities,
+        COUNT(*) FILTER (WHERE actual_finish IS NOT NULL) AS complete_activities,
+        AVG(pct_complete) AS pct_complete,
+        MIN(planned_start) AS project_start,
+        MAX(planned_finish) AS planned_finish,
+        COUNT(*) FILTER (WHERE is_critical) AS critical_count,
+        COUNT(*) FILTER (
+          WHERE is_critical AND planned_finish < CURRENT_DATE AND actual_finish IS NULL
+        ) AS overdue_critical_count
+      FROM activities
+      GROUP BY project_id
+    ), risk_summary AS (
+      SELECT project_id,
+        COUNT(*) FILTER (WHERE status='open' AND risk_score >= 15) AS high_risks
+      FROM risks
+      GROUP BY project_id
+    )
     SELECT
       p.id, p.name, p.start_date, p.status,
-      COUNT(a.id) AS total_activities,
-      COUNT(a.id) FILTER (WHERE a.actual_finish IS NOT NULL) AS complete_activities,
-      ROUND(AVG(a.pct_complete), 1) AS pct_complete,
-      MIN(a.planned_start) AS project_start,
-      MAX(a.planned_finish) AS planned_finish,
-      COUNT(a.id) FILTER (WHERE a.is_critical) AS critical_count,
-      COUNT(r.id) FILTER (WHERE r.status='open' AND r.risk_score >= 15) AS high_risks,
-      -- Health: delayed if any critical activity has actual > planned
+      COALESCE(a.total_activities, 0) AS total_activities,
+      COALESCE(a.complete_activities, 0) AS complete_activities,
+      ROUND(a.pct_complete, 1) AS pct_complete, a.project_start, a.planned_finish,
+      COALESCE(a.critical_count, 0) AS critical_count,
+      COALESCE(r.high_risks, 0) AS high_risks,
       CASE
-        WHEN MAX(a.planned_finish) < CURRENT_DATE
-          AND AVG(a.pct_complete) < 95 THEN 'delayed'
-        WHEN COUNT(a.id) FILTER (
-          WHERE a.is_critical AND a.planned_finish < CURRENT_DATE
-          AND a.actual_finish IS NULL
-        ) > 0 THEN 'at_risk'
+        WHEN a.planned_finish < CURRENT_DATE
+          AND a.pct_complete < 95 THEN 'delayed'
+        WHEN a.overdue_critical_count > 0 THEN 'at_risk'
         ELSE 'on_schedule'
       END AS health
     FROM projects p
-    LEFT JOIN activities a ON a.project_id = p.id
-    LEFT JOIN risks r ON r.project_id = p.id
+    LEFT JOIN activity_summary a ON a.project_id = p.id
+    LEFT JOIN risk_summary r ON r.project_id = p.id
     WHERE p.status = 'active'
-    GROUP BY p.id
     ORDER BY p.name
   `);
   res.json(rows);

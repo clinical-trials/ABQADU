@@ -2,7 +2,7 @@ const { randomBytes, randomUUID } = require('node:crypto');
 const twilio = require('twilio');
 const { saveCommandCenter } = require('./commandCenterStore');
 
-const OWNED_FIELDS = ['bid_requests', 'sms_inbox', 'weather_holds', 'sms_contact_preferences', 'activity_events'];
+const OWNED_FIELDS = ['bid_requests', 'sms_inbox', 'weather_holds', 'sms_contact_preferences', 'activity_events', 'schedule_links'];
 const INBOUND_PATH = '/api/contractor-desk/sms/inbound';
 const REQUIRED = ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM_NUMBER', 'TWILIO_INBOUND_URL'];
 const MAX_RECORDS = 10000;

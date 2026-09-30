@@ -21,7 +21,7 @@ The City-plan copy now links to the [official construction-plan guidance](https:
 
 ## Contractor tools added September 30
 
-The real app now has a weekly Project Helper with short audio playback, four-day weather guidance, explicit schedule/risk review and labeled weather/float exposure scenarios. Durable project activity records the latest five saved actions and provides older history, reviewed notes, dictation and prompt templates. Expired weather is withdrawn; notes are not sent automatically. Payment evidence remains in the SQL billing ledger.
+The real app now has a weekly Project Helper with short audio playback, four-day weather guidance, a persistent connection to the matching construction schedule, risk review and labeled weather/float exposure scenarios. An editable crew-update draft includes four dated forecast entries and attribution; refreshes preserve the contractor’s edits until deliberately replaced. Durable project activity records the latest five saved actions and provides older history, reviewed notes, dictation and prompt templates. Expired weather is withdrawn; notes are not sent automatically. Payment evidence remains in the SQL billing ledger.
 
 These tools are authenticated backend features. The earlier static `platform.html` file preserves its browser drafts and links to the working app; it is not the production backend. In-app alerts do not establish automatic scheduled SMS delivery.
 
@@ -36,17 +36,17 @@ These tools are authenticated backend features. The earlier static `platform.htm
 
 ## Existing boundaries to keep visible
 
-Command Center jobs are saved separately from PostgreSQL scheduling/portfolio projects. Empty scheduling lists do not prove jobs were lost; the current app has no automatic conversion between those records. Company tenancy, granular subcontractor permissions, automatic request dispatch, e-signatures and several roadmap items remain future work. See the combined context rather than presenting old proposals as completed features.
+Command Center jobs are saved separately from PostgreSQL scheduling/portfolio projects. Empty scheduling lists do not prove jobs were lost. A contractor can explicitly link an existing schedule to a saved job, but the app does not automatically convert or merge those records. Saved links have version checks, safe retries and activity history; a missing schedule is not silently replaced. Company tenancy, granular subcontractor permissions, automatic request dispatch, e-signatures and several roadmap items remain future work. See the combined context rather than presenting old proposals as completed features.
 
 Use the [public release instructions](homeowner-services-release.md) and [platform deployment guide](version-10-platform-deployment.md) for commands. Record verified test/build results and the published commit here before calling this release live.
 
 
 ## Verification checkpoint — September 30
 
-- Full backend suite: **527 tests, 39 suites passed**, including isolated billing fixtures, private access, activity concurrency/retries, forecast staleness and schedule exposure.
-- Full React suite: **214 tests, 20 suites passed**. Production build succeeded.
+- Full backend suite: **546 tests, 41 suites passed**, including isolated billing and portfolio fixtures, private access, activity/link concurrency and retries, database lookup deadlines, forecast staleness and schedule exposure.
+- Full React suite: **246 tests, 22 suites passed**. Production build succeeded.
 - Public website suite: **52 tests passed**; packaged public-asset exclusion checks passed.
 - Database doctor: all **24 required tables and 28 billing columns** present locally. No migration/reset was run.
-- Browser review: highlighted mobile Design menu, real Text Ian/call links, live NWS numbers, shared briefing/crew forecast, audio controls and notes preserved across project switches. Phone layout checked at 390 px without horizontal overflow. Microphone and actual SMS/payment delivery were not invoked.
+- Browser review: highlighted mobile Design menu, real Text Ian/call links, live NWS numbers, shared briefing/crew forecast, audio controls and notes preserved across project switches. Phone layout checked at 390 px without horizontal overflow. The continuation also verified editable crew drafts survive briefing refresh and saved-connection controls meet phone touch sizes. No browser console errors were observed. Microphone and actual SMS/payment delivery were not invoked.
 
 These are local release checks. The live-host configuration and publishing requirements above remain outstanding. The GitHub release branch is `codex/version-10-workflows`; a push does not make the hosted application live.

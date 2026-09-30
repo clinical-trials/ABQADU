@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { requestJson, requestList } from '../utils/api';
+import { requestJson } from '../utils/api';
+import ScheduleConnection from './ScheduleConnection';
+import CrewWeatherBrief from './CrewWeatherBrief';
 import WeatherAttribution from './WeatherAttribution';
 import './ProjectHelper.css';
 
@@ -63,7 +65,7 @@ function WeatherDay({ planning, day }) {
 }
 
 function ScheduleReview({ schedule, risks }) {
-  if(schedule?.status!=='available')return <p className="helper-muted">{schedule?.status==='unavailable'?'Schedule data is unavailable. Check the saved schedule before confirming dates.':'Choose a schedule below to include the critical path and risk register. No schedule has been assumed for this job.'}</p>;
+  if(schedule?.status!=='available')return <p className="helper-muted">{schedule?.status==='unavailable'?'Schedule data is unavailable. Check the saved schedule before confirming dates.':'Connect this job to a construction schedule above to include its critical path and risk register.'}</p>;
   return <>
     <p><b>{schedule.project_name}</b> · {schedule.critical.length} critical · {schedule.late.length} past planned finish · {risks?.open_count??'Unknown'} open risks</p>
     <p className="helper-muted">Planned finish: {schedule.planned_finish?dateLabel(schedule.planned_finish):'Not recorded'}. A revised finish date requires a schedule review.</p>
@@ -71,15 +73,12 @@ function ScheduleReview({ schedule, risks }) {
     {!!schedule.weather_exposure?.length && <details><summary>Work that overlaps the weather window</summary><ul>{schedule.weather_exposure.map((item,i)=><li key={item.activity_id||i}><b>{item.name}</b> · {item.is_critical?'Critical work':'Check float'} · {(item.dates||[]).map(dateLabel).join(', ')}{Number.isFinite(item.candidate_hold_day_count) && <p>{item.candidate_hold_day_count} possible hold dates · {item.scenario_days_beyond_float===null?'Float comparison unavailable':`${item.scenario_days_beyond_float} days beyond recorded float in this scenario`}</p>}</li>)}</ul><p className="helper-muted">{schedule.weather_exposure_basis || 'Confirm whether this trade and weather apply to each activity before moving dates.'}</p></details>}
     {!!schedule.critical.length && <details><summary>Critical activities</summary><ul>{schedule.critical.slice(0,10).map(item=><li key={item.id}><b>{item.name}</b> · {dateLabel(item.planned_finish)} · {item.total_float===null?'Float unknown':`${item.total_float} days float`}</li>)}</ul></details>}
     {!!risks?.items?.length && <details><summary>Risk register</summary><ul>{risks.items.slice(0,5).map(item=><li key={item.id}><b>{item.title}</b> · {item.score===null?'Score unknown':`Score ${item.score}/25`}<p>{item.mitigation||'Add a mitigation plan with the project team.'}</p></li>)}</ul></details>}
-    <a href="/schedule">Review the construction schedule →</a>
+    <a href={`/schedule/${schedule.project_id}`}>Review this construction schedule →</a>
   </>;
 }
 
-function HelperForProject({ project, revision, onForecast }) {
+function HelperForProject({ project, revision, onForecast, onScheduleSaved }) {
   const [trade,setTrade]=useState('concrete');
-  const [scheduleId,setScheduleId]=useState('');
-  const [schedules,setSchedules]=useState([]);
-  const [scheduleError,setScheduleError]=useState('');
   const [report,setReport]=useState(null);
   const [error,setError]=useState('');
   const [loading,setLoading]=useState(true);
@@ -91,15 +90,10 @@ function HelperForProject({ project, revision, onForecast }) {
   const forecastCallback=useRef(onForecast);forecastCallback.current=onForecast;
   useEffect(()=>{
     const controller=new AbortController();
-    requestList('/api/portfolio',{signal:controller.signal}).then(rows=>{if(!controller.signal.aborted)setSchedules(rows);}).catch(err=>{if(!controller.signal.aborted)setScheduleError(err.message);});
-    return()=>controller.abort();
-  },[]);
-  useEffect(()=>{
-    const controller=new AbortController();
     const atRequest=currentRevision.current;
     setLoading(true);setError('');setReport(null);
     forecastCallback.current?.({project_id:project.id,forecast:null});
-    const params=new URLSearchParams({trade});if(scheduleId)params.set('schedule_project_id',scheduleId);
+    const params=new URLSearchParams({trade});
     requestJson(`/api/project-helper/projects/${encodeURIComponent(project.id)}/briefing?${params}`,{signal:controller.signal})
       .then(data=>{
         if(controller.signal.aborted)return;
@@ -110,7 +104,7 @@ function HelperForProject({ project, revision, onForecast }) {
       .catch(err=>{if(!controller.signal.aborted)setError(err.message);})
       .finally(()=>{if(!controller.signal.aborted)setLoading(false);});
     return()=>controller.abort();
-  },[project.id,trade,scheduleId,refresh]);
+  },[project.id,trade,refresh]);
   const expires=report?.weather?.forecast?.expires_at;
   const start=report?.weather?.forecast?.window?.start_date;
   const todayParts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Denver',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(clock));
@@ -125,7 +119,7 @@ function HelperForProject({ project, revision, onForecast }) {
     </div>
     <div className="helper-settings">
       <label>Today's crew focus<select aria-label="Trade for briefing" value={trade} onChange={event=>setTrade(event.target.value)}>{[['concrete','Concrete'],['roofing','Roofing'],['excavation','Excavation'],['general','General work']].map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label>
-      <details><summary>Include a construction schedule</summary><label>Schedule for this review<select aria-label="Schedule for briefing" value={scheduleId} onChange={event=>setScheduleId(event.target.value)}><option value="">Choose a schedule</option>{schedules.map(schedule=><option key={schedule.id} value={schedule.id}>{schedule.name}</option>)}</select></label>{scheduleError?<p role="status">Could not load schedules: {scheduleError}</p>:!schedules.length?<p className="helper-muted">No active schedules are available yet. <a href="/schedule">Open Schedule</a></p>:null}</details>
+      <ScheduleConnection projectId={project.id} refreshKey={refresh} onReload={()=>setRefresh(value=>value+1)} onSaved={()=>{setRefresh(value=>value+1);onScheduleSaved?.();}}/>
     </div>
     {loading && <p role="status">Checking saved project controls and the four-day forecast…</p>}
     {error && <p className="helper-error" role="alert">{error}</p>}
@@ -133,7 +127,7 @@ function HelperForProject({ project, revision, onForecast }) {
     {report && !expired && <>
       <h3 className="helper-headline">{report.headline}</h3>
       <p className="helper-muted">Updated {timeLabel(report.generated_at)}{loadedRevision!==revision?' · Saved project data has changed; refresh this briefing.':''}</p>
-      <BriefingAudio key={`${report.generated_at}-${trade}-${scheduleId}`} text={report.narration}/>
+      <BriefingAudio key={`${report.generated_at}-${trade}`} text={report.narration}/>
       <div className="helper-next-actions">{report.next_actions.slice(0,3).map((action,index)=><article key={action.id}><span className="helper-action-number" aria-hidden="true">0{index+1}</span><div><span className="helper-eyebrow">{action.priority==='high'?'Needs attention':'Next up'}</span><h4>{action.title}</h4><p>{action.detail}</p></div></article>)}</div>
       {report.next_actions.length>3 && <details><summary>{report.next_actions.length-3} more project checks</summary><ul>{report.next_actions.slice(3).map(item=><li key={item.id}><b>{item.title}.</b> {item.detail}</li>)}</ul></details>}
       <div className="helper-weather-heading"><h3>Next four days in Albuquerque</h3><span className={`helper-status helper-status-${report.weather.status}`}>{({current:'Current forecast',partial:'Some data missing',stale:'Refresh needed',unavailable:'Forecast unavailable'})[report.weather.status]||'Check forecast'}</span></div>
@@ -151,6 +145,7 @@ function HelperForProject({ project, revision, onForecast }) {
         </details>
       </div>
     </>}
+    <CrewWeatherBrief report={report} project={project} loading={loading} expired={expired}/>
   </section>;
 }
 
