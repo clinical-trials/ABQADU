@@ -6914,7 +6914,7 @@ const ADU_TIMELINE_GUIDANCE = {
 };
 
 const ADU_MATCHER_NEXT_STEPS = [
-  { title: 'Free site assessment', time: 'This week', copy: 'We walk the lot, check setbacks, utilities, electric, sewer, and placement.' },
+  { title: 'Free site assessment', time: '24–72 hours after your inquiry', copy: 'We aim to visit within this window and confirm a time with you. We walk the lot, check setbacks, utilities, electric, sewer, and placement.' },
   { title: 'Design session', time: 'Step 2', copy: 'Customize the recommended model: exterior, interior, doors, windows, and included package.' },
   { title: 'Permit path', time: 'After review', copy: 'We prepare the site plan and permitting path once the model and site constraints are clear.' },
   { title: 'Build handoff', time: 'Contract ready', copy: 'Builder receives the clean homeowner summary, bid context, and next critical-path tasks.' },
@@ -8010,7 +8010,7 @@ function renderDesignResult(summary) {
   body.innerHTML = `
     <div class="design-result-grid">
       <div class="design-result-box"><b>${reportEscape(summary.model.label)}</b><span>${reportEscape(summary.model.sqft)} sq ft selected model</span></div>
-      <div class="design-result-box"><b>${moneyShort(summary.estimate)}</b><span>Planning estimate before 24-hour site visit</span></div>
+      <div class="design-result-box"><b>${moneyShort(summary.estimate)}</b><span>Planning estimate before the site visit</span></div>
       <div class="design-result-box"><b>${reportEscape(summary.siding.label)}</b><span>Exterior finish</span></div>
       <div class="design-result-box"><b>${reportEscape(summary.windows.label)}</b><span>Door and window package</span></div>
       <div class="design-result-box"><b>${reportEscape(summary.interior.label)}</b><span>Interior finish</span></div>
@@ -8030,7 +8030,7 @@ function renderDesignResult(summary) {
       Match answers: ${reportEscape(summary.matcher?.purpose || 'Purpose not captured')} · ${reportEscape(summary.matcher?.lot || 'Lot not captured')} · ${reportEscape(summary.matcher?.beds || 'Beds not captured')} · ${reportEscape(summary.matcher?.budget || 'Budget not captured')}<br>
       Saved preference: ${reportEscape(summary.matcher?.priority || 'Preference not captured')} · ${reportEscape(summary.matcher?.timeline || 'Timeline not captured')}<br>
       ABQ ADU · Albuquerque, New Mexico · abqadu.com<br>
-      This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24 hours of the customer call. Site utilities, extra meter needs, sewer confirmation study, setbacks, permitting, and engineering review can affect final price and schedule.
+      This is a homeowner design summary, not a final construction bid. ABQ ADU targets a site visit within 24–72 hours of your inquiry, at a time confirmed with you. Site utilities, extra meter needs, sewer confirmation study, setbacks, permitting, and engineering review can affect final price and schedule.
     </p>
   `;
   const signalText = (summary.recommendation?.signals || []).map(signal => `${signal.label}: ${signal.copy}`).join('; ');
@@ -8123,7 +8123,7 @@ function buildDesignSummaryReportHtml(summary) {
         <div class="card"><b>Best time</b><span>${reportEscape(summary.bestTime || 'Not provided')}</span></div>
         <div class="card"><b>Property</b><span>${reportEscape(summary.address || 'Not provided')}</span></div>
       </div>
-      <div class="note">ABQ ADU targets a site visit within 24 hours of the customer call. Final price and schedule depend on setbacks, utility review, electrical capacity or extra meter needs, sewer confirmation, permitting, and any engineering review.</div>
+      <div class="note">ABQ ADU targets a site visit within 24–72 hours of your inquiry, at a time confirmed with you. Final price and schedule depend on setbacks, utility review, electrical capacity or extra meter needs, sewer confirmation, permitting, and any engineering review.</div>
     </section>`;
 }
 
@@ -8562,6 +8562,7 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
       <div class="section-eyebrow">Contact</div>
       <h2 id="contact-heading">Talk with Ian.</h2>
       <p>Have a question about an ADU, stucco, yardwork, or house cleaning? Text or call Ian at (505) 977-7659 to discuss your project.</p>
+      <p>We aim to visit your site within <strong>24–72 hours of your inquiry</strong>. We’ll confirm the appointment time with you.</p>
       <div class="contact-actions">
         <a class="contact-text" href="sms:15059777659">Text Ian</a>
         <a href="tel:15059777659">Call Ian · (505) 977-7659</a>
