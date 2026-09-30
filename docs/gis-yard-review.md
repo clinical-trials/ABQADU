@@ -10,6 +10,20 @@ The legacy file-based Estimates page has a **Prepare GIS yard review** card belo
 
 In the private Command Center, **Check the yard before the visit** uses the selected job’s intake address. Contractors can queue a review, save findings and a checklist, record the jurisdiction and parcel reference, and enter optional approximate yard dimensions. Width × depth is labeled a recorded rectangle, not buildable area. A recorded desktop review requires a matched parcel and written findings. A checked item means it was reviewed, not that the property complies.
 
+## Water, electric and sewer first
+
+The builder’s first three questions are now separate, visible checks:
+
+- **Water:** connection and meter location, available service information, route to the ADU, and capacity to verify.
+- **Electric:** panel and service capacity, route to the ADU, and whether a meter or service upgrade needs investigation.
+- **Sewer:** connection location, depth and slope, with a qualified trade reviewing the gravity route or a possible pumping need.
+
+Each private review records `unknown`, `in_review`, `needs_work` or `confirmed`, plus up to 2,000 characters of findings. Confirmation requires written findings of at least ten characters; the interface asks for who checked, when, source and findings. This validates a recorded builder review, not utility-provider approval. No connection, capacity, depth, upgrade or cost is inferred from a map or the old combined checkbox.
+
+Earlier utility/sewer flags remain visible as reference notes. Current, separate findings determine utility readiness; missing, stale or unresolved findings prevent a **Ready to send** label. The weekly briefing names the unresolved utilities before final-bid recommendations and includes them in its audio transcript. Other site, engineering, site-plan and supplier checks still apply.
+
+Public and legacy request drafts include these three questions with unknown status. They do not expose private findings or ask homeowners to supply engineering answers. The old Estimates page links to the saved workspace for recording results rather than creating a second utility-status store.
+
 ## Maps and limits
 
 - [City planning GIS](https://www.cabq.gov/planning/agis-maps/about) links the City IDO web map. Its address search is prefilled using Esri’s documented [`find` parameter](https://doc.arcgis.com/en/web-appbuilder/11.5/manage-apps/app-url-parameters.htm). Confirm the closest matched parcel before recording findings.
@@ -23,6 +37,8 @@ Links contact external maps only when opened. This feature does not automaticall
 Authenticated GET/PUT `/api/project-helper/projects/:projectId/gis-review` reads and saves the selected Command Center job’s review. Records carry an address snapshot and immutable revision. Expected address/version checks run inside the serialized save; request IDs support safe retries. Exact retries return the current record. Review events appear in project activity.
 
 Changing or removing the saved address appends an invalidation while retaining earlier findings. Returning to the original address does not reactivate those findings. The user must explicitly start an empty queued review for the updated address. General job saves and resets cannot replace the server-owned `gis_reviews` history.
+
+`utility_reviews` is stored inside the same immutable review revision as the yard findings. Legacy reviews without this object read as three unknown services without rewriting history. An older client omitting utility fields preserves current findings; an explicit stale restart clears them. Pre-extension request fingerprints remain valid for exact retries. Address changes invalidate utility findings together with the yard review, and copyable draft recovery includes unsaved utility notes.
 
 Client drafts remain in memory per authenticated session and project, including uncertain request receipts. A conflict preserves edits for copying and requires explicit reload. Signing out clears drafts. Closing/reloading the page can lose unsaved edits, with the browser’s usual leave warning where supported.
 

@@ -120,6 +120,7 @@ test('ADU intake prepares pending GIS review for the exact current address and i
   const summary = window.document.querySelector('#assessment-summary');
   assert.ok(summary.value.includes(`Intake address: ${address}`));
   assert.match(summary.value, /GIS yard review requested[\s\S]*pending[\s\S]*does not send/i);
+  assert.match(summary.value, /Water — unknown:[\s\S]*Electric — unknown:[\s\S]*Sewer — unknown:/);
   assert.match(summary.value, /approximate.*dimensions[\s\S]*access[\s\S]*easements[\s\S]*zoning[\s\S]*utilities/i);
   const zoning = window.document.querySelector('#assessment-gis-zoning');
   assert.equal(new URL(zoning.href).searchParams.get('find'), address);
@@ -171,7 +172,7 @@ for (const service of ['Stucco', 'Yardwork', 'House cleaning']) {
     form.querySelector('[type="submit"]').click();
     const summary = window.document.querySelector('#assessment-summary').value;
     assert.ok(summary.includes(`Service: ${service}`));
-    assert.doesNotMatch(summary, /Model interest:|Intended use:|GIS yard review|City zoning map/);
+    assert.doesNotMatch(summary, /Model interest:|Intended use:|GIS yard review|City zoning map|Water — unknown:/);
     assert.ok(decodeURIComponent(window.document.querySelector('#assessment-text-link').href).includes(`Service: ${service}`));
     assert.ok(decodeURIComponent(window.document.querySelector('#assessment-download-link').href).includes(`Service: ${service}`));
     assert.match(window.document.querySelector('#assessment-result').textContent, /not been sent/i);

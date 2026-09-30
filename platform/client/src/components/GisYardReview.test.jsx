@@ -10,10 +10,11 @@ const version = '11111111-1111-4111-8111-111111111111';
 const nextVersion = '22222222-2222-4222-8222-222222222222';
 const first = { id: 'yard-one', client: 'Fixture owner', address: '100 Fixture Ave #2 & Rear, Albuquerque, NM' };
 const second = { id: 'yard-two', client: 'Second fixture', address: '200 Other Fixture Lane, Albuquerque, NM' };
-const empty = () => ({ status: 'queued', jurisdiction: 'unknown', parcel_id: '', width_ft: '', depth_ft: '', notes: '', checks: { parcel: false, zoning: false, access: false, easements: false, utilities: false } });
+const empty = () => ({ status: 'queued', jurisdiction: 'unknown', parcel_id: '', width_ft: '', depth_ft: '', notes: '', checks: { parcel: false, zoning: false, access: false, easements: false, utilities: false }, utility_reviews:unknownUtilities() });
 const record = (patch = {}, project = first) => ({ project_id: project.id, version, address_snapshot: project.address, updated_at: '2026-09-30T18:00:00.000Z', ...empty(), ...patch });
 const deferred = () => { let resolve, reject; const promise = new Promise((done, fail) => { resolve = done; reject = fail; }); return { promise, resolve, reject }; };
 const endpoint = id => `/api/project-helper/projects/${encodeURIComponent(id)}/gis-review`;
+const unknownUtilities = () => Object.fromEntries(['water','electric','sewer'].map(key=>[key,{status:'unknown',notes:''}]));
 let host, root, saveChanges, onSaved, projects, records, staleProjects, loadOverride, saveOverride, originalCrypto;
 const response = id => ({ project: projects[id], review: records[id] || null, stale: staleProjects.has(id) });
 const writes = () => requestJson.mock.calls.filter(([, options]) => options?.method === 'PUT');
@@ -66,6 +67,65 @@ test('mount reads only the private review and prepares encoded current-address l
   expect(host.querySelector('a[href*="geocortexweb"]').href).not.toContain('find=');
   expect(host.querySelector('input[aria-label="Address for GIS review"]').value).toBe(first.address);
   expect(host.textContent).toContain('Not queued');
+});
+
+test('legacy utility checkbox never confirms water, electric or sewer independently', async () => {
+  records[first.id] = record({checks:{...empty().checks,utilities:true}});
+  delete records[first.id].utility_reviews;
+  await render();
+  for (const label of ['Water','Electric','Sewer']) expect(field(`${label} status`)?.value).toBe('unknown');
+  const overview=host.querySelector('[aria-label="Water, electric and sewer priorities"]');
+  expect(overview?.textContent).toContain('Water');
+  expect(overview?.textContent).toContain('Electric');
+  expect(overview?.textContent).toContain('Sewer');
+  expect(overview?.textContent.match(/Not checked/g)).toHaveLength(3);
+  expect(writes()).toHaveLength(0);
+});
+
+test('separate utility findings require evidence for confirmation and round-trip independently', async () => {
+  await render();
+  expect(field('Water status')).toBeDefined();
+  await change('Water status','confirmed'); await click('Queue GIS review');
+  expect(writes()).toHaveLength(0); expect(host.textContent).toContain('Water needs findings');
+  await change('Water findings','  Builder checked service records on Sep 30; meter location recorded.  ');
+  await change('Electric status','needs_work'); await change('Electric findings','Ask the electrician to assess panel capacity.');
+  await click('Queue GIS review');
+  expect(JSON.parse(writes()[0][1].body).review.utility_reviews).toEqual({
+    water:{status:'confirmed',notes:'Builder checked service records on Sep 30; meter location recorded.'},
+    electric:{status:'needs_work',notes:'Ask the electrician to assess panel capacity.'},
+    sewer:{status:'unknown',notes:''},
+  });
+  expect(field('Water status').value).toBe('confirmed');
+  expect(field('Sewer status').value).toBe('unknown');
+  expect(button('Save GIS review').disabled).toBe(true);
+});
+
+test('utility-only drafts survive navigation and remain copyable when a new address makes the review stale', async () => {
+  await render(); expect(field('Sewer findings')).toBeDefined();
+  await change('Sewer findings','Locate the connection and check depth before deciding on a gravity route.');
+  await change('Sewer status','in_review');
+  await render({project:second}); await render();
+  expect(field('Sewer findings').value).toContain('check depth');
+  await render({project:{...first,address:'Changed site'}});
+  const recovered=field('Unsaved GIS findings');
+  expect(recovered?.value).toContain('Sewer');
+  expect(recovered?.value).toContain('check depth');
+  expect(recovered.disabled).toBe(false);
+  expect(host.querySelector('[aria-label="Water, electric and sewer priorities"]').textContent).not.toContain('Confirmed');
+});
+
+test('stale restart clears utility findings and refuses a receipt that carries old confirmation forward', async () => {
+  records[first.id]=record({address_snapshot:'Old property',utility_reviews:{...unknownUtilities(),water:{status:'confirmed',notes:'Previously confirmed for the old site.'}}});
+  staleProjects.add(first.id);
+  await render(); await click('Start review for updated address');
+  expect(JSON.parse(writes()[0][1].body).review.utility_reviews).toEqual(unknownUtilities());
+  expect(field('Water status')?.value).toBe('unknown');
+  expect(field('Water findings')?.value).toBe('');
+  await change('Water findings','Current property needs service review.');
+  saveOverride=async()=>({...response(first.id),review:record({version:nextVersion,utility_reviews:{...unknownUtilities(),water:{status:'confirmed',notes:'Old data.'}}}),replayed:false});
+  await click('Save GIS review');
+  expect(host.textContent).toContain('could not be verified');
+  expect(field('Water findings').value).toBe('Current property needs service review.');
 });
 
 test('explicit queue flushes saved intake, sends CAS metadata and accepts only the verified receipt', async () => {

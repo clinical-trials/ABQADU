@@ -210,8 +210,10 @@ test('hold weather without an explicit schedule link produces no claimed activit
 test('actual form readiness values are recognized while unrecorded engineering stays unknown', async () => {
   const { service } = setup();
   const result = await service('job-a');
-  expect(result.controls.readiness.slice(0, 4).every(row => row.status === 'confirmed')).toBe(true);
-  expect(result.controls.readiness[4]).toMatchObject({ field: 'engineering_status', status: 'unknown' });
+  expect(result.controls.readiness.find(row => row.field === 'site_visit_status').status).toBe('confirmed');
+  expect(result.controls.readiness.find(row => row.field === 'setbacks_site_plan_status').status).toBe('confirmed');
+  expect(result.controls.readiness.filter(row => row.field.startsWith('utility_reviews.')).map(row => row.status)).toEqual(['unknown', 'unknown', 'unknown']);
+  expect(result.controls.readiness.find(row => row.field === 'engineering_status')).toMatchObject({ status: 'unknown' });
 });
 
 test('invalid recorded dates do not suppress the remaining valid schedule', async () => {
@@ -240,4 +242,60 @@ test('the planning dates follow Albuquerque calendar days across the daylight-sa
   const { service } = setup({ now: () => transition, fetchForecast: async () => { throw new Error('offline'); } });
   const result = await service('job-a');
   expect(result.weather.planning.map(day => day.date)).toEqual(['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05']);
+});
+
+const utilityFindings = (status = 'confirmed') => Object.fromEntries(['water', 'electric', 'sewer'].map(id => [id, { status, notes: `Fixture ${id} source checked September 30; builder findings recorded.` }]));
+const gisRecord = patch => ({ project_id: job.id, address_snapshot: job.address, utility_reviews: utilityFindings(), ...patch });
+
+test('missing water, electric and sewer findings become a prominent action despite legacy confirmed flags', async () => {
+  const source = state(), before = structuredClone(source);
+  const { service } = setup({ readState: async () => source });
+  const result = await service(job.id);
+  const action = result.next_actions.find(row => row.id === 'utilities');
+  expect(action).toMatchObject({ priority: 'high' });
+  expect(action.title).toMatch(/water, electric and sewer/i);
+  expect(action.detail).toMatch(/before.*final bid/i);
+  expect(result.narration).toMatch(/water, electric and sewer/i);
+  expect(result.controls.utilities).toMatchObject({ status: 'missing' });
+  expect(result.controls.utilities.items.map(row => row.status)).toEqual(['unknown', 'unknown', 'unknown']);
+  expect(result.controls.margin.profit_low).toBe(70000);
+  expect(source).toEqual(before);
+});
+
+test.each(['unknown', 'in_review', 'needs_work'])('a current %s utility finding stays an open question before a final bid', async status => {
+  const source = { ...state(), gis_reviews: [gisRecord({ utility_reviews: { ...utilityFindings(), sewer: { status, notes: 'Connection depth requires checking.' } } })] };
+  const { service } = setup({ readState: async () => source });
+  const result = await service(job.id);
+  expect(result.controls.utilities.status).toBe('needs_review');
+  expect(result.next_actions.find(row => row.id === 'utilities').detail).toMatch(/sewer/i);
+  expect(result.narration).toMatch(/before the final bid/i);
+});
+
+test.each([{ invalidated_at: now.toISOString() }, { address_snapshot: 'Prior site address' }])('stale utility findings cannot confirm the current site: %j', async patch => {
+  const { service } = setup({ readState: async () => ({ ...state(), gis_reviews: [gisRecord(patch)] }) });
+  const result = await service(job.id);
+  expect(result.controls.utilities.status).toBe('stale');
+  expect(result.controls.utilities.items.every(row => row.status === 'unknown')).toBe(true);
+  expect(result.next_actions.find(row => row.id === 'utilities').detail).toMatch(/current address|restart/i);
+  expect(result.narration).toMatch(/stale/i);
+});
+
+test('all current utility findings are recorded without claiming provider approval or changing costs', async () => {
+  const { service } = setup({ readState: async () => ({ ...state(), gis_reviews: [gisRecord({})] }) });
+  const result = await service(job.id);
+  expect(result.controls.utilities.status).toBe('recorded');
+  expect(result.controls.utilities.message).toMatch(/provider.*approval.*separate/i);
+  expect(result.next_actions.some(row => row.id === 'utilities')).toBe(false);
+  expect(result.controls.margin).toMatchObject({ profit_low: 70000, profit_high: 90000 });
+  expect(result.narration).toMatch(/findings are recorded.*provider approvals remain separate/i);
+});
+
+test('only the latest matching review can support a utility finding; invalid confirmed evidence remains unknown', async () => {
+  const source = { ...state(), gis_reviews: [gisRecord({}), gisRecord({ utility_reviews: undefined }), gisRecord({ project_id: 'other-job' })] };
+  const { service } = setup({ readState: async () => source });
+  expect((await service(job.id)).controls.utilities.items.every(row => row.status === 'unknown')).toBe(true);
+  source.gis_reviews = [gisRecord({ utility_reviews: { ...utilityFindings(), water: { status: 'confirmed', notes: '' } } })];
+  const result = await service(job.id);
+  expect(result.controls.utilities.items.find(row => row.id === 'water').status).toBe('unknown');
+  expect(result.next_actions.some(row => row.id === 'utilities')).toBe(true);
 });

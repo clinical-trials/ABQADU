@@ -36,18 +36,25 @@ describe('saved project readiness', () => {
       setbacks_site_plan_status: 'Needs site plan',
     };
 
-    for (const [change, expected] of [
+    for (const [change, expected, confirmUtilities] of [
       [{}, 'Missing site data'],
       [{ site_visit_status: 'Completed' }, 'Needs utility review'],
-      [{ utility_review_status: 'Confirmed' }, 'Needs sewer confirmation'],
-      [{ sewer_confirmation_status: 'Confirmed' }, 'Needs site plan'],
+      [{ utility_review_status: 'Confirmed' }, 'Needs utility review'],
+      [{ sewer_confirmation_status: 'Confirmed' }, 'Needs utility review'],
+      [{}, 'Needs site plan', true],
       [{ setbacks_site_plan_status: 'Confirmed' }, 'Ready to send'],
-      [{ utility_review_status: 'Needs confirmation' }, 'Needs utility review'],
+      [{ utility_review_status: 'Needs confirmation' }, 'Ready to send'],
     ]) {
       project = { ...project, ...change };
       const input = { projects: [project] };
       const before = JSON.parse(JSON.stringify(input));
-      const saved = await store.saveCommandCenter(input);
+      const options = confirmUtilities ? { gisReviews: () => [{
+        project_id: project.id, address_snapshot: project.address,
+        utility_reviews: Object.fromEntries(['water', 'electric', 'sewer'].map(id => [id, {
+          status: 'confirmed', notes: `Recorded ${id} confirmation for this fixture site.`,
+        }])),
+      }] } : {};
+      const saved = await store.saveCommandCenter(input, options);
       const loaded = await store.loadCommandCenter();
 
       expect(saved.projects[0].readiness_label).toBe(expected);

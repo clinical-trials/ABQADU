@@ -159,6 +159,17 @@ test('design summary, print report and payload carry only pending GIS review for
   const review = window.buildDesignPayload(summary).gisReview;
   assert.equal(review.address, address);
   assert.equal(review.status, 'pending');
+  assert.deepEqual(Array.from(review.utilityReviews, item => item.utility), ['water', 'electric', 'sewer']);
+  for (const item of review.utilityReviews) {
+    assert.equal(item.status, 'unknown');
+    assert.ok(item.questions.every(question => question.endsWith('?')));
+    assert.ok(summary.text.includes(`${item.label} — unknown:`));
+  }
+  assert.match(review.utilityReviews[0].questions.join(' '), /connection.*meter.*capacity.*route/i);
+  assert.match(review.utilityReviews[1].questions.join(' '), /panel.*capacity.*route.*meter.*upgrade/i);
+  assert.match(review.utilityReviews[2].questions.join(' '), /connection.*depth.*slope.*gravity.*pump.*field review/i);
+  assert.ok(summary.text.indexOf('Water — unknown:') < summary.text.indexOf('Approximate yard dimensions'));
+  assert.match(window.document.getElementById('design-result-body').textContent, /builder review questions.*don.t need technical answers/i);
   assert.equal(new URL(review.zoningMapUrl).searchParams.get('find'), address);
   assert.match(summary.text, /GIS yard review requested/);
   assert.ok(summary.text.includes(address));
@@ -169,6 +180,11 @@ test('design summary, print report and payload carry only pending GIS review for
   assert.ok(report.textContent.includes(address));
   assert.equal(report.querySelector('[onerror]'), null);
   assert.equal(window.injected, undefined);
+  // A carried summary cannot make a new address inherit purported utility findings.
+  review.utilityReviews[0].status = 'confirmed';
+  const changed = window.buildDesignPayload({ ...summary, address: '456 Different Property', gisReview: review });
+  assert.equal(changed.gisReview.address, '456 Different Property');
+  assert.equal(changed.gisReview.utilityReviews[0].status, 'unknown');
   form.elements.namedItem('address').value = '';
   const blank = window.buildDesignSummary();
   assert.equal(window.buildDesignPayload(blank).gisReview, null);

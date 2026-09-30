@@ -140,7 +140,7 @@ router.post('/projects/:projectId/apply-model', async (req, res) => {
   try {
     const state = await loadCommandCenter();
     const { found, projects } = updateProject(state, req.params.projectId, project => (
-      applyModelDefaults(project, model)
+      applyModelDefaults(project, model, state)
     ));
     if (!found) return res.status(404).json({ error: 'Project not found' });
 
@@ -161,7 +161,7 @@ router.post('/projects/:projectId/invoice-drafts', async (req, res) => {
     ...item,
     invoice_drafts: invoiceDrafts,
     draw_schedule: drawSchedule,
-    readiness_label: getReadinessLabel(item),
+    readiness_label: getReadinessLabel(item, state),
     metrics: calculateProjectMetrics(item),
   }));
 
@@ -173,7 +173,7 @@ router.get('/projects/:projectId/client-view-preview', async (req, res) => {
   const project = findProject(state, req.params.projectId);
   if (!project) return res.status(404).json({ error: 'Project not found' });
 
-  res.json(createClientViewPreview(project));
+  res.json(createClientViewPreview(project, state));
 });
 
 router.get('/projects/:projectId/client-packet.pdf', async (req, res) => {
@@ -182,7 +182,7 @@ router.get('/projects/:projectId/client-packet.pdf', async (req, res) => {
   if (!project) return res.status(404).json({ error: 'Project not found' });
 
   try {
-    const pdf = await createClientPacketPdf(createClientViewPreview(project));
+    const pdf = await createClientPacketPdf(createClientViewPreview(project, state));
     await saveCommandCenter(() => ({}), { events: [createActivityEvent({
       project_id: project.id, type: 'document.generated', summary: 'Generated client packet PDF.',
       actor_id: req.workspaceAuth.userId,

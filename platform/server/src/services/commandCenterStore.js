@@ -25,7 +25,7 @@ function withProjectReadiness(state) {
         sewer_confirmation_status: project.sewer_confirmation_status || 'Needs sewer confirmation study',
         setbacks_site_plan_status: project.setbacks_site_plan_status || 'Needs site plan',
       };
-      return { ...normalizedProject, readiness_label: getReadinessLabel(normalizedProject) };
+      return { ...normalizedProject, readiness_label: getReadinessLabel(normalizedProject, state) };
     }),
   };
 }
@@ -182,12 +182,12 @@ function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstruct
     const patch = typeof nextState === 'function' ? await nextState(current) : nextState;
     // A validated idempotent retry may explicitly keep the existing file intact.
     if (patch === null) return current;
-    const saved = withProjectReadiness({
+    let saved = {
       ...(replace ? {} : current),
       ...patch,
       version: 'Version 10',
       updated_at: nowIso(),
-    });
+    };
     // Association versions survive stale full-state saves and workspace resets.
     // Only the dedicated server workflow can supply this internal option.
     saved.schedule_links = scheduleLinks ? scheduleLinks(current) : (Array.isArray(current.schedule_links) ? current.schedule_links : []);
@@ -201,6 +201,9 @@ function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstruct
     const gis = Array.isArray(gisHistory) ? invalidateGisReviews(current, saved, gisHistory) : { records: gisHistory, events: [] };
     if (gis.records !== undefined) saved.gis_reviews = gis.records;
     else delete saved.gis_reviews;
+    // Derive readiness only after the current GIS revision and any address
+    // invalidation are finalized, so this response and its file agree.
+    saved = withProjectReadiness(saved);
     // History is server owned: a stale or forged replacement in a state patch
     // cannot erase prior events. State and its new events publish atomically.
     saved.activity_events = [

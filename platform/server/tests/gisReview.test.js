@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { randomUUID } = require('node:crypto');
+const { randomUUID, createHash } = require('node:crypto');
 const request = require('supertest');
 const { createAuthFixture } = require('./helpers/authFixture');
 
@@ -11,6 +11,7 @@ const auth = createAuthFixture();
 const project = { id: 'gis-fixture', client: 'Fixture owner', address: '100 Fixture Lane, Albuquerque, NM', internal_notes: 'private fixture memo' };
 const endpoint = `/api/project-helper/projects/${project.id}/gis-review`;
 const empty = () => ({ status: 'queued', jurisdiction: 'unknown', parcel_id: '', width_ft: '', depth_ft: '', notes: '', checks: { parcel: false, zoning: false, access: false, easements: false, utilities: false } });
+const unknownUtilities = () => Object.fromEntries(['water', 'electric', 'sewer'].map(key => [key, { status: 'unknown', notes: '' }]));
 const input = (patch = {}) => ({ request_id: randomUUID(), expected_version: null, expected_address: project.address, review: empty(), ...patch });
 let directory, previousPath, store, service, app;
 const staff = (method, body, url = endpoint) => {
@@ -53,7 +54,7 @@ test('a queued review snapshots the saved address, authenticated actor and unkno
   const response = await staff('put', payload);
   expect(response.status).toBe(200);
   expect(response.body).toMatchObject({ replayed: false, stale: false, review: { project_id: project.id, address_snapshot: project.address, ...empty() } });
-  expect(Object.keys(response.body.review).sort()).toEqual(['project_id', 'version', 'address_snapshot', 'status', 'jurisdiction', 'parcel_id', 'width_ft', 'depth_ft', 'notes', 'checks', 'updated_at'].sort());
+  expect(Object.keys(response.body.review).sort()).toEqual(['project_id', 'version', 'address_snapshot', 'status', 'jurisdiction', 'parcel_id', 'width_ft', 'depth_ft', 'notes', 'checks', 'utility_reviews', 'updated_at'].sort());
   const saved = JSON.parse(fs.readFileSync(store.storePath, 'utf8'));
   expect(saved.gis_reviews).toHaveLength(1);
   expect(saved.gis_reviews[0]).toMatchObject({ saved_by: 'user_allowed', request_id: payload.request_id });
@@ -199,4 +200,99 @@ test('a stalled read has a sanitized deadline and never starts a save', async ()
   const blocked = service.createGisReviewService({ readState: () => new Promise(() => {}), saveState, readTimeoutMs: 10 });
   await expect(blocked.getReview(project.id)).rejects.toMatchObject({ status: 503, message: 'Saved GIS review data is temporarily unavailable.' });
   expect(saveState).not.toHaveBeenCalled();
+});
+
+test('legacy records read as unknown utilities without rewriting history and old fingerprints still replay', async () => {
+  const payload = input(), version = randomUUID();
+  // This is the exact fingerprint layout deployed before utility fields existed.
+  const fingerprint = createHash('sha256').update(JSON.stringify({ project_id: project.id, expected_version: null, expected_address: project.address.toLowerCase(), review: empty() })).digest('hex');
+  const legacy = { project_id: project.id, version, address_snapshot: project.address, ...empty(), updated_at: '2026-09-30T18:00:00.000Z', saved_by: 'user_allowed', request_id: payload.request_id, request_fingerprint: fingerprint, expected_version: null };
+  fs.writeFileSync(store.storePath, JSON.stringify({ projects: [project], gis_reviews: [legacy], activity_events: [] }));
+  const before = fs.readFileSync(store.storePath, 'utf8');
+  expect((await staff('get')).body.review.utility_reviews).toEqual(unknownUtilities());
+  expect((await staff('put', payload)).body).toMatchObject({ replayed: true, review: { version, utility_reviews: unknownUtilities() } });
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(before);
+  const utility_reviews = { ...unknownUtilities(), water: { status: 'confirmed', notes: 'Builder recorded source and date: fixture water review, Sept 30.' } };
+  const updated = await staff('put', input({ expected_version: version, review: { ...empty(), utility_reviews } }));
+  expect(updated.status).toBe(200);
+  const currentBytes = fs.readFileSync(store.storePath, 'utf8');
+  expect((await staff('put', payload)).body).toMatchObject({ replayed: true, review: { version: updated.body.review.version, utility_reviews } });
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(currentBytes);
+  expect(JSON.parse(currentBytes).gis_reviews[0]).toEqual(legacy);
+});
+
+test('separate utility findings validate status, text limits and confirmed evidence before any save', async () => {
+  const before = fs.readFileSync(store.storePath, 'utf8');
+  for (const utility_reviews of [null, [], {}, { ...unknownUtilities(), gas: { status: 'unknown', notes: '' } },
+    { ...unknownUtilities(), water: { status: 'approved', notes: 'Provider said so' } },
+    { ...unknownUtilities(), electric: { status: 'confirmed', notes: 'ok' } },
+    { ...unknownUtilities(), sewer: { status: 'confirmed', notes: '          ' } },
+    { ...unknownUtilities(), water: { status: 'in_review', notes: 'x'.repeat(2001) } },
+    { ...unknownUtilities(), water: { status: 'in_review', notes: 'bad\u0000note' } },
+    { ...unknownUtilities(), water: { status: 'unknown', notes: false } },
+  ]) expect((await staff('put', input({ review: { ...empty(), utility_reviews } }))).status).toBe(400);
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(before);
+  const utility_reviews = { water: { status: 'confirmed', notes: '  Fixture source, Sept 30: service route recorded.  ' }, electric: { status: 'in_review', notes: 'Load review pending.' }, sewer: { status: 'needs_work', notes: 'Confirm gravity route and depth.' } };
+  const response = await staff('put', input({ review: { ...empty(), utility_reviews } }));
+  expect(response.status).toBe(200);
+  expect(response.body.review.utility_reviews).toEqual({ ...utility_reviews, water: { ...utility_reviews.water, notes: utility_reviews.water.notes.trim() } });
+  expect(require('../src/db').pool.query).not.toHaveBeenCalled();
+});
+
+test('an old client omitting utilities preserves current findings and cannot win a stale-version race', async () => {
+  const utility_reviews = { ...unknownUtilities(), sewer: { status: 'needs_work', notes: 'Recheck the connection depth.' } };
+  const first = (await staff('put', input({ review: { ...empty(), utility_reviews } }))).body.review;
+  const legacyPayload = input({ expected_version: first.version, review: { ...empty(), notes: 'Old client changes the yard note only.' } });
+  const saved = await staff('put', legacyPayload);
+  expect(saved.status).toBe(200);
+  expect(saved.body.review.utility_reviews).toEqual(utility_reviews);
+  const nextUtilities = { ...utility_reviews, water: { status: 'in_review', notes: 'Separate fixture source review.' } };
+  const next = await staff('put', input({ expected_version: saved.body.review.version, review: { ...empty(), utility_reviews: nextUtilities } }));
+  expect(next.status).toBe(200);
+  const bytes = fs.readFileSync(store.storePath, 'utf8');
+  expect((await staff('put', input({ expected_version: first.version }))).status).toBe(409);
+  expect((await staff('put', legacyPayload)).body).toMatchObject({ replayed: true, review: { utility_reviews: nextUtilities } });
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(bytes);
+});
+
+test('address invalidation retains utility history and an explicit stale restart clears all three findings', async () => {
+  const utility_reviews = { water: { status: 'confirmed', notes: 'Fixture water record checked September 30.' }, electric: { status: 'confirmed', notes: 'Fixture electric record checked September 30.' }, sewer: { status: 'needs_work', notes: 'Depth must be checked.' } };
+  await staff('put', input({ review: { ...empty(), utility_reviews } }));
+  await store.saveCommandCenter(current => ({ projects: current.projects.map(row => row.id === project.id ? { ...row, address: 'Different utility service site' } : row) }));
+  const prior = (await staff('get')).body;
+  expect(prior.stale).toBe(true); expect(prior.review.utility_reviews).toEqual(utility_reviews);
+  expect((await staff('put', input({ expected_version: prior.review.version, expected_address: prior.project.address, review: { ...empty(), utility_reviews } }))).status).toBe(409);
+  const restarted = await staff('put', input({ expected_version: prior.review.version, expected_address: prior.project.address }));
+  expect(restarted.status).toBe(200);
+  expect(restarted.body).toMatchObject({ stale: false, review: { utility_reviews: unknownUtilities() } });
+  const stored = JSON.parse(fs.readFileSync(store.storePath, 'utf8'));
+  expect(stored.gis_reviews[0].utility_reviews).toEqual(utility_reviews);
+  expect(stored.gis_reviews[1].utility_reviews).toEqual(utility_reviews);
+});
+
+test('concurrent old-client edits and utility updates use the same version gate without erasing findings', async () => {
+  const firstUtilities = { ...unknownUtilities(), water: { status: 'needs_work', notes: 'The service route needs investigation.' } };
+  const initial = (await staff('put', input({ review: { ...empty(), utility_reviews: firstUtilities } }))).body.review;
+  const nextUtilities = { ...firstUtilities, electric: { status: 'in_review', notes: 'Capacity review started.' } };
+  const replies = await Promise.all([
+    staff('put', input({ expected_version: initial.version, review: { ...empty(), notes: 'Legacy client yard edit.' } })),
+    staff('put', input({ expected_version: initial.version, review: { ...empty(), utility_reviews: nextUtilities } })),
+  ]);
+  expect(replies.map(reply => reply.status).sort()).toEqual([200, 409]);
+  const current = (await staff('get')).body.review;
+  expect(current.utility_reviews).toEqual(replies[1].status === 200 ? nextUtilities : firstUtilities);
+  expect(JSON.parse(fs.readFileSync(store.storePath, 'utf8')).gis_reviews).toHaveLength(2);
+});
+
+test('the shared summary fails closed on malformed data and ignores client-supplied utility claims', () => {
+  const forgedProject = { ...project, utility_reviews: Object.fromEntries(['water', 'electric', 'sewer'].map(id => [id, { status: 'confirmed', notes: 'Client-supplied claim of confirmation.' }])), utility_review_status: 'Confirmed' };
+  for (const source of [undefined, {}, { gis_reviews: null }, { gis_reviews: {} }, { gis_reviews: [null, {}, { project_id: 'other' }] }]) {
+    const summary = service.utilitySummary(source, forgedProject);
+    expect(summary.status).toBe('missing');
+    expect(summary.items.map(item => item.status)).toEqual(['unknown', 'unknown', 'unknown']);
+  }
+  const utility_reviews = { water: { status: 'confirmed', notes: 'x'.repeat(2001) }, electric: { status: 'confirmed', notes: 'Invalid\u0000source evidence' }, sewer: { status: 'approved', notes: 'Unknown status cannot confirm service.' } };
+  const summary = service.utilitySummary({ gis_reviews: [{ project_id: project.id, address_snapshot: project.address, utility_reviews }] }, project);
+  expect(summary.status).toBe('needs_review');
+  expect(summary.items.every(item => item.status === 'unknown' && item.notes === '')).toBe(true);
 });

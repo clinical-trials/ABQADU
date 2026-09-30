@@ -2593,6 +2593,10 @@ h2 em { font-style: normal; color: var(--terra); }
   margin-top: 5px;
   text-transform: uppercase;
 }
+.gis-utility-priorities { display:grid; grid-template-columns:1fr; gap:10px; margin:14px 0; }
+.gis-utility-priorities article { padding:12px; border:1px solid rgba(196,149,74,.4); border-radius:6px; background:var(--stucco); }
+.gis-utility-priorities p { font-size:16px; line-height:1.5; margin:8px 0 0; }
+@media (min-width:760px) { .gis-utility-priorities { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 
 .design-result-actions {
   display: grid;
@@ -7981,8 +7985,13 @@ function buildIntakeGisReview(address) {
   return {
     address: intakeAddress,
     status: 'pending',
-    task: 'Parcel and aerial yard review before the site visit',
-    checks: ['Approximate yard dimensions', 'Site access', 'Easements', 'Zoning and setbacks', 'Utilities'],
+    task: 'Review water, electric and sewer questions first, then parcel and aerial yard review before the site visit',
+    utilityReviews: [
+      { utility: 'water', label: 'Water', status: 'unknown', questions: ['Where are the water connection and meter, and what service capacity and route need review?'] },
+      { utility: 'electric', label: 'Electric', status: 'unknown', questions: ['What panel/service capacity and route are available, and could a meter change or upgrade be needed?'] },
+      { utility: 'sewer', label: 'Sewer', status: 'unknown', questions: ['Where is the sewer connection, what are the depth and slope, and can gravity serve the ADU or does a pump option need field review?'] },
+    ],
+    checks: ['Water', 'Electric', 'Sewer', 'Approximate yard dimensions', 'Site access', 'Easements', 'Zoning and setbacks'],
     aerialMapUrl: 'https://geocortexweb.cabq.gov/Html5Viewer/index.html?viewer=PublicAMV',
     zoningMapUrl: `https://cabq.maps.arcgis.com/apps/webappviewer/index.html?id=53bf716981b14d25a31e7a2549c2d61b&find=${encodeURIComponent(intakeAddress)}`,
   };
@@ -7994,6 +8003,9 @@ function formatIntakeGisReview(review) {
     'GIS yard review requested',
     `Intake address: ${review.address}`,
     'Status: pending review. Preparing this handoff does not send it or complete GIS analysis.',
+    'Builder priorities — water, electric and sewer:',
+    ...review.utilityReviews.map(item => `${item.label} — unknown: ${item.questions.join(' ')}`),
+    'These are builder review questions; homeowners do not need technical answers to request a visit. Connection details and capacity need builder/provider and field review; GIS does not confirm them.',
     `${review.task}. Approximate yard dimensions, site access, easements, zoning/setbacks and utilities are unknown until reviewed and confirmed on site. Map measurements are not a survey.`,
     `City aerial / parcel viewer: ${review.aerialMapUrl}`,
     `City zoning map (address search): ${review.zoningMapUrl}`,
@@ -8056,6 +8068,10 @@ function renderDesignResult(summary) {
       ${gisReview ? `
         <b>GIS yard review requested · pending</b>
         <span>Intake address: ${reportEscape(gisReview.address)}</span>
+        <div class="gis-utility-priorities" aria-label="Builder utility priorities">
+          ${gisReview.utilityReviews.map(item => `<article><strong>${reportEscape(item.label)} — unknown</strong><p>${reportEscape(item.questions.join(' '))}</p></article>`).join('')}
+        </div>
+        <p>These are builder review questions; you don’t need technical answers to request a visit. Connection details and capacity need builder/provider and field review; GIS does not confirm them.</p>
         <p>Parcel and aerial yard review before the site visit: approximate dimensions, access, easements, zoning/setbacks and utilities remain unknown. Preparing this handoff does not send it or complete GIS analysis.</p>
         <div class="assessment-actions">
           <a href="${reportEscape(gisReview.zoningMapUrl)}" target="_blank" rel="noopener noreferrer">Open address in City zoning map</a>

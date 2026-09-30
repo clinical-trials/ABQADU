@@ -66,3 +66,10 @@ These are local release checks. The live-host configuration and publishing requi
 - **649 backend tests / 48 suites, 335 React tests / 26 suites, and 55 public checks passed.** Production build and public packaging succeeded. Backend saves, history, address invalidation and retries were tested using isolated fixtures.
 - Browser acceptance checked private layouts at 390/1280 px, unknown versus calculated yard rectangle, public mobile pending handoff and address-edit invalidation, without overflow or console errors. No real customer records or external address searches were used. Direct file-page navigation was blocked by browser policy; legacy handoff has automated DOM coverage.
 - Local app restarted with the new API and assets. GitHub source updates are separate from public publishing and hosted provider acceptance; existing launch requirements remain.
+
+### Separate utility findings verification
+
+- Water, electric and sewer now lead site review and intake handoffs. Saved findings feed bid-readiness labels, preview/PDF labels and the weekly briefing; prior combined flags remain reference only. Missing or stale findings cannot yield **Ready to send**.
+- **683 backend tests / 49 suites, 340 React tests / 26 suites, and 55 public checks passed**, including all configured PostgreSQL integration fixtures. Production build and public packaging succeeded.
+- Browser checked unknown defaults, three separate editors, utility-first briefing action, a fictional unsent public request and 375/390/414/768/1024/1440 px layouts without overflow or console errors. No customer records, utility-provider requests or confirmations were created. The local server was restarted with the finished code.
+- Confirmed means builder findings recorded, with provider/permit approvals separate. Public draft delivery, hosted authentication and public release requirements remain unchanged.

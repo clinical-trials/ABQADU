@@ -64,6 +64,11 @@ test('legacy GIS handoff uses current input, keeps drafts intact, and invalidate
   const { window, document } = page;
   window.fetch = () => assert.fail('Preparing GIS must not send or geocode the intake');
   const stored = window.localStorage.getItem('abqadu_estimateV9');
+  const priorities = [...document.querySelectorAll('[data-estimate-utility-review]')];
+  assert.equal(priorities.length, 3);
+  assert.deepEqual(priorities.map(card => card.dataset.estimateUtilityReview), ['water', 'electric', 'sewer']);
+  assert.ok(priorities.every(card => /unknown/i.test(card.textContent) && card.querySelector('input,select,textarea') === null));
+  assert.equal(document.getElementById('estimate-gis-workspace').href, document.getElementById('saved-workspace-link').href);
   const address = document.getElementById('estimate-address');
   address.value = '<img src=x onerror="window.injected=true"> 123 Current & First';
   document.getElementById('estimate-gis-prepare').click();
@@ -72,6 +77,8 @@ test('legacy GIS handoff uses current input, keeps drafts intact, and invalidate
   assert.equal(result.hidden, false);
   assert.ok(summary.value.includes(`Intake address: ${address.value}`));
   assert.match(summary.value, /pending[\s\S]*not been sent/i);
+  assert.match(summary.value, /Water — unknown:[\s\S]*Electric — unknown:[\s\S]*Sewer — unknown:/);
+  assert.ok(summary.value.indexOf('Water — unknown:') < summary.value.indexOf('Approximate yard dimensions'));
   assert.equal(new URL(document.getElementById('estimate-gis-zoning').href).searchParams.get('find'), address.value);
   assert.equal(result.querySelector('img,script,[onerror]'), null);
   assert.equal(window.injected, undefined);
@@ -87,6 +94,7 @@ test('legacy GIS handoff uses current input, keeps drafts intact, and invalidate
   document.getElementById('estimate-gis-prepare').click();
   assert.ok(summary.value.includes(address.value));
   assert.ok(!summary.value.includes('123 Current'));
+  assert.doesNotMatch(summary.value, /(?:Water|Electric|Sewer) — confirmed/);
   // Even a programmatic change without an input event must not copy the old address.
   address.value = '789 Last Road';
   const copied = [];

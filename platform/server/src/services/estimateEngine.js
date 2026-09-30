@@ -1,4 +1,5 @@
 const { MODEL_CATALOG, getModelById, getModelByName } = require('./modelCatalog');
+const { utilitySummary } = require('./gisReview');
 
 function numeric(value) {
   const parsed = Number(value);
@@ -34,20 +35,21 @@ function calculateProjectMetrics(project = {}) {
   };
 }
 
-function getReadinessLabel(project = {}) {
+function getReadinessLabel(project = {}, state = {}) {
   const hasIncompleteCheck = (field, completed) => (
     Object.prototype.hasOwnProperty.call(project, field) && !completed.includes(project[field])
   );
   if (!project.address || hasIncompleteCheck('site_visit_status', ['Completed'])) return 'Missing site data';
   if (project.engineering_status === 'Needs engineering') return 'Needs engineering';
-  if (hasIncompleteCheck('utility_review_status', ['Confirmed'])) return 'Needs utility review';
-  if (hasIncompleteCheck('sewer_confirmation_status', ['Confirmed'])) return 'Needs sewer confirmation';
+  // Read the server-owned, current-address revision. Legacy combined flags and
+  // any derived summary supplied on the project cannot confirm these findings.
+  if (utilitySummary(state, project).status !== 'recorded') return 'Needs utility review';
   if (hasIncompleteCheck('setbacks_site_plan_status', ['Confirmed', 'Completed'])) return 'Needs site plan';
   if (project.supplier_status === 'Needs supplier comparison') return 'Needs supplier comparison';
   return 'Ready to send';
 }
 
-function applyModelDefaults(project = {}, modelIdOrName) {
+function applyModelDefaults(project = {}, modelIdOrName, state = {}) {
   const model = resolveModel(modelIdOrName || project.model_id || project.model);
   const updated = {
     ...project,
@@ -62,7 +64,7 @@ function applyModelDefaults(project = {}, modelIdOrName) {
   };
   return {
     ...updated,
-    readiness_label: getReadinessLabel(updated),
+    readiness_label: getReadinessLabel(updated, state),
     metrics: calculateProjectMetrics(updated),
   };
 }
@@ -121,7 +123,7 @@ function createInvoiceDrafts(project = {}) {
   }));
 }
 
-function createClientViewPreview(project = {}) {
+function createClientViewPreview(project = {}, state = {}) {
   return {
     id: `client-preview-${project.id || 'project'}`,
     type: 'Estimate preview',
@@ -140,7 +142,7 @@ function createClientViewPreview(project = {}) {
       sqft: numeric(project.sqft),
       bid_total: numeric(project.bid_total),
     },
-    readiness_label: getReadinessLabel(project),
+    readiness_label: getReadinessLabel(project, state),
     metrics: { price_per_sqft: dollarsPerSqft(project.bid_total, project.sqft) },
     invoice_drafts: createInvoiceDrafts(project),
     draw_schedule: buildDrawSchedule(project),

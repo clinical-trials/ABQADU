@@ -2,6 +2,13 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+const confirmedUtilities = project => ({ gis_reviews: [{
+  project_id: project.id, address_snapshot: project.address,
+  utility_reviews: Object.fromEntries(['water', 'electric', 'sewer'].map(id => [id, {
+    status: 'confirmed', notes: `Recorded ${id} confirmation for this fixture site.`,
+  }])),
+}] });
+
 test('project metrics calculate price per square foot and gross profit', () => {
   const { calculateProjectMetrics } = require('../src/services/estimateEngine');
 
@@ -25,36 +32,36 @@ test('readiness labels prioritize blocked estimate conditions', () => {
   expect(getReadinessLabel({ address: '', site_visit_status: 'Not scheduled' })).toBe('Missing site data');
   expect(getReadinessLabel({ address: '435 Amherst Dr NE', engineering_status: 'Needs engineering' })).toBe('Needs engineering');
   expect(getReadinessLabel({ address: '435 Amherst Dr NE', utility_review_status: 'Needs confirmation' })).toBe('Needs utility review');
-  expect(getReadinessLabel({ address: '435 Amherst Dr NE', supplier_status: 'Needs supplier comparison' })).toBe('Needs supplier comparison');
-  expect(getReadinessLabel({ address: '435 Amherst Dr NE', utility_review_status: 'Confirmed' })).toBe('Ready to send');
+  const project = { id: 'readiness-fixture', address: '100 Fixture Lane', supplier_status: 'Needs supplier comparison' };
+  expect(getReadinessLabel(project, confirmedUtilities(project))).toBe('Needs supplier comparison');
+  expect(getReadinessLabel({ address: '435 Amherst Dr NE', utility_review_status: 'Confirmed' })).toBe('Needs utility review');
 });
 
 test.each([
   ['site_visit_status', 'Needs scheduling', 'Missing site data'],
   ['site_visit_status', 'Scheduled', 'Missing site data'],
   ['site_visit_status', '', 'Missing site data'],
-  ['utility_review_status', '', 'Needs utility review'],
-  ['utility_review_status', null, 'Needs utility review'],
-  ['sewer_confirmation_status', 'Needs sewer confirmation study', 'Needs sewer confirmation'],
-  ['sewer_confirmation_status', '', 'Needs sewer confirmation'],
   ['setbacks_site_plan_status', 'Needs site plan', 'Needs site plan'],
   ['setbacks_site_plan_status', null, 'Needs site plan'],
 ])('readiness blocks an incomplete %s of %s', (field, value, expected) => {
   const { getReadinessLabel } = require('../src/services/estimateEngine');
 
-  expect(getReadinessLabel({ address: '435 Amherst Dr NE', [field]: value })).toBe(expected);
+  const project = { id: 'readiness-fixture', address: '100 Fixture Lane', [field]: value };
+  expect(getReadinessLabel(project, confirmedUtilities(project))).toBe(expected);
 });
 
 test('readiness advances after the recorded site checks are completed', () => {
   const { getReadinessLabel } = require('../src/services/estimateEngine');
 
-  expect(getReadinessLabel({
+  const project = {
+    id: 'readiness-fixture',
     address: '435 Amherst Dr NE',
     site_visit_status: 'Completed',
     utility_review_status: 'Confirmed',
     sewer_confirmation_status: 'Confirmed',
     setbacks_site_plan_status: 'Confirmed',
-  })).toBe('Ready to send');
+  };
+  expect(getReadinessLabel(project, confirmedUtilities(project))).toBe('Ready to send');
 });
 
 test('invoice drafts always start with ten thousand dollar preconstruction invoice', () => {
@@ -88,7 +95,7 @@ test('client view preview exposes homeowner-facing estimate package', () => {
   expect(preview.type).toBe('Estimate preview');
   expect(preview.brand.company).toBe('ABQ ADU');
   expect(preview.project.client).toBe('Amherst homeowner');
-  expect(preview.readiness_label).toBe('Ready to send');
+  expect(preview.readiness_label).toBe('Needs utility review');
   expect(preview.invoice_drafts[0].amount).toBe(10000);
   expect(preview.metrics).toEqual({ price_per_sqft: 308 });
   expect(preview.project).not.toHaveProperty('cogs_low');

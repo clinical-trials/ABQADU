@@ -121,3 +121,30 @@ test('PDF export requires an allowlisted signed session; browser cookies alone c
   expect(puppeteer.launch).not.toHaveBeenCalled();
   expect(store.loadCommandCenter).not.toHaveBeenCalled();
 });
+
+test.each(['missing', 'legacy', 'unknown', 'needs_work', 'stale', 'confirmed'])('client preview and PDF use %s current GIS utilities instead of old combined flags', async condition => {
+  const project = {
+    id: 'packet-fixture', client: 'Fixture owner', address: '100 Fixture Lane', model: 'Altura 650', sqft: 650, bid_total: 185000,
+    site_visit_status: 'Completed', engineering_status: 'Not required', setbacks_site_plan_status: 'Confirmed',
+    utility_review_status: 'Confirmed', sewer_confirmation_status: 'Confirmed', readiness_label: 'Ready to send',
+    utility_review_summary: { status: 'recorded' },
+  };
+  const review = {
+    project_id: project.id, address_snapshot: project.address, status: 'reviewed',
+    utility_reviews: Object.fromEntries(['water', 'electric', 'sewer'].map(id => [id, { status: 'confirmed', notes: 'PRIVATE UTILITY NOTE: fixture confirmation.' }])),
+    checks: { utilities: true },
+  };
+  if (condition === 'legacy') delete review.utility_reviews;
+  if (condition === 'unknown') review.utility_reviews.water.status = 'unknown';
+  if (condition === 'needs_work') review.utility_reviews.electric.status = 'needs_work';
+  if (condition === 'stale') review.invalidated_at = '2026-09-30T20:00:00Z';
+  store.loadCommandCenter.mockResolvedValue({ projects: [project], gis_reviews: condition === 'missing' ? [] : [review] });
+  const expected = condition === 'confirmed' ? 'Ready to send' : 'Needs utility review';
+  const preview = await request(app).get('/api/command-center/projects/packet-fixture/client-view-preview').set('Authorization', `Bearer ${fixture.token()}`);
+  expect(preview.status).toBe(200);
+  expect(preview.body.readiness_label).toBe(expected);
+  expect(JSON.stringify(preview.body)).not.toContain('PRIVATE UTILITY NOTE');
+  expect((await authorized()).status).toBe(200);
+  expect(html).toContain(`Project review:</strong> ${expected}`);
+  expect(html).not.toContain('PRIVATE UTILITY NOTE');
+});

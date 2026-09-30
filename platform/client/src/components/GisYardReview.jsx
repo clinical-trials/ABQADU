@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { requestJson } from '../utils/api';
 import { getAuthSession, isAuthSessionCurrent, subscribeAuthSession } from '../utils/authFetch';
+import { emptyUtilities, utilitiesOf, sameUtilities, validUtilities, utilityQuestions, UtilityPriorities, UtilityReviewFields, recoveryFindings } from './UtilityReview';
 import './GisYardReview.css';
 
 const MAP = 'https://cabq.maps.arcgis.com/apps/webappviewer/index.html?id=53bf716981b14d25a31e7a2549c2d61b';
@@ -8,10 +9,10 @@ const AERIAL = 'https://geocortexweb.cabq.gov/Html5Viewer/index.html?viewer=Publ
 const COUNTY = 'https://www.bernco.gov/planning/gis.aspx';
 const keys = ['status','jurisdiction','parcel_id','width_ft','depth_ft','notes'];
 const checkLabels = {parcel:'Address and parcel matched',zoning:'Jurisdiction and zoning reviewed',access:'Access and existing structures reviewed',easements:'Recorded easements and constraints reviewed',utilities:'Utility information and field checks noted'};
-const empty = () => ({status:'queued',jurisdiction:'unknown',parcel_id:'',width_ft:'',depth_ft:'',notes:'',checks:Object.fromEntries(Object.keys(checkLabels).map(key=>[key,false]))});
+const empty = () => ({status:'queued',jurisdiction:'unknown',parcel_id:'',width_ft:'',depth_ft:'',notes:'',checks:Object.fromEntries(Object.keys(checkLabels).map(key=>[key,false])),utility_reviews:emptyUtilities()});
 const addressKey = value => String(value || '').trim().replace(/\s+/g,' ').toLowerCase();
-const formOf = review => review ? {...Object.fromEntries(keys.map(key=>[key,review[key]])),checks:{...review.checks}} : empty();
-const same = (one,two) => keys.every(key=>one?.[key]===two?.[key]) && Object.keys(checkLabels).every(key=>one?.checks?.[key]===two?.checks?.[key]);
+const formOf = review => review ? {...Object.fromEntries(keys.map(key=>[key,review[key]])),checks:{...review.checks},utility_reviews:utilitiesOf(review)} : empty();
+const same = (one,two) => keys.every(key=>one?.[key]===two?.[key]) && Object.keys(checkLabels).every(key=>one?.checks?.[key]===two?.checks?.[key]) && sameUtilities(one?.utility_reviews,two?.utility_reviews);
 const stamp = value => new Date(value).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/Denver',timeZoneName:'short'});
 const drafts = new Map();
 subscribeAuthSession(()=>drafts.clear());
@@ -36,6 +37,7 @@ function checked(payload,projectId) {
       || !['queued','in_review','reviewed'].includes(review.status) || !['unknown','albuquerque','bernalillo_county','other'].includes(review.jurisdiction)
       || !Object.keys(checkLabels).every(key=>typeof review.checks?.[key]==='boolean')
       || ['width_ft','depth_ft'].some(key=>review[key]!=='' && feet(review[key])===null)
+      || (review.utility_reviews!==undefined && !validUtilities(review.utility_reviews))
       || (!payload.stale && addressKey(review.address_snapshot)!==addressKey(payload.project.address)))fail();
   }
   return payload;
@@ -101,6 +103,9 @@ function ReviewForProject({project,revision,saveChanges,onSaved}) {
   async function save(restart=false) {
     if(pending.current || refreshLock.current || !data || !form || conflict || addressChanged)return;
     const submitted=restart?empty():{...form,parcel_id:form.parcel_id.trim(),notes:form.notes.trim(),width_ft:form.width_ft.trim(),depth_ft:form.depth_ft.trim()};
+    submitted.utility_reviews=Object.fromEntries(Object.entries(submitted.utility_reviews).map(([key,item])=>[key,{...item,notes:item.notes.trim()}]));
+    const missingFindings=Object.entries(submitted.utility_reviews).find(([,item])=>item.status==='confirmed' && item.notes.length<10);
+    if(missingFindings){setError(`${utilityQuestions[missingFindings[0]].label} needs findings of at least 10 characters before confirmation. Record who checked it, when and the source.`);return;}
     if(['width_ft','depth_ft'].some(key=>submitted[key]!=='' && feet(submitted[key])===null)){setError('Enter positive measurements up to 10,000 feet with at most two decimals, or leave them blank.');return;}
     for(const key of ['width_ft','depth_ft'])if(submitted[key]!=='')submitted[key]=feet(submitted[key]).toFixed(2);
     if(submitted.status==='reviewed' && (!submitted.checks.parcel || submitted.notes.length<10)){setError('Match the address and parcel, then add review findings of at least 10 characters before marking the desktop review recorded.');return;}
@@ -134,7 +139,8 @@ function ReviewForProject({project,revision,saveChanges,onSaved}) {
   const address=String(project.address||'').trim(),width=feet(form?.width_ft),depth=feet(form?.depth_ft);
   const edit=(name,value)=>{setForm(previous=>({...previous,[name]:value}));setNotice('');if(!conflict)setError('');};
   return <section className="gis-yard" id="gis-review" aria-labelledby="gis-yard-heading">
-    <div className="gis-yard-heading"><div><span className="gis-eyebrow">Intake → map review → site visit</span><h2 id="gis-yard-heading">Check the yard before the visit.</h2><p>The intake address carries into this job’s GIS review.</p></div><span className={`gis-status ${stale?'gis-status-stale':''}`}>{stale?'Address needs a fresh review':({queued:'Queued for review',in_review:'Review in progress',reviewed:'Desktop review recorded'})[data?.review?.status]||'Not queued'}</span></div>
+    <div className="gis-yard-heading"><div><span className="gis-eyebrow">Intake → utility &amp; map review → site visit</span><h2 id="gis-yard-heading">Check the yard before the visit.</h2><p>Water, electric and sewer come first. Review them for this job’s intake address.</p></div><span className={`gis-status ${stale?'gis-status-stale':''}`}>{stale?'Address needs a fresh review':({queued:'Queued for review',in_review:'Review in progress',reviewed:'Desktop review recorded'})[data?.review?.status]||'Not queued'}</span></div>
+    <UtilityPriorities review={form} loading={loading} unavailable={!data && !loading} stale={stale} dirty={dirty}/>
     <div className="gis-location"><label>Address from intake<input ref={addressInput} value={address} readOnly aria-label="Address for GIS review"/></label><button type="button" disabled={!address} onClick={copyAddress}>Copy address</button></div>
     {address ? <div className="gis-links"><a href={`${MAP}&find=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer">Find address in City zoning map ↗</a><a href={AERIAL} target="_blank" rel="noopener noreferrer">Open aerial &amp; parcel viewer ↗</a><a href={COUNTY} target="_blank" rel="noopener noreferrer">County zoning resources ↗</a></div> : <p className="gis-warning">Add the property address in project intake before starting a GIS review.</p>}
     <p className="gis-help">The City search opens with this address; confirm the matched parcel. Copy the address into the aerial viewer. City IDO layers do not include county zoning. Map links open external services only when you choose them.</p>
@@ -142,16 +148,17 @@ function ReviewForProject({project,revision,saveChanges,onSaved}) {
     {error && <p className="gis-warning" role="alert">{error}</p>}
     {notice && <p className="gis-notice" role="status">{notice}</p>}
     {!loading && data && form && <>
-      {stale && <div className="gis-warning"><b>Review the updated intake address.</b><p>The previous check is retained for reference and does not apply to the current intake. Changing an address back does not reactivate an old review.</p>{data.review && <details><summary>Previous review · {data.review.address_snapshot}</summary><p>{data.review.notes||'No findings recorded.'}</p><p>{data.review.width_ft||'Unknown'} ft × {data.review.depth_ft||'Unknown'} ft · {stamp(data.review.updated_at)}</p></details>}
+      {stale && <div className="gis-warning"><b>Review the updated intake address.</b><p>The previous check is retained for reference and does not apply to the current intake. Changing an address back does not reactivate an old review.</p>{data.review && <details><summary>Previous review · {data.review.address_snapshot}</summary><p className="gis-preserve-lines">{recoveryFindings(data.review)||'No findings recorded.'}</p><p>{data.review.width_ft||'Unknown'} ft × {data.review.depth_ft||'Unknown'} ft · {stamp(data.review.updated_at)}</p></details>}
         {!addressChanged && <button type="button" disabled={saving || refreshing || conflict || !address} onClick={()=>save(true)}>{saving?'Starting review…':'Start review for updated address'}</button>}
       </div>}
-      {dirty && (stale || conflict) && <label className="gis-warning">Unsaved GIS findings<textarea readOnly rows={4} value={form.notes}/><span className="gis-help">Copy these findings before starting over or discarding edits. They have not been saved in the current review.</span></label>}
+      {dirty && (stale || conflict) && <label className="gis-warning">Unsaved GIS findings<textarea readOnly rows={4} value={recoveryFindings(form)}/><span className="gis-help">Copy these findings before starting over or discarding edits. They have not been saved in the current review.</span></label>}
       {!stale && <details className="gis-editor" open={!!data.review || dirty}><summary>{data.review?'Review checklist & yard notes':'Prepare a GIS yard review'}</summary>
         <fieldset disabled={saving || refreshing || conflict}><legend className="gis-sr">GIS desktop review</legend>
+          <UtilityReviewFields value={form.utility_reviews} onChange={value=>edit('utility_reviews',value)}/>
           <div className="gis-form-grid"><label>Review status<select value={form.status} onChange={event=>edit('status',event.target.value)}><option value="queued">Queued for review</option><option value="in_review">Review in progress</option><option value="reviewed">Desktop review recorded</option></select></label>
           <label>Property jurisdiction<select value={form.jurisdiction} onChange={event=>edit('jurisdiction',event.target.value)}><option value="unknown">Not confirmed</option><option value="albuquerque">City of Albuquerque</option><option value="bernalillo_county">Unincorporated Bernalillo County</option><option value="other">Another jurisdiction</option></select></label>
           <label className="gis-wide">Parcel reference<input value={form.parcel_id} maxLength={100} onChange={event=>edit('parcel_id',event.target.value)} placeholder="Parcel ID or map reference"/></label></div>
-          <div className="gis-checklist">{Object.entries(checkLabels).map(([key,label])=><label key={key}><input type="checkbox" checked={form.checks[key]} onChange={event=>edit('checks',{...form.checks,[key]:event.target.checked})}/><span>{label}</span></label>)}</div>
+          <div className="gis-checklist">{Object.entries(checkLabels).filter(([key])=>key!=='utilities').map(([key,label])=><label key={key}><input type="checkbox" checked={form.checks[key]} onChange={event=>edit('checks',{...form.checks,[key]:event.target.checked})}/><span>{label}</span></label>)}</div>
           <p className="gis-help">Check an item after reviewing it. Record unknowns and problems in the notes; a checked item does not mean the property complies.</p>
           <div className="gis-measure-grid"><div><h3>Approximate yard rectangle</h3><p className="gis-help">Enter dimensions you measured in GIS. Leave unknown measurements blank.</p><div className="gis-form-grid"><label>Yard width (ft)<input inputMode="decimal" value={form.width_ft} maxLength={9} onChange={event=>edit('width_ft',event.target.value)}/></label><label>Yard depth (ft)<input inputMode="decimal" value={form.depth_ft} maxLength={9} onChange={event=>edit('depth_ft',event.target.value)}/></label></div></div><div className="gis-area" aria-label="Approximate measured rectangle"><span>Recorded rectangle</span><strong>{!stale && width!==null && depth!==null ? `${(width*depth).toLocaleString('en-US',{maximumFractionDigits:2})} sq ft`:'Not measured'}</strong><small>Not a buildable-area determination</small></div></div>
           <label>Findings and site-visit checks<textarea rows={4} value={form.notes} maxLength={4000} onChange={event=>edit('notes',event.target.value)} placeholder="Map/source and date; structures, yard space, access, easements; what needs measuring or confirmation on site."/></label>

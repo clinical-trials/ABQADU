@@ -3,6 +3,7 @@ const { storePath } = require('./commandCenterStore');
 const weatherProvider = require('./weatherProvider');
 const { tradeWeatherGuidance } = require('./tradeWeatherPlanning');
 const { MODEL_CATALOG } = require('./modelCatalog');
+const { utilitySummary } = require('./gisReview');
 
 const TIME_ZONE = 'America/Denver';
 const TRADES = ['concrete', 'roofing', 'excavation', 'general'];
@@ -72,12 +73,16 @@ async function weatherBriefing(project, trade, now, fetchForecast, env) {
   } catch { return result; }
 }
 
-function projectControls(project) {
+function projectControls(project, utilities) {
   const readiness = [
-    ['site_visit_status', 'Site visit', ['Completed']], ['utility_review_status', 'Utility review', ['Confirmed']],
-    ['sewer_confirmation_status', 'Sewer confirmation', ['Confirmed']], ['setbacks_site_plan_status', 'Site plan and setbacks', ['Confirmed', 'Completed']],
+    ['site_visit_status', 'Site visit', ['Completed']], ['setbacks_site_plan_status', 'Site plan and setbacks', ['Confirmed', 'Completed']],
     ['engineering_status', 'Engineering review', ['Confirmed', 'Completed', 'Not required']],
   ].map(([field, title, accepted]) => ({ field, title, status: accepted.includes(project[field]) ? 'confirmed' : project[field] ? 'review' : 'unknown', detail: text(project[field]) || 'Not recorded' }));
+  readiness.splice(1, 0, ...utilities.items.map(item => ({ field: `utility_reviews.${item.id}`, title: item.title,
+    status: item.status === 'confirmed' ? 'confirmed' : item.status === 'unknown' ? 'unknown' : 'review',
+    detail: item.status === 'confirmed' ? 'Builder findings recorded; provider approvals remain separate.'
+      : utilities.status === 'stale' ? 'Prior findings are stale for this address.'
+        : ({ unknown: 'No current builder findings recorded.', in_review: 'Builder review in progress.', needs_work: 'Work or resolution still needed.' })[item.status] } )));
   const selected = MODEL_CATALOG.find(model => model.id === project.model_id)
     || MODEL_CATALOG.find(model => [model.name, model.family, ...(model.aliases || [])].some(name => name.toLowerCase() === text(project.model).toLowerCase()));
   const sqft = number(project.sqft), bid = number(project.bid_total), low = number(project.cogs_low), high = number(project.cogs_high);
@@ -85,7 +90,7 @@ function projectControls(project) {
   const drafts = Array.isArray(project.invoice_drafts) ? project.invoice_drafts : [];
   const first = drafts.find(draft => /preconstruction/i.test(`${draft.label || ''} ${draft.draw_type || ''}`));
   return {
-    readiness,
+    readiness, utilities,
     model: { status: !selected ? 'unknown' : sqft === selected.sqft ? 'confirmed' : 'review', name: text(project.model) || null, catalog_name: selected?.name || null, sqft, catalog_sqft: selected?.sqft || null },
     margin: { status: validCosts ? 'estimated' : 'unknown', bid_total: bid, cogs_low: low, cogs_high: high, price_per_sqft: bid !== null && sqft > 0 ? Math.round(bid / sqft) : null, profit_low: validCosts ? bid - high : null, profit_high: validCosts ? bid - low : null },
     preconstruction: { status: !first ? 'missing' : number(first.amount) === 10000 ? 'draft_present' : 'review', amount: first ? number(first.amount) : null, payment_status: 'unknown' },
@@ -173,7 +178,8 @@ function createProjectBriefingService({
     const linked = await linkedSchedule(selectedSchedule, generated, query, Boolean(savedLink));
     const weather = await weatherBriefing(project, trade, generated, fetchForecast, env);
     addWeatherExposure(linked, weather, trade);
-    const controls = projectControls(project), next_actions = [];
+    const utilities = utilitySummary(state, project);
+    const controls = projectControls(project, utilities), next_actions = [];
     const add = (id, priority, title, detail) => next_actions.push({ id, priority, title, detail });
     if (linked.schedule.late.length) add('late-work', 'high', 'Verify work past its planned finish', `Check actual progress on ${linked.schedule.late.slice(0, 2).map(activity => activity.name).join(' and ')} before approving recovery dates.`);
     const exposedCritical = linked.schedule.weather_exposure.filter(activity => activity.is_critical);
@@ -183,6 +189,12 @@ function createProjectBriefingService({
     else if (weather.status !== 'current' || weather.planning.some(day => day.level !== 'plan')) add('weather', 'medium', 'Review the forecast before confirming crews', weather.message);
     const highRisks = linked.risks.items.filter(risk => risk.score !== null && risk.score >= 15);
     if (highRisks.length) add('risks', 'high', 'Review the highest recorded risks', highRisks.slice(0, 3).map(risk => risk.title).join('; '));
+    if (utilities.status !== 'recorded') {
+      const open = utilities.items.filter(item => item.status !== 'confirmed').map(item => `${item.title}: ${{ unknown: 'not recorded', in_review: 'in review', needs_work: 'needs work' }[item.status]}`).join('; ');
+      add('utilities', 'high', 'Review water, electric and sewer before the final bid', utilities.status === 'stale'
+        ? 'Restart water, electric and sewer review for the current address before committing the final bid. Prior findings do not apply.'
+        : `${open}. Record source, date and findings before committing the final bid; provider approvals remain separate.`);
+    }
     const pending = controls.readiness.filter(check => check.status !== 'confirmed');
     if (pending.length) add('readiness', 'medium', 'Complete the site-readiness checks', pending.map(check => check.title).join(', '));
     if (controls.model.status !== 'confirmed') add('model', 'medium', 'Confirm the model and measured area', 'Reconcile the saved job with the approved plan before pricing; saved dimensions have not changed.');
@@ -196,9 +208,11 @@ function createProjectBriefingService({
     const concern = weather.planning.find(day => ['hold', 'review'].includes(day.level));
     const weatherSpeech = ['unavailable', 'stale'].includes(weather.status) ? `The current forecast is ${weather.status}.` : `${source} covers the next four days${weather.status === 'partial' ? ', with missing coverage' : ''}. ${concern ? `${spokenDate(concern.date)}: ${trade} ${concern.level === 'hold' ? 'hold candidate' : 'weather review needed'}.` : 'Confirm daily site conditions with the crew.'}`;
     const criticalSpeech = exposedCritical.length ? `${text(exposedCritical[0].name, 60)} has potential weather exposure and is critical; confirm this trade applies.` : '';
+    const utilitySpeech = utilities.status === 'recorded' ? 'Water, electric and sewer findings are recorded; provider approvals remain separate.'
+      : `Water, electric and sewer: ${utilities.status === 'stale' ? 'prior findings are stale' : 'open questions remain'}; resolve these before the final bid.`;
     const nextSpeech = next_actions.length ? `Next: ${text(next_actions[0].detail, 220)}` : 'Next: Confirm actual progress and the next work window with the contractor.';
     const name = text(project.name || project.client, 80) || 'Selected project';
-    const narration = `${name}. ${headline}. ${weatherSpeech} ${criticalSpeech} ${nextSpeech} ${linked.schedule.status === 'unlinked' ? 'No schedule is linked to this briefing.' : ''} No work dates or messages have been changed.`.replace(/\s+/g, ' ').trim();
+    const narration = `${name}. ${headline}. ${weatherSpeech} ${criticalSpeech} ${utilitySpeech} ${nextSpeech} ${linked.schedule.status === 'unlinked' ? 'No schedule is linked to this briefing.' : ''} No work dates or messages have been changed.`.replace(/\s+/g, ' ').trim();
     const recent_activity = (Array.isArray(state.activity_events) ? state.activity_events : []).filter(event => event.project_id === projectId).slice(-5).reverse().map(event => ({ id: event.id, type: event.type, summary: text(event.summary, 500), actor_id: event.actor_id, occurred_at: event.occurred_at }));
     return { generated_at: generated.toISOString(), time_zone: TIME_ZONE, project: { id: project.id, name, model: text(project.model) || null, sqft: number(project.sqft) }, trade, headline, narration, next_actions, weather, schedule: linked.schedule, risks: linked.risks, controls, recent_activity };
   };

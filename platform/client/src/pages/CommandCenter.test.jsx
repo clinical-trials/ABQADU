@@ -176,14 +176,25 @@ test('receipt ledger shows the selected project and clearly identifies unlinked 
 
 test('changing a readiness check persists it before generating the client packet', async () => {
   await mount();
-  const label = [...container.querySelectorAll('label')].find(el => el.textContent.startsWith('Utility review'));
+  const label = [...container.querySelectorAll('label')].find(el => el.textContent.startsWith('Setbacks / site plan'));
   await act(async () => Simulate.change(label.querySelector('select'), {target: {value: 'Confirmed'}}));
   await act(async () => button('Preview Client View').click());
   const putIndex = fetch.mock.calls.findIndex(([, options]) => options?.method === 'PUT');
   const previewIndex = fetch.mock.calls.findIndex(([url]) => url.endsWith('client-view-preview'));
   expect(putIndex).toBeGreaterThan(-1);
   expect(previewIndex).toBeGreaterThan(putIndex);
+  expect(state.projects[0].setbacks_site_plan_status).toBe('Confirmed');
+});
+
+test('office controls point to separate utility findings while preserving earlier combined flags', async () => {
+  state.projects[0].utility_review_status='Confirmed';
+  state.projects[0].sewer_confirmation_status='In review';
+  await mount();
+  expect([...container.querySelectorAll('label')].some(el=>el.textContent.startsWith('Utility review'))).toBe(false);
+  expect([...container.querySelectorAll('a')].find(el=>el.textContent==='Review utility findings').getAttribute('href')).toBe('#gis-review');
+  expect(container.textContent).toContain('Earlier utility notes');
   expect(state.projects[0].utility_review_status).toBe('Confirmed');
+  expect(state.projects[0].sewer_confirmation_status).toBe('In review');
 });
 
 test('failed setup refresh clears stale settings and disables external actions', async () => {

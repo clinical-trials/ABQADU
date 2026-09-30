@@ -366,6 +366,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 .estimate-gis .estimate-gis-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .estimate-gis .btn{min-height:44px;white-space:normal;text-align:center}
 .estimate-gis textarea{font-size:16px;line-height:1.5;min-height:220px;resize:vertical;width:100%}
+.estimate-utility-priorities{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}
+.estimate-utility-priorities article{padding:12px;border:1px solid var(--stucco-d);border-radius:6px;background:var(--stucco)}
+.estimate-utility-priorities small{display:block;margin-top:4px;color:var(--ink60)}
+.estimate-utility-priorities p{font-size:16px;margin:8px 0 0}
+@media(min-width:760px){.estimate-utility-priorities{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .estimate-form-grid{display:grid;gap:10px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .estimate-form-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .estimate-form-grid .wide{grid-column:1/-1}
@@ -909,6 +914,14 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 
         <section class="estimate-card estimate-gis no-print" aria-labelledby="estimate-gis-heading">
           <h3 id="estimate-gis-heading">GIS yard review</h3>
+          <p><strong>Builder priorities: water, electric and sewer.</strong> These questions start the review; homeowners do not need technical answers to request a visit.</p>
+          <div class="estimate-utility-priorities" aria-label="Builder utility priorities">
+            <article data-estimate-utility-review="water"><strong data-utility-label>Water</strong><small>Unknown · review needed</small><p data-utility-question>Where are the water connection and meter, and what service capacity and route need review?</p></article>
+            <article data-estimate-utility-review="electric"><strong data-utility-label>Electric</strong><small>Unknown · review needed</small><p data-utility-question>What panel/service capacity and route are available, and could a meter change or upgrade be needed?</p></article>
+            <article data-estimate-utility-review="sewer"><strong data-utility-label>Sewer</strong><small>Unknown · review needed</small><p data-utility-question>Where is the sewer connection, what are the depth and slope, and can gravity serve the ADU or does a pump option need field review?</p></article>
+          </div>
+          <p>Connection details and capacity need builder/provider and field review; GIS does not confirm them. Record findings against the correct job and address in the saved workspace. This prototype handoff keeps all three unknown.</p>
+          <div class="estimate-gis-actions"><a class="btn ghost" id="estimate-gis-workspace" href="/command-center">Open saved workspace for utility findings</a></div>
           <p>Prepare a parcel and aerial review handoff from the job site address above before arranging the site visit. This creates a draft only; it does not send a request or analyze the yard.</p>
           <button class="btn copper" id="estimate-gis-prepare" type="button" onclick="prepareEstimateGisReview()">Prepare GIS yard review</button>
           <p id="estimate-gis-status" role="status"></p>
@@ -2170,6 +2183,9 @@ function prepareEstimateGisReview(){
     'GIS yard review requested',
     `Intake address: ${address}`,
     'Status: pending review. This draft has not been sent; no GIS analysis has been completed.',
+    'Builder priorities — water, electric and sewer:',
+    ...Array.from(document.querySelectorAll('[data-estimate-utility-review]'), card => `${card.querySelector('[data-utility-label]').textContent} — unknown: ${card.querySelector('[data-utility-question]').textContent}`),
+    'These are builder review questions; homeowners do not need technical answers to request a visit. Connection details and capacity need builder/provider and field review; GIS does not confirm them.',
     'Before the site visit: review the parcel and aerial yard image. Approximate yard dimensions, site access, easements, zoning/setbacks and utilities are unknown until reviewed and confirmed on site. Map measurements are not a survey.',
     `City aerial / parcel viewer: ${aerialMapUrl}`,
     `City zoning map (address search): ${zoningMapUrl}`,
@@ -2270,6 +2286,7 @@ function renderEstimateWorkflow(t){
 }
 function renderEstimateTool(){
   if(!$('#tab-estimates'))return;
+  $('#estimate-gis-workspace').href=$('#saved-workspace-link').href;
   normalizeEstimateState();
   const t=estimateTotals();
   const docLabel=estimateState.docType==='invoice'?'Invoice':'Estimate';

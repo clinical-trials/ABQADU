@@ -101,8 +101,6 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
       <div style={{ ...styles.grid, marginTop: 12 }}>
         {[
           ['Site visit', 'site_visit_status', ['Needs scheduling', 'Scheduled', 'Completed']],
-          ['Utility review', 'utility_review_status', ['Needs confirmation', 'In review', 'Confirmed']],
-          ['Sewer confirmation', 'sewer_confirmation_status', ['Needs sewer confirmation study', 'In review', 'Confirmed']],
           ['Setbacks / site plan', 'setbacks_site_plan_status', ['Needs site plan', 'In review', 'Confirmed']],
         ].map(([label, field, options]) => (
           <div key={field} style={styles.miniCard}>
@@ -114,6 +112,14 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
             </Field>
           </div>
         ))}
+        <div style={styles.miniCard}>
+          <b>Water, electric &amp; sewer</b>
+          <p style={{fontSize:14}}>Record the three checks in the site review. Earlier combined utility flags do not confirm these services.</p>
+          <a href="#gis-review" style={{...styles.ghost,display:'inline-flex',alignItems:'center',minHeight:44}}>Review utility findings</a>
+          <details style={{fontSize:13,marginTop:10}}><summary>Earlier utility notes</summary>
+            <p>Overall: {project.utility_review_status || 'Not recorded'}<br/>Sewer: {project.sewer_confirmation_status || 'Not recorded'}</p>
+          </details>
+        </div>
       </div>
       <div style={{ ...styles.grid, marginTop: 12 }}>
         {invoices.map(invoice => (
