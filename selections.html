@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A homeowner planning worksheet for ADU appliances, comfort, finishes and bath preferences.">
+  <meta name="description" content="A homeowner planning worksheet for ADU appliances, comfort, finishes, bath and optional exterior upgrades.">
   <title>Homeowner selections · ABQ ADU</title>
   <link rel="icon" type="image/png" href="favicon.png?v=adobe-20260930">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -20,7 +20,7 @@
   <main>
     <section class="worksheet-intro" aria-labelledby="page-title">
       <div><p class="eyebrow">Homeowner selections · Prototype</p><h1 id="page-title">The details that<br>make it <em>yours.</em></h1><p class="intro-copy">Start with the things you know. Leave the rest undecided. This worksheet helps you and your builder talk through the everyday details of your ADU.</p><p class="planning-note">Planning preferences for review. Product dimensions, utility needs and availability still need confirmation. No prices or product approvals are included.</p></div>
-      <aside class="progress-card" aria-label="Worksheet progress"><span class="progress-mark" aria-hidden="true">01—04</span><p>Kitchen. Comfort.<br>Finishes. Bath.</p><strong id="selection-progress" role="status" aria-live="polite">0 of 19 choices made</strong><span>Choose what matters to you.<br>You can change your mind.</span></aside>
+      <aside class="progress-card" aria-label="Worksheet progress"><span class="progress-mark" aria-hidden="true">01—05</span><p>Kitchen. Comfort.<br>Finishes. Bath.<br>Exterior upgrades.</p><strong id="selection-progress" role="status" aria-live="polite">0 of 21 choices made</strong><span>Choose what matters to you.<br>You can change your mind.</span></aside>
     </section>
     <section class="device-note" aria-label="How this worksheet works"><span aria-hidden="true">○</span><p>This worksheet does not send anything. <strong>Save on this device</strong> keeps a copy in this browser only when you choose it. You can also copy, download or print your summary.</p></section>
     <noscript><p class="message message-warning">JavaScript is needed to edit, save and export this worksheet. The controls remain disabled so preferences are not submitted. You can still review the topics below or <a href="index.html#contact">contact Ian</a>.</p></noscript>
@@ -68,6 +68,14 @@
           <div class="choice"><label for="selection-toilet">Toilet preference</label><select id="selection-toilet" name="toilet"><option value="">Undecided</option><option value="standard">Standard-height preference</option><option value="taller">Taller-seat preference</option><option value="bidet-ready">Bidet-ready preference</option><option value="ask-builder">Ask the builder to recommend</option></select></div>
         </div>
         <div class="group-notes"><label for="notes-bath">Bath notes <span>Optional · up to 1,000 characters</span></label><textarea id="notes-bath" name="notes-bath" rows="3" maxlength="1000" placeholder="Storage, accessibility, or cleaning preferences to discuss."></textarea></div>
+      </fieldset>
+      <fieldset class="selection-group" id="group-exterior" disabled>
+        <legend><span class="group-number">05</span><span>Exterior upgrades</span></legend><p class="group-intro">Optional ideas to make the exterior feel complete. Discuss the adobe finish first, then an accent window that complements it. Ian will confirm scope, pricing and installation sequence.</p>
+        <div class="choice-grid">
+          <div class="choice"><label for="selection-adobe_refinishing">Adobe refinishing</label><select id="selection-adobe_refinishing" name="adobe_refinishing"><option value="">Undecided</option><option value="quote">Interested — discuss pricing</option><option value="none">No adobe refinishing upgrade</option><option value="later">Consider in a later phase</option><option value="ask-builder">Ask the builder to recommend</option></select></div>
+          <div class="choice"><label for="selection-accent_window">Accent window</label><select id="selection-accent_window" name="accent_window"><option value="">Undecided</option><option value="quote">Interested — discuss pricing</option><option value="none">No accent window upgrade</option><option value="later">Consider in a later phase</option><option value="ask-builder">Ask the builder to recommend</option></select></div>
+        </div>
+        <div class="group-notes"><label for="notes-exterior">Exterior upgrade notes <span>Optional · up to 1,000 characters</span></label><textarea id="notes-exterior" name="notes-exterior" rows="3" maxlength="1000" placeholder="Adobe finish ideas, an accent-window location, or a budget to discuss."></textarea></div>
       </fieldset>
     </form>
     <section class="summary-panel" aria-labelledby="summary-heading">

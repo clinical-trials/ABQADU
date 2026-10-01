@@ -10,8 +10,11 @@
     { id: 'comfort', title: 'Comfort & laundry', fields: ['ceiling_fans', 'heating_cooling', 'laundry', 'water_heater'] },
     { id: 'finishes', title: 'Cabinets & finishes', fields: ['cabinet_color', 'cabinet_style', 'countertop', 'flooring'] },
     { id: 'bath', title: 'Bath', fields: ['bath_layout', 'shower_enclosure', 'vanity', 'toilet'] },
+    { id: 'exterior', title: 'Exterior upgrades (optional)', fields: ['adobe_refinishing', 'accent_window'] },
   ];
   const fields = groups.flatMap(group => group.fields);
+  const originalGroups = groups.filter(group => group.id !== 'exterior');
+  const originalFields = originalGroups.flatMap(group => group.fields);
   const byId = id => document.getElementById(id);
   const field = key => form.elements.namedItem(key);
   const labels = Object.fromEntries(fields.map(key => [key, form.querySelector(`label[for="selection-${key}"]`).textContent.trim()]));
@@ -21,7 +24,7 @@
   const saveStatus = byId('save-status');
   const storageStatus = byId('storage-status');
   const copyStatus = byId('copy-status');
-  const deferredChoices = new Set(['', 'ask-builder', 'see-samples']);
+  const deferredChoices = new Set(['', 'ask-builder', 'see-samples', 'later']);
   let savedFingerprint = null;
   let savedAt = null;
   let dirty = false;
@@ -55,10 +58,20 @@
       if (!exactKeys(record, ['version', 'savedAt', 'projectNickname', 'choices', 'notes']) || record.version !== VERSION
         || typeof record.savedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(record.savedAt)
         || !Number.isFinite(Date.parse(record.savedAt)) || new Date(record.savedAt).toISOString() !== record.savedAt
-        || !boundedText(record.projectNickname, 80) || !exactKeys(record.choices, fields) || !exactKeys(record.notes, groups.map(group => group.id))) return null;
-      if (fields.some(key => typeof record.choices[key] !== 'string' || !Object.prototype.hasOwnProperty.call(options[key], record.choices[key]))
-        || groups.some(group => !boundedText(record.notes[group.id], 1000))) return null;
-      return record;
+        || !boundedText(record.projectNickname, 80)) return null;
+      const currentShape = exactKeys(record.choices, fields) && exactKeys(record.notes, groups.map(group => group.id));
+      const originalShape = exactKeys(record.choices, originalFields) && exactKeys(record.notes, originalGroups.map(group => group.id));
+      if (!currentShape && !originalShape) return null;
+      const savedGroups = originalShape ? originalGroups : groups;
+      const savedFields = originalShape ? originalFields : fields;
+      if (savedFields.some(key => typeof record.choices[key] !== 'string' || !Object.prototype.hasOwnProperty.call(options[key], record.choices[key]))
+        || savedGroups.some(group => !boundedText(record.notes[group.id], 1000))) return null;
+      // Restore the initial 19-choice draft in memory; only an explicit save adds the new fields on disk.
+      return {
+        ...record,
+        choices: { ...Object.fromEntries(fields.map(key => [key, ''])), ...record.choices },
+        notes: { ...Object.fromEntries(groups.map(group => [group.id, ''])), ...record.notes },
+      };
     } catch (_) { return null; }
   }
   function buildSummary(values) {
@@ -71,6 +84,7 @@
     for (const group of groups) {
       lines.push(group.title.toUpperCase());
       for (const key of group.fields) lines.push(`${labels[key]}: ${options[key][values.choices[key]]}`);
+      if (group.id === 'exterior') lines.push('Discussion order: adobe finish, then accent window. Builder to confirm scope, pricing and installation sequence.');
       lines.push(`Notes: ${values.notes[group.id].trim() || 'None added'}`, '');
     }
     lines.push('Planning preferences only. These choices are not product approvals, orders, a quote or a construction agreement.',

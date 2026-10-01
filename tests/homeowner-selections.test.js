@@ -107,12 +107,12 @@ test('a new worksheet starts undecided with no implied approvals, saved draft or
   const form = window.document.getElementById('selections-form');
   assert.ok(form, 'Choices must be editable in a form');
   const selects = [...form.querySelectorAll('select')];
-  assert.equal(selects.length, 19);
+  assert.equal(selects.length, 21);
   for (const field of selects) {
     assert.equal(field.value, '', `${field.name} must remain undecided`);
     assert.match(field.selectedOptions[0].textContent, /undecided|not sure|not selected/i);
   }
-  assert.match(window.document.getElementById('selection-progress').textContent, /0 of 19/);
+  assert.match(window.document.getElementById('selection-progress').textContent, /0 of 21/);
   const summary = window.document.getElementById('selection-summary');
   assert.equal(summary.readOnly, true);
   assert.match(summary.value, /undecided|not selected|not sure/i);
@@ -155,17 +155,123 @@ test('dishwasher, ceiling fans, cooking style, stainless finish and counter-dept
   assert.match(summary(window), /ceiling fans/i);
   assert.match(summary(window), /stainless/i);
   assert.match(summary(window), /counter.depth/i);
-  assert.match(window.document.getElementById('selection-progress').textContent, /5 of 19/);
+  assert.match(window.document.getElementById('selection-progress').textContent, /5 of 21/);
   const range = choose(window, 'cooking_setup', 'range');
   assert.ok(summary(window).includes(range));
-  assert.match(window.document.getElementById('selection-progress').textContent, /5 of 19/);
+  assert.match(window.document.getElementById('selection-progress').textContent, /5 of 21/);
   const discussion = choose(window, 'dishwasher', 'ask-builder');
   assert.ok(summary(window).includes(discussion), 'Discussion requests must remain visible in the builder summary');
-  assert.match(window.document.getElementById('selection-progress').textContent, /4 of 19/);
+  assert.match(window.document.getElementById('selection-progress').textContent, /4 of 21/);
   const samples = choose(window, 'cabinet_style', 'see-samples');
   assert.ok(summary(window).includes(samples), 'A request to review samples remains an unresolved preference');
-  assert.match(window.document.getElementById('selection-progress').textContent, /4 of 19/);
+  assert.match(window.document.getElementById('selection-progress').textContent, /4 of 21/);
   assert.equal(writeCount(), 0, 'Typing preferences does not save or send them automatically');
+});
+
+test('optional adobe refinishing and accent-window quote requests appear in the current printable and saved preferences', t => {
+  const page = openPage(t);
+  const { window } = page;
+  const form = window.document.getElementById('selections-form');
+  assert.equal(form.elements.namedItem('adobe_refinishing')?.value, '', 'Adobe work must start undecided');
+  assert.equal(form.elements.namedItem('accent_window')?.value, '', 'An accent window must start undecided');
+  const adobeLabel = choose(window, 'adobe_refinishing', 'quote');
+  const windowLabel = choose(window, 'accent_window', 'quote');
+  enter(window, 'notes-exterior', 'Discuss an adobe finish and an accent window at the courtyard.');
+  const current = summary(window);
+  assert.match(current, /adobe refinishing/i);
+  assert.match(current, /accent window/i);
+  assert.ok(current.includes(adobeLabel));
+  assert.ok(current.includes(windowLabel));
+  assert.match(current, /Discuss an adobe finish and an accent window at the courtyard\./);
+  assert.match(current, /not.*(?:approval|order|quote|agreement)/i);
+  assert.match(current, /undecided/i, 'Unrelated choices must remain open');
+  assert.match(window.document.getElementById('selection-progress').textContent, /2 of 21/);
+  click(window, 'print-summary');
+  assert.deepEqual(page.printed(), [current]);
+  assert.equal(page.readStored(draftKey), null, 'A quote preference or printing must not silently save');
+  click(window, 'save-selections');
+  const saved = page.readStored(draftKey);
+  const restored = openPage(t, { saved });
+  assert.equal(summary(restored.window), current);
+  assert.equal(restored.window.document.getElementById('print-summary-text').textContent, current);
+  assert.equal(restored.readStored(draftKey), saved);
+  assert.equal(restored.writeCount(), 0);
+  choose(window, 'accent_window', 'later');
+  assert.match(window.document.getElementById('selection-progress').textContent, /1 of 21/, 'A later discussion is not a settled choice');
+  choose(window, 'adobe_refinishing', 'ask-builder');
+  assert.match(window.document.getElementById('selection-progress').textContent, /0 of 21/);
+  choose(window, 'accent_window', 'none');
+  assert.match(window.document.getElementById('selection-progress').textContent, /1 of 21/);
+});
+
+function legacyDraft() {
+  // This is the original persisted shape, independent of the current form's field list.
+  return JSON.stringify({
+    version: 1,
+    savedAt: '2026-09-30T18:00:00.000Z',
+    projectNickname: 'Earlier garden concept',
+    choices: {
+      dishwasher: 'compact', cooking_setup: '', appliance_finish: '', refrigerator: '', ventilation: '', microwave: '', disposal: '',
+      ceiling_fans: 'bedrooms', heating_cooling: '', laundry: '', water_heater: '',
+      cabinet_color: '', cabinet_style: '', countertop: '', flooring: '',
+      bath_layout: '', shower_enclosure: '', vanity: '', toilet: '',
+    },
+    notes: { kitchen: 'Keep the original appliance note.', comfort: '', finishes: '', bath: '' },
+  }, null, 2);
+}
+
+test('the original version-one draft restores untouched and adds blank exterior preferences only when explicitly saved', t => {
+  const saved = legacyDraft();
+  const { window, readStored, writeCount } = openPage(t, { saved });
+  const form = window.document.getElementById('selections-form');
+  assert.equal(window.document.getElementById('project-nickname').value, 'Earlier garden concept');
+  assert.equal(form.elements.namedItem('dishwasher').value, 'compact');
+  assert.equal(form.elements.namedItem('ceiling_fans').value, 'bedrooms');
+  assert.equal(window.document.getElementById('notes-kitchen').value, 'Keep the original appliance note.');
+  assert.equal(form.elements.namedItem('adobe_refinishing')?.value, '');
+  assert.equal(form.elements.namedItem('accent_window')?.value, '');
+  assert.equal(window.document.getElementById('notes-exterior')?.value, '');
+  assert.match(window.document.getElementById('selection-progress').textContent, /2 of 21/);
+  assert.equal(readStored(draftKey), saved, 'Loading must preserve the complete original serialized record');
+  assert.equal(writeCount(), 0, 'Schema compatibility must never cause an automatic storage write');
+  choose(window, 'adobe_refinishing', 'quote');
+  assert.equal(readStored(draftKey), saved, 'Editing also preserves the earlier device draft');
+  click(window, 'save-selections');
+  assert.equal(writeCount(), 1);
+  const updated = JSON.parse(readStored(draftKey));
+  assert.equal(updated.version, 1);
+  assert.equal(updated.projectNickname, 'Earlier garden concept');
+  assert.equal(updated.choices.dishwasher, 'compact');
+  assert.equal(updated.choices.ceiling_fans, 'bedrooms');
+  assert.equal(updated.choices.adobe_refinishing, 'quote');
+  assert.equal(updated.choices.accent_window, '');
+  assert.equal(updated.notes.kitchen, 'Keep the original appliance note.');
+  assert.equal(updated.notes.exterior, '');
+});
+
+test('partial or mixed legacy/current exterior draft shapes remain untouched through attempted save', t => {
+  const original = JSON.parse(legacyDraft());
+  const malformed = [
+    { ...original, choices: { ...original.choices, adobe_refinishing: 'quote' } },
+    { ...original, choices: { ...original.choices, adobe_refinishing: 'quote', accent_window: '' } },
+    { ...original, notes: { ...original.notes, exterior: 'Only a partial upgrade' } },
+    { ...original, choices: { ...original.choices, adobe_refinishing: 'quote' }, notes: { ...original.notes, exterior: '' } },
+    { ...original, choices: { ...original.choices, adobe_refinishing: 'not-an-option', accent_window: '' }, notes: { ...original.notes, exterior: '' } },
+  ];
+  for (const record of malformed) {
+    const saved = JSON.stringify(record);
+    const { window, readStored, writeCount } = openPage(t, { saved });
+    const form = window.document.getElementById('selections-form');
+    assert.equal(form.elements.namedItem('dishwasher').value, '', 'Invalid draft must not partially restore preferences');
+    choose(window, 'accent_window', 'quote');
+    enter(window, 'notes-exterior', 'Current visible preferences remain available.');
+    click(window, 'save-selections');
+    assert.equal(readStored(draftKey), saved, 'Compatibility must not overwrite a partial or malformed existing draft');
+    assert.equal(writeCount(), 0);
+    assert.equal(form.elements.namedItem('accent_window').value, 'quote');
+    assert.match(summary(window), /Current visible preferences remain available\./);
+    assert.match(window.document.getElementById('storage-status').textContent, /preserv|not.*replace|not.*overwrite|kept|untouched/i);
+  }
 });
 
 test('text and print summaries follow current unsaved edits and retain undecided choices', t => {
