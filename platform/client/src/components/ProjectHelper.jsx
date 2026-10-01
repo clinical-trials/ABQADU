@@ -104,6 +104,18 @@ function HelperForProject({ project, revision, onForecast, onScheduleSaved }) {
         </details>
       </div>
     </>}
+    <div className="helper-review-grid">
+      <details id="property-tax-review">
+        <summary>Homeowner property-tax planning · Bernalillo County</summary>
+        <p><strong>Contractor-reported 51% checkpoint: unverified.</strong> Include a property-tax review in the build timeline and confirm the threshold with the Assessor before treating it as a tax rule. This note does not establish that this job has reached that stage or that tax is due.</p>
+        <ul>
+          <li>Confirm the parcel's jurisdiction, how work in progress is assessed, any completion threshold, and what the owner must report.</li>
+          <li>Review the January 1 valuation date and the applicable tax year with the homeowner. Improvements during a year affect valuation the following January 1.</li>
+          <li>Confirm the actual bill and payment dates with the Treasurer, then review any mortgage escrow change with the homeowner's lender.</li>
+        </ul>
+        <p><a href="https://www.bernco.gov/assessor/" target="_blank" rel="noopener noreferrer">Bernalillo County Assessor</a> · <a href="https://www.srca.nm.gov/parts/title03/03.006.0007.html" target="_blank" rel="noopener noreferrer">Valuation-date rule · 3.6.7.14 NMAC</a></p>
+      </details>
+    </div>
     <CrewWeatherBrief report={report} project={project} loading={loading} expired={expired}/>
   </section>;
 }

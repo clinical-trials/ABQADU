@@ -104,6 +104,14 @@ Coverage: pagination reached the end of both histories available during Septembe
 
 ## September 30 homeowner and contractor additions
 
+### Property-tax planning clarification — October 1, 2026
+
+The owner relayed a contractor's claim that Bernalillo County property taxes begin at 51% house completion, then clarified that it may be incorrect and is a build-timeline consideration. The supplied [New Mexico Property Tax Division page](https://www.tax.newmexico.gov/About-Us/Property-Tax-Division/) is general agency context, not evidence of that threshold. An official residential 51% threshold has not been verified. Do not encode this as a payment trigger, automatic liability, construction-progress fact or promise that land/existing improvements are untaxed beforehand.
+
+The public financing section now includes a property-tax planning note at `/#property-tax`; the private Project Helper has a county-confirmation checklist. These are informational notes, not saved project milestones or automatic alerts. [3.6.7.14 NMAC](https://www.srca.nm.gov/parts/title03/03.006.0007.html), reviewed October 1, 2026, distinguishes the January 1 valuation date and following-year treatment of improvements. It does not establish the reported completion threshold. The [Bernalillo County Assessor](https://www.bernco.gov/assessor/) should confirm treatment of work in progress for the parcel; the Treasurer confirms bill/payment timing. County pages returned HTTP403 during research, so no county-specific threshold is presented as verified.
+
+### Existing additions
+
 - Lighthouse Credit Union is linked as an educational ADU loan example. Its current page limits this product to NH, MA, ME and VT; the site explicitly directs Albuquerque homeowners to ask their lender about New Mexico options. This is not an established local lending partnership.
 - Contact leads to Text Ian and Call Ian at the existing published business number. Device messaging remains a reviewed, manual send.
 - The working app has append-only project activity, the latest five entries and older-history pagination. Entries record verified actor IDs and changed fields; text drafts and invoice drafts are never treated as sent messages or payments. Notes support idempotent retries and browser dictation with review before saving. SQL payment history remains in the billing ledger.
