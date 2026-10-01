@@ -137,6 +137,10 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
       <div style={{ marginTop: 12, padding: 11, borderRadius: 8, background: '#FAF7F2', fontSize: 13 }}>
         <input aria-label="Project status" style={styles.input} value={project.status} onChange={e => onChange(project.id, 'status', e.target.value)} />
         <textarea aria-label="Next action" style={{ ...styles.input, marginTop: 6 }} value={project.next_action} onChange={e => onChange(project.id, 'next_action', e.target.value)} />
+        <div style={{marginTop:12}}>
+          <Field label="Internal commentary"><textarea aria-label="Internal commentary" aria-describedby="internal-commentary-help" rows={5} maxLength={5000} style={{...styles.input,minHeight:128,fontSize:16,resize:'vertical'}} value={project.internal_notes || ''} onChange={e => onChange(project.id, 'internal_notes', e.target.value)} placeholder="Site-visit observations, crew follow-up, bid context, or questions to revisit." /></Field>
+          <p id="internal-commentary-help" style={{fontSize:12,margin:'6px 0 0'}}>Internal team notes saved with this job. Excluded from homeowner previews and printed client packets.</p>
+        </div>
       </div>
     </article>
   );

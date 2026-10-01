@@ -59,6 +59,103 @@ function readBlob(window, blob) {
   });
 }
 
+test('legacy internal bid notes autosave literal text without rebuilding the editor or moving the caret', t => {
+  const page = openBuilder(t, { hash:'#bids' });
+  const { window, document } = page;
+  const notes = document.getElementById('bid-internal-notes');
+  assert.ok(notes, 'The bid tool needs an internal notes field');
+  assert.equal(notes.value, '', 'Old drafts start with no notes');
+  assert.equal(notes.rows, 5);
+  assert.equal(notes.maxLength, 5000);
+  assert.equal(document.querySelector('label[for="bid-internal-notes"]').textContent, 'Internal team notes');
+  assert.ok(notes.closest('.no-print'), 'Internal notes stay out of whole-page printing');
+  const firstCostRow = document.querySelector('#bid-items tr');
+  notes.value = 'Confirm access window.\n<img src=x onerror="window.injected=true">';
+  notes.focus();
+  notes.setSelectionRange(8, 8);
+  notes.dispatchEvent(new window.Event('input', { bubbles:true }));
+  assert.equal(document.activeElement, notes);
+  assert.equal(notes.selectionStart, 8);
+  assert.equal(document.querySelector('#bid-items tr'), firstCostRow, 'Typing cannot rebuild the bid');
+  assert.equal(window.injected, undefined);
+  assert.equal(JSON.parse(window.localStorage.getItem('abqadu_bid')).internal_notes, notes.value);
+  assert.match(document.getElementById('bid-save-status').textContent, /saved locally/i);
+  const entries = Object.fromEntries(Object.keys(window.localStorage).map(key => [key, window.localStorage.getItem(key)]));
+  const reloaded = openBuilder(t, { entries, hash:'#bids' });
+  assert.equal(reloaded.document.getElementById('bid-internal-notes').value, notes.value);
+  assert.equal(reloaded.window.injected, undefined);
+  assert.deepEqual(page.errors, []);
+  assert.deepEqual(reloaded.errors, []);
+});
+
+test('legacy internal bid notes stay with their project and copy only into an explicit revision', t => {
+  const projects = [
+    {id:'example-a',bid:{title:'Example A',internal_notes:'Review access for A.',items:[]},invoices:[]},
+    {id:'example-b',bid:{title:'Example B',internal_notes:'Review access for B.',items:[]},invoices:[]},
+  ];
+  const { window, document, errors } = openBuilder(t, { entries:{abqadu_projects:JSON.stringify(projects)}, hash:'#bids' });
+  const notes = document.getElementById('bid-internal-notes');
+  assert.ok(notes);
+  assert.equal(notes.value, 'Review access for A.');
+  notes.value = 'Updated A notes.';
+  notes.dispatchEvent(new window.Event('input', { bubbles:true }));
+  window.switchProject('example-b');
+  assert.equal(notes.value, 'Review access for B.');
+  window.switchProject('example-a');
+  assert.equal(notes.value, 'Updated A notes.');
+  window.duplicateProjectFolder();
+  assert.equal(notes.value, 'Updated A notes.');
+  notes.value = 'Revision notes only.';
+  window.saveBidDraft();
+  window.switchProject('example-a');
+  assert.equal(notes.value, 'Updated A notes.');
+  window.newProjectFolder();
+  assert.equal(notes.value, '', 'A new homeowner cannot inherit another project’s notes');
+  assert.equal(JSON.parse(window.localStorage.getItem('abqadu_bid')).internal_notes, '');
+  assert.deepEqual(errors, []);
+});
+
+test('legacy internal bid notes are excluded from client documents and exports but included in recovery backups', async t => {
+  const { window, document, downloads, errors } = openBuilder(t, { hash:'#bids' });
+  const notes = document.getElementById('bid-internal-notes');
+  assert.ok(notes);
+  notes.value = 'INTERNAL EXAMPLE: Confirm crew access before scheduling.';
+  window.saveBidDraft();
+  assert.ok(!window.buildBidPrintDocument().includes(notes.value));
+  assert.ok(!window.buildEstimateInvoiceDocument().includes(notes.value));
+  window.exportBidCsv();
+  window.exportBidJson();
+  for (const blob of downloads) {
+    const exported = await readBlob(window, blob);
+    assert.ok(!exported.includes(notes.value));
+    assert.ok(!exported.includes('internal_notes'));
+  }
+  window.downloadPageBackup();
+  const backup = JSON.parse(await readBlob(window, downloads.at(-1)));
+  assert.equal(backup.drafts.bid.internal_notes, notes.value);
+  assert.equal(backup.drafts.projects[0].bid.internal_notes, notes.value);
+  assert.deepEqual(errors, []);
+});
+
+test('legacy storage failure keeps current internal notes editable and recoverable without a saved claim', async t => {
+  const original = JSON.stringify({title:'Example bid',items:[],internal_notes:'Earlier notes.'});
+  const { window, document, downloads, errors } = openBuilder(t, { entries:{abqadu_bid:original},storageFailure:'quota',hash:'#bids' });
+  const notes = document.getElementById('bid-internal-notes');
+  assert.ok(notes);
+  assert.equal(notes.value, 'Earlier notes.');
+  notes.value = 'Current unsaved notes.';
+  notes.dispatchEvent(new window.Event('input', { bubbles:true }));
+  assert.equal(notes.value, 'Current unsaved notes.');
+  assert.equal(window.localStorage.getItem('abqadu_bid'), original);
+  assert.match(document.getElementById('bid-save-status').textContent, /only.*page/i);
+  assert.doesNotMatch(document.getElementById('bid-save-status').textContent, /notes saved/i);
+  window.downloadPageBackup();
+  const backup = JSON.parse(await readBlob(window, downloads[0]));
+  assert.equal(backup.drafts.bid.internal_notes, notes.value);
+  assert.equal(backup.originalBrowserData.bid, original);
+  assert.deepEqual(errors, []);
+});
+
 test('legacy bids can keep Other / not yet selected through save, reload and export without changing costs', async t => {
   const originalBid = {title:'Example custom ADU',client:'Example homeowner',address:'123 Example Lane',model:'Altura',sqft:615,status:'draft',readinessFlags:[],items:[{cat:'Interior',desc:'Finish carpentry',kind:'base',qty:3,unit:'ea',cost:1234}]};
   const page = openBuilder(t, { entries: { abqadu_bid: JSON.stringify(originalBid) }, hash:'#bids' });

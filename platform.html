@@ -1158,10 +1158,15 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="bid-setup">
       <div class="card">
         <h3 style="font-size:17px;margin-bottom:10px">Photovoltonic Bid Tool</h3>
-        <div class="muted" style="font-size:12px;margin-bottom:10px">Use this for bid title and internal status after the site visit jacket above is complete.</div>
+        <div class="muted" style="font-size:12px;margin-bottom:10px">Use this for the bid title, internal status, and team commentary after the site visit jacket above is complete.</div>
         <div class="row" style="gap:12px;margin-bottom:12px">
           <div style="flex:1"><label class="fld">Bid title</label><input class="in" id="bid-title"></div>
           <div><label class="fld">Draft status</label><select class="in" id="bid-status"><option>draft</option><option>ready for review</option><option>sent</option><option>accepted</option></select></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <label class="fld" for="bid-internal-notes">Internal team notes</label>
+          <textarea class="in" id="bid-internal-notes" rows="5" maxlength="5000" aria-describedby="bid-internal-notes-help" style="font-size:16px;line-height:1.5;resize:vertical" placeholder="Site observations, questions, follow-up items, or context for the team"></textarea>
+          <p class="muted" id="bid-internal-notes-help" style="font-size:12px;margin-top:6px">Internal team notes. Saved with this bid; excluded from printed bids and client-facing exports. Page backups include these notes.</p>
         </div>
         <div class="review-callout" id="bid-review-callout">Review flags will appear here when lines need engineering, utility, or site verification.</div>
       </div>
@@ -1792,6 +1797,7 @@ const isStoredInvoiceList = value => isStoredRecordList(value) && value.every(in
 function isStoredBid(value){
   return isStoredRecord(value)
     && (value.title == null || typeof value.title === 'string')
+    && (value.internal_notes == null || typeof value.internal_notes === 'string')
     && (value.items == null || isStoredRecordList(value.items));
 }
 const store = (()=>{
@@ -2636,6 +2642,7 @@ function normalizeBid(bidData){
   bidData.title ??= '';
   bidData.client ??= '';
   bidData.address ??= '';
+  bidData.internal_notes ??= '';
   bidData.model ??= 'Netherwood House';
   if (bidData.model === legacyNetherwoodDuplicate) bidData.model = 'Netherwood House';
   if (bidData.title && bidData.title.includes(legacyNetherwoodDuplicate)) bidData.title = bidData.title.replace(legacyNetherwoodDuplicate, 'Netherwood House');
@@ -2806,7 +2813,7 @@ function switchProject(id){
 }
 function newProjectFolder(){
   saveBid();
-  const project=makeProject(normalizeBid({...cloneSampleBid(), title:'New ADU Project', client:'', address:'', status:'draft'}), []);
+  const project=makeProject(normalizeBid({...cloneSampleBid(), title:'New ADU Project', client:'', address:'', internal_notes:'', status:'draft'}), []);
   projects.unshift(project);
   activeProjectId=project.id;
   activeProject=project;
@@ -2860,7 +2867,9 @@ function setBidSaveStatus(text){
 }
 function syncBidFromInputs(){
   const title=$('#bid-title'), client=$('#bid-client'), address=$('#bid-address'), model=$('#bid-model'), sqft=$('#bid-sqft'), status=$('#bid-status'), grade=$('#bid-confidence-grade');
+  const internalNotes=$('#bid-internal-notes');
   if(title)bid.title=title.value;
+  if(internalNotes)bid.internal_notes=internalNotes.value;
   if(client)bid.client=client.value;
   if(address)bid.address=address.value;
   if(model)bid.model=model.value;
@@ -3077,6 +3086,7 @@ function renderBidAppShell(t){
 }
 function renderBid(){
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
+  $('#bid-internal-notes').value=bid.internal_notes || '';
   const addressInput=$('#bid-address'); if(addressInput)addressInput.value=bid.address || '';
   $('#bid-model').value=bid.model || 'Netherwood House';
   $('#bid-sqft').value=bid.sqft || 640;
@@ -3200,6 +3210,7 @@ function focusNewestCogsLine(){
   if(target)target.focus();
 }
 $('#bid-title').oninput=e=>{bid.title=e.target.value;renderBid()};
+$('#bid-internal-notes').oninput=e=>{bid.internal_notes=e.target.value;saveBid();setBidSaveStatus('Internal team notes saved locally.')};
 $('#bid-client').oninput=e=>{bid.client=e.target.value;renderBid()};
 $('#bid-address').oninput=e=>{bid.address=e.target.value;renderBid()};
 $('#bid-model').oninput=e=>{bid.model=e.target.value;renderBid();setBidSaveStatus('Draft saved with model update.')};

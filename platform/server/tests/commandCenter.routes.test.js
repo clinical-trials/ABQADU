@@ -84,6 +84,51 @@ if (typeof test === 'function') {
     });
   });
 
+  test('internal commentary preserves multiline literal markup without copying it into activity summaries', async () => {
+    await withModelRoute(async (request, storePath) => {
+      const internalNotes = 'PRIVATE-COMMENT-FIXTURE\nReview <strong>sample options</strong> & measurements.\n<img src=x onerror="window.fixtureExecuted=true">';
+      const project = { ...modelFixture, internal_notes: internalNotes };
+      const saved = await request.put('/api/command-center').send({ projects: [project] });
+      expect(saved.status).toBe(200);
+      expect(saved.body.projects[0].internal_notes).toBe(internalNotes);
+      expect(JSON.parse(fs.readFileSync(storePath, 'utf8')).projects[0].internal_notes).toBe(internalNotes);
+
+      const reloaded = await request.get('/api/command-center');
+      expect(reloaded.status).toBe(200);
+      expect(reloaded.body.projects[0]).toMatchObject(project);
+      expect(reloaded.body.activity_events).toHaveLength(1);
+      expect(reloaded.body.activity_events[0]).toMatchObject({
+        project_id: modelFixture.id, type: 'project.updated', changed_fields: ['internal_notes'],
+        summary: 'Updated internal notes.',
+      });
+      expect(JSON.stringify(reloaded.body.activity_events)).not.toMatch(/PRIVATE-COMMENT-FIXTURE|sample options|fixtureExecuted|<img/);
+    });
+  });
+
+  test('current client preview and packet renderer omit internal commentary', async () => {
+    await withModelRoute(async request => {
+      const internalNotes = 'INTERNAL-ONLY-PACKET-FIXTURE\n<b>Example staff discussion</b> & follow-up.';
+      const saved = await request.put('/api/command-center').send({ projects: [{ ...modelFixture, internal_notes: internalNotes }] });
+      expect(saved.status).toBe(200);
+      const preview = await request.get(`/api/command-center/projects/${modelFixture.id}/client-view-preview`);
+      expect(preview.status).toBe(200);
+      expect(preview.body.project).toMatchObject({ id: modelFixture.id, client: modelFixture.client });
+      expect(preview.body).not.toHaveProperty('internal_notes');
+      expect(preview.body.project).not.toHaveProperty('internal_notes');
+      expect(JSON.stringify(preview.body)).not.toMatch(/internal_notes|INTERNAL-ONLY-PACKET-FIXTURE|Example staff discussion/);
+
+      const { renderClientPacketHtml } = require('../src/services/clientPacketPdf');
+      for (const payload of [preview.body, {
+        ...preview.body, internal_notes: internalNotes,
+        project: { ...preview.body.project, internal_notes: internalNotes },
+      }]) {
+        const html = renderClientPacketHtml(payload);
+        expect(html).toContain(modelFixture.client);
+        expect(html).not.toMatch(/internal_notes|INTERNAL-ONLY-PACKET-FIXTURE|Example staff discussion|&lt;b&gt;/);
+      }
+    });
+  });
+
   test.each([
     { model_id: 'other' },
     { model: 'Other / not yet selected' },

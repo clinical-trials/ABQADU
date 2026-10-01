@@ -22,6 +22,41 @@ afterEach(async () => { await act(async () => root.unmount()); container.remove(
 const button = text => [...container.querySelectorAll('button')].find(el => el.textContent === text);
 const mount = async () => { await act(async () => root.render(<CommandCenter />)); };
 
+test('internal commentary saves literally and stays with its own project after switching and reloading', async () => {
+  const note = 'Site-visit follow-up\n<img src=x onerror="window.injected=true"> Confirm access with the crew.';
+  await mount();
+  const field = container.querySelector('[aria-label="Internal commentary"]');
+  expect(field).not.toBeNull();
+  expect(field.value).toBe('');
+  await act(async () => Simulate.change(field, {target:{value:note}}));
+  await act(async () => button('Save changes').click());
+  expect(state.projects[0].internal_notes).toBe(note);
+  expect(container.querySelector('[onerror]')).toBeNull();
+  expect(window.injected).toBeUndefined();
+  await act(async () => Simulate.change(container.querySelector('[aria-label="Active project"]'), {target:{value:'two'}}));
+  expect(container.querySelector('[aria-label="Internal commentary"]').value).toBe('');
+  await act(async () => Simulate.change(container.querySelector('[aria-label="Internal commentary"]'), {target:{value:'Different job, separate notes.'}}));
+  await act(async () => button('Save changes').click());
+  expect(state.projects[1].internal_notes).toBe('Different job, separate notes.');
+  await act(async () => Simulate.change(container.querySelector('[aria-label="Active project"]'), {target:{value:'one'}}));
+  expect(container.querySelector('[aria-label="Internal commentary"]').value).toBe(note);
+  await act(async () => root.unmount());
+  root = createRoot(container);
+  await mount();
+  expect(container.querySelector('[aria-label="Internal commentary"]').value).toBe(note);
+});
+
+test('internal commentary stays out of the homeowner preview even if returned among project fields', async () => {
+  state.projects[0].internal_notes = 'Private crew coordination — keep within the team.';
+  await mount();
+  expect(container.querySelector('[aria-label="Internal commentary"]')).not.toBeNull();
+  await act(async () => button('Preview Client View').click());
+  const preview = document.querySelector('[role="dialog"]');
+  expect(preview).not.toBeNull();
+  expect(preview.textContent).not.toContain(state.projects[0].internal_notes);
+  expect(preview.querySelector('[aria-label="Internal commentary"]')).toBeNull();
+});
+
 test('Other is saved and reopened without keeping a previously selected model or applying defaults', async () => {
   state.projects[0].model_id = 'altura-576';
   state.model_catalog = [{id:'altura-576',name:'Altura 576',sqft:576}];
