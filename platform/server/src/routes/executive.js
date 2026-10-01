@@ -1,11 +1,23 @@
 const createRouter = require('../asyncRouter');
 const { calculateCashScenario, CashScenarioValidationError } = require('../services/cashScenario');
 const { createPreconstructionCycleService, PreconstructionCycleError } = require('../services/preconstructionCycle');
+const { createOwnerPlanService, canReadOwnerPlan, OwnerPlanError } = require('../services/ownerPlan');
 
-function createExecutiveRouter({ getBriefing, scenario = calculateCashScenario, cycleService, env = process.env } = {}) {
+function createExecutiveRouter({ getBriefing, scenario = calculateCashScenario, cycleService, ownerPlanService, env = process.env } = {}) {
   const router = createRouter();
   const briefing = getBriefing || require('../services/cfoBriefing').createCfoBriefingService({ env });
   const cycle = cycleService || createPreconstructionCycleService();
+  const ownerPlan = ownerPlanService || createOwnerPlanService({ env });
+
+  router.get('/owner-plan', async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    if (!canReadOwnerPlan(req.workspaceAuth, env)) return res.status(404).json({ error: new OwnerPlanError(404).message });
+    try { res.json(await ownerPlan.getReport(req.workspaceAuth)); }
+    catch (error) {
+      const safeError = new OwnerPlanError(error instanceof OwnerPlanError ? error.status : 503);
+      res.status(safeError.status).json({ error: safeError.message });
+    }
+  });
 
   const handleCycle = action => async (req, res) => {
     res.set('Cache-Control', 'private, no-store');

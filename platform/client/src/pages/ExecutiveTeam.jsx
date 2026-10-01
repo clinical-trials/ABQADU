@@ -5,6 +5,7 @@ import { getAuthSession, isAuthSessionCurrent, subscribeAuthSession } from '../u
 import BriefingAudio from '../components/BriefingAudio';
 import CfoCashScenario from '../components/CfoCashScenario';
 import PreconstructionScorecard from '../components/PreconstructionScorecard';
+import OwnerGoals from '../components/OwnerGoals';
 import './ExecutiveTeam.css';
 
 const money = cents => Number.isSafeInteger(cents) ? (cents / 100).toLocaleString('en-US',{style:'currency',currency:'USD'}) : 'Unknown';
@@ -100,6 +101,7 @@ export default function ExecutiveTeam() {
       <Link className="executive-role" to="/command-center#project-helper"><span>COO</span><div><b>Operations</b><p>Schedule · weather · crew priorities</p><small>Open project tools →</small></div></Link>
       <Link className="executive-role" to="/bids"><span>Sales</span><div><b>Growth</b><p>Customer estimates · bid review</p><small>Open estimate tools →</small></div></Link>
     </nav>
+    <OwnerGoals/>
     <PreconstructionScorecard onSaved={refreshAfterMilestone}/>
     <section className="executive-finance" id="cfo" aria-label="CFO financial review" ref={cfo} tabIndex={-1}>
       <div className="executive-refresh"><span className="executive-muted">Review the company’s saved financial picture.</span><button disabled={loading} onClick={()=>setRefresh(value=>value+1)}>{loading?'Reading financial records…':'Refresh financial review'}</button></div>

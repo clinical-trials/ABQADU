@@ -8,6 +8,7 @@ import { setAuthSession } from '../utils/authFetch';
 jest.mock('../utils/api',()=>({requestJson:jest.fn()}));
 jest.mock('../components/CfoCashScenario',()=>()=> <section id="cash-scenario">Cash scenario calculator</section>);
 jest.mock('../components/PreconstructionScorecard',()=>({onSaved})=> <section id="preconstruction-cycle"><button onClick={onSaved}>Record cycle milestone</button></section>);
+jest.mock('../components/OwnerGoals',()=>()=> <section id="owner-plan">Private owner planning</section>);
 const fixture = {
   generated_at:'2026-09-30T18:00:00.000Z',as_of:'2026-09-30',currency:'USD',
   sources:{jobs:{status:'available',message:'Saved estimates',updated_at:null},ledger:{status:'available',message:'Invoice ledger'}},

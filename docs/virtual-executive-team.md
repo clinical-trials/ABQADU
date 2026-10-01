@@ -13,6 +13,8 @@ The executive desk also includes the [weekly contract-to-$10,000 scorecard](prec
 
 These are advisory workspaces, not autonomous employees or new authentication roles. The existing approved-staff access boundary applies. This release does not send messages, change payment records, move money, change schedules or connect bank accounts.
 
+The separate [owner goals and business-plan section](owner-goals.md) has a stricter owner allowlist for personal planning. Its private runtime file is separate from shared job data, activity and CFO narration. General staff access never grants access to the personal plan.
+
 ## Current implementation scope
 
 Add `/executive` to the private app and workspace menu. The CFO is the initial full desk; the other role cards identify their responsibilities and link to existing tools. Make the first view readable on phones, with current decisions and missing evidence ahead of expandable details. Reuse the existing speech playback controls for the financial briefing.
