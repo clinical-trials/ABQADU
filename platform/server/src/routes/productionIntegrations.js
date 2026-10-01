@@ -14,13 +14,13 @@ function sendError(res, err) {
   });
 }
 
-router.get('/status', (_req, res) => {
-  res.json(getIntegrationStatus());
+router.get('/status', (req, res) => {
+  res.json(getIntegrationStatus(req.app?.locals?.integrationEnv || process.env));
 });
 
 router.get('/clerk/status', (req, res) => {
   res.json({
-    ...getIntegrationStatus().clerk,
+    ...getIntegrationStatus(req.app?.locals?.integrationEnv || process.env).clerk,
     authenticated: true,
     subject: req.workspaceAuth.userId,
   });

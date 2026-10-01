@@ -6,6 +6,8 @@ function createAuthFixture() {
   const origin = 'https://builder.example.test';
   const issuer = 'https://test-workspace.clerk.accounts.dev';
   const env = {
+    // Tests exercise Clerk explicitly, regardless of the developer's private mode.
+    ABQ_AUTH_MODE: 'clerk',
     CLERK_TELEMETRY_DISABLED: '1',
     CLERK_PUBLISHABLE_KEY: `pk_test_${Buffer.from('test-workspace.clerk.accounts.dev$').toString('base64')}`,
     CLERK_SECRET_KEY: 'sk_test_test_fixture_only',

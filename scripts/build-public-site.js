@@ -13,7 +13,7 @@ function buildPublicSite(source, output, builderOrigin = '') {
   if (path.resolve(source) === path.resolve(output)) throw new Error('Public output must be separate from the source.');
   fs.mkdirSync(output,{recursive:true});
   if (fs.readdirSync(output).length) throw new Error('Use an empty output folder so no old private files are included.');
-  for (const name of ['index.html','selections.html','homeowner-selections.js','homeowner-selections.css','favicon.png','favicon.svg','images']) {
+  for (const name of ['index.html','favicon.png','favicon.svg','images']) {
     fs.cpSync(path.join(source,name),path.join(output,name),{recursive:true});
   }
   fs.mkdirSync(path.join(output,'data'));

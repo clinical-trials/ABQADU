@@ -1,4 +1,5 @@
 import React, { act } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { Simulate } from 'react-dom/test-utils';
 import Portfolio from './Portfolio';
@@ -30,13 +31,14 @@ beforeEach(() => {
 });
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); jest.restoreAllMocks(); });
 const button = text => [...container.querySelectorAll('button')].find(el => el.textContent.trim() === text);
-const mount = async Component => { await act(async () => root.render(<Component projectId="one" />)); };
+const mount = async Component => { await act(async () => root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><Component projectId="one" /></MemoryRouter>)); };
 const click = async text => { await act(async () => button(text).click()); };
 const change = async (element, value) => { await act(async () => Simulate.change(element, { target: { value } })); };
 
 test('client portal creation is explicit and becomes unavailable once linked', async () => {
   let client = {id:8,name:'Billing client',status:'active'};
   fetch.mockImplementation(async (url, options) => {
+    if (url === '/api/integrations/status') return response({ invoiceshelf: { configured: true } });
     if (url === '/api/invoice-engine/customers/8/sync') {
       client = {...client,invoiceshelf_customer_id:'remote-8'};
       return response({ok:true});
@@ -49,6 +51,15 @@ test('client portal creation is explicit and becomes unavailable once linked', a
   expect(fetch.mock.calls.some(([url,options])=>url === '/api/invoice-engine/customers/8/sync' && options.method === 'POST')).toBe(true);
   expect(button('Create InvoiceShelf customer')).toBeUndefined();
   expect(container.textContent).toContain('InvoiceShelf customer linked');
+});
+
+test('clients remain usable without offering an unconfigured InvoiceShelf export', async () => {
+  fetch.mockImplementation(async url => response(url === '/api/integrations/status' ? { invoiceshelf: { configured: false } } : [{ id: 8, name: 'Billing client', status: 'active' }]));
+  await mount(Clients);
+  expect(container.textContent).toContain('Billing client');
+  expect(button('+ Add Client').disabled).toBe(false);
+  expect(button('Create InvoiceShelf customer')).toBeUndefined();
+  expect(container.querySelector('details').open).toBe(false);
 });
 
 test.each([Portfolio, Clients, Scheduler, FieldOperations, RiskRegister, BidBuilder, Invoices])(
@@ -88,18 +99,18 @@ const invoice = { id: 'inv', invoice_number: 'INV-1', description: 'Deposit', am
 test('a failed payment keeps amount and method in the open payment form', async () => {
   fetch.mockImplementation(async () => response([invoice]));
   await mount(Invoices);
-  await click('Record Payment');
+  await click('Record check');
   await change(container.querySelector('input[type="number"]'), '45');
   await change([...container.querySelectorAll('select')].at(-1), 'cash');
   fetch.mockImplementation(async () => unavailable());
-  await click('Save Payment');
+  await click('Save payment');
   expect(container.querySelector('input[type="number"]').value).toBe('45');
   expect([...container.querySelectorAll('select')].at(-1).value).toBe('cash');
   expect(container.querySelector('input[type="number"]').parentElement.querySelector('[role="alert"]').textContent).toContain('Database unavailable');
 });
 
 test('failed invoice PDF and external sync requests display errors without downloading', async () => {
-  fetch.mockImplementation(async () => response([{...invoice,invoiceshelf_invoice_id:'remote-1'}]));
+  fetch.mockImplementation(async url => response(url === '/api/integrations/status' ? { invoiceshelf: { configured: true } } : [{...invoice,invoiceshelf_invoice_id:'remote-1'}]));
   await mount(Invoices);
   fetch.mockImplementation(async () => unavailable());
   await click('PDF');
@@ -113,10 +124,10 @@ test('failed invoice PDF and external sync requests display errors without downl
 test('retrying a manual payment preserves its request identity', async()=>{
   fetch.mockImplementation(async()=>response([invoice]));
   await mount(Invoices);
-  await click('Record Payment');
+  await click('Record check');
   fetch.mockImplementation(async()=>unavailable());
-  await click('Save Payment');
-  await click('Save Payment');
+  await click('Save check');
+  await click('Save check');
   const attempts=fetch.mock.calls.filter(([url,options])=>url.endsWith('/payments') && options?.method==='POST').map(([,options])=>JSON.parse(options.body));
   expect(attempts).toHaveLength(2);
   expect(attempts[0].request_id).toMatch(/^[a-f0-9-]{36}$/);
@@ -139,14 +150,14 @@ test('an unresolved partial payment keeps its exact identity and locked details 
     }
     return response([invoice]);
   });
-  await mount(Invoices); await click('Record Payment');
+  await mount(Invoices); await click('Record check');
   await change(container.querySelector('input[type="number"]'), '20');
-  await click('Save Payment'); await click('Cancel');
+  await click('Save check'); await click('Cancel');
   await act(async () => root.render(<div />));
   await mount(Invoices); await click('Resume payment');
   expect(container.querySelector('input[type="number"]').value).toBe('20');
   expect(container.querySelector('input[type="number"]').disabled).toBe(true);
-  await click('Save Payment');
+  await click('Save check');
   expect(attempts).toHaveLength(2);
   expect(attempts[1]).toEqual(attempts[0]);
   expect(container.textContent).toContain('may already have been recorded');
@@ -156,7 +167,7 @@ test('pending payment locks fields, cancel and backdrop until the request finish
   let finish;
   fetch.mockImplementation(async (url, options) => options?.method === 'POST' && url.endsWith('/payments')
     ? new Promise(resolve => { finish = resolve; }) : response([invoice]));
-  await mount(Invoices); await click('Record Payment'); await click('Save Payment');
+  await mount(Invoices); await click('Record check'); await click('Save check');
   expect(container.querySelector('input[type="number"]').disabled).toBe(true);
   expect([...container.querySelectorAll('select')].at(-1).disabled).toBe(true);
   expect(button('Cancel').disabled).toBe(true);
@@ -175,22 +186,22 @@ test('starting a different payment requires reviewing the ledger and explicit co
     if (options?.method === 'POST' && url.endsWith('/payments')) { attempts.push(JSON.parse(options.body)); return unavailable(); }
     return response(url === '/api/invoices/inv' ? { ...invoice, payments: [] } : [invoice]);
   });
-  await mount(Invoices); await click('Record Payment');
+  await mount(Invoices); await click('Record check');
   await change(container.querySelector('input[type="number"]'), '20');
-  await click('Save Payment');
+  await click('Save check');
   await click('Start a different payment');
   expect(container.textContent).toContain('Review the recorded payments');
   expect(container.querySelector('input[type="number"]').disabled).toBe(true);
   await click('I reviewed these payments; start a different payment');
   expect(container.querySelector('input[type="number"]').disabled).toBe(false);
   await change(container.querySelector('input[type="number"]'), '15');
-  await click('Save Payment');
+  await click('Save check');
   expect(attempts[1].request_id).not.toBe(attempts[0].request_id);
 });
 
 test('an incomplete success response retains the request until payment confirmation', async () => {
   fetch.mockImplementation(async (url, options) => response(options?.method === 'POST' ? {} : [invoice]));
-  await mount(Invoices); await click('Record Payment'); await click('Save Payment');
+  await mount(Invoices); await click('Record check'); await click('Save check');
   expect(container.querySelector('[role="dialog"]')).not.toBeNull();
   expect(container.textContent).toContain('did not confirm this payment');
   await click('Cancel');
@@ -204,16 +215,25 @@ test('reviewing the ledger acknowledges an already recorded retry instead of sta
     if (url === '/api/invoices/inv') return response({ ...invoice, payments: [{ id: 10, amount: submitted.amount, manual_request_key: submitted.request_id }] });
     return response([invoice]);
   });
-  await mount(Invoices); await click('Record Payment'); await click('Save Payment');
+  await mount(Invoices); await click('Record check'); await click('Save check');
   await click('Start a different payment');
   expect(container.querySelector('[role="dialog"]')).toBeNull();
   expect(button('Resume payment')).toBeUndefined();
 });
 
 const bid = { id: 'bid', title: 'Existing bid', bid_number: 'BID-1', status: 'draft', markup_pct: 10, tax_pct: 0, contingency_pct: 0, items: [] };
+test('built-in bid actions remain available without an InvoiceShelf account', async () => {
+  fetch.mockImplementation(async url => response(url === '/api/integrations/status' ? { invoiceshelf: { configured: false } } : url === '/api/bids' ? [bid] : url === '/api/bids/bid' ? bid : []));
+  await mount(BidBuilder);
+  await act(async () => [...container.querySelectorAll('div')].find(el => el.textContent === 'Existing bid').click());
+  expect(button('Save Bid').disabled).toBe(false);
+  expect(button('Download PDF').disabled).toBe(false);
+  expect(button('Accept & Create Draw Schedule →').disabled).toBe(false);
+  expect(button('Create InvoiceShelf Estimate')).toBeUndefined();
+});
 test.each(['Save Bid', 'Download PDF', 'Create InvoiceShelf Estimate', 'Accept & Create Draw Schedule →'])(
   'a failed bid save stops %s and preserves the editor', async action => {
-    fetch.mockImplementation(async url => response(url === '/api/bids' ? [bid] : url === '/api/bids/bid' ? bid : []));
+    fetch.mockImplementation(async url => response(url === '/api/integrations/status' ? { invoiceshelf: { configured: true } } : url === '/api/bids' ? [bid] : url === '/api/bids/bid' ? bid : []));
     await mount(BidBuilder);
     await act(async () => [...container.querySelectorAll('div')].find(el => el.textContent === 'Existing bid').click());
     await change(container.querySelector('input'), 'Unsaved bid title');

@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Simulate } from 'react-dom/test-utils';
 import CommandCenter from './CommandCenter';
+import { MemoryRouter } from 'react-router-dom';
 import { clearAuthSession } from '../utils/authFetch';
 
 const project = (id, client) => ({ id, client, address: 'Albuquerque, NM 87106', model: 'Altura', sqft: 600, bid_total: 185000, cogs_low: 90000, cogs_high: 102000, confidence: 'A', status: 'Draft', next_action: 'Review site' });
@@ -20,7 +21,29 @@ beforeEach(() => {
 });
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); jest.restoreAllMocks(); });
 const button = text => [...container.querySelectorAll('button')].find(el => el.textContent === text);
-const mount = async () => { await act(async () => root.render(<CommandCenter />)); };
+const mount = async () => { await act(async () => root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><CommandCenter /></MemoryRouter>)); };
+
+test('phone-book deep links open and scroll after command-center data arrives', async () => {
+  const originalURL = window.location.href, originalScroll = Element.prototype.scrollIntoView;
+  const previous = fetch;
+  let finishLoad;
+  window.history.replaceState({}, '', '/command-center#contractor-phonebook');
+  Element.prototype.scrollIntoView = jest.fn();
+  global.fetch = jest.fn((url, options) => url === '/api/command-center'
+    ? new Promise(resolve => { finishLoad = () => resolve({ ok: true, json: async () => state }); })
+    : previous(url, options));
+  try {
+    await mount();
+    expect(container.querySelector('#contractor-phonebook')).toBeNull();
+    await act(async () => finishLoad());
+    expect(container.querySelector('#contractor-phonebook').open).toBe(true);
+    expect(Element.prototype.scrollIntoView.mock.instances.some(node => node.id === 'contractor-phonebook')).toBe(true);
+    expect(container.querySelectorAll('[data-contact-id]')).toHaveLength(11);
+  } finally {
+    window.history.replaceState({}, '', originalURL);
+    Element.prototype.scrollIntoView = originalScroll;
+  }
+});
 
 test('the invoice generator explains four draws and preserves an already saved schedule', async () => {
   await mount();
@@ -345,7 +368,7 @@ test('failed setup refresh clears stale settings and disables external actions',
   expect(container.textContent).toContain('Credentials added · untested');
   statusFails = true;
   await act(async () => button('Refresh setup status').click());
-  expect(button('Send Live SMS').disabled).toBe(true);
+  expect(button('Send with business number')).toBeUndefined();
   expect(container.textContent).toContain('Status unavailable');
 });
 
@@ -470,4 +493,36 @@ test('saved invoice drafts import for the selected project without a browser pay
   expect(call[1].body).toBeUndefined();
   expect(container.textContent).toContain('1 invoice ready');
   expect(fetch.mock.calls.some(([url])=>url === '/api/integrations/stripe/checkout')).toBe(false);
+});
+
+test('intake tab deep link reveals office tools once project data is ready', async () => {
+  const previous=window.location.href;
+  window.history.replaceState({}, '', '/command-center#project-intake');
+  try { await mount(); expect(container.querySelector('#office-tools').open).toBe(true); expect(container.querySelector('#project-intake')).not.toBeNull(); }
+  finally { window.history.replaceState({}, '', previous); }
+});
+
+test('reviewed receipts save to the selected job and ambiguous retries keep one receipt ID', async () => {
+  const previous=fetch; let firstSave=true;
+  global.fetch=jest.fn(async(url,options={})=>{
+    const response=await previous(url,options);
+    if(url==='/api/command-center' && options.method==='PUT' && firstSave){firstSave=false;return {ok:false,json:async()=>({error:'Connection lost after save'})};}
+    return response;
+  });
+  await mount();
+  await act(async()=>button('Enter manually').click());
+  for(const [label,value] of [['Receipt vendor','Fixture building supply'],['Receipt date','2026-10-01'],['Receipt total','108.00']]){
+    await act(async()=>Simulate.change(container.querySelector(`[aria-label="${label}"]`),{target:{value}}));
+  }
+  expect(fetch.mock.calls.filter(([,options])=>options?.method==='PUT')).toHaveLength(0);
+  expect(button('Save reviewed receipt').disabled).toBe(true);
+  await act(async()=>Simulate.change(container.querySelector('[aria-label="Confirm receipt details"]'),{target:{checked:true}}));
+  await act(async()=>button('Save reviewed receipt').click());
+  expect(container.textContent).toContain('Your reviewed details are still here to retry');
+  const firstId=state.receipts[0].id;
+  expect(state.receipts).toHaveLength(1);
+  await act(async()=>button('Save reviewed receipt').click());
+  expect(state.receipts).toHaveLength(1);
+  expect(state.receipts[0]).toMatchObject({id:firstId,project_id:'one',vendor:'Fixture building supply',amount:108,date:'2026-10-01'});
+  expect(container.textContent).toContain('Receipt saved to this job');
 });

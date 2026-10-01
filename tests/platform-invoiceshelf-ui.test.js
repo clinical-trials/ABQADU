@@ -10,7 +10,7 @@ function contains(content, text, file) {
 contains(bidBuilder, 'Create InvoiceShelf Estimate', 'BidBuilder.jsx');
 contains(bidBuilder, '/api/invoice-engine/bids/', 'BidBuilder.jsx');
 contains(invoices, 'Sync InvoiceShelf Status', 'Invoices.jsx');
-contains(invoices, 'Open Client View', 'Invoices.jsx');
+contains(invoices, 'Open existing InvoiceShelf copy', 'Invoices.jsx');
 contains(invoices, 'invoiceshelf_public_url', 'Invoices.jsx');
 
 console.log('InvoiceShelf UI static checks passed');

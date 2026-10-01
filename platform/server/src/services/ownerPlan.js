@@ -20,7 +20,9 @@ class OwnerPlanError extends Error {
 
 function canReadOwnerPlan(auth, env = process.env) {
   if (!auth || typeof auth.userId !== 'string' || typeof auth.sessionId !== 'string' || !auth.sessionId) return false;
-  if (env.ABQ_LOCAL_WORKSPACE === '1') {
+  if (env.ABQ_AUTH_MODE === 'admin') return auth.mode === 'admin' && auth.userId === 'admin-owner';
+  if (env.ABQ_AUTH_MODE && env.ABQ_AUTH_MODE !== 'clerk') return false;
+  if (!env.ABQ_AUTH_MODE && env.ABQ_LOCAL_WORKSPACE === '1') {
     return env.NODE_ENV === 'development' && env.HOST === '127.0.0.1' && auth.userId === 'local-owner';
   }
   const list = value => typeof value === 'string' ? value.split(',').map(id => id.trim()).filter(Boolean) : [];

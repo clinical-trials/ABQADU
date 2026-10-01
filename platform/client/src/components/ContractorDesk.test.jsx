@@ -2,6 +2,7 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Simulate } from 'react-dom/test-utils';
 import ContractorDesk from './ContractorDesk';
+import { clearAuthSession, setAuthSession } from '../utils/authFetch';
 
 let host, root, props;
 const project = { id: 'site-one', client: 'Rivera project', address: 'Albuquerque, NM 87106', model: 'Altura', next_action: 'Confirm slab preparation.' };
@@ -14,7 +15,7 @@ beforeEach(()=>{
   props={project,state:{bid_requests:[],sms_inbox:[],weather_holds:[]},forecast:null,busy:false,onCheckWeather:jest.fn(),runAction:jest.fn(async()=>({projects:[project]})),onRefresh:jest.fn()};
   host=document.createElement('div');document.body.appendChild(host);root=createRoot(host);
 });
-afterEach(async()=>{await act(async()=>root.unmount());host.remove();jest.restoreAllMocks();jest.useRealTimers();});
+afterEach(async()=>{await act(async()=>root.unmount());host.remove();clearAuthSession();jest.restoreAllMocks();jest.useRealTimers();});
 const render=async()=>{await act(async()=>root.render(<ContractorDesk {...props}/>));};
 const button=name=>[...host.querySelectorAll('button')].find(el=>el.textContent===name);
 const change=async(label,value)=>{const input=host.querySelector(`[aria-label="${label}"]`);expect(input).not.toBeNull();await act(async()=>Simulate.change(input,{target:{value}}));};
@@ -140,4 +141,42 @@ test('today’s confirmed hold remains visible and cancelled hold instructions c
   expect([...host.querySelectorAll('button')].filter(el=>el.textContent==='Copy crew note')).toHaveLength(1);
   await act(async()=>button('Remove day off').click());
   expect(props.runAction.mock.calls[0][0]).toBe('/api/contractor-desk/weather-holds/today/cancel');
+});
+
+test('phone drafts are available when the optional shared inbox is unconfigured', async () => {
+  props.project = { ...project, client_phone: '5055550123' };
+  await render(); await act(async () => button('Site visit').click());
+  expect(host.querySelector('#messages a[href^="sms:"]').getAttribute('href')).toContain('+15055550123');
+  expect(host.textContent).toContain('Replies stay in your phone');
+  expect(host.textContent).toContain('Shared inbox · optional');
+  expect(props.runAction).not.toHaveBeenCalled();
+});
+
+test('late bid-save success cannot close a different job form or show its success notice', async () => {
+  let finish;
+  props.runAction.mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+  await render(); await act(async () => button('Request a bid').click());
+  await change('Job title', 'Old job request'); await change('Scope of work', 'Old job scope');
+  await act(async () => Simulate.submit(host.querySelector('form[aria-label="New bid request"]')));
+  props.project = { ...project, id: 'job-two', client: 'Second client' }; await render();
+  await change('Scope of work', 'Second job scope');
+  await act(async () => finish({ saved: true }));
+  expect(host.querySelector('[aria-label="Scope of work"]').value).toBe('Second job scope');
+  expect(host.textContent).not.toContain('Bid request saved');
+});
+
+test('session changes clear bid and message drafts and discard late errors', async () => {
+  let fail;
+  await act(async () => setAuthSession({ userId: 'owner-a', sessionId: 'a', getToken: async () => 'token' }));
+  props.runAction.mockImplementation(() => new Promise((resolve, reject) => { fail = reject; }));
+  await render(); await act(async () => button('Request a bid').click());
+  await change('Scope of work', 'Private first-session scope');
+  await act(async () => button('Site visit').click());
+  await act(async () => Simulate.submit(host.querySelector('form[aria-label="New bid request"]')));
+  await act(async () => clearAuthSession());
+  await act(async () => fail(new Error('Old session error')));
+  expect(host.textContent).not.toContain('Old session error');
+  expect(host.querySelector('[aria-label="Message draft"]').value).toBe('');
+  await act(async () => button('Request a bid').click());
+  expect(host.querySelector('[aria-label="Scope of work"]').value).toBe('');
 });

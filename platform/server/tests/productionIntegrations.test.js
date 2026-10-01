@@ -47,6 +47,51 @@ test('integration status reports configured and missing providers', () => {
   expect(status.clerk.required_env).toContain('CLERK_PUBLISHABLE_KEY');
 });
 
+describe('workspace mode in service settings', () => {
+  let directory;
+  beforeEach(() => { directory = fs.mkdtempSync(path.join(require('os').tmpdir(), 'abq-status-test-')); });
+  afterEach(() => { fs.rmSync(directory, { recursive: true, force: true }); });
+
+  test('admin status uses the configured credential file without disclosing its contents', () => {
+    const credential = path.join(directory, 'synthetic-admin.json');
+    fs.writeFileSync(credential, JSON.stringify({ version:1,username:'admin',kdf:'scrypt-v1',salt:'a'.repeat(64),passwordHash:'b'.repeat(128) }), {mode:0o600});
+    const status = require('../src/services/productionIntegrations').getIntegrationStatus({ ABQ_AUTH_MODE:'admin',APP_ORIGINS:'https://example.test',ABQ_ADMIN_CREDENTIAL_FILE:credential });
+    expect(status.workspaceAuth).toEqual({mode:'admin',configured:true});
+    expect(status.clerk.configured).toBe(false);
+    expect(JSON.stringify(status)).not.toContain(credential);
+    expect(JSON.stringify(status)).not.toContain('b'.repeat(128));
+  });
+
+  test.each([
+    [{ABQ_AUTH_MODE:'admin',APP_ORIGINS:'https://example.test',ABQ_ADMIN_CREDENTIAL_FILE:'/nonexistent/synthetic-admin.json'}, {mode:'admin',configured:false}],
+    [{ABQ_AUTH_MODE:'unsupported',ABQ_LOCAL_WORKSPACE:'1',NODE_ENV:'development',HOST:'127.0.0.1'}, {mode:'admin',configured:false}],
+    [{ABQ_LOCAL_WORKSPACE:'1',NODE_ENV:'development',HOST:'127.0.0.1'}, {mode:'local',configured:true}],
+    [{ABQ_LOCAL_WORKSPACE:'1',NODE_ENV:'production',HOST:'0.0.0.0'}, {mode:'local',configured:false}],
+    [{ABQ_AUTH_MODE:'clerk',ABQ_LOCAL_WORKSPACE:'1',NODE_ENV:'development',HOST:'127.0.0.1'}, {mode:'clerk',configured:false}],
+    [{}, {mode:'clerk',configured:false}],
+  ])('auth mode follows server selection without exposing secrets: %p', (env, expected) => {
+    const status = require('../src/services/productionIntegrations').getIntegrationStatus(env);
+    expect(status.workspaceAuth).toEqual(expected);
+    for (const key of ['stripe','twilio','ocr','clerk','invoiceshelf','weather']) expect(typeof status[key].configured).toBe('boolean');
+  });
+
+  test('status handler uses the running app configuration instead of an unrelated environment', () => {
+    const router = require('../src/routes/productionIntegrations');
+    const handler = router.stack.find(layer => layer.route?.path === '/status').route.stack[0].handle;
+    const res = { json: jest.fn() };
+    handler({ app: { locals: { integrationEnv: { ABQ_LOCAL_WORKSPACE:'1',NODE_ENV:'development',HOST:'127.0.0.1' } } } }, res);
+    expect(res.json.mock.calls[0][0].workspaceAuth).toEqual({mode:'local',configured:true});
+  });
+
+  test('Clerk presence and validated sign-in configuration remain distinct', () => {
+    const status = require('../src/services/productionIntegrations').getIntegrationStatus({ ABQ_AUTH_MODE:'clerk',
+      CLERK_PUBLISHABLE_KEY:'synthetic-invalid-key',CLERK_SECRET_KEY:'synthetic-invalid-secret',CLERK_ALLOWED_USER_IDS:'user_test',APP_ORIGINS:'https://example.test' });
+    expect(status.clerk.configured).toBe(true);
+    expect(status.workspaceAuth).toEqual({mode:'clerk',configured:false});
+    expect(JSON.stringify(status)).not.toContain('synthetic-invalid-secret');
+  });
+});
+
 describe('receipt project attribution', () => {
   let store;
   let handler;

@@ -14,7 +14,7 @@ function configureLocalEnvironment({ env = process.env, envFile = path.resolve(_
   }
   // Preserve inherited configuration and never write back to the environment file.
   for (const [key, value] of Object.entries(fileEnv)) if (env[key] === undefined) env[key] = value;
-  Object.assign(env, { ABQ_LOCAL_WORKSPACE: '1', NODE_ENV: 'development', HOST: '127.0.0.1' });
+  Object.assign(env, { ABQ_LOCAL_WORKSPACE: env.ABQ_AUTH_MODE ? '0' : '1', NODE_ENV: 'development', HOST: '127.0.0.1' });
   env.PORT = env.PORT || '4000';
   return env;
 }
@@ -25,7 +25,7 @@ if (require.main === module) {
     const app = require('../src/index');
     const port = process.env.PORT;
     const server = app.listen(port, '127.0.0.1', () => {
-      console.log(`ABQ ADU local development workspace: http://127.0.0.1:${port}`);
+      console.log(`ABQ ADU ${process.env.ABQ_AUTH_MODE ? 'sign-in workspace' : 'local development workspace'}: http://127.0.0.1:${port}`);
     });
     server.on('error', error => {
       console.error(`Local workspace server could not listen (${error.code || 'startup error'}).`);

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { requestJson as apiJson, requestList as apiList, requestPdf as apiPdf } from '../utils/api';
 import { assertAuthSession, getAuthSession } from '../utils/authFetch';
 import useApiList from '../hooks/useApiList';
 import useApiAction from '../hooks/useApiAction';
+import useBillingIntegrations from '../hooks/useBillingIntegrations';
 import ApiError from '../components/ApiError';
 import BidPricingGuidance from '../components/BidPricingGuidance';
 
@@ -34,6 +36,7 @@ export default function BidBuilder() {
   const requestPdf = (url, options, filename) => apiPdf(url, { ...options, authSession: owner }, filename);
   const bidList = useApiList('/api/bids');
   const clientList = useApiList('/api/clients');
+  const billingIntegrations = useBillingIntegrations();
   const bids = bidList.data;
   const clients = clientList.data;
   const loadBids = bidList.reload;
@@ -121,7 +124,7 @@ export default function BidBuilder() {
         <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 28, letterSpacing: '.02em', margin: 0 }}>
           Bids &amp; Estimates
         </h1>
-        <a href="/cost-estimator" style={{ marginLeft: 'auto', marginRight: 16, color: '#F0EBE1', padding: '10px 0', fontSize: 14 }}>Cost estimator →</a>
+        <Link to="/cost-estimator" style={{ marginLeft: 'auto', marginRight: 16, color: '#F0EBE1', padding: '10px 0', fontSize: 14 }}>Cost estimator →</Link>
         <button onClick={newBid} disabled={saving}
           style={{ marginLeft: 'auto', background: '#C4954A', color: '#FFF', border: 'none', borderRadius: 4, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           + New Bid
@@ -228,20 +231,26 @@ export default function BidBuilder() {
 
               {/* Actions */}
               <p style={{ fontSize: 14, lineHeight: 1.5 }}>New draw schedule: $10,000 credited toward the bid total, then 50% / 25% / 25% of the remaining balance. Four invoices; existing schedules are preserved.</p>
-              <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+              <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap' }}>
                 <button onClick={save} disabled={saving} style={{ background: '#3D5247', color: '#FFF', border: 'none', borderRadius: 4, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                   {saving ? 'Saving…' : 'Save Bid'}
                 </button>
                 <button onClick={downloadPdf} style={{ background: '#C4954A', color: '#FFF', border: 'none', borderRadius: 4, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                   Download PDF
                 </button>
-                <button onClick={createInvoiceShelfEstimate} style={{ background: '#0F1F3D', color: '#FFF', border: 'none', borderRadius: 4, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-                  Create InvoiceShelf Estimate
-                </button>
                 <button onClick={generateInvoices} style={{ background: '#FFF', color: '#0F1F3D', border: '1px solid #0F1F3D', borderRadius: 4, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                   Accept &amp; Create Draw Schedule →
                 </button>
               </div>
+              <details style={{marginTop:16,fontSize:13,maxWidth:520,lineHeight:1.5}}>
+                <summary style={{minHeight:44,padding:'10px 0',cursor:'pointer'}}>Optional accounting export · InvoiceShelf</summary>
+                <p>Save bids, download PDFs and create the four-invoice schedule here without an InvoiceShelf account.</p>
+                {active.invoiceshelf_estimate_id ? <p>InvoiceShelf estimate linked: {active.invoiceshelf_estimate_id}</p>
+                  : billingIntegrations.integrations?.invoiceshelf?.configured === true
+                    ? <button onClick={createInvoiceShelfEstimate} disabled={saving || Boolean(active.invoiceshelf_sync_error)} style={{background:'#fff',color:'#3d5247',border:'1px solid #a6b1aa',borderRadius:4,padding:'10px 16px',minHeight:44,fontSize:14,cursor:'pointer'}}>Create InvoiceShelf Estimate</button>
+                    : <p>{billingIntegrations.loading ? 'Checking optional accounting service…' : billingIntegrations.error ? 'InvoiceShelf availability could not be checked.' : 'Connect an InvoiceShelf account before exporting an estimate.'}</p>}
+                {active.invoiceshelf_sync_error && <p role="status">InvoiceShelf needs review: {active.invoiceshelf_sync_error}</p>}
+              </details>
             </fieldset>
           )}
         </div>

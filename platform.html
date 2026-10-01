@@ -1763,8 +1763,8 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     </div>
   </div>
   <div class="regulator-phonebook">
-    <h3>City regulator phone book</h3>
-    <div class="muted" style="font-size:12px">Internal builder contact list for Ian: permit counters, plan review, inspections, zoning, green building, and New Mexico CID. Use official source links to confirm current phone and email before sending a live packet.</div>
+    <h3>Contractor phone book</h3>
+    <div class="muted" style="font-size:12px">City, county, and state contacts for permits, inspections, property records, and tax questions. Use the contact notes and official sources to confirm details before visiting or sending documents.</div>
     <div class="regulator-toolbar no-print" id="regulator-toolbar" aria-label="Filter regulator contacts"></div>
     <div class="regulator-grid" id="regulator-grid"></div>
   </div>
@@ -1911,6 +1911,52 @@ const NM_CODE_CYCLE = {
   ]
 };
 const CITY_REGULATORS = [
+  {
+    "id": "bernco-treasurer",
+    "city": "Bernalillo County",
+    "group": "Property taxes",
+    "name": "Bernalillo County Treasurer",
+    "role": "Property tax billing and payments",
+    "phone": "5054687031",
+    "fax": "5054629768",
+    "email": "",
+    "addressLabel": "Mailing address",
+    "address": "P.O. Box 27800, Albuquerque, NM 87125",
+    "source": "https://content.govdelivery.com/accounts/NMBERNCO/bulletins/41621ae",
+    "note": "Contact the Treasurer for property tax bills and payment questions.",
+    "verificationNote": "Phone confirmed in the County's May 2026 contact list. The supplied mailing address matches a July 2021 County bulletin; confirm before mailing. Fax supplied by contractor; confirm before use."
+  },
+  {
+    "id": "bernco-clerk",
+    "city": "Bernalillo County",
+    "group": "County records",
+    "name": "Bernalillo County Clerk",
+    "role": "Recorded deeds and county records",
+    "phone": "5054681290",
+    "fax": "",
+    "email": "",
+    "addressLabel": "Office location",
+    "address": "415 Silver Ave SW, Suite 200, Albuquerque, NM 87102",
+    "previousAddress": "One Civic Plaza NW, 6th floor, Albuquerque, NM 87102",
+    "source": "https://pdsmaps.bernco.gov/website/Downloads/DownloadZoneAtlas/ZoneAtlasPagesVolume1/ZAV1Introduction.pdf",
+    "note": "Contact the Clerk for recording and county-record questions.",
+    "verificationNote": "Office location listed in the County's Fall 2025 atlas. Phone confirmed in the May 2026 County contact list. The previously supplied Civic Plaza address is retained below for reference; use the Silver Avenue location. Fax not provided."
+  },
+  {
+    "id": "bernco-assessor",
+    "city": "Bernalillo County",
+    "group": "Property assessment",
+    "name": "Bernalillo County Assessor",
+    "role": "Property records, valuation and assessment questions",
+    "phone": "5052223700",
+    "fax": "5052223771",
+    "email": "",
+    "addressLabel": "Mailing address",
+    "address": "P.O. Box 27108, Albuquerque, NM 87125",
+    "source": "https://assessor.bernco.gov/public.access/",
+    "note": "Contact the Assessor for property record and valuation questions.",
+    "verificationNote": "Phone and fax match the County Assessor's public-access contact panel. The supplied mailing address matches the County's tax-estimator footer."
+  },
   {
     id:'cabq-building-safety',
     city:'Albuquerque',
@@ -5075,10 +5121,13 @@ function renderRegulatorPhonebook(){
       <p>${esc(c.role)}</p>
       <div class="regulator-meta">
         ${c.phone?`<div><b>Phone:</b> ${esc(formatPhone(c.phone))}</div>`:''}
+        ${c.address?`<div><b>${esc(c.addressLabel || 'Address')}:</b> ${esc(c.address)}</div>`:''}
+        ${c.fax?`<div><b>Fax:</b> ${esc(formatPhone(c.fax))}</div>`:''}
         ${c.email?`<div><b>Email:</b> ${esc(c.email)}</div>`:''}
-        <div><b>Source:</b> official city/state page</div>
+        <div><b>Source:</b> official agency page</div>
       </div>
       <p>${esc(c.note)}</p>
+      ${c.verificationNote?`<details><summary>Contact notes</summary><p>${esc(c.verificationNote)}</p>${c.previousAddress?`<p><b>Previously supplied address (outdated):</b> ${esc(c.previousAddress)}</p>`:''}</details>`:''}
       <div class="regulator-actions">
         ${phoneLink}
         ${emailLink}
@@ -5099,8 +5148,11 @@ function textRegulatorToIan(id){
     `ABQ ADU regulator contact for ${contact.city}: ${contact.name}`,
     `Role: ${contact.role}`,
     contact.phone ? `Phone: ${formatPhone(contact.phone)}` : '',
+    contact.address ? `${contact.addressLabel || 'Address'}: ${contact.address}` : '',
+    contact.fax ? `Fax: ${formatPhone(contact.fax)}` : '',
     contact.email ? `Email: ${contact.email}` : '',
     `Note: ${contact.note}`,
+    contact.verificationNote ? `Contact notes: ${contact.verificationNote}` : '',
     `Source: ${contact.source}`
   ].filter(Boolean).join('\n');
   location.href=smsUrlFor(ABQADU_CONTACT.phone, lines);

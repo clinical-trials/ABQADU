@@ -1,4 +1,5 @@
 import React, { act } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { Simulate } from 'react-dom/test-utils';
 import ScheduleConnection from './ScheduleConnection';
@@ -15,7 +16,7 @@ beforeEach(()=>{
  host=document.createElement('div');document.body.appendChild(host);root=createRoot(host);
 });
 afterEach(async()=>{await act(async()=>root.unmount());host.remove();jest.restoreAllMocks();});
-const render=async(props={})=>act(async()=>root.render(<ScheduleConnection projectId="job-a" onSaved={onSaved} {...props}/>));
+const render=async(props={})=>act(async()=>root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><ScheduleConnection projectId="job-a" onSaved={onSaved} {...props}/></MemoryRouter>));
 const btn=name=>[...host.querySelectorAll('button')].find(el=>el.textContent===name);
 const choose=async value=>act(async()=>Simulate.change(host.querySelector('select'),{target:{value}}));
 test('loads and directly opens the saved schedule without a write',async()=>{

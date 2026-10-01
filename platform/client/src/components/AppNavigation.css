@@ -9,7 +9,16 @@
 .app-menu-button>span:first-child { font-size:1.3rem; line-height:1; }
 .app-menu-label { display:none; }
 .app-workspace-menu { position:absolute; top:100%; right:0; left:0; padding:.75rem 1rem 1rem; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; background:#20392e; border-bottom:1px solid #6c7c65; box-shadow:0 .75rem 1.5rem #172d231c; }
-.app-workspace-menu>a { min-height:2.75rem; display:flex; align-items:center; padding:.65rem; color:#fff9e7; text-decoration:none; border:1px solid #49604e; border-radius:.2rem; font-size:.875rem; }
+.app-workspace-menu { max-height:calc(100dvh - 11rem); overflow-y:auto; }
+.app-menu-group h2 { font-size:.8rem; color:#e0bd85; margin:.4rem .65rem; }
+.app-menu-group a,.app-menu-footer>a { min-height:2.75rem; display:flex; align-items:center; padding:.65rem; color:#fff9e7; text-decoration:none; border-bottom:1px solid #49604e; font-size:.875rem; }
+.app-menu-group a:hover { background:#395442; }
+.app-menu-footer { grid-column:1/-1; display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; }
+.app-workflow { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px; max-width:1440px; margin:auto; padding:0 .75rem .65rem; }
+.app-workflow a { display:flex; align-items:center; justify-content:center; gap:.4rem; min-height:2.75rem; text-decoration:none; padding:.45rem .2rem; color:#f5f0e3; font-size:.875rem; font-weight:700; border-bottom:2px solid #536b5b; background:#294337; }
+.app-workflow a[aria-current] { background:#ead5ae; color:#253d31; border-color:#bb824c; }
+.app-workflow-number { font-size:.72rem; opacity:.7; }
 .app-navigation button:focus-visible,.app-navigation a:focus-visible { outline:3px solid #efd08e; outline-offset:2px; }
 @media(min-width:768px) { .app-navigation-bar { padding:0 1.5rem; gap:1rem; } .app-wordmark { font-size:1.75rem; } .app-primary-links a { padding:.6rem 1.1rem; font-size:.9rem; } .app-menu-label { display:inline; font-size:.875rem; } .app-workspace-menu { left:auto; width:30rem; padding:1rem; } }
 @media(max-width:360px) { .app-navigation-bar { padding:0 .5rem; } .app-primary-links a { padding:.5rem .45rem; } }
+@media(min-width:768px) { .app-workflow { grid-template-columns:repeat(6,minmax(0,1fr)); padding:0 1.5rem .65rem; } .app-workspace-menu { max-height:calc(100dvh - 8.5rem); } }

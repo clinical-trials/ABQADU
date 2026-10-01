@@ -110,6 +110,19 @@ describe('owner authorization before source access', () => {
     expect(report.goals[1].reported_balance_cents).toBe(678900);
   });
 
+  test('explicit admin owner access takes precedence over development flags and requires trusted auth mode', async () => {
+    const env = { ...localEnv, ...hostedEnv, ABQ_AUTH_MODE: 'admin' };
+    const readFile = jest.fn(async () => JSON.stringify(planFixture()));
+    const service = createOwnerPlanService({ env, readFile });
+    for (const identity of [localOwner, owner, { userId: 'admin-owner', sessionId: 'test' }, { userId: 'other', sessionId: 'test', mode: 'admin' }]) {
+      await expect(service.getReport(identity)).rejects.toMatchObject({ status: 404 });
+    }
+    expect(readFile).not.toHaveBeenCalled();
+    const report = await service.getReport({ userId: 'admin-owner', sessionId: 'verified-session', mode: 'admin' });
+    expect(report.goals[0].title).toBe('Fictional annual target');
+    expect(readFile).toHaveBeenCalledTimes(1);
+  });
+
   test('filesystem exceptions are sanitized and slow reads cannot publish a late result', async () => {
     const service = createOwnerPlanService({ env: hostedEnv, readFile: async () => { throw new Error('secret fixture path and contents'); } });
     await expect(service.getReport(owner)).rejects.toMatchObject({ status: 503, message: 'The owner plan is temporarily unavailable. Please try again.' });

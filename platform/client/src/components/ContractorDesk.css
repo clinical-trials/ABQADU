@@ -109,4 +109,8 @@
 .field-hold-history summary { min-height:2.75rem; padding:.75rem 0; cursor:pointer; }
 .field-hold-history article { border-top:1px solid var(--field-line); padding:.75rem 0; }
 .field-inbox-message time { display:block; }
+.field-shared-inbox { margin-top:1.5rem; padding-top:.75rem; border-top:1px solid var(--field-line); }
+.field-shared-inbox>summary { display:flex; align-items:center; justify-content:space-between; gap:.75rem; min-height:3rem; padding:.75rem 0; cursor:pointer; font-weight:700; }
+.field-shared-inbox>summary span { font-size:.875rem; font-weight:400; color:var(--field-muted); }
+.field-shared-inbox .field-text-office { margin-top:.5rem; }
 @media(max-width:639px) { .field-project-help { display:none; } .field-hero { gap:1.25rem; } .field-job-stamp { padding-top:1rem; } .field-job-stamp>svg { display:none; } .field-job-counts { margin-top:.65rem; } }

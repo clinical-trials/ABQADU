@@ -13,11 +13,17 @@ function createApp({
   clientBuild = path.join(__dirname, '..', '..', 'client', 'build'),
 } = {}) {
   const app = express();
+  app.locals.integrationEnv = env;
   const auth = createWorkspaceAuth(env);
 
   app.get('/health', (_, res) => res.json({ ok: true }));
   app.get('/api/auth/config', auth.publicConfig);
-  app.post('/api/auth/local-session', express.json({ limit: '4kb' }), auth.createLocalSession);
+  const authParseError = (error, _req, res, _next) => res.set('Cache-Control', 'no-store').status(error.status === 413 ? 413 : 400)
+    .json({ error: 'Sign-in request could not be read.' });
+  app.post('/api/auth/admin-session', auth.prepareAdminLogin, express.json({ limit: '4kb', strict: true }),
+    authParseError,
+    auth.createAdminSession);
+  app.post('/api/auth/local-session', express.json({ limit: '4kb' }), authParseError, auth.createLocalSession);
   // Stripe authenticates this one public endpoint with a signature over the raw bytes.
   const billing = require('./routes/billing');
   app.post('/api/billing/stripe/webhook', express.raw({ type: 'application/json', limit: '1mb' }), billing.stripeWebhook);
@@ -32,6 +38,7 @@ function createApp({
   app.use(express.json({ limit: '15mb' }));
   app.get('/api/auth/session', (req, res) => res.json({ userId: req.workspaceAuth.userId }));
   app.delete('/api/auth/local-session', auth.revokeLocalSession);
+  app.delete('/api/auth/admin-session', auth.revokeAdminSession);
 
   app.use('/api/billing', billing);
   app.use('/api/projects',     require('./routes/projects'));

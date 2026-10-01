@@ -9,3 +9,4 @@ backups/
 public-dist/
 platform/server/public-homeowner/
 platform/server/.public-homeowner-build-*/
+platform/client/public/ocr/

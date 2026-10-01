@@ -293,7 +293,7 @@ contains('Santa Fe Green Building Code review');
 contains('City of Albuquerque Planning / Building Safety requirements');
 contains('santafenm.gov/land-use/currently-adopted-codes');
 contains('cabq.gov/planning/building-safety-division/building-safety-division');
-contains('City regulator phone book');
+contains('Contractor phone book');
 contains('CITY_REGULATORS');
 contains('function renderRegulatorPhonebook()');
 contains('function textRegulatorToIan(id)');

@@ -71,15 +71,15 @@ Recorded September 27 baseline: 454 server tests, 185 client tests and 34 public
 **P0 — before hosted builder use**
 
 - Resolve reachable hosting and TLS; preserve and back up both data stores; configure persistent storage and restart behavior. Keep local-mode flags disabled on hosted production.
-- Configure Clerk/approved staff and verify signed-in, unapproved and signed-out access.
-- Complete test-mode Stripe checkout/webhook/retry acceptance and invoice balances before enabling paid workflows.
-- Configure and test Twilio/InvoiceShelf/OCR separately. Clearly mark unavailable features.
+- Configure the selected sign-in mode and verify access on the actual host. The October 1 request chooses one admin username/password; Clerk remains an optional alternative for individual staff accounts. See [admin setup](admin-sign-in.md).
+- Verify invoice PDFs and manual check recording. The homeowner pays by check; Stripe is optional and is not a launch requirement. If online payments are later enabled, complete test-mode checkout/webhook/retry acceptance first.
+- Phone text drafts and browser receipt scanning work without provider accounts. Twilio inbox/delivery and InvoiceShelf export require separate configuration and acceptance only if those optional features are used.
 
 **P1 — restore requirements that can otherwise disappear during recovery**
 
 - Complete visible catalog acceptance against the corrected six variants, including the distinct Altura options and preserved city-plan references. The JSON catalog and new-template picker are corrected as described above; approved plan dimensions remain authoritative and legacy saved layouts remain intact.
 - Confirm the homeowner-to-builder handoff, usable customer copies and project-scoped document organization.
-- Check regulator contacts, jurisdiction/code assessment tracking and drawing-to-takeoff support that earlier work placed in the old static builder. A redirect from that page does not migrate those workflows.
+- Contractor phone book is available in the current Command Center at `#contractor-phonebook`, carrying the eight existing city/state contacts plus the Bernalillo County Treasurer, Clerk and Assessor. County address/fax qualifications are preserved with each entry; see `docs/contractor-phonebook.md`. Jurisdiction/code assessment tracking and drawing-to-takeoff support in the old static builder still require separate migration review.
 - Keep two-stage supplier repricing, signed preconstruction/subcontractor agreements, document views/approval and change orders visible in the backlog until actually implemented and verified.
 - Address scoped teams/permissions and deliberate migration decisions before offering independent contractor/company accounts.
 
@@ -105,11 +105,9 @@ Coverage: pagination reached the end of both histories available during Septembe
 
 ## September 30 homeowner and contractor additions
 
-### Property-tax planning clarification — October 1, 2026
+### Contractor tax anecdote — background only
 
-The owner relayed a contractor's claim that Bernalillo County property taxes begin at 51% house completion, then clarified that it may be incorrect and is a build-timeline consideration. The supplied [New Mexico Property Tax Division page](https://www.tax.newmexico.gov/About-Us/Property-Tax-Division/) is general agency context, not evidence of that threshold. An official residential 51% threshold has not been verified. Do not encode this as a payment trigger, automatic liability, construction-progress fact or promise that land/existing improvements are untaxed beforehand.
-
-The public financing section now includes a property-tax planning note at `/#property-tax`; the private Project Helper has a county-confirmation checklist. These are informational notes, not saved project milestones or automatic alerts. [3.6.7.14 NMAC](https://www.srca.nm.gov/parts/title03/03.006.0007.html), reviewed October 1, 2026, distinguishes the January 1 valuation date and following-year treatment of improvements. It does not establish the reported completion threshold. The [Bernalillo County Assessor](https://www.bernco.gov/assessor/) should confirm treatment of work in progress for the parcel; the Treasurer confirms bill/payment timing. County pages returned HTTP403 during research, so no county-specific threshold is presented as verified.
+The user clarified that the contractor's reported completion-percentage tax rule is informational background only and must not change the website or app. The previously added public tax-planning box and private Project Helper checklist have been removed. Do not turn this anecdote into site copy, milestones, alerts, calculations, or financial assumptions.
 
 ### Existing additions
 
@@ -167,3 +165,15 @@ Verification: **683 backend tests / 49 suites, 340 React tests / 26 suites, and 
 The owner requested a competitive weekly KPI with a 15–20 hour target around the preconstruction agreement and $10,000 deposit. The initial definition is elapsed hours from signing to receipt of the full deposit; clarification about staff effort remains pending. The executive desk now has a dedicated scorecard with median, fastest completion, goal percentage, previous-week comparison, eight weeks of history and separate open-job clocks. The written and spoken CFO briefing includes the result. See [the definition and recording workflow](preconstruction-scorecard.md).
 
 Staff explicitly record milestones and supporting references for saved jobs. Revisions and activity history persist; safe retries and version checks protect concurrent edits. Nothing is inferred from a draft agreement or invoice. This tracker does not post ledger payments or verify bank deposits. No scheduled message delivery is enabled, and acceptance uses isolated fictional jobs.
+
+## October 1 contractor workflow direction
+
+The owner requested a basic admin login, check payments, easier texting and receipt scanning, and tabs in job order. Main navigation now follows Intake → Site review → Estimate → Agreement → Build → Invoices. Messages and contacts remain quick tools; receipts, briefing, activity and company planning are in the menu. Internal route links preserve the running sign-in session.
+
+The single admin account is an owner account, not separate staff roles. Password hashes and credentials are private server configuration, outside Git. The homeowner website stays public. Sessions expire and are revoked on sign-out; reloading requires sign-in again. No hosted deployment or automatic team invitations are established by this change.
+
+Invoice PDFs and manual check entries remain the operating workflow. Check date and reference are recorded; ledger entries do not prove bank clearance. Optional Stripe and InvoiceShelf actions do not block the built-in ledger. Text templates prepare editable messages for a chosen homeowner, office or crew number; the contractor sends in the phone app. Phone replies do not appear in the platform without a configured business texting service.
+
+Receipt photos use English OCR assets served by the app, without sending photos to an external provider. Pasted text and manual entry also work. Extracted fields are suggestions for explicit review before saving. This change does not import receipt email, reconcile bank accounts, or automatically record payments.
+
+October 1 local acceptance: 796 React tests, 834 backend tests and 80 public tests passed; 67 database-dependent backend checks were skipped. The production client build succeeded. The running local app verified admin login, incorrect-password rejection, signed-out API protection, disabled local bootstrap and sign-out revocation. The homeowner route remains public. Browser checks covered the workflow links, 390px layout (no horizontal overflow, 44px tabs) and actual receipt recognition using a fictional receipt. Hosted access, external delivery and InvoiceShelf acceptance remain separate work; no live customer payment or message was created by these checks.

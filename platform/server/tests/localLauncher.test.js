@@ -28,3 +28,12 @@ test.each([
   expect(() => configureLocalEnvironment({ env, envFile })).toThrow(/production/i);
   expect(env.ABQ_LOCAL_WORKSPACE).toBeUndefined();
 });
+
+test.each(['admin', 'clerk', 'misspelled-mode'])('local launch preserves explicit %s authentication instead of enabling a bypass', mode => {
+  const { configureLocalEnvironment } = require('../scripts/start-local');
+  const envFile = path.join(directory, '.env');
+  fs.writeFileSync(envFile, `ABQ_AUTH_MODE=${mode}\nABQ_LOCAL_WORKSPACE=1\n`);
+  const env = {};
+  configureLocalEnvironment({ env, envFile });
+  expect(env).toMatchObject({ ABQ_AUTH_MODE: mode, ABQ_LOCAL_WORKSPACE: '0', HOST: '127.0.0.1' });
+});

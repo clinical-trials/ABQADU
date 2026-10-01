@@ -1,0 +1,40 @@
+.contractor-phonebook { background:#fff; border:1px solid #ded7cb; border-radius:.75rem; box-sizing:border-box; color:#1c1917; font-size:1rem; line-height:1.5; margin:1.25rem auto; max-width:1384px; min-width:0; scroll-margin-top:6rem; width:calc(100% - 2rem); }
+.contractor-phonebook *, .contractor-phonebook *::before, .contractor-phonebook *::after { box-sizing:border-box; }
+.contractor-phonebook__summary { align-items:center; cursor:pointer; display:flex; gap:1rem; justify-content:space-between; min-height:4.5rem; padding:1rem; }
+.contractor-phonebook__summary::before { color:#3d5247; content:'+'; font-size:1.5rem; font-weight:700; }
+.contractor-phonebook[open] > .contractor-phonebook__summary::before { content:'−'; }
+.contractor-phonebook__summary::-webkit-details-marker { display:none; }
+.contractor-phonebook__summary > span:first-of-type { flex:1; min-width:0; }
+.contractor-phonebook__summary strong { display:block; font-size:1.2rem; line-height:1.3; }
+.contractor-phonebook__subtitle { color:#625c53; display:block; font-size:.875rem; margin-top:.25rem; }
+.contractor-phonebook__total { background:#edf1eb; border-radius:2rem; color:#30473a; flex-shrink:0; font-size:.875rem; padding:.35rem .65rem; white-space:nowrap; }
+.contractor-phonebook__content { border-top:1px solid #e8e2d8; padding:1rem; }
+.contractor-phonebook p { margin:0 0 .75rem; overflow-wrap:anywhere; }
+.contractor-phonebook__intro { color:#57534e; max-width:76ch; }
+.contractor-phonebook__filters { align-items:end; display:grid; gap:.75rem; grid-template-columns:minmax(0,1fr); margin:1.25rem 0 .75rem; }
+.contractor-phonebook__filters label { display:grid; font-weight:700; gap:.35rem; min-width:0; }
+.contractor-phonebook input, .contractor-phonebook select, .contractor-phonebook button { background:#fffefa; border:1px solid #b5a997; border-radius:.4rem; color:#1c1917; font:inherit; line-height:1.35; min-height:2.75rem; min-width:0; padding:.7rem .75rem; width:100%; }
+.contractor-phonebook button { background:#f8f5ef; cursor:pointer; }
+.contractor-phonebook__results { color:#625c53; font-size:.875rem; }
+.contractor-phonebook__grid { display:grid; gap:1rem; grid-template-columns:minmax(0,1fr); }
+.contractor-phonebook__card { background:#fcfaf6; border:1px solid #e0d8cc; border-radius:.6rem; min-width:0; padding:1rem; }
+.contractor-phonebook__category { color:#526449; font-size:.875rem; font-weight:700; }
+.contractor-phonebook h3 { font-size:1.1rem; line-height:1.3; margin:0 0 .5rem; overflow-wrap:anywhere; }
+.contractor-phonebook__role { color:#57534e; }
+.contractor-phonebook__address { border-left:3px solid #c4b596; margin:.85rem 0; padding-left:.75rem; }
+.contractor-phonebook__address strong { display:block; font-size:.875rem; }
+.contractor-phonebook address { font-style:normal; overflow-wrap:anywhere; }
+.contractor-phonebook__actions { display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0 .5rem; }
+.contractor-phonebook__actions a { align-items:center; background:#fff; border:1px solid #b6c2b7; border-radius:.4rem; color:#284537; display:inline-flex; font-weight:600; gap:.35rem; line-height:1.4; min-height:2.75rem; min-width:2.75rem; overflow-wrap:anywhere; padding:.65rem .75rem; text-decoration:none; }
+.contractor-phonebook__actions .contractor-phonebook__call { background:#3d5247; border-color:#3d5247; color:#fff; }
+.contractor-phonebook__verification { border-top:1px solid #e1d8ca; margin-top:1rem; }
+.contractor-phonebook__verification > summary { cursor:pointer; font-weight:600; min-height:2.75rem; padding:.7rem 0; }
+.contractor-phonebook__verification p, .contractor-phonebook__verification dl { font-size:.875rem; }
+.contractor-phonebook__verification dl { margin:.25rem 0 .75rem; }
+.contractor-phonebook__verification dl > div { display:flex; flex-wrap:wrap; gap:.4rem 1rem; }
+.contractor-phonebook dt { font-weight:700; }
+.contractor-phonebook dd { margin:0; }
+.contractor-phonebook__empty { background:#f8f5ef; border-radius:.4rem; padding:1rem; }
+.contractor-phonebook :is(a, button, input, select, summary):focus-visible { outline:3px solid #9e642d; outline-offset:3px; }
+@media (min-width:768px) { .contractor-phonebook__filters { grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto; } .contractor-phonebook__grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .contractor-phonebook__summary, .contractor-phonebook__content { padding:1.25rem; } }
+@media (min-width:1024px) { .contractor-phonebook__grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }

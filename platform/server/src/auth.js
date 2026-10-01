@@ -1,6 +1,7 @@
 const { createPublicKey } = require('node:crypto');
 const { clerkMiddleware, getAuth } = require('@clerk/express');
 const { createLocalWorkspaceAuth } = require('./localWorkspaceAuth');
+const { createAdminWorkspaceAuth } = require('./adminAuth');
 
 const splitList = value => String(value || '').split(',').map(item => item.trim()).filter(Boolean);
 
@@ -36,7 +37,12 @@ function readAuthConfig(env) {
 }
 
 function createWorkspaceAuth(env = process.env) {
-  if (env.ABQ_LOCAL_WORKSPACE === '1') return createLocalWorkspaceAuth(env);
+  const unavailableAdminSession = (_req, res) => res.set('Cache-Control', 'no-store')
+    .status(404).json({ error: 'Admin sign-in is not enabled.' });
+  const adminEndpoints = { prepareAdminLogin: unavailableAdminSession, createAdminSession: unavailableAdminSession, revokeAdminSession: unavailableAdminSession };
+  // Explicit modes take precedence. Unknown modes remain locked rather than falling back.
+  if (env.ABQ_AUTH_MODE && env.ABQ_AUTH_MODE !== 'clerk') return createAdminWorkspaceAuth(env);
+  if (!env.ABQ_AUTH_MODE && env.ABQ_LOCAL_WORKSPACE === '1') return { ...createLocalWorkspaceAuth(env), ...adminEndpoints };
   const config = readAuthConfig(env);
   const verify = config.configured ? clerkMiddleware({
     publishableKey: config.publishableKey,
@@ -91,10 +97,15 @@ function createWorkspaceAuth(env = process.env) {
   const unavailableLocalSession = (_req, res) => res.set('Cache-Control', 'no-store')
     .status(404).json({ error: 'Local workspace access is not enabled.' });
   return {
+    ...adminEndpoints,
     publicConfig, checkOrigin, requireSession, origins: config.origins,
     createLocalSession: unavailableLocalSession,
     revokeLocalSession: unavailableLocalSession,
   };
 }
 
-module.exports = { createWorkspaceAuth };
+function getClerkAuthStatus(env = process.env) {
+  return { mode: 'clerk', configured: readAuthConfig(env).configured };
+}
+
+module.exports = { createWorkspaceAuth, getClerkAuthStatus };

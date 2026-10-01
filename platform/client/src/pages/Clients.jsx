@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { requestJson } from '../utils/api';
 import useApiList from '../hooks/useApiList';
 import useApiAction from '../hooks/useApiAction';
+import useBillingIntegrations from '../hooks/useBillingIntegrations';
 import ApiError from '../components/ApiError';
 
 const STATUS_COLORS = {
@@ -19,6 +20,7 @@ const input = {
 export default function Clients() {
   const { data: clients, loading, error, reload: load } = useApiList('/api/clients');
   const { run, pending, error: actionError } = useApiAction();
+  const billingIntegrations = useBillingIntegrations();
   const [adding, setAdding]   = useState(false);
   const [form, setForm]       = useState({ name: '', email: '', phone: '', address: '', lead_source: '', status: 'lead' });
 
@@ -97,9 +99,14 @@ export default function Clients() {
                 <td style={{ padding: '12px', color: '#57534E' }}>
                   {c.email && <div>{c.email}</div>}
                   {c.phone && <div style={{ fontSize: 12, color: '#A8A29E' }}>{c.phone}</div>}
-                  {c.invoiceshelf_customer_id ? <small>InvoiceShelf customer linked</small>
-                    : <button disabled={pending || Boolean(c.invoiceshelf_sync_error)} onClick={()=>createInvoiceShelfCustomer(c.id)} style={{minHeight:44,marginTop:8}}>Create InvoiceShelf customer</button>}
-                  {c.invoiceshelf_sync_error && <p role="status" style={{fontSize:12}}>InvoiceShelf needs review: {c.invoiceshelf_sync_error}</p>}
+                  <details style={{marginTop:8,fontWeight:400,maxWidth:300}}>
+                    <summary style={{minHeight:44,padding:'10px 0',cursor:'pointer'}}>Optional accounting export</summary>
+                    {c.invoiceshelf_customer_id ? <small>InvoiceShelf customer linked</small>
+                      : billingIntegrations.integrations?.invoiceshelf?.configured === true
+                        ? <button disabled={pending || Boolean(c.invoiceshelf_sync_error)} onClick={()=>createInvoiceShelfCustomer(c.id)} style={{minHeight:44,marginTop:8}}>Create InvoiceShelf customer</button>
+                        : <p style={{fontSize:12,lineHeight:1.5}}>{billingIntegrations.loading ? 'Checking optional accounting service…' : billingIntegrations.error ? 'InvoiceShelf availability could not be checked.' : 'InvoiceShelf needs a connected account before export.'} Built-in clients, invoices and check tracking work without it.</p>}
+                    {c.invoiceshelf_sync_error && <p role="status" style={{fontSize:12}}>InvoiceShelf needs review: {c.invoiceshelf_sync_error}</p>}
+                  </details>
                 </td>
                 <td style={{ padding: '12px', color: '#78716C' }}>{c.lead_source || '—'}</td>
                 <td style={{ padding: '12px', color: '#78716C' }}>{c.bid_count || 0}</td>

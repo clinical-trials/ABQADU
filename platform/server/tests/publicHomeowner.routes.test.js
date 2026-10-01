@@ -72,30 +72,22 @@ test('source assets are available from the same server without authentication', 
   expect(catalog.body).toEqual({ models: [{ name: 'Homeowner model' }] });
 });
 
-test.each([
-  ['selections.html', 'text/html', '<!doctype html><title>Homeowner selections</title>'],
-  ['homeowner-selections.js', 'javascript', 'window.selectionsFixture = true;'],
-  ['homeowner-selections.css', 'text/css', '.selections { color: green; }'],
-])('the selections worksheet file %s is public without Clerk configuration', async (filename, type, content) => {
-  write(sourceRoot, filename, content);
-  const response = await request(appWithFiles({ env: {} })).get(`/${filename}`);
-  expect(response.status).toBe(200);
-  expect(response.headers['content-type']).toContain(type);
-  expect(response.text).toBe(content);
-});
-
-test('an incomplete selections release does not serve the private shell or mix source assets', async () => {
-  write(sourceRoot, 'selections.html', 'Old source selections');
-  write(sourceRoot, 'homeowner-selections.js', 'Old source script');
-  write(bundledRoot, 'index.html', '<title>Bundled homepage</title>');
-  const app = appWithFiles();
-  const page = await request(app).get('/selections.html');
-  expect(page.status).toBe(503);
-  expect(page.text).not.toMatch(/Private workspace shell|Old source/);
-  for (const file of ['homeowner-selections.js', 'homeowner-selections.css']) {
-    const response = await request(app).get(`/${file}`);
-    expect(response.status).toBe(404);
-    expect(response.text).not.toMatch(/Private workspace shell|Old source/);
+test.each(['source assets', 'bundled assets', 'missing assets'])('retired selections URLs return 410 with %s, including without auth configuration', async situation => {
+  const files = ['selections.html', 'homeowner-selections.js', 'homeowner-selections.css'];
+  if (situation !== 'missing assets') {
+    const oldRoot = situation === 'bundled assets' ? bundledRoot : sourceRoot;
+    for (const file of files) write(oldRoot, file, 'RETIRED WORKSHEET CONTENT');
+  }
+  const app = appWithFiles({ env: {} });
+  for (const file of files) {
+    for (const suffix of ['', '?old=1', '/stale-child']) {
+      const response = await request(app).get(`/${file}${suffix}`);
+      expect(response.status).toBe(410);
+      expect(response.headers['content-type']).toMatch(/text\/plain/);
+      expect(response.text).not.toMatch(/Private workspace shell|RETIRED WORKSHEET CONTENT|href=/);
+      expect(response.headers.location).toBeUndefined();
+    }
+    expect((await request(app).head(`/${file}`)).status).toBe(410);
   }
 });
 

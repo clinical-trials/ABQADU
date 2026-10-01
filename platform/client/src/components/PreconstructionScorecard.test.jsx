@@ -1,4 +1,5 @@
 import React, { act } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { Simulate } from 'react-dom/test-utils';
 import PreconstructionScorecard from './PreconstructionScorecard';
@@ -32,7 +33,7 @@ function fixture(jobs = [job(), job('job-b')], generated = NOW) {
 const deferred = () => { let resolve, reject; const promise = new Promise((done, fail) => { resolve = done; reject = fail; }); return { promise, resolve, reject }; };
 let host, root, savedCallback, originalCrypto;
 const field = name => host.querySelector(`[name="${name}"]`);
-const render = async () => act(async () => root.render(<PreconstructionScorecard onSaved={savedCallback} />));
+const render = async () => act(async () => root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><PreconstructionScorecard onSaved={savedCallback} /></MemoryRouter>));
 const change = async (name, value) => act(async () => Simulate.change(field(name), { target: { value } }));
 const button = text => [...host.querySelectorAll('button')].find(node => node.textContent.includes(text));
 const click = async text => act(async () => Simulate.click(button(text)));

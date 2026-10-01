@@ -1,4 +1,5 @@
 import React, { act } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import BidBuilder from './BidBuilder';
 import { setAuthSession } from '../utils/authFetch';
@@ -19,6 +20,7 @@ test.each([
 ])('account switch during bid refresh stops the remaining %s action', async (action, prohibitedPath) => {
   let finishRefresh, saved = false;
   global.fetch = jest.fn(async (url, options) => {
+    if (url === '/api/integrations/status') return response({ invoiceshelf: { configured: true } });
     if (url === '/api/bids/bid-a') {
       if (options.method === 'PUT') saved = true;
       return response(bid);
@@ -26,7 +28,7 @@ test.each([
     if (url === '/api/bids') return saved ? new Promise(resolve => { finishRefresh = resolve; }) : response([bid]);
     return response([]);
   });
-  await act(async () => root.render(<BidBuilder />));
+  await act(async () => root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><BidBuilder /></MemoryRouter>));
   await act(async () => [...container.querySelectorAll('div')].find(el => el.textContent === 'Staff A bid').click());
   await act(async () => [...container.querySelectorAll('button')].find(el => el.textContent.trim() === action).click());
   expect(finishRefresh).toEqual(expect.any(Function));

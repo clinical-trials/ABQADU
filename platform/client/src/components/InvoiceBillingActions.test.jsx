@@ -11,7 +11,8 @@ beforeEach(() => {
   global.fetch = jest.fn(async () => ({ok:true,json:async()=>({id:'cs_test',url:'https://checkout.stripe.com/c/pay/test',invoice_id:42})}));
 });
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); jest.restoreAllMocks(); });
-const render = async (props={}) => act(async()=>root.render(<InvoiceBillingActions invoice={invoice} onChanged={()=>{}} {...props}/>));
+const configured = { stripe: { configured: true }, invoiceshelf: { configured: true } };
+const render = async (props={}) => act(async()=>root.render(<InvoiceBillingActions invoice={invoice} onChanged={()=>{}} integrations={configured} {...props}/>));
 const click = async name => act(async()=>[...container.querySelectorAll('button')].find(b=>b.textContent===name).click());
 
 test('checkout uses the saved invoice id and never sends a browser amount', async()=>{
@@ -42,4 +43,21 @@ test('paid invoices cannot create checkout and remote invoice sync is explicit',
   expect([...container.querySelectorAll('button')].some(b=>b.textContent==='Create payment link')).toBe(false);
   await click('Create InvoiceShelf invoice');
   expect(fetch.mock.calls[0][0]).toBe('/api/invoice-engine/invoices/42/sync');
+});
+
+test('unconfigured services offer no checkout or export actions', async () => {
+  await render({ integrations: { stripe: { configured: false }, invoiceshelf: { configured: false } } });
+  expect(container.querySelectorAll('button')).toHaveLength(0);
+  expect(container.querySelector('details').open).toBe(false);
+  expect(container.textContent).toContain('checks');
+  expect(fetch).not.toHaveBeenCalled();
+});
+
+test('provider lookup failure preserves an existing accounting link and status without enabling writes', async () => {
+  await render({ integrations: null, integrationError: 'Connection unavailable', invoice: { ...invoice,
+    invoiceshelf_invoice_id: 'remote-42', invoiceshelf_remote_status: 'SENT',
+    invoiceshelf_public_url: 'https://accounts.example.test/invoice/42' } });
+  expect(container.querySelectorAll('button')).toHaveLength(0);
+  expect(container.querySelector('a[href="https://accounts.example.test/invoice/42"]')).not.toBeNull();
+  expect(container.textContent).toContain('SENT');
 });

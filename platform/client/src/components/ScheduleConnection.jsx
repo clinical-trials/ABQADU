@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { requestJson, requestList } from '../utils/api';
 import { getAuthSession } from '../utils/authFetch';
 
@@ -85,7 +86,7 @@ function ConnectionForProject({projectId,onSaved,refreshKey,onReload}) {
   const options=[...schedules];
   if(current && !options.some(item=>item.id===current))options.unshift({id:current,name:link.schedule_name||`Saved schedule #${current}`});
   return <div className="schedule-connection">
-    {current && <p><b>Connected to {link.schedule_name||`schedule #${current}`}</b>{link.status==='available' && <> · <a href={`/schedule/${current}`}>Open this schedule →</a></>}</p>}
+    {current && <p><b>Connected to {link.schedule_name||`schedule #${current}`}</b>{link.status==='available' && <> · <Link to={`/schedule/${current}`}>Open this schedule →</Link></>}</p>}
     {link?.status==='missing' && <p role="status">The saved schedule could not be found. Choose another schedule or disconnect it; your job is still saved.</p>}
     {link?.status==='unavailable' && <p role="status">The saved schedule is temporarily unavailable. Its connection has been kept.</p>}
     <details open={!current}>
@@ -94,7 +95,7 @@ function ConnectionForProject({projectId,onSaved,refreshKey,onReload}) {
         <option value="">No schedule connected</option>{options.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}
       </select></label>
       <p className="helper-muted">Choose the matching project once. Future briefings use its saved dates, critical activities and risk register.</p>
-      {loaded && !loading && !listError && !schedules.length && <p className="helper-muted">No active construction schedules yet. <a href="/schedule">Create a schedule</a>, then return to connect it to this job.</p>}
+      {loaded && !loading && !listError && !schedules.length && <p className="helper-muted">No active construction schedules yet. <Link to="/schedule">Create a schedule</Link>, then return to connect it to this job.</p>}
       <div className="helper-buttons"><button disabled={loading || saving || !loaded || !dirty} onClick={save}>{saving?'Saving connection…':desired===null && current?'Disconnect schedule':'Save connection'}</button></div>
     </details>
     {loading && <p role="status">Loading the saved schedule connection…</p>}

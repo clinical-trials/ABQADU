@@ -1,4 +1,5 @@
 import React, { act } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import BidBuilder from './BidBuilder';
 
@@ -22,7 +23,7 @@ beforeEach(() => {
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); jest.restoreAllMocks(); });
 const button = name => [...container.querySelectorAll('button')].find(el => el.textContent.trim() === name);
 const open = async () => {
-  await act(async () => root.render(<BidBuilder />));
+  await act(async () => root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><BidBuilder /></MemoryRouter>));
   await act(async () => [...container.querySelectorAll('div')].find(el => el.textContent === saved.title).click());
 };
 
@@ -52,5 +53,5 @@ test('markup presets update the draft only and a saved choice survives reopening
   expect(saved).toMatchObject({ markup_pct: 100, tax_pct: 0, contingency_pct: 0, items: fixture(18).items });
   await act(async () => root.unmount()); root = createRoot(container); await open();
   expect(container.querySelector('#bid-markup_pct').value).toBe('100');
-  expect(fetch.mock.calls.every(([url]) => url.startsWith('/api/bids') || url === '/api/clients')).toBe(true);
+  expect(fetch.mock.calls.every(([url]) => url.startsWith('/api/bids') || ['/api/clients', '/api/integrations/status'].includes(url))).toBe(true);
 });

@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const { getWeatherKitStatus } = require('./weatherKit');
 const { getWeatherStatus } = require('./weatherProvider');
 const { normalizePhone } = require('./contractorDesk');
+const { getAdminAuthStatus } = require('../adminAuth');
+const { getClerkAuthStatus } = require('../auth');
 
 const REQUIRED = {
   stripe: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_SUCCESS_URL', 'STRIPE_CANCEL_URL'],
@@ -15,9 +17,9 @@ function configured(keys) {
   return keys.every(k => Boolean(process.env[k]));
 }
 
-function providerStatus(name) {
+function providerStatus(name, env = process.env) {
   const required = REQUIRED[name] || [];
-  const missing = required.filter(k => !process.env[k]);
+  const missing = required.filter(k => !env[k]);
   return {
     configured: missing.length === 0,
     missing,
@@ -25,15 +27,26 @@ function providerStatus(name) {
   };
 }
 
-function getIntegrationStatus() {
+function getWorkspaceAuthStatus(env) {
+  // Match the auth boundary's explicit-mode precedence. Unknown explicit modes
+  // stay locked; they must never be advertised as loopback access.
+  if (env.ABQ_AUTH_MODE && env.ABQ_AUTH_MODE !== 'clerk') return getAdminAuthStatus(env);
+  if (!env.ABQ_AUTH_MODE && env.ABQ_LOCAL_WORKSPACE === '1') {
+    return { mode: 'local', configured: env.NODE_ENV === 'development' && env.HOST === '127.0.0.1' };
+  }
+  return getClerkAuthStatus(env);
+}
+
+function getIntegrationStatus(env = process.env) {
   return {
-    stripe: providerStatus('stripe'),
-    twilio: providerStatus('twilio'),
-    ocr: providerStatus('ocr'),
-    clerk: providerStatus('clerk'),
-    invoiceshelf: providerStatus('invoiceshelf'),
-    weatherkit: getWeatherKitStatus(),
-    weather: getWeatherStatus(),
+    stripe: providerStatus('stripe', env),
+    twilio: providerStatus('twilio', env),
+    ocr: providerStatus('ocr', env),
+    clerk: providerStatus('clerk', env),
+    invoiceshelf: providerStatus('invoiceshelf', env),
+    weatherkit: getWeatherKitStatus(env),
+    weather: getWeatherStatus(env),
+    workspaceAuth: getWorkspaceAuthStatus(env),
   };
 }
 

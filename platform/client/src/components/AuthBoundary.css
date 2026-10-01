@@ -8,6 +8,13 @@
 .auth-card button, .workspace-signout { min-height: 44px; border: 1px solid #3d5247; border-radius: 5px; padding: 9px 15px; background: #3d5247; color: white; cursor: pointer; font: inherit; }
 .auth-card button:focus-visible, .workspace-signout:focus-visible { outline: 3px solid #c4954a; outline-offset: 3px; }
 .auth-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.auth-admin-form { display: grid; gap: .65rem; }
+.auth-admin-form label { font-size: .9rem; font-weight: 700; }
+.auth-admin-form input { min-width: 0; width: 100%; box-sizing: border-box; min-height: 48px; border: 1px solid #aaa397; border-radius: 5px; padding: .65rem .75rem; color: #1c1917; background: #fff; font: inherit; font-size: 16px; margin-bottom: .4rem; }
+.auth-admin-form input:focus-visible { outline: 3px solid #c4954a; outline-offset: 2px; }
+.auth-admin-form button:disabled { opacity: .7; cursor: wait; }
+.auth-admin-form .auth-admin-error { margin: 0 0 .3rem; color: #8e2920; }
+.auth-admin-form .auth-admin-hint { font-size: .85rem; color: #57534e; margin: .25rem 0 0; }
 .workspace-signout { margin-left: auto; white-space: nowrap; flex-shrink: 0; font-size: 12px; }
 .auth-card .cl-rootBox, .auth-card .cl-cardBox { width: 100%; max-width: 100%; }
 .auth-public-access { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid #e7e0d5; }

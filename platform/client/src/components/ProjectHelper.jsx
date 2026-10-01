@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { requestJson } from '../utils/api';
 import ScheduleConnection from './ScheduleConnection';
 import BriefingAudio from './BriefingAudio';
@@ -32,7 +33,7 @@ function ScheduleReview({ schedule, risks }) {
     {!!schedule.weather_exposure?.length && <details><summary>Work that overlaps the weather window</summary><ul>{schedule.weather_exposure.map((item,i)=><li key={item.activity_id||i}><b>{item.name}</b> · {item.is_critical?'Critical work':'Check float'} · {(item.dates||[]).map(dateLabel).join(', ')}{Number.isFinite(item.candidate_hold_day_count) && <p>{item.candidate_hold_day_count} possible hold dates · {item.scenario_days_beyond_float===null?'Float comparison unavailable':`${item.scenario_days_beyond_float} days beyond recorded float in this scenario`}</p>}</li>)}</ul><p className="helper-muted">{schedule.weather_exposure_basis || 'Confirm whether this trade and weather apply to each activity before moving dates.'}</p></details>}
     {!!schedule.critical.length && <details><summary>Critical activities</summary><ul>{schedule.critical.slice(0,10).map(item=><li key={item.id}><b>{item.name}</b> · {dateLabel(item.planned_finish)} · {item.total_float===null?'Float unknown':`${item.total_float} days float`}</li>)}</ul></details>}
     {!!risks?.items?.length && <details><summary>Risk register</summary><ul>{risks.items.slice(0,5).map(item=><li key={item.id}><b>{item.title}</b> · {item.score===null?'Score unknown':`Score ${item.score}/25`}<p>{item.mitigation||'Add a mitigation plan with the project team.'}</p></li>)}</ul></details>}
-    <a href={`/schedule/${schedule.project_id}`}>Review this construction schedule →</a>
+    <Link to={`/schedule/${schedule.project_id}`}>Review this construction schedule →</Link>
   </>;
 }
 
@@ -100,22 +101,10 @@ function HelperForProject({ project, revision, onForecast, onScheduleSaved }) {
           <ul>{(report.controls?.readiness||[]).map(item=><li key={item.field}><b>{item.title}:</b> {item.detail}</li>)}</ul>
           <p>Model: {report.controls?.model?.catalog_name||project.model||'Confirm selected model'} · {report.controls?.model?.status==='confirmed'?'Area matches catalog':'Confirm measured area'}</p>
           <p>Estimated gross profit: {money(report.controls?.margin?.profit_low)} to {money(report.controls?.margin?.profit_high)}</p>
-          <p>{report.controls?.invoices?.draft_count??0} saved invoice drafts. Payment status is not included in this briefing. <a href="/invoices">Review invoices &amp; payments</a></p>
+          <p>{report.controls?.invoices?.draft_count??0} saved invoice drafts. Payment status is not included in this briefing. <Link to="/invoices">Review invoices &amp; payments</Link></p>
         </details>
       </div>
     </>}
-    <div className="helper-review-grid">
-      <details id="property-tax-review">
-        <summary>Homeowner property-tax planning · Bernalillo County</summary>
-        <p><strong>Contractor-reported 51% checkpoint: unverified.</strong> Include a property-tax review in the build timeline and confirm the threshold with the Assessor before treating it as a tax rule. This note does not establish that this job has reached that stage or that tax is due.</p>
-        <ul>
-          <li>Confirm the parcel's jurisdiction, how work in progress is assessed, any completion threshold, and what the owner must report.</li>
-          <li>Review the January 1 valuation date and the applicable tax year with the homeowner. Improvements during a year affect valuation the following January 1.</li>
-          <li>Confirm the actual bill and payment dates with the Treasurer, then review any mortgage escrow change with the homeowner's lender.</li>
-        </ul>
-        <p><a href="https://www.bernco.gov/assessor/" target="_blank" rel="noopener noreferrer">Bernalillo County Assessor</a> · <a href="https://www.srca.nm.gov/parts/title03/03.006.0007.html" target="_blank" rel="noopener noreferrer">Valuation-date rule · 3.6.7.14 NMAC</a></p>
-      </details>
-    </div>
     <CrewWeatherBrief report={report} project={project} loading={loading} expired={expired}/>
   </section>;
 }

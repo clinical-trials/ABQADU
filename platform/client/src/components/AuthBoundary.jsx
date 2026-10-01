@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { ClerkProvider, SignIn, useAuth, useClerk } from '@clerk/react';
 import { apiFetch, assertAuthSession, clearAuthSession, getAuthSession, setAuthSession, subscribeAuthSession } from '../utils/authFetch';
 import './AuthBoundary.css';
@@ -24,6 +24,120 @@ function AuthScreen({ title, children }) {
 export function WorkspaceSignOut() {
   const signOut = useContext(SignOutContext);
   return signOut ? <button className="workspace-signout" onClick={signOut}>Sign out</button> : null;
+}
+
+function revokeAdminSession(session) {
+  if (!session?.token || session.revoked) return;
+  session.revoked = true;
+  void fetch('/api/auth/admin-session', {
+    method: 'DELETE', credentials: 'omit', redirect: 'error', mode: 'same-origin', keepalive: true,
+    headers: { Authorization: `Bearer ${session.token}` },
+  }).catch(() => {});
+}
+
+function AdminWorkspace({ children }) {
+  const live = useSyncExternalStore(subscribeAuthSession, getAuthSession);
+  const lifetime = useRef(null);
+  const [decision, setDecision] = useState({ kind: 'form' });
+
+  const close = useCallback((message = '') => {
+    const state = lifetime.current;
+    if (!state) return;
+    state.attempt += 1; state.busy = false; state.controller?.abort(); clearTimeout(state.timer);
+    if (state.session?.owner) clearAuthSession(state.session.owner);
+    revokeAdminSession(state.session); state.session = null;
+    setDecision({ kind: 'form', message });
+  }, []);
+
+  useEffect(() => {
+    const state = { active: true, busy: false, attempt: 0, session: null };
+    lifetime.current = state;
+    clearAuthSession();
+    const leavePage = () => close('Session ended. Sign in again to continue.');
+    window.addEventListener('pagehide', leavePage);
+    return () => {
+      state.active = false; state.controller?.abort(); clearTimeout(state.timer);
+      if (state.session?.owner) clearAuthSession(state.session.owner);
+      revokeAdminSession(state.session);
+      window.removeEventListener('pagehide', leavePage);
+    };
+  }, [close]);
+
+  const submit = async event => {
+    event.preventDefault();
+    const state = lifetime.current;
+    if (!state?.active || state.busy) return;
+    clearTimeout(state.timer);
+    if (state.session?.owner) clearAuthSession(state.session.owner);
+    revokeAdminSession(state.session); state.session = null;
+    const form = event.currentTarget;
+    const username = form.elements.username.value, password = form.elements.password.value;
+    form.elements.password.value = '';
+    state.busy = true;
+    const attempt = ++state.attempt;
+    const controller = new AbortController(); state.controller = controller;
+    const current = () => state.active && state.attempt === attempt;
+    let session;
+    setDecision({ kind: 'checking' });
+    try {
+      const response = await fetch('/api/auth/admin-session', {
+        method: 'POST', credentials: 'omit', redirect: 'error', mode: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }), signal: controller.signal,
+      });
+      if (!response.ok) {
+        const error = new Error('Sign-in failed'); error.status = response.status; throw error;
+      }
+      const payload = await response.json();
+      session = { token: payload.token };
+      if (!current()) { revokeAdminSession(session); return; }
+      const expires = Date.parse(payload.expiresAt);
+      if (!/^[A-Za-z0-9_-]{43}$/.test(payload.token) || payload.userId !== 'admin-owner'
+        || typeof payload.sessionId !== 'string' || !payload.sessionId || payload.sessionId.length > 128
+        || !Number.isFinite(expires) || expires <= Date.now() || expires > Date.now() + 8 * 60 * 60 * 1000 + 60000) {
+        throw new Error('Invalid sign-in session');
+      }
+      state.session = session;
+      session.owner = setAuthSession({ userId: payload.userId, sessionId: payload.sessionId, getToken: async () => session.token,
+        onUnauthorized: () => { if (current()) close('Session ended. Sign in again to continue.'); },
+      });
+      const verified = await apiFetch('/api/auth/session', { authSession: session.owner });
+      if (!verified.ok) throw new Error('Could not confirm access');
+      const identity = await verified.json();
+      assertAuthSession(session.owner);
+      if (identity.userId !== 'admin-owner') throw new Error('Identity mismatch');
+      if (current()) {
+        state.timer = setTimeout(() => close('Session ended. Sign in again to continue.'), Math.max(0, expires - Date.now()));
+        setDecision({ kind: 'allowed', owner: session.owner });
+      }
+    } catch (error) {
+      if (session?.owner) clearAuthSession(session.owner);
+      revokeAdminSession(session);
+      if (current()) {
+        state.session = null;
+        setDecision({ kind: 'form', message: error.status === 401 ? 'Username or password is incorrect.'
+          : error.status === 429 ? 'Too many sign-in attempts. Wait 15 minutes before trying again.'
+            : 'Unable to sign in. Check your connection and try again.' });
+      }
+    } finally { if (current()) state.busy = false; }
+  };
+
+  if (decision.kind === 'allowed' && decision.owner.epoch === live.epoch) {
+    return <SignOutContext.Provider value={() => close()}><React.Fragment key={live.epoch}>{children}</React.Fragment></SignOutContext.Provider>;
+  }
+  const checking = decision.kind === 'checking';
+  return <AuthScreen title="Sign in to your workspace">
+    <p>Access your projects, estimates, and company records.</p>
+    <form className="auth-admin-form" onSubmit={submit} aria-busy={checking}>
+      <label htmlFor="admin-username">Username</label>
+      <input id="admin-username" name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} defaultValue="admin" maxLength={128} required disabled={checking} />
+      <label htmlFor="admin-password">Password</label>
+      <input id="admin-password" name="password" type="password" autoComplete="current-password" maxLength={256} required disabled={checking} />
+      {decision.message && <p className="auth-admin-error" role="alert">{decision.message}</p>}
+      {decision.kind === 'allowed' && <p role="alert">Session ended. Sign in again to continue.</p>}
+      <button type="submit" disabled={checking}>{checking ? 'Signing in…' : 'Sign in'}</button>
+      <p className="auth-admin-hint">Use the password provided by your workspace owner.</p>
+    </form>
+  </AuthScreen>;
 }
 
 async function revokeLocalSession(token) {
@@ -220,9 +334,10 @@ export default function AuthBoundary({ children }) {
 
   if (error) return <AuthScreen title="Unable to check workspace setup"><p>The server is unavailable. Your project data remains locked.</p><button onClick={() => setAttempt(value => value + 1)}>Retry</button></AuthScreen>;
   if (!config) return <AuthScreen title="Checking workspace setup…"><p role="status">Connecting to the server.</p></AuthScreen>;
+  if (config.configured === true && config.mode === 'admin') return <AdminWorkspace>{children}</AdminWorkspace>;
   if (config.configured === true && config.mode === 'local') return <LocalWorkspace>{children}</LocalWorkspace>;
   if (config.configured !== true || typeof config.publishableKey !== 'string' || !/^pk_(test|live)_/.test(config.publishableKey)) {
-    return <AuthScreen title="Workspace setup required"><p>Builder sign-in is not ready on this server. The homeowner website is open; signing in is only needed for saved projects and billing.</p><details className="auth-owner-setup"><summary>Set up builder access</summary><p>The workspace owner needs to add the existing Clerk application keys and approved staff IDs to the private server configuration, then restart the app. Payment and texting setup can follow separately.</p></details><button onClick={() => setAttempt(value => value + 1)}>Retry setup check</button></AuthScreen>;
+    return <AuthScreen title="Workspace setup required"><p>Builder sign-in is not ready on this server. The homeowner website is open; signing in is only needed for saved projects and billing.</p><details className="auth-owner-setup"><summary>Set up builder access</summary><p>The workspace owner needs to configure admin sign-in or Clerk staff access in the private server configuration, then restart the app. Payment and texting setup can follow separately.</p></details><button onClick={() => setAttempt(value => value + 1)}>Retry setup check</button></AuthScreen>;
   }
   return <ProviderBoundary><ClerkProvider publishableKey={config.publishableKey}><AuthorizedWorkspace>{children}</AuthorizedWorkspace></ClerkProvider></ProviderBoundary>;
 }

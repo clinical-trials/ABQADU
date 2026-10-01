@@ -1,5 +1,6 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
+import { MemoryRouter } from 'react-router-dom';
 import IntegrationSetup from './IntegrationSetup';
 
 let root, container;
@@ -11,21 +12,21 @@ beforeEach(() => {
   root = createRoot(container);
 });
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); });
-const render = async props => act(async () => root.render(<IntegrationSetup onRefresh={() => {}} {...props} />));
+const render = async props => act(async () => root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><IntegrationSetup onRefresh={() => {}} {...props} /></MemoryRouter>));
 
-test('adding credentials never claims a verified connection or completed login', async () => {
-  await render({integrations:configuration(true)});
+test('adding provider settings never claims a verified connection or completed login', async () => {
+  await render({integrations:{...configuration(true),workspaceAuth:{mode:'clerk',configured:true}}});
   expect(container.querySelectorAll('[data-setup-status="configured"]')).toHaveLength(6);
   expect(container.textContent).not.toMatch(/\bConnected\b/);
   expect(container.textContent).toContain('Credentials added · untested');
-  expect(container.textContent).toContain('verified Clerk session and an approved staff account');
+  expect(container.querySelector('[data-auth-mode="clerk"]').textContent).toContain('test sign-in');
 });
 
 test('missing credentials show useful next steps when optional Apple Weather is selected', async () => {
   await render({integrations:{...configuration(false),weather:{configured:false,provider:'weatherkit'}}});
-  expect(container.querySelectorAll('details')).toHaveLength(6);
+  expect(container.querySelectorAll('.integration-setup__service')).toHaveLength(6);
   expect(container.textContent).toContain('Use your phone’s text app');
-  expect(container.textContent).toContain('Pasted receipt text works now');
+  expect(container.textContent).toContain('Browser photo scanning does not need an OCR.space account');
   expect(container.textContent).toContain('confirm the invoice balance updates once');
   expect(container.textContent).toContain('Apple Weather');
   expect(container.textContent).toContain('Map each project ZIP');
@@ -34,7 +35,7 @@ test('missing credentials show useful next steps when optional Apple Weather is 
 
 test('default NWS weather works without credentials and does not claim a verified provider connection', async () => {
   await render({ integrations: { ...configuration(false), weather: { configured: true, provider: 'nws', source: 'National Weather Service', required_env: [], missing: [] } } });
-  const weather = [...container.querySelectorAll('details')].find(item => item.textContent.includes('National Weather Service'));
+  const weather = [...container.querySelectorAll('.integration-setup__service')].find(item => item.textContent.includes('National Weather Service'));
   expect(weather).toBeDefined();
   expect(weather.textContent).toContain('No credentials required');
   expect(weather.textContent).toContain('Update forecast');
@@ -56,4 +57,34 @@ test('refresh only requests configuration and is disabled while checking', async
   expect(onRefresh).toHaveBeenCalledTimes(1);
   await render({onRefresh,loading:true});
   expect(container.querySelector('button').disabled).toBe(true);
+});
+
+test('built-in check, phone and browser receipt tools remain visible with optional services unconfigured', async () => {
+  await render({integrations:{...configuration(false),workspaceAuth:{mode:'admin',configured:true}},receiptScannerAvailable:true});
+  const builtIn = container.querySelector('[aria-label="Built-in workflows"]');
+  expect(builtIn.textContent).toContain('Check tracking');
+  expect(builtIn.textContent).toContain('Phone text drafts');
+  expect(builtIn.textContent).toContain('Receipt photo scan');
+  expect(builtIn.textContent).not.toContain('Setup needed');
+  expect(container.querySelector('[data-auth-mode="admin"]').textContent).toContain('Admin password');
+  expect(container.querySelector('.integration-setup__optional').open).toBe(false);
+  expect(container.textContent).not.toContain('Verify sign-in first');
+  expect(container.textContent).toContain('Stripe is not needed for checks');
+});
+
+test('local mode is clearly limited to this computer and does not require Clerk setup', async () => {
+  await render({integrations:{...configuration(false),workspaceAuth:{mode:'local',configured:true}}});
+  const access = container.querySelector('[data-auth-mode="local"]');
+  expect(access.textContent).toContain('This computer only');
+  expect(access.textContent).not.toContain('Clerk setup');
+  expect(container.querySelector('[aria-label="Built-in workflows"]').textContent).not.toContain('Receipt photo scan');
+});
+
+test('failed and loading checks suppress previously configured workspace access status', async () => {
+  const integrations = {...configuration(true),workspaceAuth:{mode:'admin',configured:true}};
+  await render({integrations,error:'Server unavailable'});
+  expect(container.querySelector('[data-auth-mode]').getAttribute('data-auth-mode')).toBe('unknown');
+  await render({integrations,loading:true});
+  expect(container.querySelector('[data-auth-mode]').getAttribute('data-auth-mode')).toBe('unknown');
+  expect(container.querySelector('[data-auth-mode]').textContent).toContain('Checking');
 });

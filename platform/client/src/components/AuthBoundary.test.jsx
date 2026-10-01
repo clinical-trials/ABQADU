@@ -1,7 +1,7 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import AuthBoundary from './AuthBoundary';
-import { apiFetch, clearAuthSession } from '../utils/authFetch';
+import AuthBoundary, { WorkspaceSignOut } from './AuthBoundary';
+import { apiFetch, clearAuthSession, getAuthSession } from '../utils/authFetch';
 
 let mockAuth, mockProviderIdentity;
 const mockSignOut = jest.fn(async () => {});
@@ -19,7 +19,7 @@ jest.mock('@clerk/react', () => ({
 
 let root, container, mounts;
 const reply = (body, status = 200) => ({ ok: status < 400, status, json: async () => body });
-function PrivateApp() { React.useEffect(() => { mounts += 1; }, []); return <div>Private project records</div>; }
+function PrivateApp() { React.useEffect(() => { mounts += 1; }, []); return <div>Private project records<WorkspaceSignOut /></div>; }
 const render = () => act(async () => root.render(<AuthBoundary><PrivateApp /></AuthBoundary>));
 beforeEach(() => {
   global.IS_REACT_ACT_ENVIRONMENT = true;
@@ -128,4 +128,72 @@ test('provider identity changing during token retrieval cannot issue the old req
     await expect(request).rejects.toMatchObject({ code: 'AUTH_SESSION_CHANGED' });
   });
   expect(fetch).not.toHaveBeenCalled();
+});
+
+const adminSession = { userId: 'admin-owner', sessionId: 'synthetic-session', token: 'a'.repeat(43), expiresAt: new Date(Date.now() + 3600000).toISOString() };
+const adminReply = async (url, options) => {
+  if (url === '/api/auth/config') return reply({ configured: true, mode: 'admin', publishableKey: null });
+  if (url === '/api/auth/admin-session') return reply(options?.method === 'DELETE' ? {} : adminSession, options?.method === 'DELETE' ? 204 : 201);
+  return reply({ userId: 'admin-owner' });
+};
+const submitAdmin = () => act(async () => {
+  container.querySelector('[name="password"]').value = 'Synthetic-test-password';
+  container.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+});
+
+test('admin sign-in stays private until verified, then sign-out clears state and revokes the token', async () => {
+  fetch.mockImplementation(adminReply);
+  const store = jest.spyOn(Storage.prototype, 'setItem');
+  await render();
+  expect(mounts).toBe(0);
+  expect(container.querySelector('[name="username"]').value).toBe('admin');
+  expect(container.querySelector('[name="password"]').autocomplete).toBe('current-password');
+  await submitAdmin();
+  expect(mounts).toBe(1);
+  expect(fetch).toHaveBeenCalledWith('/api/auth/admin-session', expect.objectContaining({ method: 'POST', credentials: 'omit', body: JSON.stringify({ username: 'admin', password: 'Synthetic-test-password' }) }));
+  expect(store).not.toHaveBeenCalled(); store.mockRestore();
+  await act(async () => [...container.querySelectorAll('button')].find(button => button.textContent === 'Sign out').click());
+  expect(container.textContent).not.toContain('Private project records');
+  expect(getAuthSession().userId).toBeNull();
+  expect(fetch).toHaveBeenCalledWith('/api/auth/admin-session', expect.objectContaining({ method: 'DELETE', headers: { Authorization: `Bearer ${adminSession.token}` } }));
+});
+
+test.each([401, 429, 503])('admin error %s leaves data locked and removes the entered password', async status => {
+  fetch.mockImplementation((url, options) => url === '/api/auth/admin-session' ? reply({ error: 'server arbitrary secret must not echo' }, status) : adminReply(url, options));
+  await render(); await submitAdmin();
+  expect(mounts).toBe(0);
+  expect(container.querySelector('[name="password"]').value).toBe('');
+  expect(container.querySelector('[role="alert"]')).not.toBeNull();
+  expect(container.textContent).not.toContain('server arbitrary secret');
+  expect(fetch.mock.calls.filter(([url]) => url === '/api/auth/session')).toHaveLength(0);
+});
+
+test('duplicate admin submissions cannot create concurrent sessions and late authorization cannot reopen an unmounted workspace', async () => {
+  let finish;
+  fetch.mockImplementation((url, options) => url === '/api/auth/admin-session' && options?.method === 'POST'
+    ? new Promise(resolve => { finish = resolve; }) : adminReply(url, options));
+  await render(); await submitAdmin(); await submitAdmin();
+  expect(fetch.mock.calls.filter(([, options]) => options?.method === 'POST')).toHaveLength(1);
+  await act(async () => root.render(<div>Left workspace</div>));
+  await act(async () => finish(reply(adminSession, 201)));
+  expect(mounts).toBe(0);
+  expect(getAuthSession().userId).toBeNull();
+  expect(fetch).toHaveBeenCalledWith('/api/auth/admin-session', expect.objectContaining({ method: 'DELETE' }));
+});
+
+test('admin API expiry closes private records and requires password entry again', async () => {
+  fetch.mockImplementation(adminReply); await render(); await submitAdmin();
+  fetch.mockImplementation((url, options) => url === '/api/clients' ? reply({}, 401) : adminReply(url, options));
+  await act(async () => { await apiFetch('/api/clients').catch(() => {}); });
+  expect(container.textContent).not.toContain('Private project records');
+  expect(container.textContent).toContain('Session ended');
+  expect(container.querySelector('[name="password"]').value).toBe('');
+  expect(getAuthSession().userId).toBeNull();
+});
+
+test('mismatched admin authorization never mounts records', async () => {
+  fetch.mockImplementation((url, options) => url === '/api/auth/session' ? reply({ userId: 'someone-else' }) : adminReply(url, options));
+  await render(); await submitAdmin();
+  expect(mounts).toBe(0); expect(getAuthSession().userId).toBeNull();
+  expect(container.querySelector('[role="alert"]')).not.toBeNull();
 });

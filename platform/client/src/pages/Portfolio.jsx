@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import useApiList from '../hooks/useApiList';
 import ApiError from '../components/ApiError';
 
@@ -70,9 +71,9 @@ export default function Portfolio() {
                   {p.project_start} → {p.planned_finish} · {p.total_activities} activities
                 </div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12 }}>
-                  <a href={`/schedule/${p.id}`}>Schedule</a>
-                  <a href={`/field/${p.id}`}>Field operations</a>
-                  <a href={`/risks/${p.id}`}>Risks</a>
+                  <Link to={`/schedule/${p.id}`}>Schedule</Link>
+                  <Link to={`/field/${p.id}`}>Field operations</Link>
+                  <Link to={`/risks/${p.id}`}>Risks</Link>
                 </div>
               </div>
 
@@ -106,7 +107,7 @@ export default function Portfolio() {
         {!error && !projects.length && (
           <div style={{ textAlign: 'center', color: '#A8A29E', padding: 48, fontSize: 14 }}>
             No active projects yet.
-            <div style={{ marginTop: 12 }}><a href="/schedule">Create or manage a project</a></div>
+            <div style={{ marginTop: 12 }}><Link to="/schedule">Create or manage a project</Link></div>
           </div>
         )}
       </div>

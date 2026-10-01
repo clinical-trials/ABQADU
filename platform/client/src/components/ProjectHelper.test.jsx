@@ -1,4 +1,5 @@
 import React, { act } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { Simulate } from 'react-dom/test-utils';
 import ProjectHelper from './ProjectHelper';
@@ -25,7 +26,7 @@ beforeEach(()=>{
   host=document.createElement('div');document.body.appendChild(host);root=createRoot(host);
 });
 afterEach(async()=>{await act(async()=>root.unmount());host.remove();jest.restoreAllMocks();jest.useRealTimers();});
-const render=async(props={})=>act(async()=>root.render(<ProjectHelper project={{id:'one',client:'First job'}} {...props}/>));
+const render=async(props={})=>act(async()=>root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><ProjectHelper project={{id:'one',client:'First job'}} {...props}/></MemoryRouter>));
 const button=name=>[...host.querySelectorAll('button')].find(el=>el.textContent===name);
 
 test('shows weather warnings and unknown numbers without declaring payments or safe work',async()=>{

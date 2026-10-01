@@ -1,6 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import WeatherAttribution from './WeatherAttribution';
+import TextComposer from './TextComposer';
 import { requestJson } from '../utils/api';
+import { getAuthSession, subscribeAuthSession } from '../utils/authFetch';
+import { normalizeTextPhone, smsDraftHref } from '../utils/textDraft';
 import './ContractorDesk.css';
 
 const trades = [['concrete', 'Concrete'], ['roofing', 'Roofing'], ['excavation', 'Excavation'], ['general', 'General construction']];
@@ -12,8 +15,8 @@ function nextDates() {
   const date = new Date(`${part('year')}-${part('month')}-${part('day')}T12:00:00Z`);
   return Array.from({ length: 4 }, (_, index) => new Date(date.getTime() + (index + 1) * 86400000).toISOString().slice(0, 10));
 }
-const phoneNumber = value => /^\+?[\d\s().-]{7,25}$/.test(value || '') ? value.replace(/[^+\d]/g, '') : '';
-const smsHref = (phone, body) => `sms:${phoneNumber(phone)}?body=${encodeURIComponent(body || '')}`;
+const phoneNumber = normalizeTextPhone;
+const smsHref = (phone, body) => smsDraftHref(phone, body, /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 
 export function FieldIcon({ name, ...props }) {
   const paths = {
@@ -30,7 +33,7 @@ export function FieldIcon({ name, ...props }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>{paths[name] || paths.cloud}</svg>;
 }
 
-export default function ContractorDesk({ project, state, forecast, busy, onCheckWeather, runAction, onRefresh }) {
+function ContractorDeskForSession({ project, state, forecast, busy, onCheckWeather, runAction, onRefresh }) {
   const [trade, setTrade] = useState('concrete');
   const [showBid, setShowBid] = useState(false);
   const [drafts, setDrafts] = useState({});
@@ -44,6 +47,9 @@ export default function ContractorDesk({ project, state, forecast, busy, onCheck
   const [now, setNow] = useState(Date.now());
   const formRef = useRef(null);
   const mounted = useRef(true);
+  const actionScope = useRef({ projectId: project?.id });
+  if (actionScope.current.projectId !== project?.id) actionScope.current = { projectId: project?.id };
+  const currentScope = owner => mounted.current && actionScope.current === owner;
   const draft = drafts[project?.id] || emptyBid;
   const setDraft = update => setDrafts(current => ({ ...current, [project.id]: { ...(current[project.id] || emptyBid), ...update } }));
   useEffect(() => {
@@ -55,6 +61,7 @@ export default function ContractorDesk({ project, state, forecast, busy, onCheck
   }, []);
   useEffect(() => { setHoldDay(null); setNotice(''); }, [project?.id, trade]);
   useEffect(() => { setBidLimit(8); setInboxLimit(12); }, [project?.id]);
+  useEffect(() => { setPending(false); setHoldNote(''); }, [project?.id]);
   useEffect(() => { if (showBid) formRef.current?.querySelector('input')?.focus(); }, [showBid]);
   useEffect(() => { if (['#messages', '#trade-bids'].includes(window.location.hash)) document.getElementById(window.location.hash.slice(1))?.scrollIntoView?.({ behavior: 'smooth' }); }, [project?.id]);
 
@@ -72,43 +79,52 @@ export default function ContractorDesk({ project, state, forecast, busy, onCheck
   const phone = sms?.inbound_configured ? phoneNumber(sms.phone) : '';
   const locked = !project || busy || pending;
   const copy = async text => {
-    try { await navigator.clipboard.writeText(text); setNotice('Copied. Review the message before sending.'); }
-    catch { setNotice('Copy is unavailable here. Select and copy the message text below.'); }
+    const owner = actionScope.current;
+    try { await navigator.clipboard.writeText(text); if (currentScope(owner)) setNotice('Copied. Review the message before sending.'); }
+    catch { if (currentScope(owner)) setNotice('Copy is unavailable here. Select and copy the message text below.'); }
   };
   const saveBid = async event => {
     event.preventDefault();
     if (locked) return;
     setPending(true); setNotice('');
     const projectId = project.id;
+    const owner = actionScope.current;
     try {
       const saved = await runAction('/api/contractor-desk/bid-requests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...draft, project_id: projectId }) });
-      if (saved && mounted.current) { setDrafts(current => ({ ...current, [projectId]: emptyBid })); setShowBid(false); setNotice('Bid request saved as a draft. Review it before texting the subcontractor.'); }
-    } finally { if (mounted.current) setPending(false); }
+      if (saved && currentScope(owner)) { setDrafts(current => ({ ...current, [projectId]: emptyBid })); setShowBid(false); setNotice('Bid request saved as a draft. Review it before texting the subcontractor.'); }
+    } catch (error) { if (currentScope(owner)) setNotice(error.message || 'Could not save the bid request. Your draft is unchanged.'); }
+    finally { if (currentScope(owner)) setPending(false); }
   };
   const confirmHold = async () => {
     if (locked || !holdDay || !holdNote.trim() || !fresh) return;
     if (forecast.expires_at && Date.parse(forecast.expires_at) <= Date.now()) { setHoldDay(null); setNotice('Refresh the forecast before confirming this weather decision.'); return; }
     setPending(true);
+    const owner = actionScope.current;
     try {
       const saved = await runAction('/api/contractor-desk/weather-holds', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_id: project.id, trade, date: holdDay.date, note: holdNote.trim() }) });
-      if (saved && mounted.current) { setHoldDay(null); setNotice('Day off recorded. Share the crew note to let the subcontractor know.'); }
-    } finally { if (mounted.current) setPending(false); }
+      if (saved && currentScope(owner)) { setHoldDay(null); setNotice('Day off recorded. Share the crew note to let the subcontractor know.'); }
+    } catch (error) { if (currentScope(owner)) setNotice(error.message || 'Could not record the weather decision.'); }
+    finally { if (currentScope(owner)) setPending(false); }
   };
   const reviewText = async row => {
     if (locked) return;
     setPending(true);
+    const owner = actionScope.current;
     try {
       const saved = await runAction(`/api/contractor-desk/sms/${encodeURIComponent(row.id)}/review`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_id: project.id }) });
-      if (saved && mounted.current) setNotice('Text reviewed and saved with this job. No price or schedule change was accepted.');
-    } finally { if (mounted.current) setPending(false); }
+      if (saved && currentScope(owner)) setNotice('Text reviewed and saved with this job. No price or schedule change was accepted.');
+    } catch (error) { if (currentScope(owner)) setNotice(error.message || 'Could not mark this text reviewed.'); }
+    finally { if (currentScope(owner)) setPending(false); }
   };
   const cancelHold = async hold => {
     if (locked) return;
     setPending(true);
+    const owner = actionScope.current;
     try {
       const saved = await runAction(`/api/contractor-desk/weather-holds/${encodeURIComponent(hold.id)}/cancel`, { method: 'POST' });
-      if (saved && mounted.current) setNotice('Weather day off removed. Confirm the workday with the crew.');
-    } finally { if (mounted.current) setPending(false); }
+      if (saved && currentScope(owner)) setNotice('Weather day off removed. Confirm the workday with the crew.');
+    } catch (error) { if (currentScope(owner)) setNotice(error.message || 'Could not remove the weather day off.'); }
+    finally { if (currentScope(owner)) setPending(false); }
   };
 
   return <div className="field-desk">
@@ -156,15 +172,24 @@ export default function ContractorDesk({ project, state, forecast, busy, onCheck
           <div className="field-actions"><button className="field-button" disabled={locked} type="submit">{pending ? 'Saving…' : 'Save bid request'}</button><button className="field-text-button" type="button" onClick={()=>setShowBid(false)}>Close form</button></div>
           <small>Saved as a draft. You review and send the request.</small>
         </form>}
-        <div className="field-request-list">{requests.length ? requests.slice(0,bidLimit).map(row=><article key={row.id} className="field-request"><div className="field-row"><span className="field-reference">{row.reference}</span><span className="field-small-status">{row.status || 'Draft'}</span></div><h3>{row.title}</h3><p>{row.scope}</p><div className="field-request-meta"><span>{row.contact_name || 'Subcontractor to confirm'}</span>{row.due_date && <span>Due {dateLabel(row.due_date)}</span>}</div><details><summary>Review text request</summary><p className="field-message-copy">{row.message_body}</p></details><div className="field-actions">{phoneNumber(row.contact_phone) && <a className="field-button" href={smsHref(row.contact_phone,row.message_body)}>Prepare text<FieldIcon name="message"/></a>}<button className="field-text-button" onClick={()=>copy(row.message_body)}>Copy request</button></div></article>) : <div className="field-empty"><FieldIcon name="bid"/><h3>A good quote starts here.</h3><p>Add the scope, trade and contact. Text replies can come straight into the inbox.</p></div>}</div>
+        <div className="field-request-list">{requests.length ? requests.slice(0,bidLimit).map(row=><article key={row.id} className="field-request"><div className="field-row"><span className="field-reference">{row.reference}</span><span className="field-small-status">{row.status || 'Draft'}</span></div><h3>{row.title}</h3><p>{row.scope}</p><div className="field-request-meta"><span>{row.contact_name || 'Subcontractor to confirm'}</span>{row.due_date && <span>Due {dateLabel(row.due_date)}</span>}</div><details><summary>Review text request</summary><p className="field-message-copy">{row.message_body}</p></details><div className="field-actions">{phoneNumber(row.contact_phone) && <a className="field-button" href={smsHref(row.contact_phone,row.message_body)}>Prepare text<FieldIcon name="message"/></a>}<button className="field-text-button" onClick={()=>copy(row.message_body)}>Copy request</button></div></article>) : <div className="field-empty"><FieldIcon name="bid"/><h3>A good quote starts here.</h3><p>Add the scope, trade and contact. Review the draft before texting the subcontractor.</p></div>}</div>
         {requests.length > bidLimit && <button className="field-text-button" onClick={()=>setBidLimit(limit=>limit+8)}>Show more bid requests ({requests.length-bidLimit} remaining)</button>}
       </section>
       <section className="field-panel" id="messages" aria-labelledby="field-messages-heading">
-        <div className="field-section-heading"><div><span className="field-eyebrow">KEEP THE OFFICE IN THE LOOP</span><h2 id="field-messages-heading">Job inbox</h2></div><button className="field-text-button" disabled={busy} onClick={onRefresh}>Refresh inbox</button></div>
-        <div className="field-text-office"><FieldIcon name="message"/><div><h3>{phone ? 'Text the office' : 'One number. Every job.'}</h3><p>{phone ? `Send quotes and updates to ${phone}. Include the bid reference so the office can find the job.` : 'Connect your Twilio number to receive subcontractor texts here. Incoming messages stay separate until reviewed.'}</p>{phone && <a className="field-button field-button-outline" href={smsHref(phone,`ABQ ADU job update: ${project?.client || ''}. `)}>Open text message</a>}</div></div>
-        <div className="field-inbox-list">{inbox.length ? inbox.slice(0,inboxLimit).map(row=><article key={row.id || row.provider_sid} className="field-inbox-message"><div className="field-row"><b>{row.from}</b><span className="field-small-status">{row.status === 'Reviewed' ? 'Reviewed' : row.project_id ? 'Needs review' : 'Needs assignment'}</span></div><p>{row.body}</p>{row.media_count > 0 && <p>{row.media_count} attachment{row.media_count === 1 ? "" : "s"} · review in Twilio</p>}{row.received_at && <time dateTime={row.received_at}>{new Date(row.received_at).toLocaleString('en-US',{timeZone:'America/Denver'})} MT</time>}{row.status !== 'Reviewed' && <button className="field-text-button" disabled={locked} onClick={()=>reviewText(row)}>{row.project_id ? 'Mark reviewed' : `Assign to ${project?.client || 'this job'} & review`}</button>}</article>) : <div className="field-empty"><FieldIcon name="message"/><h3>No incoming texts yet.</h3><p>Subcontractor quotes, availability and job updates will appear here. A received text never accepts a price or cancels work automatically.</p></div>}</div>
+        <div className="field-section-heading"><div><span className="field-eyebrow">KEEP PEOPLE IN THE LOOP</span><h2 id="field-messages-heading">Job messages</h2></div><FieldIcon name="message" className="field-section-icon"/></div>
+        <TextComposer project={project} builder={state?.builder} forecast={forecast} fresh={fresh} busy={busy} onCheckWeather={onCheckWeather}/>
+        <details className="field-shared-inbox" open={inbox.length > 0}><summary>Shared inbox · optional <span>{inbox.length} messages</span></summary>
+        <button className="field-text-button" disabled={busy} onClick={onRefresh}>Refresh inbox</button>
+        <div className="field-text-office"><FieldIcon name="message"/><div><h3>{phone ? 'Connected inbox number' : 'Connect a shared inbox when ready'}</h3><p>{phone ? `Messages sent to ${phone} can appear here. Include the bid reference so the office can find the job.` : 'Twilio is needed only to receive messages in this shared inbox. Phone drafts above work now. Messages to your personal phone do not appear here automatically.'}</p>{phone && <a className="field-button field-button-outline" href={smsHref(phone,`ABQ ADU job update: ${project?.client || ''}. `)}>Open text message</a>}</div></div>
+        <div className="field-inbox-list">{inbox.length ? inbox.slice(0,inboxLimit).map(row=><article key={row.id || row.provider_sid} className="field-inbox-message"><div className="field-row"><b>{row.from}</b><span className="field-small-status">{row.status === 'Reviewed' ? 'Reviewed' : row.project_id ? 'Needs review' : 'Needs assignment'}</span></div><p>{row.body}</p>{row.media_count > 0 && <p>{row.media_count} attachment{row.media_count === 1 ? "" : "s"} · review in Twilio</p>}{row.received_at && <time dateTime={row.received_at}>{new Date(row.received_at).toLocaleString('en-US',{timeZone:'America/Denver'})} MT</time>}{row.status !== 'Reviewed' && <button className="field-text-button" disabled={locked} onClick={()=>reviewText(row)}>{row.project_id ? 'Mark reviewed' : `Assign to ${project?.client || 'this job'} & review`}</button>}</article>) : <div className="field-empty"><FieldIcon name="message"/><h3>No incoming texts yet.</h3><p>After Twilio is connected, messages sent to its number can appear here for review. A received text never accepts a price or changes the schedule automatically.</p></div>}</div>
         {inbox.length > inboxLimit && <button className="field-text-button" onClick={()=>setInboxLimit(limit=>limit+12)}>Show more texts ({inbox.length-inboxLimit} remaining)</button>}
+        </details>
       </section>
     </div>
   </div>;
+}
+
+export default function ContractorDesk(props) {
+  const session = useSyncExternalStore(subscribeAuthSession, getAuthSession, getAuthSession);
+  return <ContractorDeskForSession key={session.epoch} {...props}/>;
 }

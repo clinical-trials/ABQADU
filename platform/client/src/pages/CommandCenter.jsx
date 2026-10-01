@@ -1,3 +1,4 @@
+import { Link, useNavigate } from 'react-router-dom';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useCommandCenter from '../hooks/useCommandCenter';
 import ClientPacket, { PacketPdfStatus } from '../components/ClientPacket';
@@ -6,10 +7,13 @@ import IntegrationSetup, { SERVICE_IDS } from '../components/IntegrationSetup';
 import { apiFetch } from '../utils/authFetch';
 import WeatherAttribution from '../components/WeatherAttribution';
 import ContractorDesk from '../components/ContractorDesk';
+import ContractorPhonebook from '../components/ContractorPhonebook';
 import ProjectHelper from '../components/ProjectHelper';
 import DocumentActivity from '../components/DocumentActivity';
 import GisYardReview from '../components/GisYardReview';
 import BidPricingGuidance from '../components/BidPricingGuidance';
+import ReceiptCapture from '../components/ReceiptCapture';
+import { revealWorkspaceSection } from '../utils/workspaceNavigation';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 const invoiceMoney = n => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -66,7 +70,7 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
     : Array.isArray(project.draw_schedule) ? project.draw_schedule : [];
   const hasSavedSchedule = invoices.length > 0;
   return (
-    <article style={styles.card} aria-label={`Project details for ${project.client}`}>
+    <article id="project-intake" style={styles.card} aria-label={`Project details for ${project.client}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <input aria-label="Client name" style={{ ...styles.input, fontSize: 18, fontWeight: 900 }} value={project.client} onChange={e => onChange(project.id, 'client', e.target.value)} />
@@ -161,6 +165,7 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
 
 export default function CommandCenter() {
   useMobilePatch();
+  const navigate = useNavigate();
   const { state, saving, error, status, load, saveState, updateList, runAction, clearError, legacyDraftNotice } = useCommandCenter();
   const packetPdf = usePacketPdf(saveState);
   const [activeProjectId, setActiveProjectId] = useState('');
@@ -171,7 +176,6 @@ export default function CommandCenter() {
   const [integrationsError, setIntegrationsError] = useState('');
   const integrationRequest = useRef(0);
   const [note, setNote] = useState('');
-  const [receiptText, setReceiptText] = useState("LOWE'S HOME IMPROVEMENT\n08/03/2026\nDrywall mud and house wrap\nTOTAL $284.76");
   const [liveStatus, setLiveStatus] = useState('');
   const [importedInvoices, setImportedInvoices] = useState(null);
   const [weatherZip, setWeatherZip] = useState('87106');
@@ -182,13 +186,7 @@ export default function CommandCenter() {
   const initialReviewOpened = useRef(false);
   useEffect(() => {
     const hash=window.location.hash;
-    if (state && !initialReviewOpened.current && ['#office-tools','#project-helper','#document-activity','#trade-bids','#messages'].includes(hash)) {
-      const target=document.getElementById(hash.slice(1));
-      if(!target)return;
-      initialReviewOpened.current = true;
-      if(hash==='#office-tools' && officeTools.current)officeTools.current.open=true;
-      target.scrollIntoView?.({ block: 'start' });
-    }
+    if (state && !initialReviewOpened.current && revealWorkspaceSection(hash)) initialReviewOpened.current = true;
   }, [state]);
 
   const loadIntegrations = useCallback(async () => {
@@ -239,9 +237,11 @@ export default function CommandCenter() {
     if (preview) setClientPreview(preview);
   };
 
-  const addReceipt = () => {
-    const receipt = { id: `receipt-${Date.now()}`, vendor: 'New receipt', project: activeProject?.client || 'Unassigned', project_id: activeProject?.id, amount: 0, category: 'Materials', note: 'Tap to edit in the production receipt scanner.' };
-    saveState(current => ({ receipts: [receipt, ...(current.receipts || [])] }));
+  const saveReviewedReceipt = async draft => {
+    if (!activeProject) return false;
+    const receipt = { ...draft, project: activeProject.client, project_id: activeProject.id, category: 'Materials' };
+    const saved = await saveState(current => ({ receipts: [receipt, ...(current.receipts || []).filter(item => item.id !== receipt.id)] }));
+    return Boolean(saved);
   };
 
   const addMileage = () => {
@@ -301,17 +301,9 @@ export default function CommandCenter() {
       setImportedInvoices({ projectId, count: payload.invoices.length });
     }
   };
-  const parseReceiptOcr = async () => {
-    if (!activeProject) return;
-    const payload = await runAction('/api/integrations/ocr/receipt', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ raw_text: receiptText, project: activeProject.client, project_id: activeProject.id }),
-    });
-    if (payload) setLiveStatus(`Receipt parsed: ${payload.receipt.vendor} ${fmt(payload.receipt.amount)}`);
-  };
-  const checkClerkLogin = async () => {
-    const payload = await runAction('/api/integrations/clerk/status');
-    if (payload) setLiveStatus(payload.authenticated ? 'Your session is verified and has workspace access.' : 'Sign-in could not be verified.');
+  const checkSignIn = async () => {
+    const payload = await runAction('/api/auth/session');
+    if (payload) setLiveStatus(payload.userId ? 'Your session is verified and has workspace access.' : 'Sign-in could not be verified.');
   };
   const checkWeather = async () => {
     if (!activeProject) return;
@@ -386,7 +378,7 @@ export default function CommandCenter() {
             <h1 style={{ ...styles.title, fontSize: 'clamp(26px, 5vw, 36px)' }}>Your job, at a glance.</h1>
             <div style={{ color: '#58665D', marginTop: 6 }}>Projects, people &amp; the next four days.</div>
           </div>
-          <div className="field-packet-actions"><button style={styles.ghost} disabled={!activeProject || saving} onClick={async () => { const id = activeProject.id; if (await saveState()) window.location.assign(`/preconstruction?project=${encodeURIComponent(id)}`); }}>Preconstruction agreement</button><button style={styles.ghost} disabled={!activeProject || saving} onClick={previewClient}>Preview Client View</button>
+          <div className="field-packet-actions"><button style={styles.ghost} disabled={!activeProject || saving} onClick={async () => { const id = activeProject.id; if (await saveState()) navigate(`/preconstruction?project=${encodeURIComponent(id)}`); }}>Preconstruction agreement</button><button style={styles.ghost} disabled={!activeProject || saving} onClick={previewClient}>Preview Client View</button>
           <button style={styles.button} disabled={!activeProject || saving || packetPdf.loading} onClick={() => packetPdf.open(activeProject.id)}>{packetPdf.loading ? 'Preparing PDF…' : 'Print Client Packet'}</button></div>
         </div>
       </header>
@@ -411,6 +403,7 @@ export default function CommandCenter() {
       <ProjectHelper project={activeProject} revision={state.updated_at} onForecast={setBriefingWeather} onScheduleSaved={load} />
       {activeProject && <DocumentActivity projectId={activeProject.id} revision={state.updated_at} />}
       <ContractorDesk project={activeProject} state={state} forecast={sharedWeather} busy={saving} onCheckWeather={checkWeather} runAction={runAction} onRefresh={load} />
+      <ContractorPhonebook />
       <details className="field-office-tools" id="office-tools" ref={officeTools} style={{scrollMarginTop:'6rem'}}>
         <summary>Estimates, costs &amp; office tools</summary>
       <main className="v10-shell" style={styles.shell}>
@@ -470,14 +463,15 @@ export default function CommandCenter() {
         </section>
 
         <aside style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
-          <IntegrationSetup integrations={integrations} loading={integrationsLoading} error={integrationsError} onRefresh={loadIntegrations} />
+          <div id="service-setup"><IntegrationSetup receiptScannerAvailable integrations={integrations} loading={integrationsLoading} error={integrationsError} onRefresh={loadIntegrations} /></div>
 
           <section style={styles.card}>
-            <div style={styles.kicker}>Text Ian / Builder</div>
+            <div style={styles.kicker}>Office note</div>
+            <p style={{fontSize:13}}>Use Messages for homeowner and crew drafts. Keep an internal office note here.</p>
             <textarea style={{ ...styles.input, minHeight: 120 }} value={note || primaryMessage} onChange={e => setNote(e.target.value)} />
             <div className="v10-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               <a style={{ ...styles.button, textDecoration: 'none' }} href={`sms:${state.builder.phone}?&body=${encodeURIComponent(note || primaryMessage)}`}>Text {state.builder.phone}</a>
-              <button style={styles.button} disabled={saving || !integrations?.twilio?.configured} onClick={sendLiveSms}>Send Live SMS</button>
+              {integrations?.twilio?.configured && <button style={styles.button} disabled={saving} onClick={sendLiveSms}>Send with business number</button>}
               <button style={styles.ghost} disabled={saving || !activeProject} onClick={() => addActivity('Builder text', note || primaryMessage)}>Log text</button>
             </div>
           </section>
@@ -562,21 +556,15 @@ export default function CommandCenter() {
           </section>
 
           <section style={styles.card}>
-            <div style={styles.kicker}>Invoices & payments</div>
+            <div style={styles.kicker}>Invoices & checks</div>
             <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Save the invoice drafts for {activeProject?.client || 'the active project'}, then create their invoice records. Repeating this step keeps the same invoices.</p>
             <button style={styles.button} disabled={!activeProject || saving} onClick={importInvoiceDrafts}>Create invoices from saved drafts</button>
-            {importedInvoices && importedInvoices.projectId === activeProject?.id && <p role="status">{importedInvoices.count} invoice{importedInvoices.count === 1 ? '' : 's'} ready. Review amounts before creating payment links.</p>}
-            <p><a href="/invoices">Open invoices and payments</a></p>
+            {importedInvoices && importedInvoices.projectId === activeProject?.id && <p role="status">{importedInvoices.count} invoice{importedInvoices.count === 1 ? '' : 's'} ready. Review amounts and record checks when received.</p>}
+            <p><Link to="/invoices">Open invoices and checks</Link></p>
           </section>
 
-          <section style={styles.card}>
-            <div style={styles.kicker}>Receipt Text Entry</div>
-            <p style={{ fontSize: 13, lineHeight: 1.5, marginBottom: 8 }}>Paste receipt text to suggest the vendor and total, then review the saved receipt. Photo scanning still needs setup.</p>
-            <textarea style={{ ...styles.input, minHeight: 92, marginBottom: 8 }} value={receiptText} onChange={e => setReceiptText(e.target.value)} />
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button style={styles.button} disabled={!activeProject || saving} onClick={parseReceiptOcr}>Read Receipt Text</button>
-              <button style={styles.ghost} disabled={!activeProject || saving} onClick={addReceipt}>Add receipt manually</button>
-            </div>
+          <section id="receipts" style={styles.card}>
+            <ReceiptCapture project={activeProject} busy={saving} onSave={saveReviewedReceipt} />
             <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
               {projectReceipts.map(r => (
                 <div key={r.id} style={{ fontSize: 13, padding: 10, borderRadius: 8, background: '#FAF7F2' }}>
@@ -616,7 +604,7 @@ export default function CommandCenter() {
           <section style={styles.card}>
             <div style={styles.kicker}>Sign-in Setup</div>
             <p style={{ fontSize: 13, color: '#78716C', marginBottom: 10 }}>Access requires a verified sign-in and an allowed staff account.</p>
-            <button style={styles.button} onClick={checkClerkLogin}>Check Sign-in Settings</button>
+            <button style={styles.button} onClick={checkSignIn}>Check Sign-in Settings</button>
           </section>
         </aside>
       </main>

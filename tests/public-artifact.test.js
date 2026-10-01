@@ -12,8 +12,9 @@ test('public bundle contains homeowner assets and no private app or legacy build
     buildPublicSite(path.resolve(__dirname,'..'),temp,'https://builder.example.com');
     assert.ok(fs.existsSync(path.join(temp,'index.html')));
     for (const filename of ['selections.html', 'homeowner-selections.js', 'homeowner-selections.css']) {
-      assert.ok(fs.existsSync(path.join(temp, filename)), `Public selections asset required: ${filename}`);
+      assert.equal(fs.existsSync(path.join(temp, filename)), false, `Retired worksheet asset must not be published: ${filename}`);
     }
+    assert.doesNotMatch(fs.readFileSync(path.join(temp, 'index.html'), 'utf8'), /href=["'][^"']*(?:selections\.html|homeowner-selections)/i);
     assert.ok(fs.existsSync(path.join(temp,'data/model-catalog.json')));
     assert.equal(fs.existsSync(path.join(temp,'platform')),false);
     assert.equal(fs.existsSync(path.join(temp,'docs')),false);
@@ -36,10 +37,16 @@ test('server packaging refreshes only its generated public folder and preserves 
     fs.writeFileSync(saved, 'private fixture');
     const output = packageHomeownerSite(source);
     fs.writeFileSync(path.join(output, 'stale.txt'), 'old output');
+    for (const filename of ['selections.html', 'homeowner-selections.js', 'homeowner-selections.css']) {
+      fs.writeFileSync(path.join(output, filename), 'retired worksheet from an older release');
+    }
     fs.writeFileSync(path.join(source, 'index.html'), 'updated homeowner site');
     packageHomeownerSite(source);
     assert.equal(fs.readFileSync(path.join(output, 'index.html'), 'utf8'), 'updated homeowner site');
     assert.equal(fs.existsSync(path.join(output, 'stale.txt')), false);
+    for (const filename of ['selections.html', 'homeowner-selections.js', 'homeowner-selections.css']) {
+      assert.equal(fs.existsSync(path.join(output, filename)), false, `Packaging must remove a stale worksheet: ${filename}`);
+    }
     assert.equal(fs.existsSync(path.join(output, 'platform')), false);
     assert.equal(fs.readFileSync(saved, 'utf8'), 'private fixture');
     fs.unlinkSync(path.join(source, 'index.html'));
