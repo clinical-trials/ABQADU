@@ -34,6 +34,7 @@ async function withModelRoute(check) {
     const app = express();
     app.use(express.json());
     app.use('/api/command-center', require('../src/routes/commandCenter'));
+    app.use(require('../src/errorHandler'));
     await check(require('supertest')(app), storePath);
   } finally {
     if (originalStorePath === undefined) delete process.env.COMMAND_CENTER_STORE_PATH;
@@ -126,6 +127,79 @@ if (typeof test === 'function') {
         expect(html).toContain(modelFixture.client);
         expect(html).not.toMatch(/internal_notes|INTERNAL-ONLY-PACKET-FIXTURE|Example staff discussion|&lt;b&gt;/);
       }
+    });
+  });
+
+  test('client target budget remains plain text on save and reload without changing estimate amounts or exposing its value in activity', async () => {
+    await withModelRoute(async (request, storePath) => {
+      const budget = '$180k–$210k, excluding the example owner allowance';
+      const project = { ...modelFixture, client_target_budget: budget };
+      const saved = await request.put('/api/command-center').send({ projects: [project] });
+      expect(saved.status).toBe(200);
+      expect(saved.body.projects[0]).toMatchObject(project);
+      const reloaded = await request.get('/api/command-center');
+      expect(reloaded.body.projects[0]).toMatchObject(project);
+      expect(JSON.parse(fs.readFileSync(storePath, 'utf8')).projects[0]).toMatchObject(project);
+      expect(reloaded.body.activity_events).toHaveLength(1);
+      expect(reloaded.body.activity_events[0]).toMatchObject({
+        type: 'project.updated', changed_fields: ['client_target_budget'],
+      });
+      expect(reloaded.body.activity_events[0].summary).toMatch(/client target budget/i);
+      expect(JSON.stringify(reloaded.body.activity_events)).not.toMatch(/180|210|owner allowance/);
+      const preview = await request.get(`/api/command-center/projects/${modelFixture.id}/client-view-preview`);
+      expect(preview.body.project).not.toHaveProperty('client_target_budget');
+      expect(JSON.stringify(preview.body)).not.toContain(budget);
+    });
+  });
+
+  test.each(['', '0', 'x'.repeat(200)])('a valid client target budget string %j is preserved without amount conversion', async budget => {
+    await withModelRoute(async request => {
+      const project = { ...modelFixture, client_target_budget: budget };
+      expect((await request.put('/api/command-center').send({ projects: [project] })).status).toBe(200);
+      const loaded = await request.get('/api/command-center');
+      expect(loaded.body.projects[0]).toMatchObject(project);
+      expect(typeof loaded.body.projects[0].client_target_budget).toBe('string');
+    });
+  });
+
+  test.each([0, null, {}, [], 'x'.repeat(201), 'range\nsecond line', 'tab\tvalue', 'bad\u0000value', 'bad\u0085value', 'bad\u2028value'])('invalid client target budget %j is rejected before changing the saved file', async budget => {
+    const log = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      await withModelRoute(async (request, storePath) => {
+        const before = fs.readFileSync(storePath, 'utf8');
+        const response = await request.put('/api/command-center').send({ projects: [{ ...modelFixture, client_target_budget: budget }] });
+        expect(response.status).toBe(400);
+        expect(fs.readFileSync(storePath, 'utf8')).toBe(before);
+        const loaded = await request.get('/api/command-center');
+        expect(loaded.body.projects[0]).not.toHaveProperty('client_target_budget');
+        expect(loaded.body.projects[0]).toMatchObject(modelFixture);
+      });
+    } finally { log.mockRestore(); }
+  });
+
+  test('invalid budget input cannot initialize a missing workspace', async () => {
+    const log = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      await withModelRoute(async (request, storePath) => {
+        fs.unlinkSync(storePath);
+        const response = await request.put('/api/command-center').send({ projects: [{ ...modelFixture, client_target_budget: 123 }] });
+        expect(response.status).toBe(400);
+        expect(fs.existsSync(storePath)).toBe(false);
+      });
+    } finally { log.mockRestore(); }
+  });
+
+  test('an invalid queued budget update leaves the file intact and does not prevent a valid retry', async () => {
+    await withModelRoute(async (request, storePath) => {
+      const store = require('../src/services/commandCenterStore');
+      const before = fs.readFileSync(storePath, 'utf8');
+      await expect(store.saveCommandCenter(current => ({ projects: current.projects.map(project => ({
+        ...project, client_target_budget: 123456,
+      })) }))).rejects.toMatchObject({ status: 400 });
+      expect(fs.readFileSync(storePath, 'utf8')).toBe(before);
+      const project = { ...modelFixture, client_target_budget: 'To be discussed' };
+      expect((await request.put('/api/command-center').send({ projects: [project] })).status).toBe(200);
+      expect((await request.get('/api/command-center')).body.projects[0]).toMatchObject(project);
     });
   });
 

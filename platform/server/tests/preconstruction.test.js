@@ -49,6 +49,43 @@ test('private list and detail GETs return limited project fields and proposed de
   expect(require('../src/db').pool.query).not.toHaveBeenCalled();
 });
 
+test.each([
+  [undefined, ''], ['', ''], ['   ', ''], ['$180k–$210k; owner allowances discussed separately', '$180k–$210k; owner allowances discussed separately'],
+  [123456, ''], [null, ''], ['x'.repeat(201), ''], ['line one\nline two', ''],
+])('client target budget %j is intake metadata only and GET does not save records', async (budget, expected) => {
+  const project = { ...job, ...(budget === undefined ? {} : { client_target_budget: budget }) };
+  fs.writeFileSync(store.storePath, JSON.stringify({ projects: [project] }));
+  const before = fs.readFileSync(store.storePath, 'utf8');
+  const detail = await authorized('get');
+  expect(detail.status).toBe(200);
+  expect(detail.body.project.client_target_budget).toBe(expected);
+  expect(detail.body.project).not.toHaveProperty('internal_notes');
+  expect(detail.body.defaults).toMatchObject({ fee: '10000.00', construction_estimate: '185000.00' });
+  expect(detail.body.defaults).not.toHaveProperty('client_target_budget');
+  expect(detail.body.agreement).toBeNull();
+  expect(service.describeAgreement(detail.body.defaults).totals).toEqual({
+    fee_cents: 1000000, construction_estimate_cents: 18500000, tax_cents: null, invoice_total_cents: null, currency: 'USD',
+  });
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(before);
+  expect(JSON.stringify(detail.body)).not.toMatch(/PRIVATE MARGIN MEMO|internal_notes/);
+});
+
+test('later budget edits affect intake metadata without changing saved agreement terms or totals', async () => {
+  const first = (await authorized('put', url, input())).body.agreement;
+  await store.saveCommandCenter(current => ({ projects: current.projects.map(project => project.id === job.id
+    ? { ...project, client_target_budget: 'Discuss a target near $190k' } : project) }));
+  const before = fs.readFileSync(store.storePath, 'utf8');
+  const snapshot = JSON.parse(before).preconstruction_agreements;
+  const detail = await authorized('get');
+  expect(detail.status).toBe(200);
+  expect(detail.body.project.client_target_budget).toBe('Discuss a target near $190k');
+  expect(detail.body.agreement).toEqual(first);
+  expect(detail.body.defaults).toMatchObject({ fee: '10000.00', construction_estimate: '185000.00' });
+  expect(JSON.stringify(snapshot)).not.toMatch(/client_target_budget|target near/);
+  expect(fs.readFileSync(store.storePath, 'utf8')).toBe(before);
+  expect(() => service.normalizeTerms({ ...first.terms, client_target_budget: 'Not an agreement term' })).toThrow(/unsupported/);
+});
+
 test('a missing workspace stays missing on GET and PUT without initializing starter customers', async () => {
   fs.unlinkSync(store.storePath);
   expect((await authorized('get', '/api/preconstruction')).status).toBe(503);

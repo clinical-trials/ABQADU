@@ -66,6 +66,32 @@ const click = label => act(async () => button(label).click());
 const clickLink = label => act(async () => [...host.querySelectorAll('a')].find(item=>item.textContent===label).click());
 const save = () => act(async () => Simulate.submit(host.querySelector('form')));
 
+test('invoice preparation shows the client-stated intake budget without changing agreement prices or terms',async () => {
+  const budget = '$180,000–$220,000 <including site work>';
+  loadOverride = async () => ({project:{...project,client_target_budget:budget},defaults:{...defaults},agreement:null,history:[]});
+  await mount();
+  const intake = host.querySelector('[aria-label="Client target budget from intake"]');
+  expect(intake).not.toBeNull();
+  expect(intake.textContent).toContain(budget);
+  expect(intake.querySelector('input,textarea')).toBeNull();
+  expect(host.querySelector('#precon-fee').value).toBe('10000.00');
+  expect(host.querySelector('#precon-construction_estimate').value).toBe('185000.00');
+  await save();
+  expect(saved.terms).not.toHaveProperty('client_target_budget');
+  expect(saved.terms.fee).toBe('10000.00');
+  expect(saved.terms.construction_estimate).toBe('185000.00');
+  expect(requestJson.mock.calls.every(([url])=>url.startsWith(base))).toBe(true);
+});
+
+test('invoice preparation leaves an absent client budget unknown instead of using the estimate',async () => {
+  await mount();
+  const intake = host.querySelector('[aria-label="Client target budget from intake"]');
+  expect(intake).not.toBeNull();
+  expect(intake.textContent).toContain('Not provided');
+  expect(intake.textContent).not.toContain('185,000');
+  expect(intake.textContent).not.toContain('$0');
+});
+
 test('requires choosing a saved job and never creates a draft just by opening the tool',async () => {
   await mount('/preconstruction');
   expect(requestJson).toHaveBeenCalledTimes(1);

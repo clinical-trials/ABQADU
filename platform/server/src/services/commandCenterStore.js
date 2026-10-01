@@ -13,6 +13,19 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+function isClientTargetBudget(value) {
+  return typeof value === 'string' && value.length <= 200 && !/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/.test(value);
+}
+
+function validateProjectBudgets(patch) {
+  if (!Array.isArray(patch?.projects)) return;
+  for (const project of patch.projects) {
+    if (project && Object.prototype.hasOwnProperty.call(project, 'client_target_budget') && !isClientTargetBudget(project.client_target_budget)) {
+      throw Object.assign(new Error('Client target budget must be a single line of text containing at most 200 characters without control characters.'), { status: 400 });
+    }
+  }
+}
+
 function withProjectReadiness(state) {
   if (!Array.isArray(state.projects)) return state;
   return {
@@ -176,12 +189,15 @@ let pendingSave = Promise.resolve();
 
 function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstructionAgreements, preconstructionCycles, gisReviews, requireExisting = false, replace = false } = {}) {
   const operation = pendingSave.then(async () => {
+    // Reject invalid incoming metadata before a missing workspace can initialize.
+    if (typeof nextState !== 'function') validateProjectBudgets(nextState);
     const current = requireExisting
       ? withProjectReadiness(JSON.parse(await fs.readFile(storePath, 'utf8')))
       : await loadCommandCenter();
     const patch = typeof nextState === 'function' ? await nextState(current) : nextState;
     // A validated idempotent retry may explicitly keep the existing file intact.
     if (patch === null) return current;
+    if (typeof nextState === 'function') validateProjectBudgets(patch);
     let saved = {
       ...(replace ? {} : current),
       ...patch,
@@ -242,4 +258,5 @@ module.exports = {
   resetCommandCenter,
   starterState,
   storePath,
+  isClientTargetBudget,
 };

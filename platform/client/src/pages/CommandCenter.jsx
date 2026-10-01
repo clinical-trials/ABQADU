@@ -55,6 +55,7 @@ function Field({ label, children }) {
 }
 
 function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateInvoices, busy }) {
+  const clientBudget = typeof project.client_target_budget === 'string' ? project.client_target_budget : '';
   const modelValue = project.model_id || (project.model && project.model !== 'Other / not yet selected' ? project.model : 'other');
   const modelPending = modelValue === 'other';
   const profitLow = Number(project.bid_total || 0) - Number(project.cogs_high || 0);
@@ -80,6 +81,8 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
           <Field label="Email"><input style={styles.input} value={project.client_email || ''} onChange={e => onChange(project.id, 'client_email', e.target.value)} /></Field>
           <Field label="Preferred contact"><input style={styles.input} value={project.preferred_contact || 'Phone'} onChange={e => onChange(project.id, 'preferred_contact', e.target.value)} /></Field>
           <Field label="Best contact time"><input style={styles.input} value={project.best_contact_time || 'Morning'} onChange={e => onChange(project.id, 'best_contact_time', e.target.value)} /></Field>
+          <Field label="Client target budget (USD)"><input aria-label="Client target budget" aria-describedby="client-budget-help" style={{ ...styles.input, fontSize: 16 }} maxLength={200} value={clientBudget} onChange={e => onChange(project.id, 'client_target_budget', e.target.value)} placeholder="e.g. $180,000–$220,000 including site work" /></Field>
+          <p id="client-budget-help" style={{ fontSize: 13, margin: '6px 0' }}>Record the homeowner’s amount or range in their own words. Optional; separate from your quote and invoice.</p>
         </div>
         <div>
           <div style={styles.kicker}>Model Select</div>
@@ -94,6 +97,11 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
         </div>
         <div>
           <div style={styles.kicker}>Estimate / Invoice</div>
+          <section aria-label="Budget for invoice preparation" style={{ ...styles.miniCard, marginBottom: 12, overflowWrap: 'anywhere' }}>
+            <b>Client target budget</b>
+            <div style={{ marginTop: 4 }}>{clientBudget.trim() || 'Not provided'}</div>
+            <small>Homeowner’s planning target. Invoice charges are entered separately.</small>
+          </section>
           <Field label="Customer price"><input style={styles.input} aria-label="Customer price" min="0" type="number" value={project.bid_total} onChange={e => onChange(project.id, 'bid_total', Number(e.target.value))} /></Field>
           <div style={{ fontSize: 13, marginTop: 6 }}>{fmt(Number(project.bid_total || 0) / Number(project.sqft || 1))}/sf customer price</div>
           <Field label="Estimated cost low"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Estimated cost low" min="0" type="number" value={project.cogs_low} onChange={e => onChange(project.id, 'cogs_low', Number(e.target.value))} /></Field>

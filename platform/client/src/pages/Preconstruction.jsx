@@ -187,6 +187,7 @@ function AgreementEditor({ projectId, owner, onDirty, demo = false }) {
   if (loading) return <p className="precon-feedback" role="status">{demo ? 'Loading the editable example…' : 'Loading the saved job and agreement…'}</p>;
   if (!terms || !data) return <div className="precon-feedback" role="alert"><p>{error || 'Agreement unavailable.'}</p><button onClick={discard}>Retry loading</button></div>;
   const amounts = totalsFor(terms);
+  const clientBudget = typeof data.project.client_target_budget === 'string' ? data.project.client_target_budget.trim() : '';
   const shared = { terms,onChange:change };
   return <form className="precon-editor" onSubmit={save}>
     <div className="precon-workbar"><div><span className="precon-kicker">{demo ? 'Demo · editable example' : data.agreement ? `Saved revision ${data.agreement.revision}` : 'New draft'}</span><h2>{data.project.client || 'Homeowner'}</h2><p>{terms.property_address || data.project.address || 'Property address needed'}</p></div><span className="precon-draft-label">Draft · no payment due</span></div>
@@ -204,6 +205,11 @@ function AgreementEditor({ projectId, owner, onDirty, demo = false }) {
           <TextField {...shared} name="third_party_costs" label="Third-party services and expenses" multiline/>
         </div></details>
         <details className="precon-section" open><summary><span>02</span><div>Fee, estimate &amp; invoice<small>One fee carried through the agreement and draft invoice</small></div></summary><div className="precon-fields">
+          <section className="precon-wide" aria-label="Client target budget from intake" style={{ padding: 16, borderRadius: 12, background: '#f4f1e9', overflowWrap: 'anywhere' }}>
+            <b>Client target budget · from intake</b>
+            <p style={{ margin: '8px 0' }}>{clientBudget || 'Not provided'}</p>
+            <small>Homeowner-stated planning target from saved job intake. Set the preconstruction fee and invoice amount separately.</small>
+          </section>
           <TextField {...shared} name="fee" label="Preconstruction fee (USD)" inputMode="decimal" note="$10,000 is a proposed starting amount. Confirm for this job."/>
           <TextField {...shared} name="construction_estimate" label="Preliminary construction estimate (USD)" inputMode="decimal" note="Optional planning estimate; this is not the amount being invoiced."/>
           <Choice {...shared} name="fee_credit" label="How the fee relates to construction" options={[["unconfirmed","To be confirmed"],["separate","Separate from the construction price"],["credited","Credit toward a future construction contract"]]}/>

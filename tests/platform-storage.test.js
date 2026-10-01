@@ -59,6 +59,127 @@ function readBlob(window, blob) {
   });
 }
 
+test('legacy client target budgets are optional planning text on old drafts and leave amounts unchanged', t => {
+  const { window, document, errors } = openBuilder(t, { hash:'#estimates' });
+  const estimateBudget = document.getElementById('estimate-client-target-budget');
+  const bidBudget = document.getElementById('bid-client-target-budget');
+  assert.ok(estimateBudget);
+  assert.ok(bidBudget);
+  for (const input of [estimateBudget, bidBudget]) {
+    assert.equal(input.type, 'text');
+    assert.equal(input.maxLength, 200);
+    assert.equal(input.value, '');
+  }
+  assert.match(document.getElementById('estimate-target-budget-summary').textContent, /not provided/i);
+  assert.match(document.getElementById('bid-invoice-target-budget').textContent, /not provided/i);
+  const estimateTotal = document.getElementById('estimate-total').textContent;
+  const bidTotal = document.getElementById('t-total').textContent;
+  window.saveEstimateDraft(); window.saveBidDraft();
+  assert.equal(JSON.parse(window.localStorage.getItem('abqadu_estimateV9')).clientTargetBudget, '');
+  assert.equal(JSON.parse(window.localStorage.getItem('abqadu_bid')).client_target_budget, '');
+  assert.equal(document.getElementById('estimate-total').textContent, estimateTotal);
+  assert.equal(document.getElementById('t-total').textContent, bidTotal);
+  assert.deepEqual(errors, []);
+});
+
+test('legacy whitespace-only target budgets stay unknown in summaries and documents while preserving raw drafts', async t => {
+  const { window, document, downloads, errors } = openBuilder(t, { hash:'#estimates' });
+  const estimateBudget = document.getElementById('estimate-client-target-budget');
+  const bidBudget = document.getElementById('bid-client-target-budget');
+  estimateBudget.value = '   ';
+  bidBudget.value = '   ';
+  window.saveEstimateDraft();
+  bidBudget.dispatchEvent(new window.Event('input', { bubbles:true }));
+  assert.match(document.getElementById('estimate-target-budget-summary').textContent, /not provided/i);
+  assert.match(document.getElementById('bid-invoice-target-budget').textContent, /not provided/i);
+  assert.equal(JSON.parse(window.localStorage.getItem('abqadu_estimateV9')).clientTargetBudget, '   ');
+  assert.equal(JSON.parse(window.localStorage.getItem('abqadu_bid')).client_target_budget, '   ');
+  assert.doesNotMatch(window.buildEstimateInvoiceDocument(), /Client target budget/);
+  assert.doesNotMatch(window.buildBidPrintDocument(), /Client target budget/);
+  window.exportBidCsv();
+  assert.doesNotMatch(await readBlob(window, downloads[0]), /Client target budget/);
+  assert.deepEqual(errors, []);
+});
+
+test('legacy estimate target range survives invoice conversion, print and reload without repricing', t => {
+  const page = openBuilder(t, { hash:'#estimates' });
+  const { window, document } = page;
+  const input = document.getElementById('estimate-client-target-budget');
+  assert.ok(input);
+  const target = '$180,000–$220,000 including utilities <img src=x onerror="window.injected=true">';
+  const linesBefore = JSON.parse(window.localStorage.getItem('abqadu_estimateV9')).lines;
+  const totalBefore = document.getElementById('estimate-total').textContent;
+  input.value = target;
+  input.dispatchEvent(new window.Event('change', { bubbles:true }));
+  window.convertEstimateToInvoice();
+  assert.equal(document.getElementById('estimate-side-type').textContent, 'Invoice');
+  assert.equal(input.value, target);
+  assert.match(document.getElementById('estimate-target-budget-summary').textContent, /Client target budget \(planning only\)/);
+  assert.ok(document.getElementById('estimate-target-budget-summary').textContent.includes(target));
+  assert.equal(document.getElementById('estimate-target-budget-summary').querySelector('img'), null);
+  const printed = JSDOM.fragment(window.buildEstimateInvoiceDocument());
+  assert.ok(printed.textContent.includes(`Client target budget (planning only): ${target}`));
+  assert.equal(printed.querySelector('[onerror]'), null);
+  const saved = JSON.parse(window.localStorage.getItem('abqadu_estimateV9'));
+  assert.equal(saved.clientTargetBudget, target);
+  assert.deepEqual(saved.lines, linesBefore);
+  const reloaded = openBuilder(t, { entries:{abqadu_estimateV9:JSON.stringify(saved)},hash:'#estimates' });
+  assert.equal(reloaded.document.getElementById('estimate-client-target-budget').value, target);
+  assert.equal(reloaded.document.getElementById('estimate-side-type').textContent, 'Invoice');
+  assert.equal(reloaded.document.getElementById('estimate-total').textContent, totalBefore);
+  assert.equal(window.injected, undefined);
+  assert.deepEqual(page.errors, []);
+  assert.deepEqual(reloaded.errors, []);
+});
+
+test('legacy bid target budget remains separate from costs and follows saved project and revision', async t => {
+  const page = openBuilder(t, { hash:'#bids' });
+  const { window, document, downloads } = page;
+  const input = document.getElementById('bid-client-target-budget');
+  assert.ok(input);
+  const totalBefore = document.getElementById('t-total').textContent;
+  const beforeBid = JSON.parse(window.localStorage.getItem('abqadu_bid'));
+  const target = '$180,000–$220,000 including utilities';
+  input.value = target;
+  input.dispatchEvent(new window.Event('input', { bubbles:true }));
+  window.saveBidDraft();
+  assert.ok(document.getElementById('bid-invoice-target-budget').textContent.includes(target));
+  assert.equal(document.getElementById('t-total').textContent, totalBefore);
+  window.exportBidJson(); window.exportBidCsv();
+  const exported = JSON.parse(await readBlob(window, downloads[0]));
+  assert.equal(exported.project.client_target_budget, target);
+  assert.deepEqual(exported.cogs, beforeBid.items);
+  assert.match(await readBlob(window, downloads[1]), /Client target budget \(planning only\)/);
+  assert.ok(JSDOM.fragment(window.buildBidPrintDocument()).textContent.includes(target));
+  const entries = Object.fromEntries(Object.keys(window.localStorage).map(key => [key, window.localStorage.getItem(key)]));
+  const reloaded = openBuilder(t, { entries, hash:'#bids' });
+  assert.equal(reloaded.document.getElementById('bid-client-target-budget').value, target);
+  window.duplicateProjectFolder();
+  assert.equal(input.value, target);
+  window.newProjectFolder();
+  assert.equal(input.value, '');
+  assert.match(document.getElementById('bid-invoice-target-budget').textContent, /not provided/i);
+  assert.deepEqual(page.errors, []);
+  assert.deepEqual(reloaded.errors, []);
+});
+
+test('legacy target budget drafts remain recoverable when browser storage is full', async t => {
+  const { window, document, downloads, errors } = openBuilder(t, { storageFailure:'quota',hash:'#estimates' });
+  const estimateBudget = document.getElementById('estimate-client-target-budget');
+  const bidBudget = document.getElementById('bid-client-target-budget');
+  assert.ok(estimateBudget);
+  assert.ok(bidBudget);
+  estimateBudget.value = '$190,000 including site work';
+  bidBudget.value = 'Under $210,000; scope to review';
+  window.saveEstimateDraft(); window.saveBidDraft();
+  assert.match(document.getElementById('bid-save-status').textContent, /only.*page/i);
+  window.downloadPageBackup();
+  const backup = JSON.parse(await readBlob(window, downloads[0]));
+  assert.equal(backup.drafts.estimateV9.clientTargetBudget, estimateBudget.value);
+  assert.equal(backup.drafts.bid.client_target_budget, bidBudget.value);
+  assert.deepEqual(errors, []);
+});
+
 test('legacy internal bid notes autosave literal text without rebuilding the editor or moving the caret', t => {
   const page = openBuilder(t, { hash:'#bids' });
   const { window, document } = page;

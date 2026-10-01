@@ -22,6 +22,42 @@ afterEach(async () => { await act(async () => root.unmount()); container.remove(
 const button = text => [...container.querySelectorAll('button')].find(el => el.textContent === text);
 const mount = async () => { await act(async () => root.render(<CommandCenter />)); };
 
+test('client target budget records the stated range per job without changing estimate or invoice amounts', async () => {
+  const budget = '$180,000–$220,000 including site work';
+  state.projects[0].invoice_drafts = [{id:'existing-draft',label:'Preconstruction',amount:10000,status:'Draft'}];
+  const before = {...state.projects[0]};
+  await mount();
+  const field = container.querySelector('[aria-label="Client target budget"]');
+  expect(field).not.toBeNull();
+  expect(field.value).toBe('');
+  expect(container.querySelector('[aria-label="Budget for invoice preparation"]').textContent).toContain('Not provided');
+  await act(async () => Simulate.change(field, {target:{value:budget}}));
+  await act(async () => button('Save changes').click());
+  expect(state.projects[0]).toMatchObject({client_target_budget:budget,bid_total:before.bid_total,cogs_low:before.cogs_low,cogs_high:before.cogs_high,invoice_drafts:before.invoice_drafts});
+  expect(container.querySelector('[aria-label="Budget for invoice preparation"]').textContent).toContain(budget);
+  await act(async () => Simulate.change(container.querySelector('[aria-label="Active project"]'), {target:{value:'two'}}));
+  expect(container.querySelector('[aria-label="Client target budget"]').value).toBe('');
+  expect(container.querySelector('[aria-label="Budget for invoice preparation"]').textContent).toContain('Not provided');
+  await act(async () => root.unmount()); root = createRoot(container); await mount();
+  expect(container.querySelector('[aria-label="Client target budget"]').value).toBe(budget);
+  await act(async () => Simulate.change(container.querySelector('[aria-label="Client target budget"]'), {target:{value:''}}));
+  await act(async () => button('Save changes').click());
+  expect(state.projects[0].client_target_budget).toBe('');
+  expect(state.projects[0].bid_total).toBe(before.bid_total);
+  expect(container.querySelector('[aria-label="Budget for invoice preparation"]').textContent).toContain('Not provided');
+});
+
+test('client budget text is displayed literally in invoice preparation', async () => {
+  const budget = '<img src=x onerror="window.budgetInjected=true"> $200,000';
+  state.projects[0].client_target_budget = budget;
+  await mount();
+  const context = container.querySelector('[aria-label="Budget for invoice preparation"]');
+  expect(context).not.toBeNull();
+  expect(context.textContent).toContain(budget);
+  expect(context.querySelector('img,[onerror]')).toBeNull();
+  expect(window.budgetInjected).toBeUndefined();
+});
+
 test('internal commentary saves literally and stays with its own project after switching and reloading', async () => {
   const note = 'Site-visit follow-up\n<img src=x onerror="window.injected=true"> Confirm access with the crew.';
   await mount();

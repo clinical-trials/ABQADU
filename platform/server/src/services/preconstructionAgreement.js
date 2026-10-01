@@ -1,6 +1,6 @@
 const fs = require('node:fs/promises');
 const { randomUUID, createHash } = require('node:crypto');
-const { storePath, saveCommandCenter } = require('./commandCenterStore');
+const { storePath, saveCommandCenter, isClientTargetBudget } = require('./commandCenterStore');
 const { createActivityEvent } = require('./activityEvents');
 
 const UUID = /^[\da-f]{8}-[\da-f]{4}-[1-8][\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i;
@@ -137,7 +137,10 @@ function createPreconstructionAgreementService({
   async function getAgreement(projectId) {
     const state = await read(), project = projectFor(state, projectId);
     return {
-      project: { id: project.id, client: project.client || '', address: project.address || '' },
+      project: {
+        id: project.id, client: project.client || '', address: project.address || '',
+        client_target_budget: isClientTargetBudget(project.client_target_budget) ? project.client_target_budget.trim() : '',
+      },
       agreement: publicRecord(latestFor(state, projectId)), defaults: defaultTerms(project),
       history: records(state).filter(record => record.project_id === projectId).slice().reverse().map(({ version, revision, saved_at }) => ({ version, revision, saved_at })),
     };

@@ -28,6 +28,7 @@ const PROJECT_FIELDS = {
   permit_status: { label: 'permit review', values: ['Not started', 'In review', 'Approved', 'Submitted'] },
   status: { label: 'project status', values: ['Needs site data', 'Needs supplier comparison', 'Ready to send', 'In progress', 'On hold', 'Completed'] },
   next_action: { label: 'next action' },
+  client_target_budget: { label: 'client target budget' },
   bid_total: { label: 'customer price', money: true },
   cogs_low: { label: 'low cost estimate', money: true },
   cogs_high: { label: 'high cost estimate', money: true },

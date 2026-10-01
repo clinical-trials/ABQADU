@@ -906,6 +906,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <div><label class="fld">Phone</label><input class="in" id="estimate-phone" placeholder="505-977-7659"></div>
             <div><label class="fld">Email</label><input class="in" id="estimate-email" placeholder="client@example.com"></div>
             <div class="wide"><label class="fld" for="estimate-address">Job site address</label><input class="in" id="estimate-address" placeholder="Street address, Albuquerque NM" oninput="invalidateEstimateGisReview()"></div>
+            <div class="wide"><label class="fld" for="estimate-client-target-budget">Client target budget (USD)</label><input class="in" id="estimate-client-target-budget" type="text" maxlength="200" aria-describedby="estimate-target-budget-help" placeholder="Optional amount or range, including any scope notes"><p class="muted" id="estimate-target-budget-help" style="font-size:12px;margin-top:6px">Homeowner-stated planning target, separate from the estimate or invoice amount. Leave blank if unknown.</p></div>
             <div><label class="fld">Model</label><select class="in" id="estimate-model">
               <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option><option>Other / not yet selected</option>
             </select></div>
@@ -996,6 +997,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       </div>
 
       <aside class="estimate-side">
+        <div class="estimate-card"><p id="estimate-target-budget-summary">Client target budget (planning only): Not provided</p></div>
         <div class="estimate-doc-type">
           <div><b id="estimate-side-type">Estimate</b><div class="muted" id="estimate-side-number" style="font-size:11px">Draft document</div></div>
           <span class="pill" id="estimate-side-status" style="background:#FEF3C7;color:#92400E">draft</span>
@@ -1132,6 +1134,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
     <div class="bid-identity-grid">
       <div><label class="fld">Contact / client name</label><input class="in" id="bid-client" placeholder="Homeowner or client name"></div>
       <div><label class="fld">Project address</label><input class="in" id="bid-address" placeholder="Street address from site visit"></div>
+      <div><label class="fld" for="bid-client-target-budget">Client target budget (USD)</label><input class="in" id="bid-client-target-budget" type="text" maxlength="200" aria-describedby="bid-target-budget-help" placeholder="Optional amount or range"><p class="muted" id="bid-target-budget-help" style="font-size:12px;margin-top:6px">Homeowner-stated planning target, separate from the bid or invoice amount. Leave blank if unknown.</p></div>
       <div><label class="fld">Model</label><select class="in" id="bid-model">
         <option selected>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option><option>Other / not yet selected</option>
       </select></div>
@@ -1305,6 +1308,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
           <h3 style="font-size:16px">Draw Schedule &amp; Invoices</h3>
           <span class="muted" style="margin-left:auto;font-size:12px">Suggested send dates follow the 90-day build schedule</span>
         </div>
+        <p class="muted" id="bid-invoice-target-budget" style="margin-bottom:12px">Client target budget (planning only): Not provided</p>
         <div class="invoice-deposit-banner">
           <b>Invoice 1: $10,000 Preconstruction</b>
           <span>This first invoice is fixed. It starts the pre-construction contract, proper bid work, ordinance checks, site planning, design coordination, subcontractor bid pulls, and permitting preparation.</span>
@@ -1790,6 +1794,7 @@ const $ = s => document.querySelector(s);
 const fmt = n => '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmt0 = n => '$' + Math.round(Number(n||0)).toLocaleString('en-US');
 const hasSelectedModel = model => Boolean(model && model !== 'Other / not yet selected');
+const targetBudgetText = value => typeof value === 'string' ? value.trim() : '';
 const isStoredRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isStoredRecordList = value => Array.isArray(value) && value.every(isStoredRecord);
 const isStoredInvoiceList = value => isStoredRecordList(value) && value.every(invoice =>
@@ -1798,6 +1803,7 @@ function isStoredBid(value){
   return isStoredRecord(value)
     && (value.title == null || typeof value.title === 'string')
     && (value.internal_notes == null || typeof value.internal_notes === 'string')
+    && (value.client_target_budget == null || typeof value.client_target_budget === 'string')
     && (value.items == null || isStoredRecordList(value.items));
 }
 const store = (()=>{
@@ -2150,7 +2156,7 @@ function defaultEstimateState(){
     date:today.toISOString().slice(0,10),
     expiry:expiry.toISOString().slice(0,10),
     due:due.toISOString().slice(0,10),
-    client:'', phone:'', email:'', address:'',
+    client:'', phone:'', email:'', address:'', clientTargetBudget:'',
     model:'Netherwood House', sqft:440, primaryHomeSqft:'', customerId:'',
     taxRate:7.625, discount:0, handling:0, insurance:0,
     paymentStatus:'unpaid', paidAmount:0, paidDate:'', lateFee:0,
@@ -2166,6 +2172,7 @@ function defaultEstimateState(){
   };
 }
 let estimateState = store.get('estimateV9', defaultEstimateState(), value=>isStoredRecord(value)
+  && (value.clientTargetBudget == null || typeof value.clientTargetBudget === 'string')
   && (value.lines == null || isStoredRecordList(value.lines))
   && (value.activity == null || (isStoredRecordList(value.activity)
     && value.activity.every(item => item.at == null || typeof item.at === 'string'))));
@@ -2255,6 +2262,7 @@ async function copyEstimateGisReview(addressOnly=false){
   }
 }
 function normalizeEstimateState(){
+  estimateState.clientTargetBudget ??= '';
   estimateState.lines = Array.isArray(estimateState.lines) ? estimateState.lines : [];
   estimateState.activity = Array.isArray(estimateState.activity) ? estimateState.activity : [];
   estimateState.docType ||= 'estimate';
@@ -2296,7 +2304,7 @@ function estimateTotals(){
   return {subtotal,taxable,discount,tax,handling,insurance,lateFee,total,paid,balance};
 }
 function syncEstimateFromInputs(){
-  const ids=['client','phone','email','address','model','sqft','primary-home-sqft','status','number','expiry','due','terms','customer-id','notes','signature','tax-rate','discount','handling','insurance','payment-status','paid-amount','paid-date','late-fee'];
+  const ids=['client','phone','email','address','client-target-budget','model','sqft','primary-home-sqft','status','number','expiry','due','terms','customer-id','notes','signature','tax-rate','discount','handling','insurance','payment-status','paid-amount','paid-date','late-fee'];
   ids.forEach(id=>{
     const el=$(`#estimate-${id}`);
     if(!el)return;
@@ -2337,6 +2345,7 @@ function renderEstimateTool(){
   const views=estimateState.activity.filter(a=>a.type==='Viewed').length;
   setText('estimate-view-pill', views ? `${views} view signal${views===1?'':'s'}` : 'No views yet');
   setText('estimate-side-type', docLabel);
+  setText('estimate-target-budget-summary', `Client target budget (planning only): ${targetBudgetText(estimateState.clientTargetBudget) || 'Not provided'}`);
   setText('estimate-side-number', docNumber || 'Draft document');
   const status=$('#estimate-side-status');
   if(status){
@@ -2345,7 +2354,7 @@ function renderEstimateTool(){
     status.style.color=estimateState.status==='approved'?'#065F46':estimateState.status==='viewed'?'#1E40AF':estimateState.status==='declined'?'#991B1B':'#92400E';
   }
   const values={
-    client:estimateState.client, phone:estimateState.phone, email:estimateState.email, address:estimateState.address,
+    client:estimateState.client, phone:estimateState.phone, email:estimateState.email, address:estimateState.address, 'client-target-budget':estimateState.clientTargetBudget,
     model:estimateState.model, sqft:estimateState.sqft, 'primary-home-sqft':estimateState.primaryHomeSqft, status:estimateState.status, number:estimateState.number,
     expiry:estimateState.expiry, due:estimateState.due, terms:estimateState.terms, 'customer-id':estimateState.customerId,
     notes:estimateState.notes, signature:estimateState.signature, 'tax-rate':estimateState.taxRate,
@@ -2538,6 +2547,7 @@ function buildEstimateInvoiceDocument(){
         <div class="print-doc-kpi"><b>Bill To</b><span>${esc(estimateState.client||'Client name needed')}<br>${esc(estimateState.email||'')}<br>${esc(estimateState.phone||'')}<br>${esc(estimateState.address||'')}</span></div>
         <div class="print-doc-kpi"><b>Bill From</b><span>${esc(ABQADU_CONTACT.name)}<br>${esc(ABQADU_CONTACT.address)}<br>Phone: ${esc(ABQADU_CONTACT.phone)}<br>Architect / Designer / Builder team</span></div>
       </div>
+      ${targetBudgetText(estimateState.clientTargetBudget) ? `<p><b>Client target budget (planning only):</b> ${esc(targetBudgetText(estimateState.clientTargetBudget))}</p>` : ''}
       <div class="print-doc-grid" style="grid-template-columns:repeat(3,1fr)">
         <div class="print-doc-kpi"><b>${esc(estimateState.model || 'ADU model')}</b><span>Model</span></div>
         <div class="print-doc-kpi"><b>${Number(estimateState.sqft)||0} sf</b><span>Project size</span></div>
@@ -2643,6 +2653,7 @@ function normalizeBid(bidData){
   bidData.client ??= '';
   bidData.address ??= '';
   bidData.internal_notes ??= '';
+  bidData.client_target_budget ??= '';
   bidData.model ??= 'Netherwood House';
   if (bidData.model === legacyNetherwoodDuplicate) bidData.model = 'Netherwood House';
   if (bidData.title && bidData.title.includes(legacyNetherwoodDuplicate)) bidData.title = bidData.title.replace(legacyNetherwoodDuplicate, 'Netherwood House');
@@ -2813,7 +2824,7 @@ function switchProject(id){
 }
 function newProjectFolder(){
   saveBid();
-  const project=makeProject(normalizeBid({...cloneSampleBid(), title:'New ADU Project', client:'', address:'', internal_notes:'', status:'draft'}), []);
+  const project=makeProject(normalizeBid({...cloneSampleBid(), title:'New ADU Project', client:'', address:'', internal_notes:'', client_target_budget:'', status:'draft'}), []);
   projects.unshift(project);
   activeProjectId=project.id;
   activeProject=project;
@@ -2868,8 +2879,10 @@ function setBidSaveStatus(text){
 function syncBidFromInputs(){
   const title=$('#bid-title'), client=$('#bid-client'), address=$('#bid-address'), model=$('#bid-model'), sqft=$('#bid-sqft'), status=$('#bid-status'), grade=$('#bid-confidence-grade');
   const internalNotes=$('#bid-internal-notes');
+  const targetBudget=$('#bid-client-target-budget');
   if(title)bid.title=title.value;
   if(internalNotes)bid.internal_notes=internalNotes.value;
+  if(targetBudget)bid.client_target_budget=targetBudget.value;
   if(client)bid.client=client.value;
   if(address)bid.address=address.value;
   if(model)bid.model=model.value;
@@ -3087,6 +3100,8 @@ function renderBidAppShell(t){
 function renderBid(){
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
   $('#bid-internal-notes').value=bid.internal_notes || '';
+  $('#bid-client-target-budget').value=bid.client_target_budget || '';
+  setText('bid-invoice-target-budget', `Client target budget (planning only): ${targetBudgetText(bid.client_target_budget) || 'Not provided'}`);
   const addressInput=$('#bid-address'); if(addressInput)addressInput.value=bid.address || '';
   $('#bid-model').value=bid.model || 'Netherwood House';
   $('#bid-sqft').value=bid.sqft || 640;
@@ -3211,6 +3226,7 @@ function focusNewestCogsLine(){
 }
 $('#bid-title').oninput=e=>{bid.title=e.target.value;renderBid()};
 $('#bid-internal-notes').oninput=e=>{bid.internal_notes=e.target.value;saveBid();setBidSaveStatus('Internal team notes saved locally.')};
+$('#bid-client-target-budget').oninput=e=>{bid.client_target_budget=e.target.value;setText('bid-invoice-target-budget',`Client target budget (planning only): ${targetBudgetText(bid.client_target_budget) || 'Not provided'}`);saveBid();setBidSaveStatus('Client target budget saved locally. Pricing unchanged.')};
 $('#bid-client').oninput=e=>{bid.client=e.target.value;renderBid()};
 $('#bid-address').oninput=e=>{bid.address=e.target.value;renderBid()};
 $('#bid-model').oninput=e=>{bid.model=e.target.value;renderBid();setBidSaveStatus('Draft saved with model update.')};
@@ -3407,6 +3423,7 @@ function exportBidCsv(){
     ['project','identity',`Client: ${bid.client || ''}`,'','','','','','','','',''],
     ['project','identity',`Address: ${bid.address || ''}`,'','','','','','','','',''],
     ['project','identity',`Model: ${bid.model || ''} · ${bid.sqft || 0} sf`,'','','','','','','','',''],
+    ...(targetBudgetText(bid.client_target_budget) ? [['project','planning',`Client target budget (planning only): ${targetBudgetText(bid.client_target_budget)}`,'','','','','','','','','']] : []),
     ...bid.items.map(item=>['cogs',item.cat,item.desc,LINE_KINDS[item.kind]||item.kind,item.qty,item.unit,item.cost,(+item.qty||0)*(+item.cost||0),'','','','']),
     ...invoices.map(inv=>['invoice','','',inv.type,'','',inv.amount,inv.amount,inv.num,inv.sendDate,inv.paid,inv.status]),
     ['summary','','Bid total','','','','',t.total,'','','',''],
@@ -3427,7 +3444,7 @@ function exportBidJson(){
   const confidence=renderBidConfidence(t);
   const payload={
     exportedAt:new Date().toISOString(),
-    project:{id:activeProjectId,title:bid.title,client:bid.client,address:bid.address,model:bid.model,sqft:bid.sqft,status:bid.status},
+    project:{id:activeProjectId,title:bid.title,client:bid.client,address:bid.address,model:bid.model,sqft:bid.sqft,status:bid.status,client_target_budget:bid.client_target_budget || ''},
     confidence,
     pricing:t,
     cogs:bid.items,
@@ -3463,6 +3480,7 @@ function buildBidPrintDocument(){
     </div>
     <div class="print-doc-title">${esc(bid.title || 'ABQ ADU Bid')}</div>
     <div>${esc(bid.client || 'Client not entered')} · ${esc(bid.address || 'Address not entered')} · ${esc(bid.model || 'Model')} · ${esc(bid.sqft || 0)} sf</div>
+    ${targetBudgetText(bid.client_target_budget) ? `<p><b>Client target budget (planning only):</b> ${esc(targetBudgetText(bid.client_target_budget))}</p>` : ''}
     <div class="print-doc-grid">
       <div class="print-doc-kpi"><b>${fmt0(t.total)}</b><span>Bid total</span></div>
       <div class="print-doc-kpi"><b>${fmt0(t.sub)}</b><span>COGS subtotal</span></div>
