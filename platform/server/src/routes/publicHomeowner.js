@@ -38,8 +38,9 @@ function createPublicHomeownerRouter({
   }
 
   router.get(['/', '/index.html'], (_req, res, next) => sendPublicFile('index.html', res, next, true));
+  router.get('/selections.html', (_req, res, next) => sendPublicFile('selections.html', res, next, true));
   router.get('/platform.html', (_req, res) => res.redirect('/command-center'));
-  for (const filename of ['favicon.png', 'favicon.svg', 'data/model-catalog.json']) {
+  for (const filename of ['favicon.png', 'favicon.svg', 'data/model-catalog.json', 'homeowner-selections.js', 'homeowner-selections.css']) {
     router.get(`/${filename}`, (_req, res, next) => sendPublicFile(filename, res, next));
   }
   router.get('/images/*', (req, res, next) => {
@@ -50,7 +51,7 @@ function createPublicHomeownerRouter({
     return sendPublicFile(`images/${filename}`, res, next);
   });
   // Missing public assets must not fall through to a private workspace HTML page.
-  router.use(['/images', '/data', '/favicon.png', '/favicon.svg', '/favicon.ico'], (_req, res) => unavailable(res, false));
+  router.use(['/images', '/data', '/favicon.png', '/favicon.svg', '/favicon.ico', '/selections.html', '/homeowner-selections.js', '/homeowner-selections.css'], (_req, res) => unavailable(res, false));
   return router;
 }
 

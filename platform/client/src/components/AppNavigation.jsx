@@ -27,6 +27,7 @@ export default function AppNavigation() {
     {expanded && <nav id="workspace-menu" aria-label="More workspace tools" className="app-workspace-menu">
       {[['/preconstruction','Preconstruction agreement'],['/executive','Executive team & CFO'],['/executive#owner-plan','Business plan & goals'],['/executive#preconstruction-cycle','Contract-to-$10k scorecard'],['/command-center#project-helper','Weekly briefing'],['/command-center#document-activity','Document activity'],['/portfolio','Portfolio'],['/clients','Clients'],['/bids','Customer estimates'],['/invoices','Invoices & payments'],['/schedule','Schedule'],['/field','Field operations'],['/risks','Risks'],['/design','Design studio']].map(([to,label])=><Link key={to} to={to}>{label}</Link>)}
       <a href="/">Homeowner website</a>
+      <a href="/selections.html" target="_blank" rel="noopener noreferrer">Homeowner selections (new tab)</a>
       <WorkspaceSignOut />
     </nav>}
   </header>;

@@ -11,6 +11,9 @@ test('public bundle contains homeowner assets and no private app or legacy build
   try {
     buildPublicSite(path.resolve(__dirname,'..'),temp,'https://builder.example.com');
     assert.ok(fs.existsSync(path.join(temp,'index.html')));
+    for (const filename of ['selections.html', 'homeowner-selections.js', 'homeowner-selections.css']) {
+      assert.ok(fs.existsSync(path.join(temp, filename)), `Public selections asset required: ${filename}`);
+    }
     assert.ok(fs.existsSync(path.join(temp,'data/model-catalog.json')));
     assert.equal(fs.existsSync(path.join(temp,'platform')),false);
     assert.equal(fs.existsSync(path.join(temp,'docs')),false);
@@ -28,7 +31,7 @@ test('server packaging refreshes only its generated public folder and preserves 
     fs.mkdirSync(path.join(source, 'images'));
     fs.mkdirSync(path.join(source, 'data'));
     fs.mkdirSync(path.join(source, 'platform/server/data'), { recursive: true });
-    for (const name of ['index.html', 'favicon.png', 'favicon.svg', 'data/model-catalog.json']) fs.writeFileSync(path.join(source, name), 'public fixture');
+    for (const name of ['index.html', 'selections.html', 'homeowner-selections.js', 'homeowner-selections.css', 'favicon.png', 'favicon.svg', 'data/model-catalog.json']) fs.writeFileSync(path.join(source, name), 'public fixture');
     const saved = path.join(source, 'platform/server/data/saved-project.json');
     fs.writeFileSync(saved, 'private fixture');
     const output = packageHomeownerSite(source);

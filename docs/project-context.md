@@ -94,6 +94,7 @@ User-supplied broader ideas include receipt email import, automatic mileage, Qui
 - [Contractor field/Twilio setup](contractor-field-setup.md)
 - [NWS setup](nws-weather-setup.md) and [optional Apple WeatherKit](apple-weather-setup.md)
 - [Public-site release notes](homeowner-services-release.md)
+- [Homeowner selections checklist prototype](homeowner-selections.md)
 - [Full platform deployment](version-10-platform-deployment.md)
 - [Version 10 specification](superpowers/specs/2026-08-22-version10-builder-operating-system-design.md)
 - [InvoiceShelf plan](superpowers/plans/2026-07-20-invoiceshelf-back-office-engine.md)
