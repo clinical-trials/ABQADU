@@ -121,6 +121,7 @@ export default function BidBuilder() {
         <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900, fontSize: 28, letterSpacing: '.02em', margin: 0 }}>
           Bids &amp; Estimates
         </h1>
+        <a href="/cost-estimator" style={{ marginLeft: 'auto', marginRight: 16, color: '#F0EBE1', padding: '10px 0', fontSize: 14 }}>Cost estimator →</a>
         <button onClick={newBid} disabled={saving}
           style={{ marginLeft: 'auto', background: '#C4954A', color: '#FFF', border: 'none', borderRadius: 4, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           + New Bid

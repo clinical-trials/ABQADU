@@ -4,6 +4,12 @@ const { pool } = require('../db');
 const { DEFAULT_BID_MARKUP_PCT, computeBidTotals, bomToLineItems } = require('../services/bidCalc');
 const { generateBOM } = require('../services/bomGenerator');
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[character]));
+}
+
 async function transaction(work) {
   const db = await pool.connect();
   try {
@@ -223,46 +229,49 @@ router.post('/:id/pdf', async (req, res) => {
   <div class="header">
     <div><div class="logo">ABQ <span>ADU</span></div>
       <div style="font-size:13px;color:#78716C;margin-top:4px;">Construction Estimate</div></div>
-    <div class="meta"><strong>${bid.bid_number}</strong>
-      <div>${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
-      ${bid.valid_until ? `<div>Valid until ${bid.valid_until}</div>` : ''}</div>
+    <div class="meta"><strong>${escapeHtml(bid.bid_number)}</strong>
+      <div>${escapeHtml(new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}))}</div>
+      ${bid.valid_until ? `<div>Valid until ${escapeHtml(bid.valid_until)}</div>` : ''}</div>
   </div>
   <div class="parties">
     <div class="party"><h3>Prepared For</h3>
-      <div><strong>${bid.client_name || '—'}</strong></div>
-      ${bid.client_address ? `<div>${bid.client_address}</div>` : ''}
-      ${bid.client_email ? `<div>${bid.client_email}</div>` : ''}
-      ${bid.client_phone ? `<div>${bid.client_phone}</div>` : ''}</div>
+      <div><strong>${escapeHtml(bid.client_name || '—')}</strong></div>
+      ${bid.client_address ? `<div>${escapeHtml(bid.client_address)}</div>` : ''}
+      ${bid.client_email ? `<div>${escapeHtml(bid.client_email)}</div>` : ''}
+      ${bid.client_phone ? `<div>${escapeHtml(bid.client_phone)}</div>` : ''}</div>
     <div class="party" style="text-align:right;"><h3>Project</h3>
-      <div><strong>${bid.title}</strong></div></div>
+      <div><strong>${escapeHtml(bid.title)}</strong></div></div>
   </div>
   <h2>Scope &amp; Line Items</h2>
   <table><thead><tr><th>Description</th><th class="r">Qty</th><th>Unit</th><th class="r">Unit Cost</th><th class="r">Total</th></tr></thead><tbody>
   ${(() => {
     let lastCat = null; let html = '';
     bid.items.forEach(i => {
-      if (i.category !== lastCat) { html += `<tr><td colspan="5" class="cat">${i.category || 'General'}</td></tr>`; lastCat = i.category; }
+      if (i.category !== lastCat) { html += `<tr><td colspan="5" class="cat">${escapeHtml(i.category || 'General')}</td></tr>`; lastCat = i.category; }
       const lineTotal = parseFloat(i.qty) * parseFloat(i.unit_cost);
-      html += `<tr><td>${i.description}</td><td class="r">${Number(i.qty).toLocaleString()}</td><td>${i.unit}</td><td class="r">${fmt(i.unit_cost)}</td><td class="r">${fmt(lineTotal)}</td></tr>`;
+      html += `<tr><td>${escapeHtml(i.description)}</td><td class="r">${escapeHtml(Number(i.qty).toLocaleString())}</td><td>${escapeHtml(i.unit)}</td><td class="r">${escapeHtml(fmt(i.unit_cost))}</td><td class="r">${escapeHtml(fmt(lineTotal))}</td></tr>`;
     });
     return html;
   })()}
   </tbody></table>
   <table class="totals">
-    <tr><td>Subtotal</td><td class="r">${fmt(t.subtotal)}</td></tr>
-    <tr><td>Overhead &amp; profit (${bid.markup_pct}% markup)</td><td class="r">${fmt(t.markup)}</td></tr>
-    <tr><td>Contingency (${bid.contingency_pct}%)</td><td class="r">${fmt(t.contingency)}</td></tr>
-    <tr><td>NM gross receipts tax (${bid.tax_pct}%)</td><td class="r">${fmt(t.tax)}</td></tr>
-    <tr class="grand"><td>Total Estimate</td><td class="r amt">${fmt(t.total)}</td></tr>
+    <tr><td>Subtotal</td><td class="r">${escapeHtml(fmt(t.subtotal))}</td></tr>
+    <tr><td>Overhead &amp; profit (${escapeHtml(bid.markup_pct)}% markup)</td><td class="r">${escapeHtml(fmt(t.markup))}</td></tr>
+    <tr><td>Contingency (${escapeHtml(bid.contingency_pct)}%)</td><td class="r">${escapeHtml(fmt(t.contingency))}</td></tr>
+    <tr><td>NM gross receipts tax (${escapeHtml(bid.tax_pct)}%)</td><td class="r">${escapeHtml(fmt(t.tax))}</td></tr>
+    <tr class="grand"><td>Total Estimate</td><td class="r amt">${escapeHtml(fmt(t.total))}</td></tr>
   </table>
-  ${bid.notes ? `<h2>Notes</h2><div style="font-size:12px;color:#57534E;">${bid.notes}</div>` : ''}
-  <footer><span>ABQ ADU — Albuquerque, NM · Licensed &amp; Insured</span><span>${bid.bid_number}</span></footer>
+  ${bid.notes ? `<h2>Notes</h2><div style="font-size:12px;color:#57534E;">${escapeHtml(bid.notes)}</div>` : ''}
+  <footer><span>ABQ ADU — Albuquerque, NM · Licensed &amp; Insured</span><span>${escapeHtml(bid.bid_number)}</span></footer>
   </body></html>`;
 
   let browser;
   try {
     browser = await puppeteer.launch({ args: ['--no-sandbox'] });
     const page = await browser.newPage();
+    await page.setJavaScriptEnabled(false);
+    await page.setRequestInterception(true);
+    page.on('request', request => { request.abort().catch(() => {}); });
     await page.setContent(html, { waitUntil: 'networkidle0' });
     const pdf = await page.pdf({ format: 'Letter', margin: { top: '0', bottom: '0', left: '0', right: '0' } });
     res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${bid.bid_number}.pdf"` });
