@@ -22,6 +22,15 @@ test('computeBidTotals: empty items yields zero total', () => {
   expect(t.total).toBe(0);
 });
 
+test.each([[60, 60000, 160000], [100, 100000, 200000]])('a %s percent markup adds to cost rather than becoming a percentage margin', (percentage, markup, total) => {
+  const result = computeBidTotals([{ qty: 1, unit_cost: 100000 }], { markup_pct: percentage, contingency_pct: 0, tax_pct: 0 });
+  expect(result).toEqual({ subtotal: 100000, markup, contingency: 0, preTax: total, tax: 0, total });
+});
+
+test('missing saved markup remains zero rather than inheriting the new-bid default', () => {
+  expect(computeBidTotals([{ qty: 1, unit_cost: 100000 }], {}).total).toBe(100000);
+});
+
 test('buildDrawSchedule: five draws summing to total', () => {
   const draws = buildDrawSchedule(100000);
   expect(draws).toHaveLength(5);

@@ -4,6 +4,7 @@ import { assertAuthSession, getAuthSession } from '../utils/authFetch';
 import useApiList from '../hooks/useApiList';
 import useApiAction from '../hooks/useApiAction';
 import ApiError from '../components/ApiError';
+import BidPricingGuidance from '../components/BidPricingGuidance';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -199,11 +200,12 @@ export default function BidBuilder() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, marginTop: 24 }}>
                 <div style={{ background: '#FFF', border: '1px solid #E7E0D5', borderRadius: 8, padding: 16 }}>
                   <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#78716C', marginBottom: 12 }}>Pricing Settings</div>
-                  {[['markup_pct', 'Overhead & profit %'], ['contingency_pct', 'Contingency %'], ['tax_pct', 'NM gross receipts tax %']].map(([k, label]) => (
+                  <BidPricingGuidance onChoose={value => updateField('markup_pct', value)} />
+                  {[['markup_pct', 'Overhead & profit (markup %)'], ['contingency_pct', 'Contingency %'], ['tax_pct', 'NM gross receipts tax %']].map(([k, label]) => (
                     <div key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                      <label style={{ fontSize: 13, color: '#57534E' }}>{label}</label>
-                      <input type="number" step="0.001" value={active[k]} onChange={e => updateField(k, e.target.value)}
-                        style={{ ...cell, width: 90, textAlign: 'right' }} />
+                      <label htmlFor={`bid-${k}`} style={{ fontSize: 14, color: '#57534E' }}>{label}</label>
+                      <input id={`bid-${k}`} type="number" step="0.001" value={active[k]} onChange={e => updateField(k, e.target.value)}
+                        style={{ ...cell, width: 90, minHeight: 44, fontSize: 16, textAlign: 'right' }} />
                     </div>
                   ))}
                   <textarea placeholder="Notes / scope clarifications" value={active.notes || ''} onChange={e => updateField('notes', e.target.value)}

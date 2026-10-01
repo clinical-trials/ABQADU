@@ -9,6 +9,7 @@ import ContractorDesk from '../components/ContractorDesk';
 import ProjectHelper from '../components/ProjectHelper';
 import DocumentActivity from '../components/DocumentActivity';
 import GisYardReview from '../components/GisYardReview';
+import BidPricingGuidance from '../components/BidPricingGuidance';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
@@ -103,6 +104,7 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
             <small>Homeowner’s planning target. Invoice charges are entered separately.</small>
           </section>
           <Field label="Customer price"><input style={styles.input} aria-label="Customer price" min="0" type="number" value={project.bid_total} onChange={e => onChange(project.id, 'bid_total', Number(e.target.value))} /></Field>
+          <BidPricingGuidance />
           <div style={{ fontSize: 13, marginTop: 6 }}>{fmt(Number(project.bid_total || 0) / Number(project.sqft || 1))}/sf customer price</div>
           <Field label="Estimated cost low"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Estimated cost low" min="0" type="number" value={project.cogs_low} onChange={e => onChange(project.id, 'cogs_low', Number(e.target.value))} /></Field>
           <Field label="Estimated cost high"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Estimated cost high" min="0" type="number" value={project.cogs_high} onChange={e => onChange(project.id, 'cogs_high', Number(e.target.value))} /></Field>

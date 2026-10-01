@@ -1370,9 +1370,11 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <div style="font-family:var(--fd);font-size:18px;font-weight:900;text-transform:uppercase;margin-bottom:10px">Pricing Engine</div>
         <div class="ln"><span>COGS / sq ft</span><span id="t-psf">$0</span></div>
         <div class="ln"><span>Subtotal</span><span id="t-sub">$0</span></div>
-        <div class="ln"><span>Overhead &amp; profit <input id="t-markup" type="number" value="18" style="width:46px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-mk">$0</span></div>
-        <div class="ln"><span>Contingency <input id="t-cont" type="number" value="5" style="width:42px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-co">$0</span></div>
-        <div class="ln"><span>NM GRT tax <input id="t-tax" type="number" step="0.001" value="7.625" style="width:60px;text-align:right;border:none;border-radius:3px;padding:1px 4px">%</span><span id="t-tx">$0</span></div>
+        <div class="ln"><label for="t-markup">Overhead &amp; profit <input id="t-markup" type="number" min="0" step="0.1" value="60" aria-describedby="bid-markup-help" style="width:70px;min-height:44px;font-size:16px;text-align:right;border:none;border-radius:3px;padding:4px">%</label><span id="t-mk">$0</span></div>
+        <p id="bid-markup-help" style="font-size:12px;line-height:1.5;margin:8px 0">Markup on cost: new bids start at 60%. Company target: 100% adds 1× cost, making the price 2× cost before contingency and tax. Markup is not net profit; overhead still needs to be paid.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"><button class="btn ghost sm" type="button" style="min-height:44px" onclick="setBidMarkup(60)">Use 60%</button><button class="btn copper sm" type="button" style="min-height:44px" onclick="setBidMarkup(100)">Use 100% target</button></div>
+        <div class="ln"><label for="t-cont">Contingency <input id="t-cont" type="number" min="0" step="0.1" value="5" style="width:70px;min-height:44px;font-size:16px;text-align:right;border:none;border-radius:3px;padding:4px">%</label><span id="t-co">$0</span></div>
+        <div class="ln"><label for="t-tax">NM GRT tax <input id="t-tax" type="number" min="0" step="0.001" value="7.625" style="width:80px;min-height:44px;font-size:16px;text-align:right;border:none;border-radius:3px;padding:4px">%</label><span id="t-tx">$0</span></div>
         <div class="grand"><span class="lab">Total</span><span class="amt" id="t-total">$0</span></div>
         <div class="profit-panel">
           <div class="ln"><span>Bid price / sq ft</span><strong id="t-bid-psf">$0</strong></div>
@@ -1795,6 +1797,7 @@ const fmt = n => '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigit
 const fmt0 = n => '$' + Math.round(Number(n||0)).toLocaleString('en-US');
 const hasSelectedModel = model => Boolean(model && model !== 'Other / not yet selected');
 const targetBudgetText = value => typeof value === 'string' ? value.trim() : '';
+const BID_RATE_FIELDS = {'t-markup':'markup_pct','t-cont':'contingency_pct','t-tax':'tax_pct'};
 const isStoredRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isStoredRecordList = value => Array.isArray(value) && value.every(isStoredRecord);
 const isStoredInvoiceList = value => isStoredRecordList(value) && value.every(invoice =>
@@ -1804,6 +1807,7 @@ function isStoredBid(value){
     && (value.title == null || typeof value.title === 'string')
     && (value.internal_notes == null || typeof value.internal_notes === 'string')
     && (value.client_target_budget == null || typeof value.client_target_budget === 'string')
+    && Object.values(BID_RATE_FIELDS).every(key => !Object.prototype.hasOwnProperty.call(value,key) || (typeof value[key] === 'number' && Number.isFinite(value[key]) && value[key]>=0))
     && (value.items == null || isStoredRecordList(value.items));
 }
 const store = (()=>{
@@ -2620,6 +2624,7 @@ Open Version 10 builder platform to print/save the PDF packet.`);
 /* ═══════════════ PHASE 1 — BIDS ═══════════════ */
 const SAMPLE_BID = {
   title:'Netherwood House ADU — 440 sf', client:'M. Hyder Residence', address:'412 Netherwood Lane NE, Albuquerque NM', model:'Netherwood House', sqft:440, status:'draft',
+  markup_pct:60, contingency_pct:5, tax_pct:7.625,
   confidenceGrade:'B', readinessFlags:['missing site data'],
   items:[
     {cat:'Structure',desc:'Foundation / slab',kind:'base',qty:640,unit:'sf',cost:18},
@@ -2654,6 +2659,10 @@ function normalizeBid(bidData){
   bidData.address ??= '';
   bidData.internal_notes ??= '';
   bidData.client_target_budget ??= '';
+  // Existing drafts without persisted rates used these historical defaults.
+  for(const [key,value] of Object.entries({markup_pct:18,contingency_pct:5,tax_pct:7.625})){
+    if(!Object.prototype.hasOwnProperty.call(bidData,key))bidData[key]=value;
+  }
   bidData.model ??= 'Netherwood House';
   if (bidData.model === legacyNetherwoodDuplicate) bidData.model = 'Netherwood House';
   if (bidData.title && bidData.title.includes(legacyNetherwoodDuplicate)) bidData.title = bidData.title.replace(legacyNetherwoodDuplicate, 'Netherwood House');
@@ -2855,10 +2864,10 @@ function duplicateProjectFolder(){
 }
 function bidTotals(){
   const sub = bid.items.reduce((s,i)=>s+(+i.qty||0)*(+i.cost||0),0);
-  const mk = sub*(+$('#t-markup').value/100);
-  const co = sub*(+$('#t-cont').value/100);
+  const mk = sub*(bid.markup_pct/100);
+  const co = sub*(bid.contingency_pct/100);
   const pre = sub+mk+co;
-  const tx = pre*(+$('#t-tax').value/100);
+  const tx = pre*(bid.tax_pct/100);
   const sqft = Math.max(1,+bid.sqft||1);
   const profit = pre-sub;
   const margin = pre ? profit/pre : 0;
@@ -2877,6 +2886,7 @@ function setBidSaveStatus(text){
   if(projectEl) projectEl.textContent=text;
 }
 function syncBidFromInputs(){
+  Object.entries(BID_RATE_FIELDS).forEach(([id,key])=>{const input=$('#'+id);if(input)bid[key]=Math.max(0,Number(input.value)||0)});
   const title=$('#bid-title'), client=$('#bid-client'), address=$('#bid-address'), model=$('#bid-model'), sqft=$('#bid-sqft'), status=$('#bid-status'), grade=$('#bid-confidence-grade');
   const internalNotes=$('#bid-internal-notes');
   const targetBudget=$('#bid-client-target-budget');
@@ -3098,6 +3108,7 @@ function renderBidAppShell(t){
   renderBidQuiz(t);
 }
 function renderBid(){
+  Object.entries(BID_RATE_FIELDS).forEach(([id,key])=>{$('#'+id).value=bid[key]});
   $('#bid-title').value=bid.title; $('#bid-client').value=bid.client;
   $('#bid-internal-notes').value=bid.internal_notes || '';
   $('#bid-client-target-budget').value=bid.client_target_budget || '';
@@ -3202,10 +3213,9 @@ function loadAmherstAlturaBenchmark(){
     {cat:'Benchmark',desc:'COGS high reference - $170/sf x 600 sf = $102,000',kind:'review',qty:1,unit:'note',cost:0},
     {cat:'Utilities',desc:'Electrical, water, and sewer confirmation still required before final price',kind:'review',qty:1,unit:'review',cost:0},
   ];
-  const markup=$('#t-markup'), cont=$('#t-cont'), tax=$('#t-tax');
-  if(markup)markup.value='74.1';
-  if(cont)cont.value='5';
-  if(tax)tax.value='7.625';
+  bid.markup_pct=74.1;
+  bid.contingency_pct=5;
+  bid.tax_pct=7.625;
   invoices=[];
   invoiceFolderOpen=false;
   renderBid();
@@ -3233,7 +3243,14 @@ $('#bid-model').oninput=e=>{bid.model=e.target.value;renderBid();setBidSaveStatu
 $('#bid-sqft').oninput=e=>{bid.sqft=+e.target.value||1;renderBid();setBidSaveStatus('Draft saved with square footage update.')};
 $('#bid-status').oninput=e=>{bid.status=e.target.value;renderBid();setBidSaveStatus(`Draft marked ${bid.status}.`)};
 $('#bid-confidence-grade').oninput=e=>{bid.confidenceGrade=e.target.value;renderBid();setBidSaveStatus(`Bid confidence set to ${bid.confidenceGrade}.`)};
-['t-markup','t-cont','t-tax'].forEach(id=>$('#'+id).oninput=renderBid);
+Object.keys(BID_RATE_FIELDS).forEach(id=>$('#'+id).oninput=()=>{syncBidFromInputs();renderBid();setBidSaveStatus('Pricing rates saved for this bid. Existing invoice amounts are unchanged.')});
+function setBidMarkup(percentage){
+  if(![60,100].includes(percentage))return;
+  syncBidFromInputs();
+  bid.markup_pct=percentage;
+  renderBid();
+  setBidSaveStatus(`Overhead and profit set to ${percentage}% of cost for this bid. Existing invoice amounts are unchanged.`);
+}
 function saveBidDraft(){
   syncBidFromInputs();
   saveBid();

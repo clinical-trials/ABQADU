@@ -110,7 +110,7 @@ contains('function loadAmherstAlturaBenchmark()');
 contains('435 Amherst Dr NE, Albuquerque NM 87106');
 contains('$185,000 / 600 sf = $308 per sf');
 contains('current estimate range $150-$170/sf');
-contains("if(markup)markup.value='74.1'");
+contains('bid.markup_pct=74.1');
 contains('Finish Subcontractor Bid Pulls');
 contains('onclick="addCogsBundle(\'finishTradePulls\')"');
 contains('Countertops subcontractor bid pull');

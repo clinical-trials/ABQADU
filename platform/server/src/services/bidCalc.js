@@ -1,4 +1,6 @@
 // Bid total calculations — subtotal, markup, contingency, tax, grand total
+// Creation default only: saved bids continue to use their own percentage.
+const DEFAULT_BID_MARKUP_PCT = 60;
 
 function round2(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
@@ -60,4 +62,4 @@ function bomToLineItems(bom) {
   }));
 }
 
-module.exports = { computeBidTotals, buildDrawSchedule, bomToLineItems, round2 };
+module.exports = { DEFAULT_BID_MARKUP_PCT, computeBidTotals, buildDrawSchedule, bomToLineItems, round2 };

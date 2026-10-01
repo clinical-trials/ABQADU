@@ -1,7 +1,7 @@
 const router = require('../asyncRouter')();
 const puppeteer = require('puppeteer');
 const { pool } = require('../db');
-const { computeBidTotals, bomToLineItems } = require('../services/bidCalc');
+const { DEFAULT_BID_MARKUP_PCT, computeBidTotals, bomToLineItems } = require('../services/bidCalc');
 const { generateBOM } = require('../services/bomGenerator');
 
 async function transaction(work) {
@@ -138,7 +138,7 @@ router.post('/', async (req, res) => {
          markup_pct, tax_pct, contingency_pct, notes, valid_until)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
       [client_id || null, project_id || null, design_id || null, bid_number,
-       title || 'ADU Estimate', markup_pct ?? 18.0, tax_pct ?? 7.625,
+       title || 'ADU Estimate', markup_pct ?? DEFAULT_BID_MARKUP_PCT, tax_pct ?? 7.625,
        contingency_pct ?? 5.0, notes || null, valid_until || null]
     );
     if (Array.isArray(items)) await insertItems(db, rows[0].id, items);
@@ -158,10 +158,10 @@ router.post('/from-design/:designId', async (req, res) => {
   const bid = await transaction(async db => {
     const bid_number = await nextBidNumber(db);
     const { rows } = await db.query(
-      `INSERT INTO bids (client_id, project_id, design_id, bid_number, title, notes)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      `INSERT INTO bids (client_id, project_id, design_id, bid_number, title, notes, markup_pct)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
       [client_id || null, project_id || null, design.id, bid_number,
-       `${design.name} — Estimate`, `Auto-generated from floor plan (${bom.totalSf} sf)`]
+       `${design.name} — Estimate`, `Auto-generated from floor plan (${bom.totalSf} sf)`, DEFAULT_BID_MARKUP_PCT]
     );
     await insertItems(db, rows[0].id, items);
     return loadBid(rows[0].id, db);
@@ -250,7 +250,7 @@ router.post('/:id/pdf', async (req, res) => {
   </tbody></table>
   <table class="totals">
     <tr><td>Subtotal</td><td class="r">${fmt(t.subtotal)}</td></tr>
-    <tr><td>Overhead &amp; profit (${bid.markup_pct}%)</td><td class="r">${fmt(t.markup)}</td></tr>
+    <tr><td>Overhead &amp; profit (${bid.markup_pct}% markup)</td><td class="r">${fmt(t.markup)}</td></tr>
     <tr><td>Contingency (${bid.contingency_pct}%)</td><td class="r">${fmt(t.contingency)}</td></tr>
     <tr><td>NM gross receipts tax (${bid.tax_pct}%)</td><td class="r">${fmt(t.tax)}</td></tr>
     <tr class="grand"><td>Total Estimate</td><td class="r amt">${fmt(t.total)}</td></tr>

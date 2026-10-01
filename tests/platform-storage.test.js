@@ -59,6 +59,94 @@ function readBlob(window, blob) {
   });
 }
 
+test('legacy new bids start at 60 percent overhead and profit while historical missing rates stay at 18 percent', t => {
+  const fresh = openBuilder(t, { hash:'#bids' });
+  assert.equal(fresh.document.getElementById('t-markup').value, '60');
+  assert.equal(JSON.parse(fresh.window.localStorage.getItem('abqadu_bid')).markup_pct, 60);
+  const oldBid = {title:'Example legacy job',items:[{cat:'General',desc:'Example cost',qty:1,unit:'ea',cost:100}]};
+  const legacy = openBuilder(t, { entries:{abqadu_bid:JSON.stringify(oldBid)},hash:'#bids' });
+  assert.equal(legacy.document.getElementById('t-markup').value, '18');
+  assert.equal(legacy.document.getElementById('t-cont').value, '5');
+  assert.equal(legacy.document.getElementById('t-tax').value, '7.625');
+  assert.equal(legacy.window.bidTotals().total, 123 * 1.07625);
+  legacy.window.newProjectFolder();
+  assert.equal(legacy.document.getElementById('t-markup').value, '60');
+  assert.deepEqual(fresh.errors, []);
+  assert.deepEqual(legacy.errors, []);
+});
+
+test('legacy 60 and 100 percent markup price cost at 1.6 and 2 times without changing invoice amounts', t => {
+  const project = {id:'pricing-example',bid:{title:'Example job',markup_pct:18,contingency_pct:0,tax_pct:0,items:[{cat:'General',desc:'Example cost',qty:1,unit:'ea',cost:100000}]},invoices:[
+    {num:'EXAMPLE-1',amount:10000,paid:0,desc:'Preconstruction deposit',status:'draft'},
+    {num:'EXAMPLE-2',amount:12000,paid:0,desc:'Existing draw',status:'draft'},
+  ]};
+  const { window, document, errors } = openBuilder(t, { entries:{abqadu_projects:JSON.stringify([project])},hash:'#bids' });
+  assert.equal(window.bidTotals().total, 118000);
+  const totals = [];
+  for (const percentage of [60, 100]) {
+    document.getElementById('t-markup').value = String(percentage);
+    document.getElementById('t-markup').dispatchEvent(new window.Event('input', { bubbles:true }));
+    totals.push(window.bidTotals().total);
+    const saved = JSON.parse(window.localStorage.getItem('abqadu_projects'))[0];
+    assert.equal(saved.bid.markup_pct, percentage);
+    assert.deepEqual(saved.invoices.map(invoice => invoice.amount), [10000,12000]);
+  }
+  assert.deepEqual(totals, [160000,200000]);
+  assert.match(document.getElementById('bid-markup-help').textContent, /100%.*2.*cost/i);
+  assert.match(document.getElementById('bid-markup-help').textContent, /before contingency and tax/i);
+  assert.deepEqual(errors, []);
+});
+
+test('legacy pricing rates persist per project through switching, reload and revision and preserve explicit zero', t => {
+  const items = [{cat:'General',desc:'Example cost',qty:1,unit:'ea',cost:100}];
+  const projects = [
+    {id:'rate-a',bid:{title:'Example A',markup_pct:60,contingency_pct:3,tax_pct:7,items},invoices:[]},
+    {id:'rate-b',bid:{title:'Example B',markup_pct:0,contingency_pct:0,tax_pct:0,items},invoices:[]},
+  ];
+  const page = openBuilder(t, { entries:{abqadu_projects:JSON.stringify(projects)},hash:'#bids' });
+  const { window, document } = page;
+  for (const [id,value] of [['t-markup','100'],['t-cont','2'],['t-tax','8']]) {
+    document.getElementById(id).value = value;
+    document.getElementById(id).dispatchEvent(new window.Event('input', { bubbles:true }));
+  }
+  const expected = window.bidTotals().total;
+  window.switchProject('rate-b');
+  assert.equal(document.getElementById('t-markup').value, '0');
+  assert.equal(document.getElementById('t-cont').value, '0');
+  assert.equal(document.getElementById('t-tax').value, '0');
+  assert.equal(window.bidTotals().total, 100);
+  window.switchProject('rate-a');
+  assert.equal(window.bidTotals().total, expected);
+  window.duplicateProjectFolder();
+  assert.equal(document.getElementById('t-markup').value, '100');
+  assert.equal(document.getElementById('t-cont').value, '2');
+  assert.equal(document.getElementById('t-tax').value, '8');
+  const entries = Object.fromEntries(Object.keys(window.localStorage).map(key => [key,window.localStorage.getItem(key)]));
+  const reloaded = openBuilder(t, { entries,hash:'#bids' });
+  assert.equal(reloaded.window.bidTotals().total, expected);
+  assert.equal(reloaded.document.getElementById('t-markup').value, '100');
+  reloaded.window.newProjectFolder();
+  assert.equal(reloaded.document.getElementById('t-markup').value, '60');
+  assert.equal(reloaded.document.getElementById('t-cont').value, '5');
+  assert.equal(reloaded.document.getElementById('t-tax').value, '7.625');
+  assert.deepEqual(page.errors, []);
+  assert.deepEqual(reloaded.errors, []);
+});
+
+test('legacy benchmark keeps its explicit 74.1 percent markup after reload', t => {
+  const page = openBuilder(t, { hash:'#bids' });
+  page.window.loadAmherstAlturaBenchmark();
+  assert.equal(page.document.getElementById('t-markup').value, '74.1');
+  assert.equal(JSON.parse(page.window.localStorage.getItem('abqadu_bid')).markup_pct, 74.1);
+  const expected = page.window.bidTotals().total;
+  const entries = Object.fromEntries(Object.keys(page.window.localStorage).map(key => [key,page.window.localStorage.getItem(key)]));
+  const reloaded = openBuilder(t, { entries,hash:'#bids' });
+  assert.equal(reloaded.document.getElementById('t-markup').value, '74.1');
+  assert.equal(reloaded.window.bidTotals().total, expected);
+  assert.deepEqual(page.errors, []);
+  assert.deepEqual(reloaded.errors, []);
+});
+
 test('legacy client target budgets are optional planning text on old drafts and leave amounts unchanged', t => {
   const { window, document, errors } = openBuilder(t, { hash:'#estimates' });
   const estimateBudget = document.getElementById('estimate-client-target-budget');
