@@ -7,6 +7,7 @@ import { setAuthSession } from '../utils/authFetch';
 
 jest.mock('../utils/api',()=>({requestJson:jest.fn()}));
 jest.mock('../components/CfoCashScenario',()=>()=> <section id="cash-scenario">Cash scenario calculator</section>);
+jest.mock('../components/PreconstructionScorecard',()=>({onSaved})=> <section id="preconstruction-cycle"><button onClick={onSaved}>Record cycle milestone</button></section>);
 const fixture = {
   generated_at:'2026-09-30T18:00:00.000Z',as_of:'2026-09-30',currency:'USD',
   sources:{jobs:{status:'available',message:'Saved estimates',updated_at:null},ledger:{status:'available',message:'Invoice ledger'}},
@@ -35,6 +36,13 @@ test('presents recorded receivables separately from unknown cash and estimated p
  expect(host.textContent).toContain('Estimated gross profit');expect(host.textContent).toContain('Estimates before overhead and tax.');
  expect(host.textContent).toContain('INV-1');expect(host.querySelector('a[href="/invoices"]')).not.toBeNull();
  expect(host.querySelector('#cash-scenario')).not.toBeNull();expect(window.speechSynthesis.speak).not.toHaveBeenCalled();
+});
+test('recording a preconstruction milestone refreshes the CFO briefing',async()=>{
+ await render();
+ expect(host.querySelector('#preconstruction-cycle')).not.toBeNull();
+ await act(async()=>button('Record cycle milestone').click());
+ expect(requestJson).toHaveBeenCalledTimes(2);
+ expect(requestJson.mock.calls[1][0]).toBe('/api/executive/cfo/briefing');
 });
 test('an unavailable ledger shows unknown amounts while available job estimates still appear',async()=>{
  requestJson.mockResolvedValue({...fixture,sources:{...fixture.sources,ledger:{status:'unavailable',message:'Invoice data is unavailable.'}},ledger:{...fixture.ledger,status:'unavailable',invoice_count:null,issued_count:null,draft_count:null,needs_review_count:null,due_date_missing_count:null,issued_balance_cents:null,overdue_balance_cents:null,recorded_payments_cents:null,draft_total_cents:null,known_test_payments_cents:null,overdue_invoices:[],aging:[],message:'Invoice data is unavailable.'}});

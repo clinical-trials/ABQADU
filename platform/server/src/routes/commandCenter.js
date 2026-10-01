@@ -79,7 +79,7 @@ router.put('/', async (req, res) => {
     return res.status(400).json({ error: 'Expected a command-center update object.' });
   }
   if (OWNED_FIELDS.some(key => Object.prototype.hasOwnProperty.call(req.body, key))) {
-    return res.status(400).json({ error: 'Bid requests, text replies, contact preferences, and weather holds must use their dedicated workflows.' });
+    return res.status(400).json({ error: 'Protected history must be updated through its dedicated workflow.' });
   }
   res.json(await saveCommandCenter(req.body || {}));
 });

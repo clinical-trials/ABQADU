@@ -1,9 +1,22 @@
 const createRouter = require('../asyncRouter');
 const { calculateCashScenario, CashScenarioValidationError } = require('../services/cashScenario');
+const { createPreconstructionCycleService, PreconstructionCycleError } = require('../services/preconstructionCycle');
 
-function createExecutiveRouter({ getBriefing, scenario = calculateCashScenario, env = process.env } = {}) {
+function createExecutiveRouter({ getBriefing, scenario = calculateCashScenario, cycleService, env = process.env } = {}) {
   const router = createRouter();
   const briefing = getBriefing || require('../services/cfoBriefing').createCfoBriefingService({ env });
+  const cycle = cycleService || createPreconstructionCycleService();
+
+  const handleCycle = action => async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    try { res.json(await action(req)); }
+    catch (error) {
+      const expected = error instanceof PreconstructionCycleError;
+      res.status(expected ? error.status : 503).json({ error: expected ? error.message : 'The preconstruction timing records are temporarily unavailable. Elapsed times remain unknown.' });
+    }
+  };
+  router.get('/preconstruction-cycle', handleCycle(() => cycle.getReport()));
+  router.put('/preconstruction-cycle/projects/:projectId', handleCycle(req => cycle.saveProject(req.params.projectId, req.body, req.workspaceAuth.userId)));
 
   router.get('/cfo/briefing', async (_req, res) => {
     res.set('Cache-Control', 'private, no-store');

@@ -1,5 +1,6 @@
 const fs = require('node:fs/promises');
 const { storePath } = require('./commandCenterStore');
+const { summarizePreconstructionCycle } = require('./preconstructionCycle');
 
 const TIME_ZONE = 'America/Denver';
 const QUERY_TIMEOUT_MS = 5000;
@@ -189,9 +190,12 @@ function createCfoBriefingService({
     ]).finally(() => clearTimeout(timer));
     const [saved, ledgerReadResult] = await Promise.allSettled([Promise.resolve().then(readState), ledgerRead]);
     let jobs = unavailableJobs(), ledger = unavailableLedger(), updatedAt = null;
+    let preconstructionCycle = { status: 'unavailable', narration: 'The weekly preconstruction scorecard is unavailable; contract-to-deposit hours remain unknown.' };
     if (saved.status === 'fulfilled') {
       try { jobs = summarizeJobs(saved.value); updatedAt = typeof saved.value.updated_at === 'string' && Number.isFinite(Date.parse(saved.value.updated_at)) ? saved.value.updated_at : null; }
       catch { /* Invalid or oversized sources remain unknown. */ }
+      try { preconstructionCycle = { ...summarizePreconstructionCycle(saved.value, generated), status: 'available' }; }
+      catch { /* Operational milestones fail independently from the financial ledger. */ }
     }
     if (ledgerReadResult.status === 'fulfilled') {
       try { ledger = summarizeLedger(ledgerReadResult.value?.rows, asOf); }
@@ -219,8 +223,8 @@ function createCfoBriefingService({
       generated_at: generated.toISOString(), as_of: asOf, currency: 'USD',
       sources: { jobs: { status: jobs.status, message: jobs.message, updated_at: updatedAt }, ledger: { status: ledger.status, message: ledger.message } },
       cash: { status: 'unknown', message: 'Bank cash and reconciled cash flow are not connected. Recorded payments and estimated margins do not establish the bank balance.' },
-      ledger, jobs, decisions, data_gaps: gaps(),
-      narration: `${jobSpeech} ${ledgerSpeech} Bank cash is unknown. ${decisions[0].title}. This report uses saved records and estimates; no money, messages or accounting records have been changed.`,
+      ledger, jobs, decisions, data_gaps: gaps(), preconstruction_cycle: preconstructionCycle,
+      narration: `${jobSpeech} ${ledgerSpeech} ${preconstructionCycle.narration} Bank cash is unknown. ${decisions[0].title}. This report uses saved records and estimates; no money, messages or accounting records have been changed.`,
     };
   };
 }

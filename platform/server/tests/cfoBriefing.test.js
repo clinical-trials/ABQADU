@@ -9,6 +9,23 @@ function setup({ state = { projects: [job()] }, rows = [invoice()], ...options }
   return { readState, query, report: createCfoBriefingService({ readState, query, now: () => now, ...options }) };
 }
 
+test('the weekly preconstruction KPI is unknown without recorded milestones, not a zero-hour win', async () => {
+  const { report, readState } = setup();
+  const result = await report();
+  expect(result.preconstruction_cycle).toMatchObject({ status: 'available', target: { deposit_cents: 1000000, goal_hours: 20, stretch_hours: 15 }, current_week: { count: 0, median_hours: null } });
+  expect(result.narration).toContain(result.preconstruction_cycle.narration);
+  expect(readState).toHaveBeenCalledTimes(1);
+});
+
+test('corrupt milestone history does not erase the rest of the CFO review or invent weekly results', async () => {
+  const result = await setup({ state: { projects: [job()], preconstruction_cycles: 'invalid' } }).report();
+  expect(result.jobs.count).toBe(1);
+  expect(result.ledger.issued_balance_cents).toBe(7505);
+  expect(result.preconstruction_cycle).toMatchObject({ status: 'unavailable' });
+  expect(result.preconstruction_cycle.current_week).toBeUndefined();
+  expect(result.narration).toMatch(/preconstruction.*unavailable/i);
+});
+
 test('the report calculates exact cents, Denver aging and estimate ranges without claiming bank cash', async () => {
   const { report, query } = setup();
   const result = await report();

@@ -174,7 +174,7 @@ async function loadCommandCenter() {
 
 let pendingSave = Promise.resolve();
 
-function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstructionAgreements, gisReviews, requireExisting = false, replace = false } = {}) {
+function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstructionAgreements, preconstructionCycles, gisReviews, requireExisting = false, replace = false } = {}) {
   const operation = pendingSave.then(async () => {
     const current = requireExisting
       ? withProjectReadiness(JSON.parse(await fs.readFile(storePath, 'utf8')))
@@ -195,6 +195,10 @@ function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstruct
     // fields. Preserve them through stale saves and workspace resets.
     saved.preconstruction_agreements = preconstructionAgreements ? preconstructionAgreements(current)
       : (Array.isArray(current.preconstruction_agreements) ? current.preconstruction_agreements : []);
+    // Manual timing evidence is immutable operational history, separate from
+    // signed documents and the billing ledger, including after job removal.
+    saved.preconstruction_cycles = preconstructionCycles ? preconstructionCycles(current)
+      : (current.preconstruction_cycles === undefined ? [] : current.preconstruction_cycles);
     // GIS history is server owned. Address edits atomically invalidate the
     // prior review, including edits later reverted to the original address.
     const gisHistory = gisReviews ? gisReviews(current) : current.gis_reviews;

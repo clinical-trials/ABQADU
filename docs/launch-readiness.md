@@ -55,6 +55,8 @@ These are local release checks. The live-host configuration and publishing requi
 
 ### Preconstruction continuation verification
 
+The executive desk now includes the [weekly contract-to-deposit scorecard](preconstruction-scorecard.md). It records explicit operational milestones and compares elapsed time against 20-hour and 15-hour targets; it does not establish signing, ledger payment or bank reconciliation. Latest verification: 721 backend, 397 React and 57 public checks passed. Actual provider configuration, permanent hosting and public release remain separate launch requirements.
+
 - Added the private `/preconstruction` agreement, preliminary estimate and draft fee invoice workflow, with saved revisions, conflict checks, safe retries, exact-version PDFs and activity events.
 - Full backend suite: **638 tests / 47 suites passed**. Full React suite: **309 tests / 25 suites passed**. Public website: **52 tests passed**. Production build succeeded.
 - Browser checks at **390 px and 1280 px** found no horizontal overflow or console errors. Job autofill, unresolved tax, included-tax preview, unsaved-state protection and discard/reload were checked without saving customer agreements. Save/conflict/auth/PDF behavior is covered by isolated fixtures.

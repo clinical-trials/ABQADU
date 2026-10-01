@@ -1,0 +1,49 @@
+.precon-cycle { margin-top: 1.5rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid #d9d2bf; border-top: .35rem solid #37533e; border-radius: 1rem; background: #fbf8ef; color: #203628; min-width: 0; font-size: 1rem; line-height: 1.55; scroll-margin-top: 6rem; }
+.precon-cycle *, .precon-cycle *::before, .precon-cycle *::after { box-sizing: border-box; }
+.precon-cycle h2 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; letter-spacing: -.035em; }
+.precon-cycle h3 { margin: 0 0 .75rem; font-size: 1.2rem; }
+.precon-cycle p { overflow-wrap: anywhere; }
+.precon-cycle__eyebrow { margin: 0 0 .5rem; text-transform: uppercase; letter-spacing: .12em; font-size: .8rem; font-weight: 750; color: #596547; }
+.precon-cycle__heading { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.precon-cycle__targets { display: flex; flex-wrap: wrap; gap: .5rem; }
+.precon-cycle__targets span { padding: .4rem .7rem; background: #e7ebdf; border: 1px solid #c9d2be; border-radius: 2rem; font-weight: 700; font-size: .875rem; }
+.precon-cycle__targets span + span { background: #f1e4bd; border-color: #d9c48f; }
+.precon-cycle__intro { max-width: 65ch; margin: 1rem 0; }
+.precon-cycle__notice { background: #f1ead7; border-left: .25rem solid #9d7b34; padding: .75rem 1rem; }
+.precon-cycle button, .precon-cycle input, .precon-cycle select, .precon-cycle textarea { min-height: 2.875rem; font: inherit; font-size: 1rem; max-width: 100%; }
+.precon-cycle button { padding: .65rem 1rem; color: #fff; background: #294a34; border: 1px solid #294a34; border-radius: .5rem; cursor: pointer; font-weight: 650; }
+.precon-cycle button.precon-cycle__secondary { color: #294a34; background: #fffdf8; border-color: #86937f; }
+.precon-cycle button:disabled { opacity: .6; cursor: default; }
+.precon-cycle :focus-visible { outline: 3px solid #9c721c; outline-offset: 3px; }
+.precon-cycle input, .precon-cycle select, .precon-cycle textarea { width: 100%; min-width: 0; padding: .65rem .7rem; border: 1px solid #87917e; border-radius: .4rem; background: #fff; color: #203628; }
+.precon-cycle textarea { resize: vertical; }
+.precon-cycle label { display: block; margin-bottom: .45rem; font-weight: 650; }
+.precon-cycle__stats { display: grid; grid-template-columns: minmax(0, 1fr); gap: .75rem; margin: 1.25rem 0; }
+.precon-cycle__stats > div { padding: 1rem; border: 1px solid #d7dccf; border-radius: .7rem; background: #fffdf8; min-width: 0; }
+.precon-cycle__stats dt { font-weight: 650; }
+.precon-cycle__stats dd { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 750; margin: .4rem 0; letter-spacing: -.035em; line-height: 1.2; }
+.precon-cycle__stats p { margin: .45rem 0 0; font-size: .875rem; color: #53614c; }
+.precon-cycle__open { display: flex; flex-direction: column; gap: .3rem; padding: 1rem; border-radius: .5rem; background: #e7eddf; }
+.precon-cycle__open--late { background: #f5e5cb; border-left: .25rem solid #a16125; }
+.precon-cycle__muted { color: #55614f; font-size: .875rem; }
+.precon-cycle summary { min-height: 2.875rem; padding: .6rem 0; cursor: pointer; font-weight: 650; }
+.precon-cycle__table-scroll { overflow-x: auto; max-width: 100%; }
+.precon-cycle table { border-collapse: collapse; width: 100%; font-size: .875rem; }
+.precon-cycle caption { padding: .75rem; text-align: left; color: #55614f; }
+.precon-cycle th, .precon-cycle td { padding: .75rem; text-align: left; border-bottom: 1px solid #d7dccf; white-space: nowrap; }
+.precon-cycle__job { max-width: 42rem; margin: 1.5rem 0 1rem; }
+.precon-cycle__editor { border-top: 1px solid #cbd3c1; margin-top: 1.5rem; padding-top: 1.5rem; }
+.precon-cycle__editor fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.precon-cycle__date-fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.precon-cycle__field button { margin-top: .5rem; }
+.precon-cycle__actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
+.precon-cycle__error { color: #792e1d; background: #f9e8df; padding: .75rem 1rem; border-left: .25rem solid #a64e30; }
+.precon-cycle__success { padding: .75rem 1rem; background: #e7eddf; }
+.precon-cycle__status { font-weight: 650; }
+.precon-cycle__recovery textarea { font-size: 1rem; }
+.precon-cycle a { color: #294a34; text-decoration: underline; text-underline-offset: .15em; }
+.precon-cycle .briefing-audio { margin-top: 1rem; }
+.precon-cycle .helper-buttons { display: flex; flex-wrap: wrap; gap: .5rem; }
+.precon-cycle__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (min-width: 640px) { .precon-cycle__stats, .precon-cycle__date-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1200px) { .precon-cycle__stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

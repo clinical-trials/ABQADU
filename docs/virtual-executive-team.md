@@ -9,6 +9,8 @@ The owner asked for a virtual CFO as the foundation of a company executive team.
 - **Operations:** existing Project Helper, construction schedule, crew weather and risk tools. Dedicated company-wide operations reasoning is future work.
 - **Sales:** existing customer estimates and trade bids. Dedicated sales forecasting and follow-up automation are future work.
 
+The executive desk also includes the [weekly contract-to-$10,000 scorecard](preconstruction-scorecard.md): manually recorded signing and full-deposit receipt times, a 20-hour goal, a 15-hour stretch target, eight weeks of comparisons, and open-job clocks. These operational milestones are separate from ledger payments and bank cash. They feed the CFO's spoken briefing.
+
 These are advisory workspaces, not autonomous employees or new authentication roles. The existing approved-staff access boundary applies. This release does not send messages, change payment records, move money, change schedules or connect bank accounts.
 
 ## Current implementation scope

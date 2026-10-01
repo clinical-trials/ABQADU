@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { requestJson } from '../utils/api';
 import { getAuthSession, isAuthSessionCurrent, subscribeAuthSession } from '../utils/authFetch';
 import BriefingAudio from '../components/BriefingAudio';
 import CfoCashScenario from '../components/CfoCashScenario';
+import PreconstructionScorecard from '../components/PreconstructionScorecard';
 import './ExecutiveTeam.css';
 
 const money = cents => Number.isSafeInteger(cents) ? (cents / 100).toLocaleString('en-US',{style:'currency',currency:'USD'}) : 'Unknown';
@@ -81,6 +82,7 @@ export default function ExecutiveTeam() {
   const authorized=isAuthSessionCurrent(owner);
   const [report,setReport]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(true),[refresh,setRefresh]=useState(0);
   const cfo=useRef(null);
+  const refreshAfterMilestone=useCallback(()=>setRefresh(value=>value+1),[]);
   useEffect(()=>{
     const controller=new AbortController();
     setReport(null);setError('');setLoading(true);
@@ -98,6 +100,7 @@ export default function ExecutiveTeam() {
       <Link className="executive-role" to="/command-center#project-helper"><span>COO</span><div><b>Operations</b><p>Schedule · weather · crew priorities</p><small>Open project tools →</small></div></Link>
       <Link className="executive-role" to="/bids"><span>Sales</span><div><b>Growth</b><p>Customer estimates · bid review</p><small>Open estimate tools →</small></div></Link>
     </nav>
+    <PreconstructionScorecard onSaved={refreshAfterMilestone}/>
     <section className="executive-finance" id="cfo" aria-label="CFO financial review" ref={cfo} tabIndex={-1}>
       <div className="executive-refresh"><span className="executive-muted">Review the company’s saved financial picture.</span><button disabled={loading} onClick={()=>setRefresh(value=>value+1)}>{loading?'Reading financial records…':'Refresh financial review'}</button></div>
       {loading && <p role="status">Checking invoice balances, job estimates and missing financial inputs…</p>}
@@ -105,6 +108,6 @@ export default function ExecutiveTeam() {
       {report && <FinanceReport report={report}/>}
     </section>
     <CfoCashScenario/>
-    <footer className="executive-footer"><b>A practical weekly rhythm</b><p>Review collections → check job costs → test cash timing → choose the next action. The owner confirms commitments. Operations and sales currently open their existing tools; dedicated company-wide agents are future work.</p></footer>
+    <footer className="executive-footer"><b>A practical weekly rhythm</b><p>Beat last week’s contract-to-deposit time → review collections → check job costs → test cash timing → choose the next action. The owner confirms commitments. Operations and sales currently open their existing tools; dedicated company-wide agents are future work.</p></footer>
   </main>;
 }

@@ -72,6 +72,12 @@ test('approved staff create a saved, referenced bid draft without marking it sen
   expect(row).not.toHaveProperty('sent_at');
 });
 
+test('generic job updates cannot replace the contract-to-deposit audit history', async () => {
+  const response = await staff('put', '/api/command-center', { preconstruction_cycles: [] });
+  expect(response.status).toBe(400);
+  expect((await store.loadCommandCenter()).preconstruction_cycles).toBeUndefined();
+});
+
 test.each([
   ['bad phone', { contact_phone: 'not-a-phone' }],
   ['missing scope', { scope: '' }],
