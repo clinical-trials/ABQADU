@@ -6871,6 +6871,7 @@ const ADU_MATCHER_QUESTIONS = [
     label: 'What matters most to you?',
     scoring: false,
     options: [
+      { value: 'budget', label: 'Staying on budget', desc: 'Keep costs predictable and upgrades within reach' },
       { value: 'light', label: 'Natural light', desc: 'Big windows, bright spaces' },
       { value: 'outdoor', label: 'Indoor-outdoor flow', desc: 'Decks, sliders, garden views' },
       { value: 'finishes', label: 'Premium finishes', desc: 'The details you touch daily' },
@@ -6911,6 +6912,7 @@ const ADU_LOT_LIMITS = {
 };
 
 const ADU_PRIORITY_GUIDANCE = {
+  budget: ['Start with the included package and price optional upgrades separately before deciding.', 'Review site work, utilities, permit costs, and a contingency with the builder against your total budget.'],
   light: ['Consider the standard window package first, then price larger openings carefully.', 'If you add openings larger than 3 ft in either direction, builder review may flag added engineering burden.'],
   outdoor: ['Use orientation and outdoor-space steps to protect privacy from the main house.', 'A covered portal or private courtyard can improve daily use, but should be checked against setbacks.'],
   finishes: ['Start with the included kitchen, bath, HVAC, and laundry package, then upgrade only the surfaces that matter most.', 'Premium counters, flooring, tile, and cabinets should be priced as named allowances for a cleaner bid.'],
