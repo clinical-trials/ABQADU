@@ -1311,7 +1311,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
         <p class="muted" id="bid-invoice-target-budget" style="margin-bottom:12px">Client target budget (planning only): Not provided</p>
         <div class="invoice-deposit-banner">
           <b>Invoice 1: $10,000 Preconstruction</b>
-          <span>This first invoice is fixed. It starts the pre-construction contract, proper bid work, ordinance checks, site planning, design coordination, subcontractor bid pulls, and permitting preparation.</span>
+          <span>New schedules credit this deposit toward the bid total, then split the remaining balance into 50%, 25%, and 25% draws. Review milestone dates before sending. Saved invoice amounts remain unchanged.</span>
         </div>
         <button class="invoice-job-card" type="button" onclick="focusInvoicePacket()" aria-label="Open invoice packet for this job">
           <div class="invoice-blueprint" aria-hidden="true">
@@ -3009,7 +3009,7 @@ const BID_QUIZ_STEPS = [
   {title:'2. Bid confidence',prompt:'How likely is this job to close, and what is blocking the bid from being ready to send?',target:'.confidence-panel',action:'confidence',actionLabel:'Grade the lead'},
   {title:'3. COGS',prompt:'What are the real builder costs? Add one line, or tap a bundle to move faster.',target:'.quick-cogs',action:'cogs',actionLabel:'Add COGS line'},
   {title:'4. Review',prompt:'Do utilities, engineering, sewer confirmation study, or missing site data need attention before sending?',target:'#bid-review-callout',action:'review',actionLabel:'Review risk flags'},
-  {title:'5. Invoices',prompt:'Build the 90-day draw schedule. Invoice 1 is always the $10,000 pre-construction deposit.',target:'#invoice-card',action:'invoices',actionLabel:'Build invoices'},
+  {title:'5. Invoices',prompt:'Build four invoices: a $10,000 deposit credited toward the bid, then 50%, 25%, and 25% of the remaining balance. Review suggested milestone dates.',target:'#invoice-card',action:'invoices',actionLabel:'Build invoices'},
 ];
 function bidQuizCompletion(step,t){
   const hasSetup=Boolean(bid.title && bid.client && bid.address && hasSelectedModel(bid.model) && (+bid.sqft||0)>0);
@@ -3283,25 +3283,41 @@ function renderReviewCallout(t){
 
 function buildInvoicePacket(showAlert=true){
   syncBidFromInputs();
-  if(invoices.length){
-    if(!showAlert)return true;
-    if(!confirm('Replace the existing draw schedule? Your edits and payment records will be lost.'))return false;
+  if(invoices.length && !showAlert)return true;
+  const totalCents=Math.round(bidTotals().total*100);
+  const depositCents=PRECON_DEPOSIT*100;
+  const remainingCents=totalCents-depositCents;
+  const startCents=Math.round(remainingCents*.5);
+  const progressCents=Math.round(remainingCents*.25);
+  const finalCents=remainingCents-startCents-progressCents;
+  if(!Number.isSafeInteger(totalCents) || totalCents<=depositCents || [startCents,progressCents,finalCents].some(amount=>!Number.isSafeInteger(amount)||amount<=0)){
+    const message='A four-invoice schedule needs a valid bid total above $10,000 with enough remaining balance for three positive draws. Existing invoices were left unchanged.';
+    setBidSaveStatus(message);
+    if(showAlert)alert(message);
+    return false;
   }
-  const t=bidTotals();
-  const cityPermitDraw=Math.round(t.total*.5*100)/100;
-  const progressDraw=Math.max(0,Math.round((t.total-PRECON_DEPOSIT-cityPermitDraw)*100)/100);
+  if(invoices.length){
+    if(invoices.some(invoice=>invoice.status!=='draft' || Number(invoice.paid||0)!==0)){
+      const message='This schedule has recorded payments or invoices beyond draft status. Keep its history and review changes individually; it cannot be replaced.';
+      setBidSaveStatus(message);
+      if(showAlert)alert(message);
+      return false;
+    }
+    if(!confirm('Replace this unpaid draft schedule with four invoices? The existing draft amounts, descriptions, and dates will be replaced.'))return false;
+  }
   const draws=[
-    ['deposit','Pre-construction contract + city permitting deposit',PRECON_DEPOSIT,0],
-    ['permit','City permitting complete / construction start draw — 50% of total bid',cityPermitDraw,19],
-    ['progress','Progress draw — remaining construction balance',progressDraw,45],
+    ['deposit','Preconstruction deposit — credited toward the total bid',depositCents,0],
+    ['permit','Construction start — 50% of remaining balance after the $10,000 deposit',startCents,14],
+    ['progress','Progress draw — 25% of remaining balance after the $10,000 deposit',progressCents,45],
+    ['final','Final draw — 25% of remaining balance after the $10,000 deposit; final cent adjustment',finalCents,75],
   ];
   invoices=draws.map((d,i)=>({num:`INV-2026-${String(i+1).padStart(4,'0')}`,
-    type:d[0],desc:d[1],amount:Math.round(d[2]*100)/100,paid:0,status:'draft',sendDate:isoDateFromOffset(d[3])}));
+    type:d[0],desc:d[1],amount:d[2]/100,paid:0,status:'draft',sendDate:isoDateFromOffset(d[3])}));
   invoiceFolderOpen=true;
   store.set('invoiceFolderOpen', invoiceFolderOpen);
   renderBid();
   focusInvoicePacket(false);
-  if(showAlert)alert(`Invoice packet created for this job. Invoice 1 is fixed at ${fmt(PRECON_DEPOSIT)}, invoice 2 is 50% of the bid, and invoice 3 is the remaining draw.`);
+  if(showAlert)alert(`Four draft invoices created. The ${fmt(PRECON_DEPOSIT)} deposit is credited toward the bid, followed by 50%, 25%, and 25% of the remaining balance. The final draw absorbs rounding to reconcile exactly. Review suggested send dates before use.`);
   return true;
 }
 function acceptBid(){
@@ -3310,7 +3326,6 @@ function acceptBid(){
 const INV_STATUS={draft:['#F3F4F6','#6B7280'],sent:['#DBEAFE','#1E40AF'],paid:['#D1FAE5','#065F46'],overdue:['#FEE2E2','#B91C1C']};
 function renderInvoices(){
   const tb=$('#invoice-rows');tb.innerHTML='';
-  if(invoices.length)invoices[0].amount=PRECON_DEPOSIT;
   $('#no-invoices').style.display=invoices.length?'none':'block';
   $('#add-draw-btn').style.display=invoices.length?'inline-block':'none';
   renderInvoiceFolderState();
@@ -3327,7 +3342,7 @@ function renderInvoices(){
     tr.innerHTML=`<td style="font-weight:600">${v.num}</td>
       <td><input class="send-date-input" type="date" value="${v.sendDate}" onchange="editInv(${i},'sendDate',this.value)"><span class="send-date-note">suggested: ${shortDate(v.sendDate)}</span></td>
       <td><input value="${(v.desc||'').replace(/"/g,'&quot;')}" onchange="editInv(${i},'desc',this.value)"></td>
-      <td><input class="r" type="number" step="0.01" min="0" value="${v.amount}" ${amountLocked?'readonly title="Invoice 1 is always the $10,000 pre-construction deposit"':''} onchange="editInv(${i},'amount',this.value)"><span class="invoice-percent">${invoicePct(v.amount,t.total)}% of bid</span></td>
+      <td><input class="r" type="number" step="0.01" min="0" value="${v.amount}" ${amountLocked?'readonly title="The first saved invoice amount is preserved"':''} onchange="editInv(${i},'amount',this.value)"><span class="invoice-percent">${invoicePct(v.amount,t.total)}% of bid</span></td>
       <td class="r"><div class="invoice-pay-cell"><span style="color:var(--sage);font-weight:800">${fmt(v.paid)}</span><span class="payment-badge ${pay.kind}">${pay.label}</span><span class="payment-note">${v.paidAt?`documented ${shortDate(v.paidAt)}`:'not documented yet'}</span></div></td>
       <td class="r" style="font-weight:600;color:${bal>0?'var(--terra)':'var(--sage)'}">${fmt(bal)}</td>
       <td><select style="background:${sc[0]};color:${sc[1]}" onchange="editInv(${i},'status',this.value)">
@@ -3361,7 +3376,7 @@ function toggleInvoiceFolder(){
 function renderInvoiceJobCard(){
   const t=bidTotals();
   const packet=invoicePacketTotals();
-  const first=invoices[0]?.amount || PRECON_DEPOSIT;
+  const first=invoices[0]?.amount ?? PRECON_DEPOSIT;
   const img=$('#invoice-job-image');
   if(img) img.src=MODEL_IMAGES[bid.model] || 'images/v5-site-photos/real-adu-lower-exterior.jpg';
   const bp=$('#invoice-blueprint-label');
@@ -3370,7 +3385,7 @@ function renderInvoiceJobCard(){
   if(title) title.textContent=bid.title || `${bid.model} ADU`;
   const meta=$('#invoice-job-meta');
   if(meta) meta.textContent=invoices.length
-    ? `${bid.client || 'Client'} · ${bid.address || 'address needed'} · invoice 1 ${fmt(first)} · invoice 2 is 50% · invoice 3 is the remaining draw`
+    ? `${bid.client || 'Client'} · ${bid.address || 'address needed'} · ${invoices.length} invoices · invoice 1 ${fmt(first)} · review saved amounts and dates below`
     : `${bid.client || 'Client'} · ${bid.address || 'address needed'} · click Build invoices for current job to create editable invoices.`;
   const dep=$('#invoice-job-deposit');
   if(dep) dep.textContent=fmt0(first);
@@ -3532,8 +3547,9 @@ function buildBidPrintDocument(){
       </table>
     </div>
     <div class="print-doc-section">
-      <h3>Invoice 1 Fixed Preconstruction Deposit</h3>
-      <div><b>Invoice 1 is always ${fmt(PRECON_DEPOSIT)}.</b> This is the preconstruction contract deposit for proper bid work, ordinance checks, site planning, design coordination, subcontractor bid pulls, and permitting preparation.</div>
+      <h3>Invoice Schedule Notes</h3>
+      <div><b>${invoices.length ? `First saved invoice: ${fmt(invoices[0].amount)}.` : 'No invoices generated yet.'}</b> The table below shows the saved schedule.</div>
+      <div>New schedules credit a ${fmt(PRECON_DEPOSIT)} preconstruction deposit toward the bid total, then split the remaining balance into 50%, 25%, and 25% draws. The final draw absorbs cent rounding. Suggested dates require project review.</div>
     </div>
     <div class="print-doc-section">
       <h3>Draw Schedule and Invoices</h3>
@@ -3654,7 +3670,7 @@ function openBuilderPrintDocument(title, subtitle, bodyHtml, fallbackPanelId='',
 function editInv(i,k,v){
   const inv=invoices[i];
   if(k==='amount'){
-    if(i===0){inv.amount=PRECON_DEPOSIT;renderBid();return}
+    if(i===0){renderBid();return}
     let amt=Math.round((+v||0)*100)/100;
     if(amt<inv.paid){
       alert(`Amount can't go below what's already collected on ${inv.num} (${fmt(inv.paid)}).`);
@@ -3748,13 +3764,13 @@ function emailInvoicePacket(){
 Project: ${bid.title || ''}
 Address: ${bid.address || ''}
 Bid total: ${fmt(t.total)}
-Invoice 1 fixed deposit: ${fmt(PRECON_DEPOSIT)} (${invoicePct(PRECON_DEPOSIT,t.total)}%)
+Invoice 1 saved amount: ${fmt(first.amount)} (${invoicePct(first.amount,t.total)}%)
 
 Invoice:
 ${first.num}: send ${shortDate(first.sendDate)} - ${first.desc} - ${fmt(first.amount)} (${invoicePct(first.amount,t.total)}% of bid), ${pay.label.toLowerCase()} ${fmt(first.paid)}${first.paidAt ? ` documented ${shortDate(first.paidAt)}` : ''}, status ${first.status}
 
 Preconstruction contract note:
-This first invoice is the $10,000 preconstruction deposit. The deposit starts proper bidding, ordinance checks, site planning, design coordination, subcontractor bid pulls, and permitting preparation for the homeowner project.
+New schedules credit a $10,000 preconstruction deposit toward the bid total, then split the remaining balance 50% / 25% / 25%. The saved first invoice above controls this summary. Preconstruction covers bid work, site planning, design coordination, and permitting preparation.
 
 Version 10 plan: after contractor approval, send this same individual invoice summary by SMS with payment links, weather context, and schedule impact notes.`);
   window.location.href=`mailto:${INVOICE_PACKET_TO}?subject=${subject}&body=${body}`;
@@ -4943,7 +4959,7 @@ Client: ${bid.client || 'Client name needed'}
 Address: ${bid.address || 'Address needed'}
 Model: ${bid.model || 'Model needed'}
 Bid total: ${fmt(totals.total)}
-Invoice 1: ${fmt(PRECON_DEPOSIT)} preconstruction contract, send ${first ? shortDate(first.sendDate) : 'ASAP'}
+Invoice 1: ${fmt(first?.amount ?? PRECON_DEPOSIT)} saved amount, send ${first ? shortDate(first.sendDate) : 'ASAP'}
 Lowe's packet: ${cart.modelName || bid.model || 'model'} · ${cart.packageName || selectedLowesPackage().label}
 Lowe's estimate: ${fmt(lowesCost)} (${cartCost.quotedCount ? 'quoted lines included' : 'budget takeoff'})
 Quote status: ${cart.status || 'draft'}

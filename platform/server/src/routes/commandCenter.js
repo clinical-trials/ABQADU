@@ -15,6 +15,7 @@ const {
   createClientViewPreview,
   createInvoiceDrafts,
   getReadinessLabel,
+  validateSavedSchedules,
 } = require('../services/estimateEngine');
 
 function findProject(state, projectId) {
@@ -151,21 +152,28 @@ router.post('/projects/:projectId/apply-model', async (req, res) => {
 });
 
 router.post('/projects/:projectId/invoice-drafts', async (req, res) => {
-  const state = await loadCommandCenter();
-  const project = findProject(state, req.params.projectId);
-  if (!project) return res.status(404).json({ error: 'Project not found' });
-
-  const invoiceDrafts = createInvoiceDrafts(project);
-  const drawSchedule = buildDrawSchedule(project);
-  const { projects } = updateProject(state, req.params.projectId, item => ({
-    ...item,
-    invoice_drafts: invoiceDrafts,
-    draw_schedule: drawSchedule,
-    readiness_label: getReadinessLabel(item, state),
-    metrics: calculateProjectMetrics(item),
-  }));
-
-  res.status(201).json(await saveCommandCenter({ projects }));
+  let created = false;
+  try {
+    const state = await saveCommandCenter(current => {
+      const project = findProject(current, req.params.projectId);
+      if (!project) throw Object.assign(new Error('Project not found'), { status: 404 });
+      validateSavedSchedules(project);
+      // Returning the saved set also protects older schedules and concurrent retries.
+      if (project.invoice_drafts?.length || project.draw_schedule?.length) return null;
+      const invoiceDrafts = createInvoiceDrafts(project);
+      const drawSchedule = buildDrawSchedule(project);
+      const { projects } = updateProject(current, req.params.projectId, item => ({
+        ...item, invoice_drafts: invoiceDrafts, draw_schedule: drawSchedule,
+        readiness_label: getReadinessLabel(item, current), metrics: calculateProjectMetrics(item),
+      }));
+      created = true;
+      return { projects };
+    }, { requireExisting: true });
+    res.status(created ? 201 : 200).json(state);
+  } catch (error) {
+    if ([400, 404, 409].includes(error.status)) return res.status(error.status).json({ error: error.message });
+    throw error;
+  }
 });
 
 router.get('/projects/:projectId/client-view-preview', async (req, res) => {
@@ -173,7 +181,11 @@ router.get('/projects/:projectId/client-view-preview', async (req, res) => {
   const project = findProject(state, req.params.projectId);
   if (!project) return res.status(404).json({ error: 'Project not found' });
 
-  res.json(createClientViewPreview(project, state));
+  try { res.json(createClientViewPreview(project, state)); }
+  catch (error) {
+    if (error.status === 409) return res.status(409).json({ error: error.message });
+    throw error;
+  }
 });
 
 router.get('/projects/:projectId/client-packet.pdf', async (req, res) => {
@@ -195,7 +207,8 @@ router.get('/projects/:projectId/client-packet.pdf', async (req, res) => {
       'X-Content-Type-Options': 'nosniff',
     });
     res.send(pdf);
-  } catch {
+  } catch (error) {
+    if (error.status === 409) return res.status(409).json({ error: error.message });
     res.status(503).json({ error: 'Packet PDF is temporarily unavailable. Try again; if this continues, check that the server has Puppeteer Chromium installed.' });
   }
 });

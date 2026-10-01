@@ -72,7 +72,7 @@ test('invoice drafts always start with ten thousand dollar preconstruction invoi
 
   expect(drafts[0].label).toBe('Invoice 1: $10,000 Preconstruction');
   expect(drafts[0].amount).toBe(10000);
-  expect(drafts[1].amount).toBe(92500);
+  expect(drafts.map(draw => draw.amount)).toEqual([10000, 87500, 43750, 43750]);
   expect(drafts[2].label).toContain('Draw');
   expect(draws.reduce((sum, draw) => sum + draw.amount, 0)).toBe(185000);
 });

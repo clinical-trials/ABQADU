@@ -226,6 +226,7 @@ export default function BidBuilder() {
               </div>
 
               {/* Actions */}
+              <p style={{ fontSize: 14, lineHeight: 1.5 }}>New draw schedule: $10,000 credited toward the bid total, then 50% / 25% / 25% of the remaining balance. Four invoices; existing schedules are preserved.</p>
               <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
                 <button onClick={save} disabled={saving} style={{ background: '#3D5247', color: '#FFF', border: 'none', borderRadius: 4, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                   {saving ? 'Saving…' : 'Save Bid'}

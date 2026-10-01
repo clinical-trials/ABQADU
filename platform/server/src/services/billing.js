@@ -10,6 +10,7 @@ class BillingError extends Error {
 const fail = (status, message) => { throw new BillingError(status, message); };
 const ACTIVE = "('creating','open','processing')";
 const SUPPORTED_EVENTS = new Set(['checkout.session.completed', 'checkout.session.async_payment_succeeded', 'checkout.session.async_payment_failed', 'checkout.session.expired']);
+const BID_SCHEDULE_POLICY = { schedule_version: 2, preconstruction_fee_treatment: 'credited' };
 
 // Parse exact decimal currency rather than rounding caller-supplied fractions.
 function cents(value, allowZero = false) {
@@ -88,32 +89,44 @@ function createBillingService({ pool = defaultPool, stripe: injectedStripe, conf
       // quoted semantics belong in the fingerprint, not IDs, timestamps/status.
       const quotedItems = items.map(item => ({ category: item.category || '', description: item.description,
         qty: Number(item.qty), unit: item.unit || '', unit_cost: Number(item.unit_cost), sort_order: Number(item.sort_order) }));
-      const fingerprint = crypto.createHash('sha256').update(JSON.stringify({ bid: quotedBid, items: quotedItems })).digest('hex');
-      const sourceKeys = Array.from({ length: 5 }, (_, index) => JSON.stringify(['bid-schedule', String(bid.id), index + 1]));
+      const legacyFingerprint = crypto.createHash('sha256').update(JSON.stringify({ bid: quotedBid, items: quotedItems })).digest('hex');
+      const fingerprint = crypto.createHash('sha256').update(JSON.stringify({ bid: quotedBid, items: quotedItems, schedule: BID_SCHEDULE_POLICY })).digest('hex');
+      const legacyKeys = Array.from({ length: 5 }, (_, index) => JSON.stringify(['bid-schedule', String(bid.id), index + 1]));
+      const sourceKeys = Array.from({ length: 4 }, (_, index) => JSON.stringify(['bid-schedule-v2', String(bid.id), index + 1]));
       const existing = (await client.query('SELECT * FROM invoices WHERE bid_id=$1 ORDER BY id FOR UPDATE', [bid.id])).rows;
       if (existing.length) {
         const bySource = new Map(existing.map(row => [row.source_key, row]));
-        if (existing.length !== sourceKeys.length || sourceKeys.some(key => !bySource.has(key))) fail(409, 'This bid already has legacy, additional, or incomplete invoices. Review and reconcile them before creating a draw schedule.');
-        if (existing.some(row => row.source_fingerprint !== fingerprint)) fail(409, 'Bid terms changed after the draw schedule was created. Review the existing invoices before issuing a revised schedule.');
+        const legacy = existing.length === legacyKeys.length && legacyKeys.every(key => bySource.has(key));
+        const current = existing.length === sourceKeys.length && sourceKeys.every(key => bySource.has(key))
+          && existing.every(row => row.source_snapshot?.schedule_version === BID_SCHEDULE_POLICY.schedule_version
+            && row.source_snapshot?.preconstruction_fee_treatment === BID_SCHEDULE_POLICY.preconstruction_fee_treatment);
+        if (!legacy && !current) fail(409, 'This bid already has legacy, additional, or incomplete invoices. Review and reconcile them before creating a draw schedule.');
+        if (existing.some(row => row.source_fingerprint !== (legacy ? legacyFingerprint : fingerprint))) fail(409, 'Bid terms changed after the draw schedule was created. Review the existing invoices before issuing a revised schedule.');
         const result = [];
-        for (const key of sourceKeys) {
+        // Existing schedules keep their original count, terms and payment ledger.
+        // Recognize them before applying the new minimum-total requirements.
+        for (const key of legacy ? legacyKeys : sourceKeys) {
           const invoice = bySource.get(key);
           result.push(ledgerInvoice(invoice, money(await paidCents(client, invoice.id))));
         }
         return result;
       }
       const total = cents(computeBidTotals(items, bid).total);
-      const draws = buildDrawSchedule(Number(money(total)));
-      // Allocate the rounding remainder to the final draw so the schedule sums
-      // exactly to the quoted total, including bids with fractional dollars.
-      const drawCents = draws.map(draw => cents(draw.amount, true));
-      drawCents[drawCents.length - 1] = total - drawCents.slice(0, -1).reduce((sum, amount) => sum + amount, 0);
-      if (drawCents.some(amount => amount < 0)) fail(400, 'The bid amount cannot produce a valid draw schedule.');
+      let draws;
+      try { draws = buildDrawSchedule(money(total)); }
+      catch (error) {
+        if (error.status === 400) fail(400, error.message);
+        throw error;
+      }
+      // The shared builder allocates the final cent remainder after crediting
+      // preconstruction; no invoice can be zero or exceed the quoted total.
+      const drawCents = draws.map(draw => cents(draw.amount));
+      if (draws.length !== sourceKeys.length || drawCents.reduce((sum, amount) => sum + amount, 0) !== total) fail(400, 'The bid amount cannot produce a valid draw schedule.');
       const created = [];
       for (const [index, draw] of draws.entries()) {
         const id = (await client.query("SELECT nextval(pg_get_serial_sequence('invoices','id')) AS id")).rows[0].id;
         const amount = money(drawCents[index]);
-        const snapshot = { source: 'bid-schedule', bid: quotedBid, items: quotedItems, total: money(total), draw_index: index + 1, draw: { ...draw, amount } };
+        const snapshot = { source: 'bid-schedule', ...BID_SCHEDULE_POLICY, bid: quotedBid, items: quotedItems, total: money(total), draw_index: index + 1, draw: { ...draw, amount } };
         const { rows } = await client.query(`INSERT INTO invoices(id,bid_id,client_id,project_id,invoice_number,draw_type,description,amount,source_key,source_fingerprint,source_snapshot)
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
         [id, bid.id, bid.client_id, bid.project_id, `BD-${id}`, draw.draw_type, draw.description, amount, sourceKeys[index], fingerprint, snapshot]);

@@ -51,7 +51,8 @@ test('opens an inline, private PDF from the saved project with the complete clie
   expect(html).toContain('Altura 650');
   expect(html).toContain('650 sq ft');
   expect(html).toContain('$185,000');
-  for (const amount of ['$10,000', '$92,500', '$46,250', '$36,250']) expect(html).toContain(amount);
+  for (const amount of ['$10,000', '$87,500', '$43,750']) expect(html).toContain(amount);
+  expect(html.match(/class="stage-amount"/g)).toHaveLength(4);
   expect(html).toContain('Final payment tied to punch list');
   expect(html).toContain('not a request for payment');
   expect(html).not.toMatch(/123456|112233|PRIVATE BUILDER MEMO|PRIVATE MARGIN/);

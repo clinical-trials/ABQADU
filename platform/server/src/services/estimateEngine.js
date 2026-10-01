@@ -1,5 +1,6 @@
 const { MODEL_CATALOG, getModelById, getModelByName } = require('./modelCatalog');
 const { utilitySummary } = require('./gisReview');
+const { buildFourInvoiceSchedule } = require('./drawSchedule');
 
 function numeric(value) {
   const parsed = Number(value);
@@ -70,46 +71,26 @@ function applyModelDefaults(project = {}, modelIdOrName, state = {}) {
 }
 
 function buildDrawSchedule(project = {}) {
-  const total = numeric(project.bid_total);
-  const preconstruction = Math.min(10000, total);
-  const mobilization = Math.round(total * 0.5);
-  const dryIn = Math.round(total * 0.25);
-  const finalDraw = Math.max(total - preconstruction - mobilization - dryIn, 0);
-
-  return [
-    {
-      id: `draw-${project.id || 'project'}-1`,
-      label: 'Invoice 1: $10,000 Preconstruction',
-      amount: preconstruction,
-      suggested_send_day: 0,
-      status: 'Draft',
-      notes: 'Due with signed preconstruction contract.',
-    },
-    {
-      id: `draw-${project.id || 'project'}-2`,
-      label: 'Invoice 2: 50% Contract Mobilization',
-      amount: mobilization,
-      suggested_send_day: 14,
-      status: 'Draft',
-      notes: 'Send after final contract approval and permit pathway confirmation.',
-    },
-    {
-      id: `draw-${project.id || 'project'}-3`,
-      label: 'Invoice 3: Dry-In Draw',
-      amount: dryIn,
-      suggested_send_day: 45,
-      status: 'Draft',
-      notes: 'Draw payment tied to dry-in and field progress.',
-    },
-    {
-      id: `draw-${project.id || 'project'}-4`,
-      label: 'Invoice 4: Final Draw',
-      amount: finalDraw,
-      suggested_send_day: 75,
-      status: 'Draft',
-      notes: 'Final payment tied to punch list, inspection closeout, and handoff.',
-    },
+  const labels = [
+    'Invoice 1: $10,000 Preconstruction',
+    'Invoice 2: 50% Remaining Balance — Mobilization',
+    'Invoice 3: 25% Remaining Balance — Dry-In Draw',
+    'Invoice 4: 25% Remaining Balance — Final Draw',
   ];
+  const milestones = [
+    '',
+    'Send after final contract approval and permit pathway confirmation.',
+    'Draw payment tied to dry-in and field progress.',
+    'Final payment tied to punch list, inspection closeout, and handoff.',
+  ];
+  return buildFourInvoiceSchedule(project.bid_total).map((draw, index) => ({
+    id: `draw-${project.id || 'project'}-${index + 1}`,
+    label: labels[index], amount: draw.amount,
+    suggested_send_day: draw.suggested_send_day, status: 'Draft',
+    notes: index === 0
+      ? 'Preconstruction deposit credited toward the project total. Due with the signed preconstruction contract.'
+      : `${milestones[index]} Percentage applies to the balance after the $10,000 deposit; confirm the milestone before issuing.`,
+  }));
 }
 
 function createInvoiceDrafts(project = {}) {
@@ -123,7 +104,31 @@ function createInvoiceDrafts(project = {}) {
   }));
 }
 
+function validateSavedSchedules(project) {
+  for (const field of ['invoice_drafts', 'draw_schedule']) {
+    const rows = project[field];
+    if (rows == null) continue;
+    const valid = Array.isArray(rows) && rows.every(row => row && typeof row === 'object' && !Array.isArray(row)
+      && (row.id == null || typeof row.id === 'string' || (typeof row.id === 'number' && Number.isFinite(row.id)))
+      && (typeof row.amount === 'number' || (typeof row.amount === 'string' && /^\d+(?:\.\d{1,2})?$/.test(row.amount)))
+      && Number.isFinite(Number(row.amount)) && Number(row.amount) >= 0
+      && ['label', 'stage', 'status', 'notes'].every(key => row[key] == null || typeof row[key] === 'string')
+      && (row.suggested_send_day == null || (typeof row.suggested_send_day === 'number' && Number.isFinite(row.suggested_send_day))));
+    if (!valid) throw Object.assign(new Error('The saved schedule needs review before preparing or previewing invoices.'), { status: 409 });
+  }
+}
+
 function createClientViewPreview(project = {}, state = {}) {
+  validateSavedSchedules(project);
+  // A preview must reflect saved payment terms, even after generator defaults change.
+  const publicDraw = ({ id, label, stage, amount, suggested_send_day, status, notes }) => ({ id, label: label || stage, amount, suggested_send_day, status, notes });
+  const savedDrafts = Array.isArray(project.invoice_drafts) && project.invoice_drafts.length ? project.invoice_drafts.map(publicDraw) : null;
+  const savedDraws = Array.isArray(project.draw_schedule) && project.draw_schedule.length ? project.draw_schedule.map(publicDraw) : null;
+  let draftSchedule = [];
+  if (!savedDrafts && !savedDraws) {
+    try { draftSchedule = createInvoiceDrafts(project); }
+    catch (error) { if (error.status !== 400) throw error; }
+  }
   return {
     id: `client-preview-${project.id || 'project'}`,
     type: 'Estimate preview',
@@ -144,8 +149,8 @@ function createClientViewPreview(project = {}, state = {}) {
     },
     readiness_label: getReadinessLabel(project, state),
     metrics: { price_per_sqft: dollarsPerSqft(project.bid_total, project.sqft) },
-    invoice_drafts: createInvoiceDrafts(project),
-    draw_schedule: buildDrawSchedule(project),
+    invoice_drafts: savedDrafts || savedDraws || draftSchedule,
+    draw_schedule: savedDraws || savedDrafts || draftSchedule,
     notes: 'Preview only. Final contract depends on site review, utilities, sewer confirmation, permitting, and engineering review.',
   };
 }
@@ -158,4 +163,5 @@ module.exports = {
   buildDrawSchedule,
   createInvoiceDrafts,
   createClientViewPreview,
+  validateSavedSchedules,
 };

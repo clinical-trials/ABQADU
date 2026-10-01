@@ -1,6 +1,7 @@
 // Bid total calculations — subtotal, markup, contingency, tax, grand total
 // Creation default only: saved bids continue to use their own percentage.
 const DEFAULT_BID_MARKUP_PCT = 60;
+const { buildFourInvoiceSchedule } = require('./drawSchedule');
 
 function round2(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
@@ -34,20 +35,8 @@ function computeBidTotals(items, bid) {
   };
 }
 
-// Standard ADU draw schedule from a bid total
-function buildDrawSchedule(total) {
-  return [
-    { draw_type: 'deposit',  description: 'Deposit / mobilization (20%)',        pct: 0.20 },
-    { draw_type: 'progress', description: 'Foundation & framing complete (30%)', pct: 0.30 },
-    { draw_type: 'progress', description: 'Dry-in, MEP rough-in complete (25%)', pct: 0.25 },
-    { draw_type: 'progress', description: 'Finishes & fixtures complete (15%)',  pct: 0.15 },
-    { draw_type: 'final',    description: 'Final / certificate of occupancy (10%)', pct: 0.10 },
-  ].map(d => ({
-    draw_type: d.draw_type,
-    description: d.description,
-    amount: round2(total * d.pct),
-  }));
-}
+// New schedules credit preconstruction toward the quoted total.
+const buildDrawSchedule = buildFourInvoiceSchedule;
 
 // Convert a design BOM into bid line items
 function bomToLineItems(bom) {

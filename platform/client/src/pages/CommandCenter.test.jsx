@@ -22,6 +22,28 @@ afterEach(async () => { await act(async () => root.unmount()); container.remove(
 const button = text => [...container.querySelectorAll('button')].find(el => el.textContent === text);
 const mount = async () => { await act(async () => root.render(<CommandCenter />)); };
 
+test('the invoice generator explains four draws and preserves an already saved schedule', async () => {
+  await mount();
+  const create = button('Create 4 invoice drafts');
+  expect(create).toBeDefined();
+  expect(create.disabled).toBe(false);
+  expect(container.textContent).toContain('50% / 25% / 25% of the remaining balance');
+  await act(async () => create.click());
+  expect(fetch.mock.calls.some(([url, options]) => url.endsWith('/projects/one/invoice-drafts') && options.method === 'POST')).toBe(true);
+  state = { ...state, projects: state.projects.map(project => ({ ...project, invoice_drafts: [{ id:'existing',label:'Saved invoice',amount:10000,status:'Draft' }] })) };
+  await act(async () => root.unmount()); root = createRoot(container); await mount();
+  expect(button('Invoice drafts saved').disabled).toBe(true);
+  expect(container.textContent).toContain('Saved invoice');
+});
+
+test('saved draw-only schedules show their exact cents while keeping generation disabled', async () => {
+  state.projects[0].draw_schedule = [{ id:'saved-draw',label:'Saved final draw',amount:43750.01,status:'Draft' }];
+  await mount();
+  expect(button('Invoice drafts saved').disabled).toBe(true);
+  expect(container.textContent).toContain('Saved final draw');
+  expect(container.textContent).toContain('$43,750.01');
+});
+
 test('client target budget records the stated range per job without changing estimate or invoice amounts', async () => {
   const budget = '$180,000–$220,000 including site work';
   state.projects[0].invoice_drafts = [{id:'existing-draft',label:'Preconstruction',amount:10000,status:'Draft'}];

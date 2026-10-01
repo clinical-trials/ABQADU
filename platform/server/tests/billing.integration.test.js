@@ -51,12 +51,13 @@ const database = process.env.BILLING_TEST_DATABASE_URL;
       successUrl: 'https://example.test/invoices?checkout=returned', cancelUrl: 'https://example.test/invoices?checkout=cancelled' };
     const { createBillingService } = require('../src/services/billing');
     service = createBillingService({ pool, stripe, config, loadState: async () => JSON.parse(await fs.readFile(statePath, 'utf8')) });
-    const { createBillingRouter } = require('../src/routes/billing');
+    const { createBillingRouter, billingHandler } = require('../src/routes/billing');
     const router = createBillingRouter(service);
     app = express();
     app.post('/webhook', express.raw({ type: 'application/json' }), router.stripeWebhook);
     app.use(express.json());
     app.use('/billing', router);
+    app.post('/schedule/:bidId', billingHandler(async (req, res) => res.status(201).json(await service.generateBidSchedule(req.params.bidId))));
     app.use((err, req, res, next) => res.status(503).json({ error: 'Database unavailable' }));
   });
   afterAll(async () => {
@@ -288,26 +289,108 @@ const database = process.env.BILLING_TEST_DATABASE_URL;
     expect((await pending).error).toMatchObject({ status: 409, message: expect.stringContaining('InvoiceShelf') });
     expect((await pool.query('SELECT amount FROM invoices WHERE id=$1', [inv.id])).rows[0].amount).toBe('100.00');
   });
-  async function savedBid(amount = '100.01') {
+  async function savedBid(amount = '100000.03') {
     const bid = (await pool.query("INSERT INTO bids(bid_number,title,markup_pct,tax_pct,contingency_pct) VALUES ('BID-SCHEDULE','Saved scope',0,0,0) RETURNING *")).rows[0];
     await pool.query("INSERT INTO bid_line_items(bid_id,description,qty,unit_cost) VALUES ($1,'Saved scope',1,$2)", [bid.id, amount]);
     return bid;
   }
-  test('bid schedule retries and concurrent requests return the same five saved invoices', async () => {
+  async function savedLegacySchedule() {
+    const bid = await savedBid('100.01');
+    // Exact pre-upgrade fingerprint and snapshot shape, independent of the
+    // current schedule builder. Existing low-value schedules must remain readable.
+    const quotedBid = { id: bid.id, bid_number: 'BID-SCHEDULE', client_id: null, project_id: null,
+      design_id: null, title: 'Saved scope', markup_pct: 0, tax_pct: 0, contingency_pct: 0, notes: '', valid_until: null };
+    const items = [{ category: '', description: 'Saved scope', qty: 1, unit: 'ea', unit_cost: 100.01, sort_order: 0 }];
+    const fingerprint = crypto.createHash('sha256').update(JSON.stringify({ bid: quotedBid, items })).digest('hex');
+    const draws = [
+      ['deposit', 'Deposit / mobilization (20%)', '20.00'],
+      ['progress', 'Foundation & framing complete (30%)', '30.00'],
+      ['progress', 'Dry-in, MEP rough-in complete (25%)', '25.00'],
+      ['progress', 'Finishes & fixtures complete (15%)', '15.00'],
+      ['final', 'Final / certificate of occupancy (10%)', '10.01'],
+    ];
+    const invoices = [];
+    for (const [index, [draw_type, description, amount]] of draws.entries()) {
+      invoices.push((await pool.query(`INSERT INTO invoices(bid_id,invoice_number,draw_type,description,amount,source_key,source_fingerprint,source_snapshot)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [bid.id, `BD-LEGACY-${index + 1}`, draw_type, description, amount,
+        JSON.stringify(['bid-schedule', String(bid.id), index + 1]), fingerprint,
+        { source: 'bid-schedule', bid: quotedBid, items, total: '100.01', draw_index: index + 1, draw: { draw_type, description, amount } }])).rows[0]);
+    }
+    return { bid, invoices };
+  }
+  test('bid schedule retries and concurrent requests return the same four credited-deposit invoices', async () => {
     const bid = await savedBid();
     await pool.query("UPDATE bids SET valid_until='2026-10-01' WHERE id=$1", [bid.id]);
     const [first, concurrent] = await Promise.all([service.generateBidSchedule(bid.id), service.generateBidSchedule(bid.id)]);
-    expect(first).toHaveLength(5);
+    expect(first).toHaveLength(4);
     expect(concurrent.map(row => row.id)).toEqual(first.map(row => row.id));
-    expect(first.reduce((sum, row) => sum + Math.round(Number(row.amount) * 100), 0)).toBe(10001);
+    expect(first.map(row => Number(row.amount))).toEqual([10000, 45000.02, 22500.01, 22500]);
+    expect(first.reduce((sum, row) => sum + Math.round(Number(row.amount) * 100), 0)).toBe(10000003);
     expect(first.every(row => /^BD-\d+$/.test(row.invoice_number))).toBe(true);
     expect(first[0].source_snapshot.bid.valid_until).toBe('2026-10-01');
+    expect(first.every(row => JSON.parse(row.source_key)[0] === 'bid-schedule-v2')).toBe(true);
+    expect(first[0].source_snapshot).toMatchObject({ schedule_version: 2, preconstruction_fee_treatment: 'credited' });
     // The client accepts the bid after creation and its save recreates item IDs.
     await pool.query("UPDATE bids SET status='accepted',updated_at=NOW() WHERE id=$1", [bid.id]);
     await pool.query('DELETE FROM bid_line_items WHERE bid_id=$1', [bid.id]);
-    await pool.query("INSERT INTO bid_line_items(bid_id,description,qty,unit_cost) VALUES ($1,'Saved scope',1,100.01)", [bid.id]);
+    await pool.query("INSERT INTO bid_line_items(bid_id,description,qty,unit_cost) VALUES ($1,'Saved scope',1,100000.03)", [bid.id]);
     expect((await service.generateBidSchedule(bid.id)).map(row => row.id)).toEqual(first.map(row => row.id));
-    expect((await pool.query('SELECT * FROM invoices')).rows).toHaveLength(5);
+    expect((await pool.query('SELECT * FROM invoices')).rows).toHaveLength(4);
+  });
+  test('complete existing five-draw schedules preserve amounts, identities, snapshots and payments on retry', async () => {
+    const { bid, invoices } = await savedLegacySchedule();
+    await service.recordManualPayment(invoices[0].id, { request_id: crypto.randomUUID(), amount: '1.00', method: 'check' });
+    const before = (await pool.query('SELECT * FROM invoices ORDER BY id')).rows;
+    const [replayed, concurrent] = await Promise.all([service.generateBidSchedule(bid.id), service.generateBidSchedule(bid.id)]);
+    expect(replayed.map(row => row.id)).toEqual(invoices.map(row => row.id));
+    expect(concurrent.map(row => row.id)).toEqual(invoices.map(row => row.id));
+    expect(replayed.map(row => Number(row.amount))).toEqual([20, 30, 25, 15, 10.01]);
+    expect(replayed[0]).toMatchObject({ paid: 1, balance: 19 });
+    expect((await pool.query('SELECT * FROM invoices ORDER BY id')).rows).toEqual(before);
+    expect((await counts()).payments).toBe(1);
+  });
+  test('four remaining rows from an incomplete old five-draw schedule are not mistaken for the new four-invoice plan', async () => {
+    const { bid, invoices } = await savedLegacySchedule();
+    await pool.query('DELETE FROM invoices WHERE id=$1', [invoices[4].id]);
+    const before = (await pool.query('SELECT * FROM invoices ORDER BY id')).rows;
+    await expect(service.generateBidSchedule(bid.id)).rejects.toMatchObject({ status: 409 });
+    expect((await pool.query('SELECT * FROM invoices ORDER BY id')).rows).toEqual(before);
+  });
+  test('changed terms on an existing five-draw bid still require reconciliation', async () => {
+    const { bid } = await savedLegacySchedule();
+    await pool.query("UPDATE bids SET title='Changed saved scope' WHERE id=$1", [bid.id]);
+    const before = (await pool.query('SELECT * FROM invoices ORDER BY id')).rows;
+    await expect(service.generateBidSchedule(bid.id)).rejects.toMatchObject({ status: 409 });
+    expect((await pool.query('SELECT * FROM invoices ORDER BY id')).rows).toEqual(before);
+  });
+  test.each(['missing-row', 'unsupported-policy'])('a new schedule with %s cannot be recreated or silently reinterpreted', async invalid => {
+    const bid = await savedBid();
+    const first = await service.generateBidSchedule(bid.id);
+    if (invalid === 'missing-row') await pool.query('DELETE FROM invoices WHERE id=$1', [first[3].id]);
+    else await pool.query("UPDATE invoices SET source_snapshot=source_snapshot || '{\"preconstruction_fee_treatment\":\"separate\"}'::jsonb WHERE id=$1", [first[0].id]);
+    const before = (await pool.query('SELECT * FROM invoices ORDER BY id')).rows;
+    await expect(service.generateBidSchedule(bid.id)).rejects.toMatchObject({ status: 409 });
+    expect((await pool.query('SELECT * FROM invoices ORDER BY id')).rows).toEqual(before);
+  });
+  test('a mixed new schedule and manually added invoice requires review without rewriting either', async () => {
+    const bid = await savedBid();
+    await service.generateBidSchedule(bid.id);
+    await pool.query("INSERT INTO invoices(bid_id,invoice_number,amount) VALUES ($1,'EXTRA-MANUAL',1)", [bid.id]);
+    const before = (await pool.query('SELECT * FROM invoices ORDER BY id')).rows;
+    await expect(service.generateBidSchedule(bid.id)).rejects.toMatchObject({ status: 409 });
+    expect((await pool.query('SELECT * FROM invoices ORDER BY id')).rows).toEqual(before);
+  });
+  test.each(['0', '-1', '10000', '10000.01', '10000.02', '10000.03'])('new schedule total %s cannot publish zero or negative installments', async amount => {
+    const bid = await savedBid(amount);
+    await expect(service.generateBidSchedule(bid.id)).rejects.toMatchObject({ status: 400 });
+    expect((await pool.query('SELECT * FROM invoices')).rows).toHaveLength(0);
+  });
+  test('invoice API exposes the corrective minimum-total message without publishing invoices', async () => {
+    const bid = await savedBid('10000.03');
+    const response = await request(app).post(`/schedule/${bid.id}`).send({}).expect(400);
+    expect(response.body.error).toMatch(/at least \$10,000\.04/);
+    expect((await pool.query('SELECT * FROM invoices')).rows).toHaveLength(0);
   });
   test('changed bid terms require review instead of generating another schedule', async () => {
     const bid = await savedBid();
@@ -329,7 +412,7 @@ const database = process.env.BILLING_TEST_DATABASE_URL;
       await expect(service.generateBidSchedule(bid.id)).rejects.toThrow('draw insert unavailable');
       expect((await pool.query('SELECT * FROM invoices')).rows).toHaveLength(0);
     } finally { await pool.query('DROP TRIGGER fail_draw ON invoices; DROP FUNCTION fail_draw()'); }
-    expect(await service.generateBidSchedule(bid.id)).toHaveLength(5);
+    expect(await service.generateBidSchedule(bid.id)).toHaveLength(4);
   });
   test('bid generation waits for a complete bid and item edit transaction', async () => {
     const bid = await savedBid();
@@ -341,11 +424,11 @@ const database = process.env.BILLING_TEST_DATABASE_URL;
       await editor.query("UPDATE bids SET title='Revised scope' WHERE id=$1", [bid.id]);
       await editor.query('DELETE FROM bid_line_items WHERE bid_id=$1', [bid.id]);
       generated = service.generateBidSchedule(bid.id);
-      await editor.query("INSERT INTO bid_line_items(bid_id,description,qty,unit_cost) VALUES ($1,'Revised scope',1,200)", [bid.id]);
+      await editor.query("INSERT INTO bid_line_items(bid_id,description,qty,unit_cost) VALUES ($1,'Revised scope',1,200000)", [bid.id]);
       await editor.query('COMMIT');
     } finally { editor.release(); }
     const invoices = await generated;
-    expect(invoices.reduce((sum, row) => sum + Number(row.amount), 0)).toBe(200);
+    expect(invoices.reduce((sum, row) => sum + Number(row.amount), 0)).toBe(200000);
     expect(invoices[0].source_snapshot.bid.title).toBe('Revised scope');
   });
 });

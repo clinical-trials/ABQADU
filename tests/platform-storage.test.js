@@ -59,6 +59,82 @@ function readBlob(window, blob) {
   });
 }
 
+function invoiceFixture(total, invoices = []) {
+  return {id:'invoice-example',bid:{title:'Example invoice project',markup_pct:0,contingency_pct:0,tax_pct:0,items:[{cat:'General',desc:'Example quoted scope',qty:1,unit:'ea',cost:total}]},invoices};
+}
+
+for (const [total, expected] of [[185000,[10000,87500,43750,43750]], [185000.03,[10000,87500.02,43750.01,43750]]]) {
+  test(`legacy new four-invoice schedule reconciles the credited deposit and 50/25/25 balance for ${total}`, t => {
+    const { window, document, errors } = openBuilder(t, {entries:{abqadu_projects:JSON.stringify([invoiceFixture(total)])},hash:'#bids'});
+    const alerts = [];
+    window.alert = message => alerts.push(message);
+    assert.equal(window.buildInvoicePacket(true), true);
+    const saved = JSON.parse(window.localStorage.getItem('abqadu_invoices'));
+    assert.equal(saved.length, 4);
+    assert.deepEqual(saved.map(invoice => invoice.amount), expected);
+    assert.equal(saved.reduce((sum,invoice) => sum+Math.round(invoice.amount*100),0), Math.round(total*100));
+    assert.ok(saved.every(invoice => invoice.amount > 0));
+    assert.deepEqual(saved.map(invoice => invoice.sendDate), [0,14,45,75].map(offset => window.isoDateFromOffset(offset)));
+    assert.match(saved[1].desc, /50%.*remaining/i);
+    assert.match(saved[2].desc, /25%.*remaining/i);
+    assert.match(saved[3].desc, /25%.*remaining/i);
+    assert.equal(document.getElementById('invoice-job-count').textContent, '4');
+    assert.match(document.getElementById('invoice-job-meta').textContent, /4 invoices/);
+    assert.match(alerts[0], /50%.*25%.*25%.*remaining/i);
+    const printed = JSDOM.fragment(window.buildBidPrintDocument());
+    const drawSection = [...printed.querySelectorAll('.print-doc-section')].find(section => section.querySelector('h3')?.textContent === 'Draw Schedule and Invoices');
+    assert.equal(drawSection.querySelectorAll('tbody tr').length, 4);
+    assert.doesNotMatch(printed.textContent, /invoice 3 is the remaining draw/i);
+    assert.deepEqual(errors, []);
+  });
+}
+
+test('legacy invalid or too-small invoice totals cannot replace or create a schedule', t => {
+  for (const total of [0,-1,10000,10000.01,10000.02,10000.03,1e30]) {
+    const { window, errors } = openBuilder(t, {entries:{abqadu_projects:JSON.stringify([invoiceFixture(total)])},hash:'#bids'});
+    window.alert = () => {};
+    assert.equal(window.buildInvoicePacket(true), false, `Reject total ${total}`);
+    assert.deepEqual(JSON.parse(window.localStorage.getItem('abqadu_invoices')), []);
+    assert.deepEqual(errors, []);
+  }
+});
+
+test('legacy existing custom three-invoice schedule survives render, implicit build and cancelled replacement', t => {
+  const invoices = [8000,90000,87000].map((amount,i) => ({num:`EXAMPLE-${i+1}`,type:'progress',desc:`Saved draw ${i+1}`,amount,paid:0,status:'draft',sendDate:'2026-11-01',paidAt:''}));
+  const { window, document, errors } = openBuilder(t, {entries:{abqadu_projects:JSON.stringify([invoiceFixture(185000,invoices)])},hash:'#bids'});
+  const saved = () => JSON.parse(window.localStorage.getItem('abqadu_invoices'));
+  assert.deepEqual(saved(), invoices);
+  assert.equal(window.buildInvoicePacket(false), true);
+  assert.deepEqual(saved(), invoices);
+  assert.match(document.getElementById('invoice-job-meta').textContent, /3 invoices/);
+  assert.doesNotMatch(document.getElementById('invoice-job-meta').textContent, /invoice 2 is 50%|invoice 3 is the remaining/);
+  window.confirm = () => false;
+  assert.equal(window.buildInvoicePacket(true), false);
+  assert.deepEqual(saved(), invoices);
+  window.editInv(0,'amount',12345);
+  assert.deepEqual(saved(), invoices, 'Locked first invoice edits cannot coerce a saved amount');
+  assert.deepEqual(errors, []);
+});
+
+test('legacy replacement is limited to unpaid draft invoices and rejects protected history before confirmation', t => {
+  for (const [status,paid] of [['draft',100],['sent',0],['paid',0],['overdue',0]]) {
+    const invoices = [{num:'EXAMPLE-1',type:'deposit',desc:'Saved deposit',amount:10000,paid,status,sendDate:'2026-11-01',paidAt:paid?'2026-11-01':''}];
+    const { window, errors } = openBuilder(t, {entries:{abqadu_projects:JSON.stringify([invoiceFixture(185000,invoices)])},hash:'#bids'});
+    let confirmations = 0;
+    window.confirm = () => { confirmations += 1; return true; };
+    window.alert = () => {};
+    assert.equal(window.buildInvoicePacket(true), false);
+    assert.equal(confirmations, 0);
+    assert.deepEqual(JSON.parse(window.localStorage.getItem('abqadu_invoices')), invoices);
+    assert.deepEqual(errors, []);
+  }
+  const invoices = [{num:'EXAMPLE-1',type:'deposit',desc:'Saved draft',amount:10000,paid:0,status:'draft',sendDate:'2026-11-01',paidAt:''}];
+  const { window } = openBuilder(t, {entries:{abqadu_projects:JSON.stringify([invoiceFixture(185000,invoices)])},hash:'#bids'});
+  window.confirm = () => true; window.alert = () => {};
+  assert.equal(window.buildInvoicePacket(true), true);
+  assert.equal(JSON.parse(window.localStorage.getItem('abqadu_invoices')).length, 4);
+});
+
 test('legacy new bids start at 60 percent overhead and profit while historical missing rates stay at 18 percent', t => {
   const fresh = openBuilder(t, { hash:'#bids' });
   assert.equal(fresh.document.getElementById('t-markup').value, '60');

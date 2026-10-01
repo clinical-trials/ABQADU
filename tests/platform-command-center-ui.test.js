@@ -31,7 +31,7 @@ contains(page, "className=\"v10-shell\"");
 contains(page, 'Project Intake');
 contains(page, 'Best contact time');
 contains(page, 'Apply Model Defaults');
-contains(page, 'Create $10k Invoice');
+contains(page, 'Create 4 invoice drafts');
 contains(page, 'Send to COGS');
 contains(page, 'SIP/PUR vs Conventional');
 contains(page, 'Crew Messages');

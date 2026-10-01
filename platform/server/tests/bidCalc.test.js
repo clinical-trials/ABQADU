@@ -31,14 +31,14 @@ test('missing saved markup remains zero rather than inheriting the new-bid defau
   expect(computeBidTotals([{ qty: 1, unit_cost: 100000 }], {}).total).toBe(100000);
 });
 
-test('buildDrawSchedule: five draws summing to total', () => {
+test('buildDrawSchedule: four credited-deposit draws sum to the quoted total', () => {
   const draws = buildDrawSchedule(100000);
-  expect(draws).toHaveLength(5);
+  expect(draws).toHaveLength(4);
   const sum = draws.reduce((s, d) => s + d.amount, 0);
   expect(sum).toBe(100000);
   expect(draws[0].draw_type).toBe('deposit');
-  expect(draws[0].amount).toBe(20000);
-  expect(draws[4].draw_type).toBe('final');
+  expect(draws.map(draw => draw.amount)).toEqual([10000, 45000, 22500, 22500]);
+  expect(draws[3].draw_type).toBe('final');
 });
 
 test('bomToLineItems: maps BOM items to bid line items', () => {

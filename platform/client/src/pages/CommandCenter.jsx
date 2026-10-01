@@ -12,6 +12,7 @@ import GisYardReview from '../components/GisYardReview';
 import BidPricingGuidance from '../components/BidPricingGuidance';
 
 const fmt = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
+const invoiceMoney = n => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const styles = {
   page: { fontFamily: 'DM Sans, sans-serif', background: '#FAF7F2', minHeight: '100vh', color: '#1C1917' },
@@ -61,9 +62,9 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
   const modelPending = modelValue === 'other';
   const profitLow = Number(project.bid_total || 0) - Number(project.cogs_high || 0);
   const profitHigh = Number(project.bid_total || 0) - Number(project.cogs_low || 0);
-  const invoices = project.invoice_drafts || [
-    { id: `${project.id}-preconstruction`, label: 'Invoice 1: $10,000 Preconstruction', amount: 10000, status: 'Draft ready' },
-  ];
+  const invoices = Array.isArray(project.invoice_drafts) && project.invoice_drafts.length ? project.invoice_drafts
+    : Array.isArray(project.draw_schedule) ? project.draw_schedule : [];
+  const hasSavedSchedule = invoices.length > 0;
   return (
     <article style={styles.card} aria-label={`Project details for ${project.client}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
@@ -109,7 +110,9 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
           <Field label="Estimated cost low"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Estimated cost low" min="0" type="number" value={project.cogs_low} onChange={e => onChange(project.id, 'cogs_low', Number(e.target.value))} /></Field>
           <Field label="Estimated cost high"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Estimated cost high" min="0" type="number" value={project.cogs_high} onChange={e => onChange(project.id, 'cogs_high', Number(e.target.value))} /></Field>
           <div style={{ fontSize: 13, marginTop: 6 }}>Profit {fmt(profitLow)} - {fmt(profitHigh)}</div>
-          <button style={{ ...styles.button, marginTop: 8, width: '100%' }} disabled={busy} onClick={() => onCreateInvoices(project.id)}>Create $10k Invoice</button>
+          <p style={{ fontSize: 13, lineHeight: 1.5 }}>New schedule: $10,000 credited toward the project total, then 50% / 25% / 25% of the remaining balance. Four invoices in total.</p>
+          <button style={{ ...styles.button, marginTop: 8, width: '100%' }} disabled={busy || hasSavedSchedule} onClick={() => onCreateInvoices(project.id)}>{hasSavedSchedule ? 'Invoice drafts saved' : 'Create 4 invoice drafts'}</button>
+          {hasSavedSchedule && <p style={{ fontSize: 13 }}>The saved schedule is kept as entered. Review its amounts before creating invoice records.</p>}
         </div>
       </div>
       <div style={{ ...styles.grid, marginTop: 12 }}>
@@ -139,7 +142,7 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
         {invoices.map(invoice => (
           <div key={invoice.id || invoice.label} style={styles.miniCard}>
             <b>{invoice.label || invoice.stage}</b>
-            <div style={{ fontSize: 13 }}>{fmt(invoice.amount)} · {invoice.status || 'Draft'}</div>
+            <div style={{ fontSize: 13 }}>{invoiceMoney(invoice.amount)} · {invoice.status || 'Draft'}</div>
           </div>
         ))}
       </div>
