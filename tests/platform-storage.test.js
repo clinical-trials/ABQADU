@@ -59,6 +59,73 @@ function readBlob(window, blob) {
   });
 }
 
+test('legacy bids can keep Other / not yet selected through save, reload and export without changing costs', async t => {
+  const originalBid = {title:'Example custom ADU',client:'Example homeowner',address:'123 Example Lane',model:'Altura',sqft:615,status:'draft',readinessFlags:[],items:[{cat:'Interior',desc:'Finish carpentry',kind:'base',qty:3,unit:'ea',cost:1234}]};
+  const page = openBuilder(t, { entries: { abqadu_bid: JSON.stringify(originalBid) }, hash:'#bids' });
+  const { window, document } = page;
+  const model = document.getElementById('bid-model');
+  assert.equal(model.value, 'Altura', 'Existing selected models must not be migrated');
+  const beforeTotal = document.getElementById('app-bid-total').textContent;
+  model.value = 'Other / not yet selected';
+  model.dispatchEvent(new window.Event('input', { bubbles:true }));
+  assert.equal(model.value, 'Other / not yet selected');
+  window.saveBidDraft();
+  assert.equal(document.getElementById('bid-sqft').value, '615');
+  assert.equal(document.getElementById('app-bid-total').textContent, beforeTotal);
+  window.exportBidJson();
+  const exported = JSON.parse(await readBlob(window, page.downloads[0]));
+  assert.equal(exported.project.model, 'Other / not yet selected');
+  assert.equal(exported.project.sqft, 615);
+  assert.deepEqual(exported.cogs, originalBid.items);
+  const entries = Object.fromEntries(Object.keys(window.localStorage).map(key => [key, window.localStorage.getItem(key)]));
+  const reloaded = openBuilder(t, { entries, hash:'#bids' });
+  assert.equal(reloaded.document.getElementById('bid-model').value, 'Other / not yet selected');
+  assert.equal(reloaded.document.getElementById('bid-sqft').value, '615');
+  assert.equal(reloaded.document.getElementById('app-bid-total').textContent, beforeTotal);
+  assert.match(reloaded.window.buildBidPrintDocument(), /Other \/ not yet selected/);
+  assert.deepEqual(page.errors, []);
+  assert.deepEqual(reloaded.errors, []);
+});
+
+test('legacy undecided model stays incomplete in bid readiness, quiz and project setup', t => {
+  const fixture = {title:'Example ADU',client:'Example homeowner',address:'123 Example Lane',model:'Other / not yet selected',sqft:615,status:'draft',readinessFlags:['ready to send'],items:[{cat:'Interior',desc:'Finish carpentry',kind:'base',qty:1,unit:'ea',cost:500}]};
+  const { window, document, errors } = openBuilder(t, { entries:{abqadu_bid:JSON.stringify(fixture)}, hash:'#bids' });
+  const flags = window.bidReadinessSignals(window.bidTotals());
+  assert.ok(flags.includes('missing site data'));
+  assert.ok(!flags.includes('ready to send'));
+  assert.doesNotMatch(document.getElementById('bid-readiness-summary').textContent, /ready to send/i);
+  assert.equal(document.querySelector('[data-flow-step="site"]').classList.contains('done'), false);
+  assert.equal(document.getElementById('bid-quiz-answer').classList.contains('done'), false);
+  assert.match(document.getElementById('app-project-meta').textContent, /next: Finish setup/);
+  assert.deepEqual(errors, []);
+});
+
+test('legacy estimate preserves an undecided model and manual scope through reload and print', t => {
+  const fixture = {client:'Example homeowner',phone:'5055550199',address:'123 Example Lane',model:'Cromwell',sqft:612,lines:[{section:'Site',description:'Manual allowance',qty:2,unitPrice:4321,taxable:false}],activity:[]};
+  const page = openBuilder(t, { entries:{abqadu_estimateV9:JSON.stringify(fixture)}, hash:'#estimates' });
+  const { window, document } = page;
+  const model = document.getElementById('estimate-model');
+  assert.equal(model.value, 'Cromwell');
+  const beforeTotal = document.getElementById('estimate-total').textContent;
+  model.value = 'Other / not yet selected';
+  model.dispatchEvent(new window.Event('change', { bubbles:true }));
+  assert.equal(model.value, 'Other / not yet selected');
+  const saved = JSON.parse(window.localStorage.getItem('abqadu_estimateV9'));
+  assert.equal(saved.model, 'Other / not yet selected');
+  assert.equal(saved.sqft, 612);
+  assert.deepEqual(saved.lines, fixture.lines);
+  assert.equal(document.querySelector('[data-estimate-step="scope"]').classList.contains('done'), false);
+  assert.equal(document.getElementById('estimate-total').textContent, beforeTotal);
+  assert.match(window.buildEstimateInvoiceDocument(), /Other \/ not yet selected/);
+  const reloaded = openBuilder(t, { entries:{abqadu_estimateV9:JSON.stringify(saved)}, hash:'#estimates' });
+  assert.equal(reloaded.document.getElementById('estimate-model').value, 'Other / not yet selected');
+  assert.equal(reloaded.document.getElementById('estimate-sqft').value, '612');
+  assert.equal(reloaded.document.getElementById('estimate-total').textContent, beforeTotal);
+  assert.equal(reloaded.document.querySelector('[data-estimate-step="scope"]').classList.contains('done'), false);
+  assert.deepEqual(page.errors, []);
+  assert.deepEqual(reloaded.errors, []);
+});
+
 test('legacy house-to-ADU comparison is arithmetic only and preserves optional area with the estimate draft', t => {
   const page = openBuilder(t, { hash: '#estimates' });
   const { window, document } = page;

@@ -22,6 +22,48 @@ afterEach(async () => { await act(async () => root.unmount()); container.remove(
 const button = text => [...container.querySelectorAll('button')].find(el => el.textContent === text);
 const mount = async () => { await act(async () => root.render(<CommandCenter />)); };
 
+test('Other is saved and reopened without keeping a previously selected model or applying defaults', async () => {
+  state.projects[0].model_id = 'altura-576';
+  state.model_catalog = [{id:'altura-576',name:'Altura 576',sqft:576}];
+  const before = {...state.projects[0]};
+  await mount();
+  const select = container.querySelector('[aria-label="House model"]');
+  const other = [...select.options].find(option => option.textContent === 'Other / not yet selected');
+  expect(other).toBeDefined();
+  await act(async () => Simulate.change(select, {target:{value:other.value}}));
+  await act(async () => button('Save changes').click());
+  expect(state.projects[0]).toMatchObject({model_id:'other',model:'Other / not yet selected',sqft:before.sqft,bid_total:before.bid_total,cogs_low:before.cogs_low,cogs_high:before.cogs_high});
+  expect(button('Apply Model Defaults').disabled).toBe(true);
+  expect(fetch.mock.calls.some(([url]) => url.endsWith('/apply-model'))).toBe(false);
+  await act(async () => root.unmount());
+  root = createRoot(container);
+  await mount();
+  expect(container.querySelector('[aria-label="House model"]').value).toBe('other');
+  expect(button('Apply Model Defaults').disabled).toBe(true);
+  await act(async () => button('Preview Client View').click());
+  expect(document.querySelector('[role="dialog"]').textContent).toContain('Other / not yet selected');
+});
+
+test('selecting a known model after Other updates its name without replacing manual pricing or area', async () => {
+  state.projects[0] = {...state.projects[0],model_id:'other',model:'Other / not yet selected'};
+  state.model_catalog = [{id:'altura-576',name:'Altura 576',sqft:576}];
+  await mount();
+  await act(async () => Simulate.change(container.querySelector('[aria-label="House model"]'), {target:{value:'altura-576'}}));
+  await act(async () => button('Save changes').click());
+  expect(state.projects[0]).toMatchObject({model_id:'altura-576',model:'Altura 576',sqft:600,bid_total:185000,cogs_low:90000,cogs_high:102000});
+  expect(button('Apply Model Defaults').disabled).toBe(false);
+  expect(fetch.mock.calls.some(([url]) => url.endsWith('/apply-model'))).toBe(false);
+});
+
+test('a job with no saved model displays Other without a save or model-default request', async () => {
+  delete state.projects[0].model;
+  await mount();
+  const select = container.querySelector('[aria-label="House model"]');
+  expect(select.selectedOptions[0].textContent).toBe('Other / not yet selected');
+  expect(button('Apply Model Defaults').disabled).toBe(true);
+  expect(fetch.mock.calls.some(([,options]) => options?.method === 'PUT' || options?.method === 'POST')).toBe(false);
+});
+
 test('a CFO office-tools link opens the saved cost tools after the job data loads', async () => {
   const previous=window.location.href;
   window.history.replaceState({},'', '/command-center#office-tools');

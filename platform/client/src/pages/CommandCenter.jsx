@@ -55,6 +55,8 @@ function Field({ label, children }) {
 }
 
 function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateInvoices, busy }) {
+  const modelValue = project.model_id || (project.model && project.model !== 'Other / not yet selected' ? project.model : 'other');
+  const modelPending = modelValue === 'other';
   const profitLow = Number(project.bid_total || 0) - Number(project.cogs_high || 0);
   const profitHigh = Number(project.bid_total || 0) - Number(project.cogs_low || 0);
   const invoices = project.invoice_drafts || [
@@ -81,12 +83,14 @@ function ProjectCard({ project, modelCatalog, onChange, onApplyModel, onCreateIn
         </div>
         <div>
           <div style={styles.kicker}>Model Select</div>
-          <select aria-label="House model" style={styles.input} value={project.model_id || project.model} onChange={e => onChange(project.id, 'model_id', e.target.value)}>
-            <option value={project.model}>{project.model || 'Choose model'}</option>
+          <select aria-label="House model" style={styles.input} value={modelValue} onChange={e => onChange(project.id, 'model_id', e.target.value)}>
+            <option value="other">Other / not yet selected</option>
+            {!modelPending && !modelCatalog.some(model => model.id === modelValue) && <option value={modelValue}>{project.model || modelValue}</option>}
             {modelCatalog.map(model => <option key={model.id} value={model.id}>{model.name} · {model.sqft} sf</option>)}
           </select>
+          {modelPending && <p style={{ fontSize: 13, margin: '6px 0' }}>Enter size and pricing manually until a model is selected.</p>}
           <Field label="Square feet"><input style={{ ...styles.input, marginTop: 6 }} aria-label="Square feet" min="1" type="number" value={project.sqft} onChange={e => onChange(project.id, 'sqft', Number(e.target.value))} /></Field>
-          <button style={{ ...styles.ghost, marginTop: 8, width: '100%' }} disabled={busy} onClick={() => onApplyModel(project.id, project.model_id || project.model)}>Apply Model Defaults</button>
+          <button style={{ ...styles.ghost, marginTop: 8, width: '100%' }} disabled={busy || modelPending} onClick={() => onApplyModel(project.id, modelValue)}>Apply Model Defaults</button>
         </div>
         <div>
           <div style={styles.kicker}>Estimate / Invoice</div>
@@ -330,6 +334,17 @@ export default function CommandCenter() {
     { id: 'altura-576', name: 'Altura 576', sqft: 576 },
     { id: 'cromwell-1280', name: 'Cromwell 1280', sqft: 1280 },
   ];
+  const changeProjectField = (id, field, value) => {
+    if (field !== 'model_id') return updateList('projects', id, field, value);
+    const selected = modelCatalog.find(model => model.id === value);
+    if (value !== 'other' && !selected) return;
+    // Save the ID and display name together without applying model size or pricing.
+    return saveState(current => ({
+      projects: current.projects.map(project => project.id === id
+        ? { ...project, model_id: value, model: value === 'other' ? 'Other / not yet selected' : selected.name }
+        : project),
+    }));
+  };
   const supplierQuotes = state.supplier_quotes || [
     { id: 'lowes-lumber', supplier: "Lowe's", package: 'Lumber, house wrap, windows/doors', status: 'Bid requested', quoted_total: 38500 },
     { id: 'raks-drywall', supplier: 'RAKS', package: 'Sheetrock, mud, roofing, fixtures', status: 'Need delivery window', quoted_total: 22600 },
@@ -402,7 +417,7 @@ export default function CommandCenter() {
                   project={p}
                   busy={saving}
                   modelCatalog={modelCatalog}
-                  onChange={(id, field, value) => updateList('projects', id, field, value)}
+                  onChange={changeProjectField}
                   onApplyModel={applyModelDefaults}
                   onCreateInvoices={createInvoiceDrafts}
                 />

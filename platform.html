@@ -907,7 +907,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
             <div><label class="fld">Email</label><input class="in" id="estimate-email" placeholder="client@example.com"></div>
             <div class="wide"><label class="fld" for="estimate-address">Job site address</label><input class="in" id="estimate-address" placeholder="Street address, Albuquerque NM" oninput="invalidateEstimateGisReview()"></div>
             <div><label class="fld">Model</label><select class="in" id="estimate-model">
-              <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option>
+              <option>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option><option>Other / not yet selected</option>
             </select></div>
             <div><label class="fld" for="estimate-sqft">Proposed ADU gross floor area (sq ft)</label><input class="in estimate-area-input" id="estimate-sqft" type="number" min="1" value="440" oninput="renderEstimateAreaComparison()"></div>
             <div><label class="fld" for="estimate-primary-home-sqft">Primary house gross floor area (sq ft, if known)</label><input class="in estimate-area-input" id="estimate-primary-home-sqft" inputmode="decimal" placeholder="Unknown" aria-describedby="estimate-area-help" oninput="renderEstimateAreaComparison()"></div>
@@ -1133,7 +1133,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
       <div><label class="fld">Contact / client name</label><input class="in" id="bid-client" placeholder="Homeowner or client name"></div>
       <div><label class="fld">Project address</label><input class="in" id="bid-address" placeholder="Street address from site visit"></div>
       <div><label class="fld">Model</label><select class="in" id="bid-model">
-        <option selected>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option>
+        <option selected>Netherwood House</option><option>Netherwood House 2BR</option><option>Altura</option><option>750 Series</option><option>Cromwell</option><option>Other / not yet selected</option>
       </select></div>
       <div><label class="fld">Square feet</label><input class="in" id="bid-sqft" type="number" min="1" value="640"></div>
       <div><label class="fld">Confidence grade</label><select class="in" id="bid-confidence-grade">
@@ -1784,6 +1784,7 @@ td{padding:8px 10px;border-bottom:1px solid var(--stucco)}
 const $ = s => document.querySelector(s);
 const fmt = n => '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmt0 = n => '$' + Math.round(Number(n||0)).toLocaleString('en-US');
+const hasSelectedModel = model => Boolean(model && model !== 'Other / not yet selected');
 const isStoredRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isStoredRecordList = value => Array.isArray(value) && value.every(isStoredRecord);
 const isStoredInvoiceList = value => isStoredRecordList(value) && value.every(invoice =>
@@ -2304,7 +2305,7 @@ function estimateActivity(type,detail){
 }
 function renderEstimateWorkflow(t){
   const hasClient=Boolean(estimateState.client && estimateState.phone && estimateState.address);
-  const hasScope=Boolean(estimateState.model && (+estimateState.sqft||0)>0 && estimateState.lines.length);
+  const hasScope=Boolean(hasSelectedModel(estimateState.model) && (+estimateState.sqft||0)>0 && estimateState.lines.length);
   const hasReview=Boolean((estimateState.terms || estimateState.notes) && t.total>0);
   const hasSend=['sent','viewed','approved'].includes(estimateState.status) || estimateState.docType==='invoice' || ['partial','paid'].includes(estimateState.paymentStatus) || estimateState.activity.some(a=>['Printed','Text prepared'].includes(a.type));
   const states={client:hasClient,scope:hasScope,review:hasReview,send:hasSend};
@@ -2916,7 +2917,7 @@ function uniqueList(items){
 function bidReadinessSignals(t){
   const text=bid.items.map(item=>`${item.cat} ${item.desc} ${item.kind}`).join(' ').toLowerCase();
   const signals=[];
-  const hasSite=Boolean(bid.title && bid.client && bid.address && bid.model && +bid.sqft>0);
+  const hasSite=Boolean(bid.title && bid.client && bid.address && hasSelectedModel(bid.model) && +bid.sqft>0);
   if(!hasSite)signals.push('missing site data');
   if(/panel|meter|electrical|utility|sewer|macerator|macerating|masticator|water/.test(text))signals.push('needs utility review');
   if(bid.items.some(item=>item.kind==='review') || /engineering|engineer|opening|openings|stamp|structural/.test(text))signals.push('needs engineering');
@@ -2926,6 +2927,7 @@ function bidReadinessSignals(t){
 function mergedReadinessFlags(t){
   const manual=Array.isArray(bid.readinessFlags) ? bid.readinessFlags : [];
   const auto=bidReadinessSignals(t);
+  if(!hasSelectedModel(bid.model))return uniqueList([...auto, ...manual.filter(flag=>flag!=='ready to send')]);
   if(auto.includes('ready to send') && manual.some(flag=>flag!=='ready to send'))return uniqueList(manual.filter(flag=>flag!=='ready to send'));
   return uniqueList([...auto, ...manual]);
 }
@@ -2978,7 +2980,7 @@ const BID_QUIZ_STEPS = [
   {title:'5. Invoices',prompt:'Build the 90-day draw schedule. Invoice 1 is always the $10,000 pre-construction deposit.',target:'#invoice-card',action:'invoices',actionLabel:'Build invoices'},
 ];
 function bidQuizCompletion(step,t){
-  const hasSetup=Boolean(bid.title && bid.client && bid.address && bid.model && (+bid.sqft||0)>0);
+  const hasSetup=Boolean(bid.title && bid.client && bid.address && hasSelectedModel(bid.model) && (+bid.sqft||0)>0);
   const hasCogs=bid.items.length>0 && t.sub>0;
   const confidence=bidReadinessSignals(t);
   const hasManualFlags=(bid.readinessFlags || []).length>0;
@@ -3045,7 +3047,7 @@ function renderBidAppShell(t){
   const model=bid.model || 'Model needed';
   const sqft=+bid.sqft || 0;
   const packet=invoicePacketTotals();
-  const hasSetup=Boolean(bid.title && bid.client && bid.address && bid.model && sqft);
+  const hasSetup=Boolean(bid.title && bid.client && bid.address && hasSelectedModel(bid.model) && sqft);
   const hasCogs=bid.items.length>0 && t.sub>0;
   const hasPrice=t.total>0;
   const hasInvoices=invoices.length>0;
