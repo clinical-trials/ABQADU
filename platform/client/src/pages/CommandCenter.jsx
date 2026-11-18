@@ -335,7 +335,7 @@ export default function CommandCenter() {
   };
 
   if (!state) {
-    return <div style={{ ...styles.page, padding: 32 }}>{error ? <><p role="alert">{error}</p><button style={styles.button} onClick={load}>Retry loading</button></> : 'Loading Version 10 builder command center...'}</div>;
+    return <div style={{ ...styles.page, padding: 32 }}>{error ? <><p role="alert">{error}</p><button style={styles.button} onClick={load}>Retry loading</button></> : 'Loading Version 11 contractor command center...'}</div>;
   }
 
   const primaryMessage = state.message_drafts?.[0]?.body || '';

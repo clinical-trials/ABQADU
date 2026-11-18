@@ -25,7 +25,7 @@ export default function GanttChart({ activities, dependencies, onSaveActivity, o
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontFamily: 'DM Sans, sans-serif' }}>
       {/* Toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px',
+      <div className="app-wrap-toolbar" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px',
         borderBottom: '1px solid #E7E0D5', background: '#FAF7F2' }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: '#78716C', marginRight: 4 }}>Zoom:</span>
         {Object.entries(ZOOM_CONFIG).map(([key, cfg]) => (
@@ -48,7 +48,7 @@ export default function GanttChart({ activities, dependencies, onSaveActivity, o
       </div>
 
       {/* Main layout */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="app-gantt-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* Left: WBS tree */}
         <WBSTree
           activities={activities}

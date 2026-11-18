@@ -1,4 +1,5 @@
 import React from 'react';
+import './AppResponsive.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Portfolio from './pages/Portfolio';
 import Scheduler from './pages/Scheduler';
@@ -31,7 +32,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppNavigation />
-      <div>
+      <div className="contractor-app-content">
         <Routes>
           <Route path="/executive" element={<ExecutiveTeam />} />
           <Route path="/preconstruction" element={<Preconstruction />} />

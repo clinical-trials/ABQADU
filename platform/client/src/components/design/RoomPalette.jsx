@@ -3,7 +3,7 @@ import { ROOM_TYPES } from './useDesignState';
 
 export default function RoomPalette({ tool, setTool }) {
   return (
-    <div style={{
+    <div className="app-room-palette" style={{
       width: 160, flexShrink: 0,
       background: '#0F1F3D',
       borderRight: '1px solid #1e3060',

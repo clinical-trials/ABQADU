@@ -201,8 +201,10 @@ test('footer navigation reaches existing sections, model design, or builder tool
   modelLink.click();
   assert.equal(window.document.querySelector('#design-modal').getAttribute('aria-hidden'), 'false');
   assert.match(window.document.querySelector('#design-modal').textContent, /Altura/);
-  assert.ok(links.some(link => link.getAttribute('href') === 'platform.html#schedule'));
-  assert.ok(links.some(link => link.getAttribute('href') === 'platform.html#bids'));
+  assert.ok(links.some(link => link.getAttribute('href') === 'platform.html' && link.textContent === 'Contractor sign-in'));
+  assert.equal(window.document.querySelector('.nav-links a[href="platform.html"]'), null);
+  assert.equal(window.document.querySelector('#mobileMenu a[href="platform.html"]'), null);
+  assert.match(window.document.querySelector('.nav-links a[href="#contractors"]').textContent, /Find a local pro/);
 });
 
 test('mobile navigation starts with Design and Contact reaches direct text and call choices', t => {

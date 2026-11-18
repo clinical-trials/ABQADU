@@ -8,6 +8,7 @@ beforeEach(() => { global.IS_REACT_ACT_ENVIRONMENT=true; container=document.crea
 afterEach(async () => { await act(async()=>root.unmount()); container.remove(); jest.restoreAllMocks(); });
 test('primary tabs follow the construction workflow and keep support tools separate',async()=>{
   await act(async()=>root.render(<MemoryRouter future={{v7_startTransition:true,v7_relativeSplatPath:true}}><AppNavigation/></MemoryRouter>));
+  expect(container.querySelector('.app-version').textContent).toBe('Version 11');
   const tabs=[...container.querySelectorAll('[aria-label="Job workflow"] a')];
   expect(tabs.map(a=>a.textContent.replace(/^\d+\s*/,''))).toEqual(['Intake','Site review','Estimate','Agreement','Build','Invoices']);
   expect(tabs[0].getAttribute('href')).toBe('/command-center#project-intake');

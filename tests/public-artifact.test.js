@@ -20,6 +20,8 @@ test('public bundle contains homeowner assets and no private app or legacy build
     assert.equal(fs.existsSync(path.join(temp,'docs')),false);
     assert.equal(fs.existsSync(path.join(temp,'.env')),false);
     const entry=fs.readFileSync(path.join(temp,'platform.html'),'utf8');
+    assert.match(entry,/Version 11/);
+    assert.match(entry,/Contractor sign-in/);
     assert.match(entry,/https:\/\/builder.example.com\/command-center/);
     assert.doesNotMatch(entry,/Amherst|localStorage|api_key|client_phone/);
     assert.throws(()=>buildPublicSite(path.resolve(__dirname,'..'),temp,'javascript:alert(1)'));

@@ -135,7 +135,7 @@ export default function BidBuilder() {
       <ApiError message={clientList.error} onRetry={clientList.reload} />
       <ApiError message={actionError} />
       {notice && <p role="status" style={{ padding: '0 24px' }}>{notice}</p>}
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', minHeight: 'calc(100vh - 68px)' }}>
+      <div className="app-split-layout" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', minHeight: 'calc(100vh - 68px)' }}>
         {/* Bid list */}
         <div style={{ borderRight: '1px solid #E7E0D5', background: '#FFF', padding: 12 }}>
           {bidList.loading && <p role="status">Loading bids…</p>}
@@ -174,7 +174,7 @@ export default function BidBuilder() {
               </div>
 
               {/* Line items */}
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: '#FFF', borderRadius: 8 }}>
+              <div className="app-table-scroll" role="region" aria-label="Scrollable table" tabIndex={0}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: '#FFF', borderRadius: 8 }}>
                 <thead>
                   <tr style={{ background: '#F5F0E8' }}>
                     {['Category', 'Description', 'Qty', 'Unit', 'Unit Cost', 'Total', ''].map(h => (
@@ -195,13 +195,13 @@ export default function BidBuilder() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
               <button onClick={addItem} style={{ marginTop: 10, background: 'none', border: '1px dashed #C4954A', color: '#C4954A', borderRadius: 4, padding: '6px 14px', fontSize: 13, cursor: 'pointer' }}>
                 + Add line item
               </button>
 
               {/* Totals + settings */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, marginTop: 24 }}>
+              <div className="app-split-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, marginTop: 24 }}>
                 <div style={{ background: '#FFF', border: '1px solid #E7E0D5', borderRadius: 8, padding: 16 }}>
                   <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#78716C', marginBottom: 12 }}>Pricing Settings</div>
                   <BidPricingGuidance onChoose={value => updateField('markup_pct', value)} />

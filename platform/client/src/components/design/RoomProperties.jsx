@@ -56,7 +56,7 @@ export default function RoomProperties({ room, rooms, totalSqft, templateName, o
 
   if (!room) {
     return (
-      <div style={S.panel}>
+      <div className="app-room-properties" style={S.panel}>
         <div style={S.heading}>Properties</div>
         <div style={{ color: '#4a6080', fontSize: 12, fontFamily: 'DM Sans, sans-serif' }}>
           Select a room to edit
@@ -85,7 +85,7 @@ export default function RoomProperties({ room, rooms, totalSqft, templateName, o
   const sqft = wFt * hFt;
 
   return (
-    <div style={S.panel}>
+    <div className="app-room-properties" style={S.panel}>
       <div style={S.heading}>Properties</div>
 
       <div>

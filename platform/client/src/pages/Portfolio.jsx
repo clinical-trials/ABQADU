@@ -37,7 +37,7 @@ export default function Portfolio() {
       <ApiError message={error} onRetry={reload} />
 
       {/* KPI strip */}
-      <div style={{ display: 'flex', gap: 16, padding: '20px 32px',
+      <div className="app-portfolio-stats" style={{ display: 'flex', gap: 16, padding: '20px 32px',
         borderBottom: '1px solid #E7E0D5', background: '#FFF' }}>
         {[
           { label: 'Total Projects', value: totals.projects, color: '#1C1917' },
@@ -62,7 +62,7 @@ export default function Portfolio() {
           const pct = parseFloat(p.pct_complete) || 0;
 
           return (
-            <div key={p.id} style={{ background: '#FFF', borderRadius: 8, border: '1px solid #E7E0D5',
+            <div className="app-portfolio-row" key={p.id} style={{ background: '#FFF', borderRadius: 8, border: '1px solid #E7E0D5',
               marginBottom: 12, padding: '16px 20px', display: 'flex',
               alignItems: 'center', gap: 20 }}>
               <div style={{ flex: 2 }}>

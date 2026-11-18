@@ -3,7 +3,7 @@ name: Deploy ABQ ADU site
 on:
   push:
     branches:
-      - version6aduwizard
+      - codex/nov-18-2026
   workflow_dispatch:
 
 permissions:

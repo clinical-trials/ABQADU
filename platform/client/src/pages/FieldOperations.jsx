@@ -77,7 +77,7 @@ export default function FieldOperations({ projectId }) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: 24 }}>
+      <div className="app-field-columns" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: 24 }}>
         {COLUMNS.map(col => {
           const colTasks = tasks.filter(t => t.status === col.status);
           return (

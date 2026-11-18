@@ -67,7 +67,7 @@ export default function Clients() {
         {adding && (
           <div style={{ background: '#FFF', border: '1px solid #E7E0D5', borderRadius: 8, padding: 20, marginBottom: 16 }}>
             <div style={{ fontWeight: 700, marginBottom: 14 }}>New Client / Lead</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 12 }}>
               <input style={input} placeholder="Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               <input style={input} placeholder="Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
               <input style={input} placeholder="Phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
@@ -81,7 +81,7 @@ export default function Clients() {
           </div>
         )}
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: '#FFF', borderRadius: 8, overflow: 'hidden' }}>
+        <div className="app-table-scroll" role="region" aria-label="Scrollable table" tabIndex={0}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, background: '#FFF', borderRadius: 8, overflow: 'hidden' }}>
           <thead>
             <tr style={{ background: '#F5F0E8' }}>
               {['Name', 'Contact', 'Source', 'Bids', 'Status'].map(h => (
@@ -123,7 +123,7 @@ export default function Clients() {
               <tr><td colSpan={5} style={{ padding: 32, textAlign: 'center', color: '#A8A29E' }}>No clients yet — add your first lead.</td></tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   );

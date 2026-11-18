@@ -5531,12 +5531,11 @@ footer {
   <ul class="nav-links">
     <li><a href="#models">Models</a></li>
     <li><a href="#process">Process</a></li>
-    <li><a href="#platform">Platform</a></li>
     <li><a href="#design">Design</a></li>
     <li><a href="#financing">Financing</a></li>
-    <li><a href="#contractors">Local Trades</a></li>
+    <li><a href="#contractors">Find a local pro</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="platform.html" class="nav-cta nav-cta-desktop">Builder Platform</a></li>
+    <li><a href="#design" class="nav-cta nav-cta-desktop">Design your ADU</a></li>
   </ul>
   <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -5549,13 +5548,11 @@ footer {
     <li><a href="#design" class="mobile-link mobile-design-start"><span><span class="mobile-start-hint">Start here</span><strong>Design your ADU</strong></span><span aria-hidden="true">→</span></a></li>
     <li><a href="#models" class="mobile-link">Models</a></li>
     <li><a href="#process" class="mobile-link">Process</a></li>
-    <li><a href="#platform" class="mobile-link">Platform</a></li>
     <li><a href="#financing" class="mobile-link">Financing</a></li>
-    <li><a href="#contractors" class="mobile-link">Local Trades</a></li>
+    <li><a href="#contractors" class="mobile-link">Find a local pro</a></li>
     <li><a href="#contact" class="mobile-link">Contact</a></li>
-    <li><a href="platform.html" class="mobile-link">Builder Platform</a></li>
   </ul>
-  <a href="platform.html" class="mobile-cta mobile-link">Builder Platform</a>
+  <a href="#contact" class="mobile-cta mobile-link">Talk about your project</a>
 </div>
 
 <!-- ── Hero ─────────────────────────────────────────────── -->
@@ -8312,7 +8309,7 @@ function textDesignSummary() {
 
 function textBuilderDesignSummary() {
   const summary = window.ABQ_ADU_LAST_DESIGN_SUMMARY || buildDesignSummary();
-  const body = encodeURIComponent(`Homeowner ADU design for builder review:\n${summary.text}\n\nSuggested next action: call homeowner, confirm site visit, utilities, sewer confirmation, and model fit.\nABQ ADU Version 10`);
+  const body = encodeURIComponent(`Homeowner ADU design for builder review:\n${summary.text}\n\nSuggested next action: call homeowner, confirm site visit, utilities, sewer confirmation, and model fit.\nABQ ADU Version 11`);
   window.location.href = `sms:${ABQ_BUILDER_SMS}?&body=${body}`;
 }
 
@@ -8849,14 +8846,12 @@ document.querySelectorAll('[data-design-model]').forEach(card => {
       <ul>
         <li><a href="#contractors">Join the Network</a></li>
         <li><a href="#contractors">Advertise</a></li>
-        <li><a href="platform.html">Builder Platform</a></li>
-        <li><a href="platform.html#schedule">Scheduling Tool</a></li>
-        <li><a href="platform.html#bids">Bid Platform</a></li>
+        <li><a href="platform.html">Contractor sign-in</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
-    <span class="footer-lic">© 2026 ABQ ADU LLC · All rights reserved</span>
+    <span class="footer-lic">© 2026 ABQ ADU LLC · Version 11 · All rights reserved</span>
     <span class="footer-lic">Serving Albuquerque, NM and surrounding areas</span>
     <span class="footer-lic"><a href="#assessment-help">How request drafts work</a></span>
   </div>

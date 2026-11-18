@@ -49,7 +49,7 @@ export default function RiskRegister({ projectId }) {
       <ApiError message={error} onRetry={load} />
       <ApiError message={actionError} />
       {loading && <p role="status">Loading risks…</p>}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 0 }}>
+      <div className="app-split-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 0 }}>
         {/* Risk table */}
         <div style={{ padding: 24 }}>
           {adding && (
@@ -92,7 +92,7 @@ export default function RiskRegister({ projectId }) {
             </div>
           )}
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div className="app-table-scroll" role="region" aria-label="Scrollable table" tabIndex={0}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#F5F0E8' }}>
                 {['Risk', 'Category', 'P×I', 'Score', 'Status', ''].map(h => (
@@ -134,12 +134,12 @@ export default function RiskRegister({ projectId }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
 
         {/* Risk matrix sidebar */}
         <div style={{ borderLeft: '1px solid #E7E0D5', background: '#FFF' }}>
-          <RiskMatrix risks={risks} />
+          <div className="app-table-scroll" role="region" aria-label="Risk matrix; scroll sideways on small screens" tabIndex={0}><RiskMatrix risks={risks} /></div>
         </div>
       </div>
     </div>

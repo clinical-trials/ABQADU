@@ -105,7 +105,7 @@ export default function DesignStudio() {
   }
 
   return (
-    <div style={S.page}>
+    <div className="app-design-page" style={S.page}>
       {showPicker && (
         <TemplatePicker
           onSelect={handleTemplateSelect}
@@ -113,7 +113,7 @@ export default function DesignStudio() {
         />
       )}
 
-      <div style={S.toolbar}>
+      <div className="app-wrap-toolbar" style={S.toolbar}>
         <span style={S.title}>Floor Plan Designer</span>
         {id && <span style={S.chip}>Project #{id}</span>}
         {templateName && <span style={{ ...S.chip, color: '#C4954A' }}>{templateName}</span>}
@@ -133,10 +133,10 @@ export default function DesignStudio() {
       {saveError && <p role="alert" style={{color:'#fecaca',padding:'0 20px'}}>Design not saved: {saveError} Your current canvas is still here.</p>}
 
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-        <div style={S.body}>
+        <div className="app-design-body" style={S.body}>
           <RoomPalette tool={tool} setTool={setTool} />
 
-          <div style={S.canvasWrap}>
+          <div className="app-design-canvas" style={S.canvasWrap}>
             <DesignCanvas
               rooms={rooms}
               selectedId={selectedId}

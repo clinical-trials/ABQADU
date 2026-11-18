@@ -22,3 +22,7 @@
 @media(min-width:768px) { .app-navigation-bar { padding:0 1.5rem; gap:1rem; } .app-wordmark { font-size:1.75rem; } .app-primary-links a { padding:.6rem 1.1rem; font-size:.9rem; } .app-menu-label { display:inline; font-size:.875rem; } .app-workspace-menu { left:auto; width:30rem; padding:1rem; } }
 @media(max-width:360px) { .app-navigation-bar { padding:0 .5rem; } .app-primary-links a { padding:.5rem .45rem; } }
 @media(min-width:768px) { .app-workflow { grid-template-columns:repeat(6,minmax(0,1fr)); padding:0 1.5rem .65rem; } .app-workspace-menu { max-height:calc(100dvh - 8.5rem); } }
+
+.app-wordmark { display:grid; grid-template-columns:auto auto; column-gap:.25rem; row-gap:0; line-height:1.1; padding:.4rem 0; }
+.app-version { grid-column:1 / -1; font:600 .7rem/1.4 'DM Sans',sans-serif; letter-spacing:.04em; color:#edf0e4; }
+@media(max-width:360px) { .app-primary-links a { font-size:.8rem; padding:.5rem .3rem; } .app-wordmark { font-size:1.3rem; } }

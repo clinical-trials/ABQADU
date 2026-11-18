@@ -10,7 +10,7 @@ const workflow = [
 ];
 const groups = [
   ['Job tools', [['/command-center', 'Job overview'], ['/clients', 'Clients'], ['/bids', 'Saved customer estimates'], ['/command-center#trade-bids', 'Trade bids'], ['/design', 'Design studio'], ['/field', 'Field operations'], ['/risks', 'Risks']]],
-  ['Office & company', [['/command-center#receipts', 'Receipts'], ['/command-center#project-helper', 'Weekly briefing'], ['/command-center#document-activity', 'Document activity'], ['/command-center#contractor-phonebook', 'Contractor phone book'], ['/executive', 'Executive team & CFO'], ['/executive#owner-plan', 'Business plan & goals'], ['/executive#preconstruction-cycle', 'Contract-to-$10k scorecard'], ['/portfolio', 'Portfolio'], ['/command-center#service-setup', 'Optional services']]],
+  ['Office & company', [['/command-center#office-assistant', 'Office Assistant'], ['/command-center#receipts', 'Receipts'], ['/command-center#project-helper', 'Weekly briefing'], ['/command-center#document-activity', 'Document activity'], ['/command-center#contractor-phonebook', 'Contractor phone book'], ['/executive', 'Executive team & CFO'], ['/executive#owner-plan', 'Business plan & goals'], ['/executive#preconstruction-cycle', 'Contract-to-$10k scorecard'], ['/portfolio', 'Portfolio'], ['/command-center#service-setup', 'Optional services']]],
 ];
 export default function AppNavigation() {
   const [expanded, setExpanded] = useState(false);
@@ -26,7 +26,7 @@ export default function AppNavigation() {
   const navigate = to => { setExpanded(false); if (location.pathname + location.hash === to) revealWorkspaceSection(location.hash); };
   return <header className="app-navigation">
     <nav aria-label="Quick tools" className="app-navigation-bar">
-      <Link className="app-wordmark" to="/command-center" aria-label="ABQ ADU jobs">ABQ <span>ADU</span></Link>
+      <Link className="app-wordmark" to="/command-center" aria-label="ABQ ADU jobs">ABQ <span>ADU</span><small className="app-version">Version 11</small></Link>
       <div className="app-primary-links">
         {[['/command-center#messages','Messages'],['/command-center#contractor-phonebook','Contacts']].map(([to,label]) => <Link key={to} to={to} onClick={() => navigate(to)} aria-current={current(to)}>{label}</Link>)}
       </div>

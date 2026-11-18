@@ -1,0 +1,26 @@
+.contractor-app-content { min-width:0; }
+.contractor-app-content :where(input,select,textarea) { max-width:100%; min-width:0; }
+.app-table-scroll { max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; }
+.app-table-scroll:focus-visible { outline:3px solid #c4954a; outline-offset:2px; }
+.app-split-layout > *, .app-field-columns > * { min-width:0; }
+@media (max-width:767px) {
+  .contractor-app-content :where(button,select,input:not([type=checkbox]):not([type=radio]),summary) { min-height:44px; }
+  .contractor-app-content :where(input,select,textarea) { font-size:16px!important; }
+  .app-split-layout { grid-template-columns:minmax(0,1fr)!important; }
+  .app-field-columns { grid-template-columns:minmax(0,1fr)!important; padding:16px!important; }
+  .app-portfolio-stats { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); padding:16px!important; gap:12px!important; }
+  .app-portfolio-row { flex-direction:column; align-items:stretch!important; overflow-wrap:anywhere; }
+  .app-portfolio-row a { display:inline-flex; align-items:center; min-height:44px; }
+  .contractor-app-content > div > div:first-child { flex-wrap:wrap; gap:12px; }
+}
+@media (max-width:767px) {
+  .app-wrap-toolbar { flex-wrap:wrap; }
+  .app-design-page { height:auto!important; min-height:100dvh; }
+  .app-design-body { flex-direction:column; overflow:visible!important; }
+  .app-design-canvas { min-width:0; width:100%; min-height:320px; flex:auto!important; }
+  .app-room-palette { width:100%!important; display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .app-room-properties { width:100%!important; }
+  .app-gantt-layout { flex-direction:column; overflow:auto!important; }
+  .app-gantt-layout > :first-child { width:100%!important; max-height:240px; flex-shrink:0; }
+  .app-gantt-layout > :last-child { min-height:260px; flex-shrink:0; }
+}

@@ -41,7 +41,7 @@ export default function ActivityPanel({ activity, onClose, onSave, saving, saveE
 
   return (
     <fieldset disabled={saving} style={{
-      position: 'fixed', right: 0, top: 0, bottom: 0, width: 340,
+      position: 'fixed', right: 0, top: 0, bottom: 0, width: 'min(340px, 100vw)',
       border: 0, margin: 0, padding: 0, minWidth: 0,
       background: '#FFFFFF', borderLeft: '1px solid #E7E0D5',
       boxShadow: '-4px 0 24px rgba(0,0,0,0.08)', zIndex: 200,
