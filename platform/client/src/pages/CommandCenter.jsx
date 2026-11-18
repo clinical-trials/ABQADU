@@ -6,6 +6,7 @@ import usePacketPdf from '../hooks/usePacketPdf';
 import IntegrationSetup, { SERVICE_IDS } from '../components/IntegrationSetup';
 import { apiFetch } from '../utils/authFetch';
 import WeatherAttribution from '../components/WeatherAttribution';
+import OfficeAssistant from '../components/OfficeAssistant';
 import ContractorDesk from '../components/ContractorDesk';
 import ContractorPhonebook from '../components/ContractorPhonebook';
 import ProjectHelper from '../components/ProjectHelper';
@@ -402,6 +403,7 @@ export default function CommandCenter() {
       <GisYardReview project={activeProject} revision={state.updated_at} saveChanges={saveState} onSaved={load}/>
       <ProjectHelper project={activeProject} revision={state.updated_at} onForecast={setBriefingWeather} onScheduleSaved={load} />
       {activeProject && <DocumentActivity projectId={activeProject.id} revision={state.updated_at} />}
+      <OfficeAssistant project={activeProject} state={state} runAction={runAction} busy={saving} />
       <ContractorDesk project={activeProject} state={state} forecast={sharedWeather} busy={saving} onCheckWeather={checkWeather} runAction={runAction} onRefresh={load} />
       <ContractorPhonebook />
       <details className="field-office-tools" id="office-tools" ref={officeTools} style={{scrollMarginTop:'6rem'}}>

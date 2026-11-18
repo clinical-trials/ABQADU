@@ -40,6 +40,18 @@ router.get('/', async (_req, res) => {
   res.json(await loadCommandCenter());
 });
 
+router.post('/office-tasks', async (req, res) => {
+  const { updateOfficeTasks } = require('../services/officeAssistant');
+  try {
+    const saved = await saveCommandCenter(current => updateOfficeTasks(current, req.body, req.workspaceAuth?.userId || 'contractor'));
+    res.set('Cache-Control', 'private, no-store');
+    res.json(saved);
+  } catch (error) {
+    if (error.status === 400) return res.status(400).json({ error: error.message });
+    throw error;
+  }
+});
+
 router.get('/supplier-bidout', async (req, res) => {
   const state = await loadCommandCenter();
   const projectId = req.query?.project_id || req.query?.projectId;

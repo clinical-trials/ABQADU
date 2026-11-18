@@ -204,6 +204,8 @@ function saveCommandCenter(nextState, { events = [], scheduleLinks, preconstruct
       version: 'Version 10',
       updated_at: nowIso(),
     };
+    // Follow-up history survives workspace resets alongside other operational history.
+    if (replace) saved.office_tasks = Array.isArray(current.office_tasks) ? current.office_tasks : [];
     // Association versions survive stale full-state saves and workspace resets.
     // Only the dedicated server workflow can supply this internal option.
     saved.schedule_links = scheduleLinks ? scheduleLinks(current) : (Array.isArray(current.schedule_links) ? current.schedule_links : []);
