@@ -3828,6 +3828,7 @@ h2 em { font-style: normal; color: var(--terra); }
 }
 
 .lightbox-close {
+  min-width:44px; min-height:44px;
   position: absolute;
   top: 20px; right: 24px;
   color: rgba(240,235,225,.7);
@@ -5505,13 +5506,41 @@ footer {
     text-transform: uppercase;
   }
 }
+
+/* Compact touch controls keep the design choices visible on phones and in landscape. */
+@media (max-width: 1024px), (max-height: 500px) {
+  .design-modal :is(button, input, select) { min-height: 44px; }
+  .design-modal button { min-width: 44px; }
+  .design-modal :is(input, select, textarea) { font-size: 16px; }
+  .design-modal-close { width:44px; height:44px; flex-shrink:0; }
+  .design-modal-footer { padding:8px 12px; }
+  .design-modal-footer .wizard-bottom-row { grid-template-columns:1fr; gap:6px; }
+  .design-modal-footer .wizard-bottom-row > div:first-child { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .design-modal-footer :is(.wizard-step-status,.wizard-price-status) { min-height:0; padding:6px; font-size:11px; white-space:normal; }
+  .design-modal-footer :is(.wizard-step-rail,.wizard-progress-track,.wizard-step-helper) { display:none; }
+  .design-modal-footer .wizard-progress-meta { display:block; }
+  .design-modal-footer .wizard-footer-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+  .design-modal-footer .wizard-footer-actions button { min-height:44px; padding:8px 4px; font-size:12px; letter-spacing:0; width:100%; }
+  .design-modal-footer .wizard-footer-actions .wizard-next { grid-column:auto; }
+}
+
+@media (max-width:1024px), (pointer:coarse) {
+  button, summary { min-height:44px!important; min-width:44px!important; }
+  input:not([type=checkbox]):not([type=radio]), select { min-height:44px; }
+  input, select, textarea { font-size:16px!important; }
+}
+
+@media (max-width:1024px) {
+  .nav-links, .nav-cta-desktop { display:none; }
+  .nav-hamburger { display:flex; }
+}
 </style>
 </head>
 <body>
 
 <!-- ── Lightbox ──────────────────────────────────────────── -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <button class="lightbox-close" type="button" aria-label="Close image preview" onclick="closeLightbox()">×</button>
   <img id="lightbox-img" src="" alt="">
 </div>
 

@@ -50,7 +50,7 @@ export default function ActivityPanel({ activity, onClose, onSave, saving, saveE
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid #E7E0D5',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 13, fontWeight: 600 }}>Edit Activity</span>
-        <button onClick={onClose} style={{ background: 'none', border: 'none',
+        <button aria-label="Close activity editor" onClick={onClose} style={{ background: 'none', border: 'none',
           fontSize: 18, cursor: 'pointer', color: '#78716C' }}>×</button>
       </div>
 
@@ -121,7 +121,7 @@ export default function ActivityPanel({ activity, onClose, onSave, saving, saveE
             borderRadius: 4, padding: '10px 0', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           Save Changes
         </button>
-        <button onClick={onClose}
+        <button aria-label="Close activity editor" onClick={onClose}
           style={{ padding: '10px 16px', border: '1px solid #E7E0D5',
             borderRadius: 4, fontSize: 13, cursor: 'pointer', background: '#FFF' }}>
           Cancel

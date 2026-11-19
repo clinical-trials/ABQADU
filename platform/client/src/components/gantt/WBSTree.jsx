@@ -25,6 +25,10 @@ export default function WBSTree({ activities, expanded, onToggle, selected, onSe
         return (
           <div
             key={a.id}
+            role="button"
+            tabIndex={0}
+            aria-label={`Edit ${a.name}`}
+            onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(a.id); } }}
             onClick={() => onSelect(a.id)}
             style={{
               height: ROW_HEIGHT, display: 'flex', alignItems: 'center',

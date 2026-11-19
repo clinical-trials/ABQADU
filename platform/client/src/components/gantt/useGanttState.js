@@ -11,7 +11,7 @@ function getWeek(d) {
   return Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
 }
 
-export const ROW_HEIGHT = 36;
+export const ROW_HEIGHT = 44;
 export const WBS_WIDTH  = 300;
 export const HEADER_H   = 48;
 

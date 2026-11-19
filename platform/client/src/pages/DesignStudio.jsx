@@ -122,7 +122,7 @@ export default function DesignStudio() {
           {tool === 'select' ? 'Select mode' : `Placing: ${tool}`}
         </span>
         <span style={{ ...S.chip, color: '#8090a8', fontSize: 10 }}>
-          Scroll to zoom · Drag rooms to move
+          Zoom controls below · Tap a room to edit
         </span>
         <button style={S.outlineBtn} onClick={() => setShowPicker(true)}>Templates</button>
         <button disabled={saving} style={S.saveBtn} onClick={handleSave}>
